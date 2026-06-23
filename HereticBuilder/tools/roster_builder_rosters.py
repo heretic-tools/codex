@@ -22,10 +22,7 @@ class RosterMutationMixin:
                     "insert into roster_detachment (rosterId, detachmentId) values (?, ?)",
                     [roster_id, detachment_id],
                 )
-            conn.execute(
-                "insert or replace into roster_validation_state (id, rosterId, validationState) values (?, ?, 'valid')",
-                [roster_id, roster_id],
-            )
+            self.sync_roster_validation_state(conn, roster_id)
         return {"id": roster_id}
 
     def set_roster_detachments(self, roster_id, detachment_ids):
@@ -40,6 +37,7 @@ class RosterMutationMixin:
                     "insert into roster_detachment (rosterId, detachmentId) values (?, ?)",
                     [roster_id, detachment_id],
                 )
+            self.sync_roster_validation_state(conn, roster_id)
         return {"ok": True}
 
     def delete_roster(self, roster_id):
@@ -52,49 +50,52 @@ class RosterMutationMixin:
         return {"ok": True}
 
     def roster(self, roster_id):
-        with self.connect(readonly=True) as conn:
-            roster = conn.execute(
-                """
-                select r.*, fk.name as factionName, bs.name as battleSizeName,
-                       bs.pointsLimit, bs.detachmentPointsLimit,
-                       bs.enhancementLimit, bs.duplicateUnitLimit
-                from roster r
-                join faction_keyword fk on fk.id = r.factionKeywordId
-                left join battle_size bs on bs.id = r.battleSizeId
-                where r.id = ?
-                """,
-                [roster_id],
-            ).fetchone()
-            if not roster:
-                raise ValueError("Roster not found")
-            detachments = [dict_row(row) for row in conn.execute(
-                """
-                select d.*,
-                       coalesce(dfdpc.detachmentPointsCost, d.detachmentPointsCost) as detachmentPointsCost
-                from roster_detachment rd
-                join detachment d on d.id = rd.detachmentId
-                left join detachment_faction_detachment_points_cost dfdpc
-                  on dfdpc.detachmentId = d.id and dfdpc.factionKeywordId = ?
-                where rd.rosterId = ?
-                order by d.displayOrder, d.name
-                """,
-                [roster["factionKeywordId"], roster_id],
-            )]
-            unit_rows = conn.execute(
-                """
-                select ru.id, ru.datasheetId, ru.allyType, d.name
-                from roster_unit ru
-                join datasheet d on d.id = ru.datasheetId
-                where ru.rosterId = ?
-                order by d.name, ru.id
-                """,
-                [roster_id],
-            ).fetchall()
-            roster_dict = dict_row(roster)
-            detachment_ids = [item["id"] for item in detachments]
-            units = [self.unit_summary(conn, dict_row(row), roster_dict, detachment_ids) for row in unit_rows]
-            total = sum(unit["points"] for unit in units)
-            validation = self.validate(conn, roster_dict, detachments, units, total)
+        with self.connect() as conn:
+            return self.sync_roster_validation_state(conn, roster_id)
+
+    def roster_payload(self, conn, roster_id):
+        roster = conn.execute(
+            """
+            select r.*, fk.name as factionName, bs.name as battleSizeName,
+                   bs.pointsLimit, bs.detachmentPointsLimit,
+                   bs.enhancementLimit, bs.duplicateUnitLimit
+            from roster r
+            join faction_keyword fk on fk.id = r.factionKeywordId
+            left join battle_size bs on bs.id = r.battleSizeId
+            where r.id = ?
+            """,
+            [roster_id],
+        ).fetchone()
+        if not roster:
+            raise ValueError("Roster not found")
+        detachments = [dict_row(row) for row in conn.execute(
+            """
+            select d.*,
+                   coalesce(dfdpc.detachmentPointsCost, d.detachmentPointsCost) as detachmentPointsCost
+            from roster_detachment rd
+            join detachment d on d.id = rd.detachmentId
+            left join detachment_faction_detachment_points_cost dfdpc
+              on dfdpc.detachmentId = d.id and dfdpc.factionKeywordId = ?
+            where rd.rosterId = ?
+            order by d.displayOrder, d.name
+            """,
+            [roster["factionKeywordId"], roster_id],
+        )]
+        unit_rows = conn.execute(
+            """
+            select ru.id, ru.datasheetId, ru.allyType, d.name
+            from roster_unit ru
+            join datasheet d on d.id = ru.datasheetId
+            where ru.rosterId = ?
+            order by d.name, ru.id
+            """,
+            [roster_id],
+        ).fetchall()
+        roster_dict = dict_row(roster)
+        detachment_ids = [item["id"] for item in detachments]
+        units = [self.unit_summary(conn, dict_row(row), roster_dict, detachment_ids) for row in unit_rows]
+        total = sum(unit["points"] for unit in units)
+        validation = self.validate(conn, roster_dict, detachments, units, total)
         return {
             "roster": roster_dict,
             "detachments": detachments,
@@ -102,6 +103,20 @@ class RosterMutationMixin:
             "points": {"total": total, "limit": roster_dict.get("pointsLimit") or 0},
             "validation": validation,
         }
+
+    def sync_roster_validation_state(self, conn, roster_id):
+        payload = self.roster_payload(conn, roster_id)
+        conn.execute(
+            """
+            insert into roster_validation_state (id, rosterId, validationState)
+            values (?, ?, ?)
+            on conflict(rosterId) do update set
+                id = excluded.id,
+                validationState = excluded.validationState
+            """,
+            [roster_id, roster_id, payload["validation"]["state"]],
+        )
+        return payload
 
     def add_unit(self, roster_id, datasheet_id, ally_type="native"):
         roster_unit_id = new_id()
@@ -122,21 +137,39 @@ class RosterMutationMixin:
                 raise ValueError("No legal unit composition is available for this roster")
             if composition:
                 self.apply_composition(conn, roster_unit_id, composition["id"])
+            self.sync_roster_validation_state(conn, roster_id)
         return {"id": roster_unit_id}
 
     def delete_unit(self, roster_unit_id):
         with self.connect() as conn:
+            row = conn.execute("select rosterId from roster_unit where id = ?", [roster_unit_id]).fetchone()
             conn.execute("delete from roster_unit where id = ?", [roster_unit_id])
+            if row:
+                self.sync_roster_validation_state(conn, row["rosterId"])
         return {"ok": True}
 
     def set_composition(self, roster_unit_id, composition_id):
         with self.connect() as conn:
+            row = conn.execute("select rosterId from roster_unit where id = ?", [roster_unit_id]).fetchone()
             self.apply_composition(conn, roster_unit_id, composition_id)
+            if row:
+                self.sync_roster_validation_state(conn, row["rosterId"])
         return {"ok": True}
 
     def set_wargear(self, roster_unit_miniature_id, wargear_option_id, count):
         count = max(0, int(count or 0))
         with self.connect() as conn:
+            row = conn.execute(
+                """
+                select ru.rosterId
+                from roster_unit_miniature rum
+                join roster_unit ru on ru.id = rum.rosterUnitId
+                where rum.id = ?
+                """,
+                [roster_unit_miniature_id],
+            ).fetchone()
+            if not row:
+                raise ValueError("Model not found")
             if count:
                 conn.execute(
                     """
@@ -155,11 +188,15 @@ class RosterMutationMixin:
                     """,
                     [roster_unit_miniature_id, wargear_option_id],
                 )
+            self.sync_roster_validation_state(conn, row["rosterId"])
         return {"ok": True}
 
     def set_unit_wargear(self, roster_unit_id, wargear_option_id, count):
         count = max(0, int(count or 0))
         with self.connect() as conn:
+            row = conn.execute("select rosterId from roster_unit where id = ?", [roster_unit_id]).fetchone()
+            if not row:
+                raise ValueError("Unit not found")
             if count:
                 conn.execute(
                     """
@@ -178,6 +215,7 @@ class RosterMutationMixin:
                     """,
                     [roster_unit_id, wargear_option_id],
                 )
+            self.sync_roster_validation_state(conn, row["rosterId"])
         return {"ok": True}
 
     def set_warlord(self, roster_unit_miniature_id, enabled):
@@ -257,10 +295,14 @@ class RosterMutationMixin:
                 "update roster_unit_miniature set isWarlord = ? where id = ?",
                 [1 if enabled else 0, roster_unit_miniature_id],
             )
+            self.sync_roster_validation_state(conn, row["rosterId"])
         return {"ok": True}
 
     def set_allegiance_ability(self, roster_unit_id, allegiance_ability_id, enabled):
         with self.connect() as conn:
+            unit = conn.execute("select rosterId from roster_unit where id = ?", [roster_unit_id]).fetchone()
+            if not unit:
+                raise ValueError("Unit not found")
             if enabled:
                 ability = conn.execute(
                     "select allegianceAbilityGroupId from allegiance_ability where id = ?",
@@ -295,10 +337,14 @@ class RosterMutationMixin:
                     """,
                     [roster_unit_id, allegiance_ability_id],
                 )
+            self.sync_roster_validation_state(conn, unit["rosterId"])
         return {"ok": True}
 
     def set_unit_enhancement(self, roster_unit_id, enhancement_id, enabled):
         with self.connect() as conn:
+            unit = conn.execute("select rosterId from roster_unit where id = ?", [roster_unit_id]).fetchone()
+            if not unit:
+                raise ValueError("Unit not found")
             if enabled:
                 conn.execute(
                     """
@@ -316,10 +362,22 @@ class RosterMutationMixin:
                     """,
                     [roster_unit_id, enhancement_id],
                 )
+            self.sync_roster_validation_state(conn, unit["rosterId"])
         return {"ok": True}
 
     def set_miniature_enhancement(self, roster_unit_miniature_id, enhancement_id, enabled):
         with self.connect() as conn:
+            row = conn.execute(
+                """
+                select ru.rosterId
+                from roster_unit_miniature rum
+                join roster_unit ru on ru.id = rum.rosterUnitId
+                where rum.id = ?
+                """,
+                [roster_unit_miniature_id],
+            ).fetchone()
+            if not row:
+                raise ValueError("Model not found")
             if enabled:
                 conn.execute(
                     """
@@ -337,6 +395,7 @@ class RosterMutationMixin:
                     """,
                     [roster_unit_miniature_id, enhancement_id],
                 )
+            self.sync_roster_validation_state(conn, row["rosterId"])
         return {"ok": True}
 
     def create_attached_unit(self, bodyguard_unit_id, attached_unit_id, attached_type):
@@ -376,13 +435,20 @@ class RosterMutationMixin:
                 """,
                 [attached_id, attached_unit_id, attached_type],
             )
+            self.sync_roster_validation_state(conn, bodyguard["rosterId"])
         return {"id": attached_id}
 
     def delete_attached_unit(self, attached_unit_id):
         with self.connect() as conn:
+            row = conn.execute(
+                "select rosterId from roster_attached_unit where id = ?",
+                [attached_unit_id],
+            ).fetchone()
             conn.execute(
                 "delete from roster_attached_unit_roster_unit where rosterAttachedUnitId = ?",
                 [attached_unit_id],
             )
             conn.execute("delete from roster_attached_unit where id = ?", [attached_unit_id])
+            if row:
+                self.sync_roster_validation_state(conn, row["rosterId"])
         return {"ok": True}

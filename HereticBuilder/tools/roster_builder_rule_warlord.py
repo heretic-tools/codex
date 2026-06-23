@@ -16,6 +16,7 @@ class RosterWarlordRulesMixin:
         if mandatory_faction_warlord:
             mandatory_present = any(
                 miniature["miniatureId"] == mandatory_faction_warlord["id"]
+                and miniature.get("count", 0) > 0
                 for unit in units
                 for miniature in unit.get("miniatures", [])
             )
@@ -35,7 +36,8 @@ class RosterWarlordRulesMixin:
         supreme_commanders = []
         for unit in units:
             supreme_commanders.extend(
-                miniature for miniature in unit["miniatures"] if miniature.get("isSupremeCommander")
+                miniature for miniature in unit["miniatures"]
+                if miniature.get("isSupremeCommander") and miniature.get("count", 0) > 0
             )
         if supreme_commanders and selected_warlord_id not in {item["miniatureId"] for item in supreme_commanders}:
             messages.append({"level": "error", "text": "One of the Supreme Commander units must be your Warlord."})

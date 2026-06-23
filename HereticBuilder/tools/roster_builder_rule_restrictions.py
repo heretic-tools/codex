@@ -110,9 +110,7 @@ class RosterRestrictionRulesMixin:
         groups = self.keyword_restriction_groups(conn, roster["factionKeywordId"])
         warlord_ids = {miniature_id for unit in units for miniature_id in unit.get("warlordMiniatureIds", [])}
         for group in groups.values():
-            if group["requiresWarlordMiniatureId"] and group["requiresWarlordMiniatureId"] not in warlord_ids:
-                continue
-            if not self.keyword_restriction_group_is_active(units, group):
+            if not self.keyword_restriction_group_is_active(group, warlord_ids):
                 continue
             count = self.count_keyword_restricted_units(units, group)
             if group["limit"] is not None and count > group["limit"]:
@@ -138,7 +136,7 @@ class RosterRestrictionRulesMixin:
                 group = self.keyword_restriction_group(conn, row["restrictionGroupId"])
             if not group:
                 continue
-            if not self.keyword_restriction_group_is_active(units, group):
+            if not self.keyword_restriction_group_is_active(group, warlord_ids):
                 continue
             count = self.count_keyword_restricted_units(units, group)
             if row["minRosterLimit"] is not None and count < row["minRosterLimit"]:
@@ -197,8 +195,11 @@ class RosterRestrictionRulesMixin:
             "keywordNames": [item["name"] for item in keywords],
         }
 
-    def keyword_restriction_group_is_active(self, units, group):
-        return True
+    def keyword_restriction_group_is_active(self, group, warlord_ids):
+        if not group["keywordIds"]:
+            return False
+        required_warlord_id = group["requiresWarlordMiniatureId"]
+        return not required_warlord_id or required_warlord_id in warlord_ids
 
     def count_keyword_restricted_units(self, units, group):
         count = 0
