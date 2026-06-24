@@ -11,3 +11,32 @@ python3 tools/roster_builder.py
 ```
 
 Open `http://127.0.0.1:4175`.
+
+## Unit Image Pixelizer
+
+Create low-resolution, limited-palette 90s-style PNGs from the unit image links
+stored in `datasheet.bannerImage` and `datasheet.rowImage`:
+
+```bash
+python3 tools/unit_image_pixelizer.py --colors 16 --max-side 96 --scale 4
+```
+
+Useful discovery modes:
+
+```bash
+python3 tools/unit_image_pixelizer.py --print-urls
+python3 tools/unit_image_pixelizer.py --dry-run --kind row --limit 10
+```
+
+The script writes generated files under `../generated/unit_images_90s/`.
+It requires Pillow for image processing:
+
+```bash
+python3 -m pip install Pillow
+```
+
+On macOS it can also fall back to the built-in `sips` command:
+
+```bash
+python3 tools/unit_image_pixelizer.py --engine sips --name Abaddon
+```

@@ -25,7 +25,7 @@
       background:
         linear-gradient(180deg, transparent 0%, transparent 42%, rgba(0, 0, 0, .38) 68%, rgba(0, 0, 0, .74) 100%),
         var(--faction-hero-image, linear-gradient(90deg, var(--title), var(--title-hot)));
-      background-position: center;
+      background-position: top center;
       background-size: cover;
       color: var(--light);
       text-shadow: 1px 1px 0 var(--ink);
@@ -211,11 +211,185 @@
       background: #d7d7d7;
     }
 
+    .unit-detail-page .shell {
+      width: min(1120px, 100%);
+    }
+
+    .unit-detail-page .panel {
+      margin: 6px;
+    }
+
+    .unit-detail-page .panel-content {
+      gap: 10px;
+      padding: 12px;
+      padding-left: 4px;
+    }
+
+    .unit-detail-content,
+    .unit-dossier-header,
+    .unit-quick-stack,
+    .unit-reference-stack,
+    .unit-rules-grid {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .unit-keyword-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .unit-keyword-tag {
+      display: inline-flex;
+      max-width: 100%;
+      padding: 1px 5px;
+      background: #000080;
+      color: var(--light);
+      border-style: solid;
+      border-width: 1px;
+      border-color: #1084d0 #000040 #000040 #1084d0;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+      text-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .unit-rules-grid {
+      grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr));
+      align-items: start;
+      gap: 8px;
+    }
+
+    .unit-detail-content > .unit-wargear-rules-card {
+      grid-column: 1 / -1;
+    }
+
+    .unit-detail-page .rule-card:not(.unit-table-card) {
+      padding: 8px;
+    }
+
+    .unit-detail-page .rule-card h2 {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .unit-detail-page .rule-card h3 {
+      font-size: 15px;
+    }
+
+    .unit-detail-page .rule-card p {
+      margin-top: 6px;
+      line-height: 1.26;
+    }
+
+    .unit-summary-card,
+    .unit-points-card,
+    .unit-info-card {
+      display: grid;
+      align-content: start;
+      gap: 7px;
+    }
+
+    .unit-summary-card {
+      min-height: 100%;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .22), transparent 18%),
+        var(--window);
+    }
+
+    .unit-summary-titlebar {
+      display: grid;
+      gap: 5px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--shadow);
+      box-shadow: 0 1px 0 var(--light);
+    }
+
+    .unit-summary-kicker,
+    .unit-info-card > h3,
+    .unit-points-card > h3,
+    .unit-table-card > h3,
+    .unit-card-heading h3 {
+      width: fit-content;
+      max-width: 100%;
+      padding: 3px 7px;
+      background: linear-gradient(90deg, var(--title), var(--title-hot));
+      color: var(--light);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.05;
+      text-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .unit-summary-kicker {
+      text-transform: uppercase;
+    }
+
+    .unit-lore-box {
+      padding: 7px;
+      background: #d7d7d7;
+      border-style: solid;
+      border-width: 2px;
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      font-size: 13px;
+      line-height: 1.26;
+    }
+
+    .unit-lore-box p {
+      margin: 0;
+    }
+
+    .unit-lore-box p + p {
+      margin-top: 6px;
+    }
+
+    .unit-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 0;
+    }
+
+    .unit-meta-row:empty {
+      display: none;
+    }
+
+    .unit-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 21px;
+      padding: 2px 6px;
+      background: #d7d7d7;
+      border-style: solid;
+      border-width: 2px;
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .unit-meta-item strong {
+      font-size: 13px;
+    }
+
+    .unit-weapon-group {
+      display: grid;
+      gap: 0;
+    }
+
+    .unit-weapon-group + .unit-weapon-group {
+      margin-top: -1px;
+    }
+
     .unit-card-heading {
       display: flex;
       align-items: start;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
     }
 
     .unit-card-tag {
@@ -223,18 +397,268 @@
       padding: 2px 6px;
       background: var(--title);
       color: var(--light);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       line-height: 1.1;
       text-shadow: 1px 1px 0 var(--ink);
     }
 
-    .detachment-detail-content {
-      gap: 12px;
+    .unit-restriction {
+      padding: 5px 6px;
+      background: #d7d7d7;
+      border-left: 4px solid var(--title);
+      font-size: 12px;
+      font-weight: 700;
     }
 
-    .detachment-summary-card h2 {
-      font-size: 26px;
+    .unit-table-card {
+      display: grid;
+      align-content: start;
+      gap: 0;
+      padding: 0;
+      background: var(--window);
+      border: 0;
+      box-shadow: none;
+    }
+
+    .unit-weapons-card {
+      gap: 0;
+    }
+
+    .unit-table-wrap {
+      max-width: 100%;
+      overflow-x: auto;
+      background: var(--window);
+    }
+
+    .unit-stat-table {
+      width: 100%;
+      min-width: 0;
+      table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: var(--window);
+      font-size: 12px;
+      line-height: 1.12;
+    }
+
+    .unit-stat-table th,
+    .unit-stat-table td {
+      padding: 4px 5px;
+      border: 1px solid var(--shadow);
+      overflow-wrap: anywhere;
+      text-align: center;
+      vertical-align: top;
+    }
+
+    .unit-stat-table thead tr {
+      background: linear-gradient(90deg, var(--title), var(--title-hot));
+      box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .35), inset -2px -2px 0 var(--mid);
+    }
+
+    .unit-stat-table thead th {
+      background: transparent;
+      color: var(--light);
+      border-width: 2px 0;
+      border-style: solid;
+      border-color: var(--light) transparent var(--mid);
+      text-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .unit-stat-table thead th:first-child {
+      border-left: 2px solid var(--light);
+    }
+
+    .unit-stat-table thead th:last-child {
+      border-right: 2px solid var(--mid);
+    }
+
+    .unit-stat-table tbody th,
+    .unit-stat-table tbody td {
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+    }
+
+    .unit-stat-table tbody th {
+      text-align: left;
+      font-weight: 800;
+    }
+
+    .unit-stat-table tbody th,
+    .unit-weapon-table thead th:first-child {
+      padding-left: 7px;
+    }
+
+    .unit-weapon-table thead th:first-child {
+      text-align: left;
+    }
+
+    .unit-statline-card .unit-stat-table tbody th,
+    .unit-statline-card .unit-stat-table tbody td {
+      background: #d7d7d7;
+    }
+
+    .unit-statline-card .unit-stat-table:not(.unit-stat-table-no-model) thead th:first-child,
+    .unit-statline-card .unit-stat-table:not(.unit-stat-table-no-model) tbody th {
+      width: 28%;
+    }
+
+    .unit-points-table {
+      font-size: 11px;
+    }
+
+    .unit-points-table thead th:first-child,
+    .unit-points-table tbody th {
+      width: 72%;
+    }
+
+    .unit-points-table thead th:nth-child(2),
+    .unit-points-table tbody td:nth-child(2) {
+      width: 28%;
+    }
+
+    .unit-points-table tbody th,
+    .unit-points-table tbody td {
+      background: #d7d7d7;
+    }
+
+    .unit-points-table tbody th {
+      text-align: left;
+    }
+
+    .unit-points-table tbody td:last-child {
+      text-align: right;
+    }
+
+    .unit-points-row strong {
+      white-space: nowrap;
+    }
+
+    .unit-points-composition {
+      display: block;
+    }
+
+    .unit-points-tags .weapon-ability-tag {
+      font-size: 9px;
+    }
+
+    .unit-base-size-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .unit-base-size-item {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .unit-weapon-table {
+      font-size: 11px;
+    }
+
+    .unit-weapon-table thead th:first-child,
+    .unit-weapon-table tbody th {
+      width: 43%;
+    }
+
+    .unit-weapon-table thead th:nth-child(2),
+    .unit-weapon-table tbody td:nth-child(2) {
+      width: 9%;
+    }
+
+    .unit-weapon-table thead th:nth-child(3),
+    .unit-weapon-table tbody td:nth-child(3),
+    .unit-weapon-table thead th:nth-child(4),
+    .unit-weapon-table tbody td:nth-child(4),
+    .unit-weapon-table thead th:nth-child(5),
+    .unit-weapon-table tbody td:nth-child(5),
+    .unit-weapon-table thead th:nth-child(6),
+    .unit-weapon-table tbody td:nth-child(6),
+    .unit-weapon-table thead th:nth-child(7),
+    .unit-weapon-table tbody td:nth-child(7) {
+      width: 8%;
+    }
+
+    .mobile-label {
+      display: none;
+    }
+
+    .weapon-ability-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 3px;
+    }
+
+    .weapon-ability-tag {
+      display: inline-flex;
+      max-width: 100%;
+      padding: 1px 5px;
+      background: #000080;
+      color: var(--light);
+      border-style: solid;
+      border-width: 1px;
+      border-color: #1084d0 #000040 #000040 #1084d0;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.1;
+      text-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .weapon-mode-marker {
+      display: inline-block;
+      width: 10px;
+      color: var(--title);
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .unit-weapon-row.weapon-group-color-0:not(.is-default-weapon) {
+      background: #dff7ff;
+    }
+
+    .unit-weapon-row.weapon-group-color-1:not(.is-default-weapon) {
+      background: #fff3b0;
+    }
+
+    .unit-weapon-row.weapon-group-color-2:not(.is-default-weapon) {
+      background: #e5f6d3;
+    }
+
+    .unit-weapon-row.weapon-group-color-3:not(.is-default-weapon) {
+      background: #ffddeb;
+    }
+
+    .unit-weapon-row.weapon-group-color-4:not(.is-default-weapon) {
+      background: #e8e1ff;
+    }
+
+    .unit-weapon-row.is-default-weapon {
+      background: #d7d7d7;
+    }
+
+    .unit-plain-rules {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1.24;
+    }
+
+    .unit-info-card > p,
+    .unit-info-card li,
+    .unit-info-card .unit-plain-rules {
+      font-size: 12px;
+    }
+
+    .unit-keywords-card p {
+      font-weight: 700;
+    }
+
+    .detachment-detail-content {
+      gap: 12px;
     }
 
     .detachment-tag-row {
@@ -328,6 +752,22 @@
       font-weight: 800;
       line-height: 1.1;
       text-shadow: 1px 1px 0 var(--ink);
+    }
+
+    @media (min-width: 900px) {
+      .unit-quick-stack {
+        grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+        align-self: start;
+        align-items: start;
+      }
+
+      .unit-rules-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .unit-rules-grid .unit-composition-card {
+        grid-column: span 2;
+      }
     }
 
     .list-grid {
@@ -507,6 +947,28 @@
     }
 
     @media (max-width: 460px) {
+      .codex-page {
+        max-width: 100vw;
+        padding-right: 4px;
+        padding-left: 4px;
+      }
+
+      .codex-page .shell,
+      .codex-page .taskbar,
+      .codex-page .title-bar {
+        max-width: 100%;
+      }
+
+      .codex-page .taskbar {
+        min-width: 0;
+      }
+
+      .codex-page .task-status {
+        padding-right: 6px;
+        padding-left: 6px;
+        font-size: 13px;
+      }
+
       .codex-page .menu-bar {
         display: none;
       }
@@ -547,5 +1009,100 @@
         left: 8px;
         font-size: 16px;
         line-height: 1.02;
+      }
+
+      .unit-points-table {
+        font-size: 9px;
+      }
+
+      .unit-points-table thead th:first-child,
+      .unit-points-table tbody th {
+        width: 68%;
+      }
+
+      .unit-points-table thead th:nth-child(2),
+      .unit-points-table tbody td:nth-child(2) {
+        width: 32%;
+      }
+
+      .unit-points-tags .weapon-ability-tag {
+        font-size: 8px;
+      }
+
+      .unit-table-wrap {
+        overflow-x: visible;
+      }
+
+      .unit-stat-table,
+      .unit-weapon-table {
+        min-width: 0;
+        table-layout: fixed;
+        font-size: 10px;
+        line-height: 1.12;
+      }
+
+      .unit-stat-table th,
+      .unit-stat-table td {
+        padding: 3px 1px;
+        overflow-wrap: anywhere;
+      }
+
+      .unit-stat-table tbody th,
+      .unit-weapon-table thead th:first-child {
+        padding-left: 4px;
+      }
+
+      .unit-stat-table:not(.unit-weapon-table):not(.unit-stat-table-no-model) thead th:first-child,
+      .unit-stat-table:not(.unit-weapon-table):not(.unit-stat-table-no-model) tbody th {
+        width: 34%;
+      }
+
+      .unit-weapon-table {
+        font-size: 9px;
+      }
+
+      .unit-weapon-table thead th:first-child,
+      .unit-weapon-table tbody th {
+        width: 44%;
+      }
+
+      .unit-weapon-table thead th:nth-child(2),
+      .unit-weapon-table tbody td:nth-child(2) {
+        width: 9%;
+      }
+
+      .unit-weapon-table thead th:nth-child(3),
+      .unit-weapon-table tbody td:nth-child(3),
+      .unit-weapon-table thead th:nth-child(4),
+      .unit-weapon-table tbody td:nth-child(4),
+      .unit-weapon-table thead th:nth-child(5),
+      .unit-weapon-table tbody td:nth-child(5),
+      .unit-weapon-table thead th:nth-child(6),
+      .unit-weapon-table tbody td:nth-child(6),
+      .unit-weapon-table thead th:nth-child(7),
+      .unit-weapon-table tbody td:nth-child(7) {
+        width: 8%;
+      }
+
+      .unit-weapon-table tbody th {
+        text-align: left;
+      }
+
+      .desktop-label {
+        display: none;
+      }
+
+      .mobile-label {
+        display: inline;
+      }
+
+      .weapon-ability-tags {
+        gap: 2px;
+        margin-top: 2px;
+      }
+
+      .weapon-ability-tag {
+        padding: 1px 3px;
+        font-size: 8px;
       }
     }

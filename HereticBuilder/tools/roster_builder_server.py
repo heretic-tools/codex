@@ -17,6 +17,7 @@ from roster_builder_codex import (
     render_faction_group_page,
     render_faction_page,
 )
+from roster_builder_codex_datasheet import render_datasheet_page
 from roster_builder_core import HereticBuilder
 from roster_builder_templates import render_template
 
@@ -99,6 +100,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_html(render_faction_detachment_page(self.heretic_builder, parts[2], parts[4]))
         elif len(parts) == 4 and parts[3] == "datasheets":
             self.send_html(render_faction_datasheets_page(self.heretic_builder, parts[2]))
+        elif len(parts) == 5 and parts[3] == "datasheet":
+            self.send_html(render_datasheet_page(self.heretic_builder, parts[2], parts[4]))
         else:
             self.send_json({"error": "Not found"}, status=404)
 

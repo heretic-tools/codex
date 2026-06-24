@@ -1,0 +1,981 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4590" height="8932" viewBox="0 0 4590 8932">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#768293"/></marker>
+<filter id="shadow" x="-10%" y="-20%" width="130%" height="150%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#101828" flood-opacity="0.12"/></filter>
+</defs>
+<rect width="100%" height="100%" fill="#f7f8fa"/>
+<text x="70" y="54" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700" fill="#111827">HereticSheets DB Entity Tree</text>
+<text x="70" y="84" font-family="Inter, Arial, sans-serif" font-size="15" fill="#475467">Solid lines show containment/ownership. Counts are current rows in data/heretic_db.sqlite.</text>
+<rect x="3830" y="38" width="18" height="18" rx="4" fill="#e8f6ee" stroke="#17834f"/>
+<text x="3856" y="52" font-family="Inter, Arial, sans-serif" font-size="12" fill="#344054">Army catalog</text>
+<rect x="3975" y="38" width="18" height="18" rx="4" fill="#e4f3f8" stroke="#15718f"/>
+<text x="4001" y="52" font-family="Inter, Arial, sans-serif" font-size="12" fill="#344054">Roster state</text>
+<rect x="4120" y="38" width="18" height="18" rx="4" fill="#fff2d6" stroke="#b7791f"/>
+<text x="4146" y="52" font-family="Inter, Arial, sans-serif" font-size="12" fill="#344054">Missions</text>
+<rect x="4265" y="38" width="18" height="18" rx="4" fill="#eef2f6" stroke="#667085"/>
+<text x="4291" y="52" font-family="Inter, Arial, sans-serif" font-size="12" fill="#344054">Shared lookups</text>
+<rect x="4410" y="38" width="18" height="18" rx="4" fill="#fce8ef" stroke="#b83266"/>
+<text x="4436" y="52" font-family="Inter, Arial, sans-serif" font-size="12" fill="#344054">Technical</text>
+<path d="M 425.0 5762.0 C 475.0 5762.0, 475.0 2902.0, 517.0 2902.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 425.0 5762.0 C 475.0 5762.0, 475.0 6070.0, 517.0 6070.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 425.0 5762.0 C 475.0 5762.0, 475.0 7313.0, 517.0 7313.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 425.0 5762.0 C 475.0 5762.0, 475.0 8160.0, 517.0 8160.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 425.0 5762.0 C 475.0 5762.0, 475.0 8622.0, 517.0 8622.0" fill="none" stroke="#b83266" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 2902.0 C 930.0 2902.0, 930.0 2902.0, 972.0 2902.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 2902.0 C 1385.0 2902.0, 1385.0 130.0, 1427.0 130.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 2902.0 C 1385.0 2902.0, 1385.0 3155.0, 1427.0 3155.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 2902.0 C 1385.0 2902.0, 1385.0 5366.0, 1427.0 5366.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 5366.0 C 1840.0 5366.0, 1840.0 5322.0, 1882.0 5322.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 5366.0 C 1840.0 5366.0, 1840.0 5410.0, 1882.0 5410.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 2902.0 C 1385.0 2902.0, 1385.0 5498.0, 1427.0 5498.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 2902.0 C 1385.0 2902.0, 1385.0 5586.0, 1427.0 5586.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 2902.0 C 1385.0 2902.0, 1385.0 5674.0, 1427.0 5674.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 1076.0, 1882.0 1076.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 2671.0, 1882.0 2671.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 3826.0, 1882.0 3826.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 4376.0, 1882.0 4376.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 4794.0, 1882.0 4794.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 4882.0, 1882.0 4882.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 5014.0, 1882.0 5014.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 5146.0, 1882.0 5146.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 3155.0 C 1840.0 3155.0, 1840.0 5234.0, 1882.0 5234.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 5014.0 C 2295.0 5014.0, 2295.0 4970.0, 2337.0 4970.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 5014.0 C 2295.0 5014.0, 2295.0 5058.0, 2337.0 5058.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 5058.0 C 2750.0 5058.0, 2750.0 5058.0, 2792.0 5058.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 3155.0 5058.0 C 3205.0 5058.0, 3205.0 5058.0, 3247.0 5058.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 3826.0 C 2295.0 3826.0, 2295.0 3738.0, 2337.0 3738.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 3826.0 C 2295.0 3826.0, 2295.0 3826.0, 2337.0 3826.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 3826.0 C 2295.0 3826.0, 2295.0 3914.0, 2337.0 3914.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 1978.0, 2337.0 1978.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2066.0, 2337.0 2066.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 2066.0 C 2750.0 2066.0, 2750.0 2066.0, 2792.0 2066.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2154.0, 2337.0 2154.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 2154.0 C 2750.0 2154.0, 2750.0 2154.0, 2792.0 2154.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2242.0, 2337.0 2242.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2330.0, 2337.0 2330.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2418.0, 2337.0 2418.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2506.0, 2337.0 2506.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2594.0, 2337.0 2594.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2682.0, 2337.0 2682.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2770.0, 2337.0 2770.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2858.0, 2337.0 2858.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 2946.0, 2337.0 2946.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 2671.0 C 2295.0 2671.0, 2295.0 3364.0, 2337.0 3364.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 3364.0 C 2750.0 3364.0, 2750.0 3078.0, 2792.0 3078.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 3155.0 3078.0 C 3205.0 3078.0, 3205.0 3078.0, 3247.0 3078.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 3610.0 3078.0 C 3660.0 3078.0, 3660.0 3034.0, 3702.0 3034.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 3610.0 3078.0 C 3660.0 3078.0, 3660.0 3122.0, 3702.0 3122.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 3364.0 C 2750.0 3364.0, 2750.0 3210.0, 2792.0 3210.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 3364.0 C 2750.0 3364.0, 2750.0 3298.0, 2792.0 3298.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 3364.0 C 2750.0 3364.0, 2750.0 3386.0, 2792.0 3386.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 3364.0 C 2750.0 3364.0, 2750.0 3474.0, 2792.0 3474.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 3364.0 C 2750.0 3364.0, 2750.0 3562.0, 2792.0 3562.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 3364.0 C 2750.0 3364.0, 2750.0 3650.0, 2792.0 3650.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 262.0, 2337.0 262.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 394.0, 2337.0 394.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 482.0, 2337.0 482.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 570.0, 2337.0 570.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 658.0, 2337.0 658.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 746.0, 2337.0 746.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 878.0, 2337.0 878.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 878.0 C 2750.0 878.0, 2750.0 834.0, 2792.0 834.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 878.0 C 2750.0 878.0, 2750.0 922.0, 2792.0 922.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 1010.0, 2337.0 1010.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 1098.0, 2337.0 1098.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 1186.0, 2337.0 1186.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 1362.0, 2337.0 1362.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 1362.0 C 2750.0 1362.0, 2750.0 1274.0, 2792.0 1274.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 1362.0 C 2750.0 1362.0, 2750.0 1362.0, 2792.0 1362.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 1362.0 C 2750.0 1362.0, 2750.0 1450.0, 2792.0 1450.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 1538.0, 2337.0 1538.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 1538.0 C 2750.0 1538.0, 2750.0 1538.0, 2792.0 1538.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 1626.0, 2337.0 1626.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 1626.0 C 2750.0 1626.0, 2750.0 1626.0, 2792.0 1626.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 3155.0 1626.0 C 3205.0 1626.0, 3205.0 1626.0, 3247.0 1626.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 1758.0, 2337.0 1758.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 1758.0 C 2750.0 1758.0, 2750.0 1714.0, 2792.0 1714.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 3155.0 1714.0 C 3205.0 1714.0, 3205.0 1714.0, 3247.0 1714.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 1758.0 C 2750.0 1758.0, 2750.0 1802.0, 2792.0 1802.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 1076.0 C 2295.0 1076.0, 2295.0 1890.0, 2337.0 1890.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 1890.0 C 2750.0 1890.0, 2750.0 1890.0, 2792.0 1890.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 3155.0 1890.0 C 3205.0 1890.0, 3205.0 1890.0, 3247.0 1890.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 262.0 C 2750.0 262.0, 2750.0 218.0, 2792.0 218.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 262.0 C 2750.0 262.0, 2750.0 306.0, 2792.0 306.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 3155.0 306.0 C 3205.0 306.0, 3205.0 306.0, 3247.0 306.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4376.0 C 2295.0 4376.0, 2295.0 4046.0, 2337.0 4046.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 4046.0 C 2750.0 4046.0, 2750.0 4002.0, 2792.0 4002.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 4046.0 C 2750.0 4046.0, 2750.0 4090.0, 2792.0 4090.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4376.0 C 2295.0 4376.0, 2295.0 4222.0, 2337.0 4222.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 4222.0 C 2750.0 4222.0, 2750.0 4178.0, 2792.0 4178.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2700.0 4222.0 C 2750.0 4222.0, 2750.0 4266.0, 2792.0 4266.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4376.0 C 2295.0 4376.0, 2295.0 4354.0, 2337.0 4354.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4376.0 C 2295.0 4376.0, 2295.0 4442.0, 2337.0 4442.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4376.0 C 2295.0 4376.0, 2295.0 4530.0, 2337.0 4530.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4376.0 C 2295.0 4376.0, 2295.0 4618.0, 2337.0 4618.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4376.0 C 2295.0 4376.0, 2295.0 4706.0, 2337.0 4706.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4794.0 C 2295.0 4794.0, 2295.0 4794.0, 2337.0 4794.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 4882.0 C 2295.0 4882.0, 2295.0 4882.0, 2337.0 4882.0" fill="none" stroke="#17834f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 6070.0 C 930.0 6070.0, 930.0 6070.0, 972.0 6070.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6070.0 C 1385.0 6070.0, 1385.0 5762.0, 1427.0 5762.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6070.0 C 1385.0 6070.0, 1385.0 6048.0, 1427.0 6048.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6070.0 C 1385.0 6070.0, 1385.0 6290.0, 1427.0 6290.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6070.0 C 1385.0 6070.0, 1385.0 6378.0, 1427.0 6378.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 6290.0 C 1840.0 6290.0, 1840.0 6290.0, 1882.0 6290.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 6048.0 C 1840.0 6048.0, 1840.0 5894.0, 1882.0 5894.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 6048.0 C 1840.0 6048.0, 1840.0 6026.0, 1882.0 6026.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 6048.0 C 1840.0 6048.0, 1840.0 6114.0, 1882.0 6114.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 6048.0 C 1840.0 6048.0, 1840.0 6202.0, 1882.0 6202.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 5894.0 C 2295.0 5894.0, 2295.0 5850.0, 2337.0 5850.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 5894.0 C 2295.0 5894.0, 2295.0 5938.0, 2337.0 5938.0" fill="none" stroke="#15718f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 7313.0 C 930.0 7313.0, 930.0 6840.0, 972.0 6840.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6840.0 C 1385.0 6840.0, 1385.0 6466.0, 1427.0 6466.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6840.0 C 1385.0 6840.0, 1385.0 6554.0, 1427.0 6554.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 6554.0 C 1840.0 6554.0, 1840.0 6554.0, 1882.0 6554.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6840.0 C 1385.0 6840.0, 1385.0 6642.0, 1427.0 6642.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6840.0 C 1385.0 6840.0, 1385.0 6730.0, 1427.0 6730.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6840.0 C 1385.0 6840.0, 1385.0 6884.0, 1427.0 6884.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 6884.0 C 1840.0 6884.0, 1840.0 6818.0, 1882.0 6818.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 6884.0 C 1840.0 6884.0, 1840.0 6950.0, 1882.0 6950.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 6950.0 C 2295.0 6950.0, 2295.0 6906.0, 2337.0 6906.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 6950.0 C 2295.0 6950.0, 2295.0 6994.0, 2337.0 6994.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 6840.0 C 1385.0 6840.0, 1385.0 7214.0, 1427.0 7214.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 7214.0 C 1840.0 7214.0, 1840.0 7082.0, 1882.0 7082.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 7214.0 C 1840.0 7214.0, 1840.0 7214.0, 1882.0 7214.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 7214.0 C 2295.0 7214.0, 2295.0 7170.0, 2337.0 7170.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 7214.0 C 2295.0 7214.0, 2295.0 7258.0, 2337.0 7258.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 7214.0 C 1840.0 7214.0, 1840.0 7346.0, 1882.0 7346.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 7313.0 C 930.0 7313.0, 930.0 7544.0, 972.0 7544.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 7544.0 C 1385.0 7544.0, 1385.0 7544.0, 1427.0 7544.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 7544.0 C 1840.0 7544.0, 1840.0 7434.0, 1882.0 7434.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 7544.0 C 1840.0 7544.0, 1840.0 7522.0, 1882.0 7522.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 7544.0 C 1840.0 7544.0, 1840.0 7654.0, 1882.0 7654.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 7654.0 C 2295.0 7654.0, 2295.0 7610.0, 2337.0 7610.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 2245.0 7654.0 C 2295.0 7654.0, 2295.0 7698.0, 2337.0 7698.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 7313.0 C 930.0 7313.0, 930.0 7786.0, 972.0 7786.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 7786.0 C 1385.0 7786.0, 1385.0 7786.0, 1427.0 7786.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 7786.0 C 1840.0 7786.0, 1840.0 7786.0, 1882.0 7786.0" fill="none" stroke="#b7791f" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8160.0 C 930.0 8160.0, 930.0 7918.0, 972.0 7918.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 7918.0 C 1385.0 7918.0, 1385.0 7874.0, 1427.0 7874.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 7918.0 C 1385.0 7918.0, 1385.0 7962.0, 1427.0 7962.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8160.0 C 930.0 8160.0, 930.0 8050.0, 972.0 8050.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 8050.0 C 1385.0 8050.0, 1385.0 8050.0, 1427.0 8050.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8160.0 C 930.0 8160.0, 930.0 8138.0, 972.0 8138.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1335.0 8138.0 C 1385.0 8138.0, 1385.0 8138.0, 1427.0 8138.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 1790.0 8138.0 C 1840.0 8138.0, 1840.0 8138.0, 1882.0 8138.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8160.0 C 930.0 8160.0, 930.0 8226.0, 972.0 8226.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8160.0 C 930.0 8160.0, 930.0 8314.0, 972.0 8314.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8160.0 C 930.0 8160.0, 930.0 8402.0, 972.0 8402.0" fill="none" stroke="#667085" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8622.0 C 930.0 8622.0, 930.0 8490.0, 972.0 8490.0" fill="none" stroke="#b83266" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8622.0 C 930.0 8622.0, 930.0 8578.0, 972.0 8578.0" fill="none" stroke="#b83266" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8622.0 C 930.0 8622.0, 930.0 8666.0, 972.0 8666.0" fill="none" stroke="#b83266" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<path d="M 880.0 8622.0 C 930.0 8622.0, 930.0 8754.0, 972.0 8754.0" fill="none" stroke="#b83266" stroke-width="1.4" opacity="0.62" marker-end="url(#arrow)"/>
+<g filter="url(#shadow)"><rect x="1435.0" y="91.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>faction_keyword.parentFactionKeywordId
+self hierarchy</title>
+<text x="1451.0" y="117.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">faction_</text>
+<text x="1451.0" y="135.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">keyword.parentFactionKeywordId</text>
+<text x="1451.0" y="153.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">self hierarchy</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="188.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>miniature_keyword
+8,773</title>
+<text x="2816.0" y="214.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">miniature_keyword</text>
+<text x="2816.0" y="232.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">8,773</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="232.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>miniature
+1,569</title>
+<text x="2361.0" y="258.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">miniature</text>
+<text x="2361.0" y="276.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,569</text>
+<g filter="url(#shadow)"><rect x="3255.0" y="267.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>base_miniature_loadout_wargear_option
+3,132</title>
+<text x="3271.0" y="293.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">base_miniature_loadout_</text>
+<text x="3271.0" y="311.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">wargear_option</text>
+<text x="3271.0" y="329.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">3,132</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="276.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>base_miniature_loadout
+1,300</title>
+<text x="2816.0" y="302.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">base_miniature_loadout</text>
+<text x="2816.0" y="320.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,300</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="364.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet_rule
+525</title>
+<text x="2361.0" y="390.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet_rule</text>
+<text x="2361.0" y="408.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">525</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="452.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet_damage
+243</title>
+<text x="2361.0" y="478.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet_damage</text>
+<text x="2361.0" y="496.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">243</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="540.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet_points_step
+334</title>
+<text x="2361.0" y="566.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet_points_step</text>
+<text x="2361.0" y="584.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">334</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="628.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>invulnerable_save
+641</title>
+<text x="2361.0" y="654.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">invulnerable_save</text>
+<text x="2361.0" y="672.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">641</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="716.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>wargear_rule
+1,366</title>
+<text x="2361.0" y="742.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">wargear_rule</text>
+<text x="2361.0" y="760.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,366</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="795.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet_bodyguard_group_datasheet
+1,260</title>
+<text x="2816.0" y="821.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet_bodyguard_group_</text>
+<text x="2816.0" y="839.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">datasheet</text>
+<text x="2816.0" y="857.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,260</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="848.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet_bodyguard_group
+1,266</title>
+<text x="2361.0" y="874.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet_bodyguard_group</text>
+<text x="2361.0" y="892.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,266</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="883.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet_bodyguard_group_keyword
+14</title>
+<text x="2816.0" y="909.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet_bodyguard_group_</text>
+<text x="2816.0" y="927.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">keyword</text>
+<text x="2816.0" y="945.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">14</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="980.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet_faction_keyword
+1,256</title>
+<text x="2361.0" y="1006.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet_faction_keyword</text>
+<text x="2361.0" y="1024.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,256</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="1046.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet
+1,142</title>
+<text x="1906.0" y="1072.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet</text>
+<text x="1906.0" y="1090.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,142</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="1068.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>datasheet_datasheet_ability
+4,310</title>
+<text x="2361.0" y="1094.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">datasheet_datasheet_ability</text>
+<text x="2361.0" y="1112.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">4,310</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="1156.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>conditional_keyword
+380</title>
+<text x="2361.0" y="1182.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">conditional_keyword</text>
+<text x="2361.0" y="1200.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">380</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="1244.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>unit_composition_miniature
+2,258</title>
+<text x="2816.0" y="1270.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">unit_composition_miniature</text>
+<text x="2816.0" y="1288.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2,258</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="1323.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>unit_composition_required_detachment
+8</title>
+<text x="2816.0" y="1349.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">unit_composition_required_</text>
+<text x="2816.0" y="1367.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">detachment</text>
+<text x="2816.0" y="1385.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">8</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="1332.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>unit_composition
+1,516</title>
+<text x="2361.0" y="1358.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">unit_composition</text>
+<text x="2361.0" y="1376.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,516</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="1411.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>unit_composition_required_faction_keyword
+51</title>
+<text x="2816.0" y="1437.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">unit_composition_required_</text>
+<text x="2816.0" y="1455.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">faction_keyword</text>
+<text x="2816.0" y="1473.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">51</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="1508.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>wargear_option_group
+3,025</title>
+<text x="2361.0" y="1534.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">wargear_option_group</text>
+<text x="2361.0" y="1552.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">3,025</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="1508.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>wargear_option
+6,322</title>
+<text x="2816.0" y="1534.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">wargear_option</text>
+<text x="2816.0" y="1552.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">6,322</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="1596.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>loadout_choice_set
+2,445</title>
+<text x="2361.0" y="1622.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">loadout_choice_set</text>
+<text x="2361.0" y="1640.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2,445</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="1596.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>loadout_choice
+5,374</title>
+<text x="2816.0" y="1622.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">loadout_choice</text>
+<text x="2816.0" y="1640.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">5,374</text>
+<g filter="url(#shadow)"><rect x="3255.0" y="1596.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>loadout_choice_wargear_item
+8,325</title>
+<text x="3271.0" y="1622.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">loadout_choice_wargear_item</text>
+<text x="3271.0" y="1640.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">8,325</text>
+<g filter="url(#shadow)"><rect x="3255.0" y="1675.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>limited_wargear_choice_wargear_item
+676</title>
+<text x="3271.0" y="1701.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">limited_wargear_choice_</text>
+<text x="3271.0" y="1719.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">wargear_item</text>
+<text x="3271.0" y="1737.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">676</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="1684.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>limited_wargear_choice
+569</title>
+<text x="2816.0" y="1710.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">limited_wargear_choice</text>
+<text x="2816.0" y="1728.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">569</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="1728.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>limited_wargear_choice_set
+343</title>
+<text x="2361.0" y="1754.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">limited_wargear_choice_set</text>
+<text x="2361.0" y="1772.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">343</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="1772.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>wargear_limit
+492</title>
+<text x="2816.0" y="1798.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">wargear_limit</text>
+<text x="2816.0" y="1816.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">492</text>
+<g filter="url(#shadow)"><rect x="3255.0" y="1851.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>all_model_wargear_choice_wargear_item
+69</title>
+<text x="3271.0" y="1877.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">all_model_wargear_choice_</text>
+<text x="3271.0" y="1895.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">wargear_item</text>
+<text x="3271.0" y="1913.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">69</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="1860.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>all_model_wargear_choice_set
+28</title>
+<text x="2361.0" y="1886.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">all_model_wargear_choice_set</text>
+<text x="2361.0" y="1904.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">28</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="1860.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>all_model_wargear_choice
+63</title>
+<text x="2816.0" y="1886.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">all_model_wargear_choice</text>
+<text x="2816.0" y="1904.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">63</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="1948.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_rule
+306</title>
+<text x="2361.0" y="1974.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_rule</text>
+<text x="2361.0" y="1992.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">306</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2036.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_detail
+55</title>
+<text x="2361.0" y="2062.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_detail</text>
+<text x="2361.0" y="2080.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">55</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="2036.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_detail_bullet_point
+64</title>
+<text x="2816.0" y="2062.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_detail_bullet_point</text>
+<text x="2816.0" y="2080.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">64</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2124.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allegiance_ability_group
+10</title>
+<text x="2361.0" y="2150.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allegiance_ability_group</text>
+<text x="2361.0" y="2168.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">10</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="2124.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allegiance_ability
+26</title>
+<text x="2816.0" y="2150.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allegiance_ability</text>
+<text x="2816.0" y="2168.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">26</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2212.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_faction_keyword
+457</title>
+<text x="2361.0" y="2238.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_faction_keyword</text>
+<text x="2361.0" y="2256.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">457</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2291.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_faction_detachment_points_cost
+4</title>
+<text x="2361.0" y="2317.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_faction_</text>
+<text x="2361.0" y="2335.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">detachment_points_cost</text>
+<text x="2361.0" y="2353.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">4</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2388.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_force_disposition
+290</title>
+<text x="2361.0" y="2414.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_force_disposition</text>
+<text x="2361.0" y="2432.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">290</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2476.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_excluded_datasheet
+23</title>
+<text x="2361.0" y="2502.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_excluded_datasheet</text>
+<text x="2361.0" y="2520.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">23</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2564.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_required_datasheet
+0</title>
+<text x="2361.0" y="2590.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_required_datasheet</text>
+<text x="2361.0" y="2608.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="2641.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment
+290</title>
+<text x="1906.0" y="2667.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment</text>
+<text x="1906.0" y="2685.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">290</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2652.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_linked_datasheet
+107</title>
+<text x="2361.0" y="2678.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_linked_datasheet</text>
+<text x="2361.0" y="2696.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">107</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2740.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_unique_keyword
+57</title>
+<text x="2361.0" y="2766.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_unique_keyword</text>
+<text x="2361.0" y="2784.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">57</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2819.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_granted_warlord_miniature
+1</title>
+<text x="2361.0" y="2845.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_granted_warlord_</text>
+<text x="2361.0" y="2863.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">miniature</text>
+<text x="2361.0" y="2881.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1</text>
+<g filter="url(#shadow)"><rect x="980.0" y="2872.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>faction_keyword
+43</title>
+<text x="996.0" y="2898.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">faction_keyword</text>
+<text x="996.0" y="2916.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">43</text>
+<g filter="url(#shadow)"><rect x="525.0" y="2878.0" width="355" height="48.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>Army catalog</title>
+<text x="541.0" y="2907.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">Army catalog</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="2907.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>detachment_mandatory_warlord_miniature
+2</title>
+<text x="2361.0" y="2933.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">detachment_mandatory_warlord_</text>
+<text x="2361.0" y="2951.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">miniature</text>
+<text x="2361.0" y="2969.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2</text>
+<g filter="url(#shadow)"><rect x="3710.0" y="2986.0" width="355" height="96.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_keyword_slotless_keyword_group_donor_keyword
+18</title>
+<text x="3726.0" y="3012.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_keyword_</text>
+<text x="3726.0" y="3030.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">slotless_keyword_group_</text>
+<text x="3726.0" y="3048.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">donor_keyword</text>
+<text x="3726.0" y="3066.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">18</text>
+<g filter="url(#shadow)"><rect x="3255.0" y="3039.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_keyword_slotless_keyword_group
+12</title>
+<text x="3271.0" y="3065.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_keyword_</text>
+<text x="3271.0" y="3083.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">slotless_keyword_group</text>
+<text x="3271.0" y="3101.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">12</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="3048.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_keyword
+54</title>
+<text x="2816.0" y="3074.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_keyword</text>
+<text x="2816.0" y="3092.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">54</text>
+<g filter="url(#shadow)"><rect x="3710.0" y="3074.0" width="355" height="96.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_keyword_slotless_keyword_group_receiver_keyword
+12</title>
+<text x="3726.0" y="3100.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_keyword_</text>
+<text x="3726.0" y="3118.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">slotless_keyword_group_</text>
+<text x="3726.0" y="3136.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">receiver_keyword</text>
+<text x="3726.0" y="3154.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">12</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="3125.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>publication
+69</title>
+<text x="1451.0" y="3151.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">publication</text>
+<text x="1451.0" y="3169.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">69</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="3180.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_datasheet
+320</title>
+<text x="2816.0" y="3206.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_datasheet</text>
+<text x="2816.0" y="3224.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">320</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="3259.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_parent_faction_keyword
+25</title>
+<text x="2816.0" y="3285.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_parent_</text>
+<text x="2816.0" y="3303.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">faction_keyword</text>
+<text x="2816.0" y="3321.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">25</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="3334.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction
+21</title>
+<text x="2361.0" y="3360.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction</text>
+<text x="2361.0" y="3378.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">21</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="3356.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_points_limit
+39</title>
+<text x="2816.0" y="3382.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_points_limit</text>
+<text x="2816.0" y="3400.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">39</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="3435.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_required_detachment
+29</title>
+<text x="2816.0" y="3461.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_required_</text>
+<text x="2816.0" y="3479.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">detachment</text>
+<text x="2816.0" y="3497.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">29</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="3523.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_allowed_warlord_miniature
+28</title>
+<text x="2816.0" y="3549.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_allowed_</text>
+<text x="2816.0" y="3567.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">warlord_miniature</text>
+<text x="2816.0" y="3585.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">28</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="3611.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>allied_faction_allegiance_ability
+0</title>
+<text x="2816.0" y="3637.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">allied_faction_allegiance_</text>
+<text x="2816.0" y="3655.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">ability</text>
+<text x="2816.0" y="3673.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="3708.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>army_rule_behaviour_type
+0</title>
+<text x="2361.0" y="3734.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">army_rule_behaviour_type</text>
+<text x="2361.0" y="3752.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="3796.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>army_rule
+98</title>
+<text x="1906.0" y="3822.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">army_rule</text>
+<text x="1906.0" y="3840.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">98</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="3796.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>army_rule_faction_keyword
+71</title>
+<text x="2361.0" y="3822.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">army_rule_faction_keyword</text>
+<text x="2361.0" y="3840.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">71</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="3866.0" width="355" height="96.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>army_rule_excluded_from_command_bunker_faction_keyword
+37</title>
+<text x="2361.0" y="3892.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">army_rule_excluded_from_</text>
+<text x="2361.0" y="3910.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">command_bunker_faction_</text>
+<text x="2361.0" y="3928.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">keyword</text>
+<text x="2361.0" y="3946.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">37</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="3963.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_bodyguard_group_datasheet
+19</title>
+<text x="2816.0" y="3989.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_bodyguard_group_</text>
+<text x="2816.0" y="4007.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">datasheet</text>
+<text x="2816.0" y="4025.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">19</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4016.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_bodyguard_group
+19</title>
+<text x="2361.0" y="4042.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_bodyguard_group</text>
+<text x="2361.0" y="4060.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">19</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="4051.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_bodyguard_group_keyword
+0</title>
+<text x="2816.0" y="4077.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_bodyguard_group_</text>
+<text x="2816.0" y="4095.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">keyword</text>
+<text x="2816.0" y="4113.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="4139.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_required_keyword_group_faction_keyword
+639</title>
+<text x="2816.0" y="4165.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_required_keyword_</text>
+<text x="2816.0" y="4183.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">group_faction_keyword</text>
+<text x="2816.0" y="4201.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">639</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4183.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_required_keyword_group
+1,027</title>
+<text x="2361.0" y="4209.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_required_keyword_</text>
+<text x="2361.0" y="4227.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">group</text>
+<text x="2361.0" y="4245.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,027</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="4227.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_required_keyword_group_keyword
+670</title>
+<text x="2816.0" y="4253.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_required_keyword_</text>
+<text x="2816.0" y="4271.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">group_keyword</text>
+<text x="2816.0" y="4289.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">670</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4324.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_datasheet_ability
+6</title>
+<text x="2361.0" y="4350.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_datasheet_ability</text>
+<text x="2361.0" y="4368.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">6</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="4346.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement
+957</title>
+<text x="1906.0" y="4372.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement</text>
+<text x="1906.0" y="4390.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">957</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4412.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_excluded_keyword
+32</title>
+<text x="2361.0" y="4438.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_excluded_keyword</text>
+<text x="2361.0" y="4456.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">32</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4500.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_keyword_points_cost
+0</title>
+<text x="2361.0" y="4526.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_keyword_points_cost</text>
+<text x="2361.0" y="4544.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4579.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_required_wargear_item
+1</title>
+<text x="2361.0" y="4605.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_required_wargear_</text>
+<text x="2361.0" y="4623.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">item</text>
+<text x="2361.0" y="4641.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4667.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>enhancement_wargear_item_profile
+1</title>
+<text x="2361.0" y="4693.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">enhancement_wargear_item_</text>
+<text x="2361.0" y="4711.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">profile</text>
+<text x="2361.0" y="4729.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="4764.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>stratagem
+1,432</title>
+<text x="1906.0" y="4790.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">stratagem</text>
+<text x="1906.0" y="4808.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,432</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4764.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>stratagem_phase
+2,009</title>
+<text x="2361.0" y="4790.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">stratagem_phase</text>
+<text x="2361.0" y="4808.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2,009</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="4852.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>faq
+728</title>
+<text x="1906.0" y="4878.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">faq</text>
+<text x="1906.0" y="4896.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">728</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4852.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>faq_config
+986</title>
+<text x="2361.0" y="4878.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">faq_config</text>
+<text x="2361.0" y="4896.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">986</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="4940.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>rule_section.parentId
+self hierarchy</title>
+<text x="2361.0" y="4966.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">rule_section.parentId</text>
+<text x="2361.0" y="4984.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">self hierarchy</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="4984.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>rule_section
+33</title>
+<text x="1906.0" y="5010.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">rule_section</text>
+<text x="1906.0" y="5028.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">33</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="5028.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>rule_container
+399</title>
+<text x="2361.0" y="5054.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">rule_container</text>
+<text x="2361.0" y="5072.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">399</text>
+<g filter="url(#shadow)"><rect x="2800.0" y="5028.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>rule_container_component
+1,791</title>
+<text x="2816.0" y="5054.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">rule_container_component</text>
+<text x="2816.0" y="5072.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,791</text>
+<g filter="url(#shadow)"><rect x="3255.0" y="5028.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>bullet_point
+3</title>
+<text x="3271.0" y="5054.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">bullet_point</text>
+<text x="3271.0" y="5072.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">3</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="5116.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>objective
+0</title>
+<text x="1906.0" y="5142.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">objective</text>
+<text x="1906.0" y="5160.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="5204.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>secondary_objective
+0</title>
+<text x="1906.0" y="5230.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">secondary_objective</text>
+<text x="1906.0" y="5248.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="5283.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>keyword_restriction_group_keyword
+21</title>
+<text x="1906.0" y="5309.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">keyword_restriction_group_</text>
+<text x="1906.0" y="5327.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">keyword</text>
+<text x="1906.0" y="5345.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">21</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="5336.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>keyword_restriction_group
+16</title>
+<text x="1451.0" y="5362.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">keyword_restriction_group</text>
+<text x="1451.0" y="5380.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">16</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="5371.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>restriction_group_detachment_limit
+7</title>
+<text x="1906.0" y="5397.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">restriction_group_detachment_</text>
+<text x="1906.0" y="5415.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">limit</text>
+<text x="1906.0" y="5433.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">7</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="5468.0" width="355" height="60.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>faction_keyword_allied_faction
+87</title>
+<text x="1451.0" y="5494.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">faction_keyword_allied_faction</text>
+<text x="1451.0" y="5512.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">87</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="5547.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>faction_keyword_excluded_datasheet
+23</title>
+<text x="1451.0" y="5573.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">faction_keyword_excluded_</text>
+<text x="1451.0" y="5591.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">datasheet</text>
+<text x="1451.0" y="5609.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">23</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="5635.0" width="355" height="78.0" rx="8" fill="#e8f6ee" stroke="#17834f" stroke-width="1.2"/></g>
+<title>faction_keyword_mandatory_allegiance_ability
+0</title>
+<text x="1451.0" y="5661.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#122018">faction_keyword_mandatory_</text>
+<text x="1451.0" y="5679.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">allegiance_ability</text>
+<text x="1451.0" y="5697.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="70.0" y="5732.0" width="355" height="60.0" rx="8" fill="#111827" stroke="#111827" stroke-width="1.2"/></g>
+<title>HereticSheets SQLite
+145 tables</title>
+<text x="86.0" y="5758.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff">HereticSheets SQLite</text>
+<text x="86.0" y="5776.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#ffffff">145 tables</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="5732.0" width="355" height="60.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_detachment
+6</title>
+<text x="1451.0" y="5758.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_detachment</text>
+<text x="1451.0" y="5776.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">6</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="5811.0" width="355" height="78.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_unit_miniature_wargear_option
+4</title>
+<text x="2361.0" y="5837.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_unit_miniature_</text>
+<text x="2361.0" y="5855.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">wargear_option</text>
+<text x="2361.0" y="5873.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">4</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="5864.0" width="355" height="60.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_unit_miniature
+2</title>
+<text x="1906.0" y="5890.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_unit_miniature</text>
+<text x="1906.0" y="5908.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="5899.0" width="355" height="78.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_unit_miniature_enhancement
+0</title>
+<text x="2361.0" y="5925.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_unit_miniature_</text>
+<text x="2361.0" y="5943.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">enhancement</text>
+<text x="2361.0" y="5961.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="5996.0" width="355" height="60.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_unit_wargear_option
+0</title>
+<text x="1906.0" y="6022.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_unit_wargear_option</text>
+<text x="1906.0" y="6040.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="6018.0" width="355" height="60.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_unit
+2</title>
+<text x="1451.0" y="6044.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_unit</text>
+<text x="1451.0" y="6062.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2</text>
+<g filter="url(#shadow)"><rect x="980.0" y="6040.0" width="355" height="60.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster
+4</title>
+<text x="996.0" y="6066.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster</text>
+<text x="996.0" y="6084.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">4</text>
+<g filter="url(#shadow)"><rect x="525.0" y="6046.0" width="355" height="48.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>Roster builder state</title>
+<text x="541.0" y="6075.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">Roster builder state</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="6084.0" width="355" height="60.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_unit_allegiance_ability
+0</title>
+<text x="1906.0" y="6110.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_unit_allegiance_ability</text>
+<text x="1906.0" y="6128.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="6172.0" width="355" height="60.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_unit_enhancement
+0</title>
+<text x="1906.0" y="6198.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_unit_enhancement</text>
+<text x="1906.0" y="6216.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="6251.0" width="355" height="78.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_attached_unit_roster_unit
+0</title>
+<text x="1906.0" y="6277.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_attached_unit_roster_</text>
+<text x="1906.0" y="6295.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">unit</text>
+<text x="1906.0" y="6313.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="6260.0" width="355" height="60.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_attached_unit
+0</title>
+<text x="1451.0" y="6286.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_attached_unit</text>
+<text x="1451.0" y="6304.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="6339.0" width="355" height="78.0" rx="8" fill="#e4f3f8" stroke="#15718f" stroke-width="1.2"/></g>
+<title>roster_validation_state
+4
+(no FK, rosterId PK)</title>
+<text x="1451.0" y="6365.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#10242b">roster_validation_state</text>
+<text x="1451.0" y="6383.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">4</text>
+<text x="1451.0" y="6401.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">(no FK, rosterId PK)</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="6436.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>mission_deployment
+9</title>
+<text x="1451.0" y="6462.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">mission_deployment</text>
+<text x="1451.0" y="6480.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">9</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="6515.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>mission_layout_linked_deployment
+45</title>
+<text x="1906.0" y="6541.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">mission_layout_linked_</text>
+<text x="1906.0" y="6559.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">deployment</text>
+<text x="1906.0" y="6577.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">45</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="6524.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>mission_layout
+46</title>
+<text x="1451.0" y="6550.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">mission_layout</text>
+<text x="1451.0" y="6568.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">46</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="6612.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>mission_preset
+48</title>
+<text x="1451.0" y="6638.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">mission_preset</text>
+<text x="1451.0" y="6656.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">48</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="6700.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>mission_twist
+6</title>
+<text x="1451.0" y="6726.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">mission_twist</text>
+<text x="1451.0" y="6744.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">6</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="6788.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>primary_mission_action
+13</title>
+<text x="1906.0" y="6814.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">primary_mission_action</text>
+<text x="1906.0" y="6832.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">13</text>
+<g filter="url(#shadow)"><rect x="980.0" y="6810.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>mission_pack
+2</title>
+<text x="996.0" y="6836.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">mission_pack</text>
+<text x="996.0" y="6854.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="6854.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>primary_mission
+49</title>
+<text x="1451.0" y="6880.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">primary_mission</text>
+<text x="1451.0" y="6898.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">49</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="6867.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>primary_mission_objective_scorable_period
+441</title>
+<text x="2361.0" y="6893.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">primary_mission_objective_</text>
+<text x="2361.0" y="6911.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">scorable_period</text>
+<text x="2361.0" y="6929.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">441</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="6920.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>primary_mission_objective
+124</title>
+<text x="1906.0" y="6946.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">primary_mission_objective</text>
+<text x="1906.0" y="6964.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">124</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="6955.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>primary_mission_objective_scoring
+166</title>
+<text x="2361.0" y="6981.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">primary_mission_objective_</text>
+<text x="2361.0" y="6999.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">scoring</text>
+<text x="2361.0" y="7017.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">166</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="7052.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>secondary_mission_action
+2</title>
+<text x="1906.0" y="7078.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">secondary_mission_action</text>
+<text x="1906.0" y="7096.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="7131.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>secondary_mission_objective_scorable_period
+0</title>
+<text x="2361.0" y="7157.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">secondary_mission_objective_</text>
+<text x="2361.0" y="7175.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">scorable_period</text>
+<text x="2361.0" y="7193.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="7184.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>secondary_mission
+18</title>
+<text x="1451.0" y="7210.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">secondary_mission</text>
+<text x="1451.0" y="7228.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">18</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="7184.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>secondary_mission_objective
+19</title>
+<text x="1906.0" y="7210.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">secondary_mission_objective</text>
+<text x="1906.0" y="7228.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">19</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="7219.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>secondary_mission_objective_scoring
+31</title>
+<text x="2361.0" y="7245.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">secondary_mission_objective_</text>
+<text x="2361.0" y="7263.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">scoring</text>
+<text x="2361.0" y="7281.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">31</text>
+<g filter="url(#shadow)"><rect x="525.0" y="7289.0" width="355" height="48.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>Missions and battles</title>
+<text x="541.0" y="7318.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">Missions and battles</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="7307.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>secondary_mission_restricted_secondary_mission
+0</title>
+<text x="1906.0" y="7333.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">secondary_mission_restricted_</text>
+<text x="1906.0" y="7351.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">secondary_mission</text>
+<text x="1906.0" y="7369.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="7404.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>battle_player_detachment
+2</title>
+<text x="1906.0" y="7430.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">battle_player_detachment</text>
+<text x="1906.0" y="7448.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="7492.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>battle_player_secondary_mission
+0</title>
+<text x="1906.0" y="7518.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">battle_player_secondary_mission</text>
+<text x="1906.0" y="7536.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="980.0" y="7514.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>battle
+1</title>
+<text x="996.0" y="7540.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">battle</text>
+<text x="996.0" y="7558.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="7514.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>battle_player
+2</title>
+<text x="1451.0" y="7540.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">battle_player</text>
+<text x="1451.0" y="7558.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="7571.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>battle_player_turn_scored_primary
+0</title>
+<text x="2361.0" y="7597.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">battle_player_turn_scored_</text>
+<text x="2361.0" y="7615.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">primary</text>
+<text x="2361.0" y="7633.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="7624.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>battle_player_turn
+10</title>
+<text x="1906.0" y="7650.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">battle_player_turn</text>
+<text x="1906.0" y="7668.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">10</text>
+<g filter="url(#shadow)"><rect x="2345.0" y="7659.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>battle_player_turn_scored_secondary
+0</title>
+<text x="2361.0" y="7685.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">battle_player_turn_scored_</text>
+<text x="2361.0" y="7703.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">secondary</text>
+<text x="2361.0" y="7721.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="7747.0" width="355" height="78.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>force_disposition_mission_recommended_preset
+75</title>
+<text x="1906.0" y="7773.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">force_disposition_mission_</text>
+<text x="1906.0" y="7791.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">recommended_preset</text>
+<text x="1906.0" y="7809.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">75</text>
+<g filter="url(#shadow)"><rect x="980.0" y="7756.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>force_disposition
+5</title>
+<text x="996.0" y="7782.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">force_disposition</text>
+<text x="996.0" y="7800.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">5</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="7756.0" width="355" height="60.0" rx="8" fill="#fff2d6" stroke="#b7791f" stroke-width="1.2"/></g>
+<title>force_disposition_mission
+25</title>
+<text x="1451.0" y="7782.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#2d2111">force_disposition_mission</text>
+<text x="1451.0" y="7800.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">25</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="7844.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>keyword.allyRestrictingKeywordId
+self hierarchy</title>
+<text x="1451.0" y="7870.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">keyword.allyRestrictingKeywordId</text>
+<text x="1451.0" y="7888.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">self hierarchy</text>
+<g filter="url(#shadow)"><rect x="980.0" y="7888.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>keyword
+1,239</title>
+<text x="996.0" y="7914.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">keyword</text>
+<text x="996.0" y="7932.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1,239</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="7923.0" width="355" height="78.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>keyword_ally_restricting_keyword
+0</title>
+<text x="1451.0" y="7949.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">keyword_ally_restricting_</text>
+<text x="1451.0" y="7967.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">keyword</text>
+<text x="1451.0" y="7985.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8020.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>datasheet_ability
+2,025</title>
+<text x="996.0" y="8046.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">datasheet_ability</text>
+<text x="996.0" y="8064.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">2,025</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="8020.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>datasheet_sub_ability
+52</title>
+<text x="1451.0" y="8046.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">datasheet_sub_ability</text>
+<text x="1451.0" y="8064.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">52</text>
+<g filter="url(#shadow)"><rect x="1890.0" y="8099.0" width="355" height="78.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>wargear_item_profile_wargear_ability
+4,218</title>
+<text x="1906.0" y="8125.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">wargear_item_profile_</text>
+<text x="1906.0" y="8143.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">wargear_ability</text>
+<text x="1906.0" y="8161.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">4,218</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8108.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>wargear_item
+3,516</title>
+<text x="996.0" y="8134.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">wargear_item</text>
+<text x="996.0" y="8152.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">3,516</text>
+<g filter="url(#shadow)"><rect x="1435.0" y="8108.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>wargear_item_profile
+3,712</title>
+<text x="1451.0" y="8134.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">wargear_item_profile</text>
+<text x="1451.0" y="8152.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">3,712</text>
+<g filter="url(#shadow)"><rect x="525.0" y="8136.0" width="355" height="48.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>Shared lookup libraries</title>
+<text x="541.0" y="8165.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">Shared lookup libraries</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8196.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>wargear_ability
+121</title>
+<text x="996.0" y="8222.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">wargear_ability</text>
+<text x="996.0" y="8240.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">121</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8284.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>behaviour_type
+19</title>
+<text x="996.0" y="8310.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">behaviour_type</text>
+<text x="996.0" y="8328.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">19</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8372.0" width="355" height="60.0" rx="8" fill="#eef2f6" stroke="#667085" stroke-width="1.2"/></g>
+<title>battle_size
+3</title>
+<text x="996.0" y="8398.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#1f2937">battle_size</text>
+<text x="996.0" y="8416.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">3</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8460.0" width="355" height="60.0" rx="8" fill="#fce8ef" stroke="#b83266" stroke-width="1.2"/></g>
+<title>metadata
+1</title>
+<text x="996.0" y="8486.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#331724">metadata</text>
+<text x="996.0" y="8504.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">1</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8548.0" width="355" height="60.0" rx="8" fill="#fce8ef" stroke="#b83266" stroke-width="1.2"/></g>
+<title>grdb_migrations
+33</title>
+<text x="996.0" y="8574.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#331724">grdb_migrations</text>
+<text x="996.0" y="8592.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">33</text>
+<g filter="url(#shadow)"><rect x="525.0" y="8598.0" width="355" height="48.0" rx="8" fill="#fce8ef" stroke="#b83266" stroke-width="1.2"/></g>
+<title>Technical / local tables</title>
+<text x="541.0" y="8627.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#331724">Technical / local tables</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8636.0" width="355" height="60.0" rx="8" fill="#fce8ef" stroke="#b83266" stroke-width="1.2"/></g>
+<title>entitlement
+0</title>
+<text x="996.0" y="8662.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#331724">entitlement</text>
+<text x="996.0" y="8680.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+<g filter="url(#shadow)"><rect x="980.0" y="8724.0" width="355" height="60.0" rx="8" fill="#fce8ef" stroke="#b83266" stroke-width="1.2"/></g>
+<title>favourite
+0</title>
+<text x="996.0" y="8750.0" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#331724">favourite</text>
+<text x="996.0" y="8768.0" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="500" fill="#475467">0</text>
+</svg>

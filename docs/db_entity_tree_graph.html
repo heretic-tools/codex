@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HereticSheets DB Entity Tree</title>
+  <style>
+    body { margin: 0; font-family: Inter, Arial, sans-serif; background: #f7f8fa; color: #101828; }
+    header { position: sticky; top: 0; z-index: 2; display: flex; gap: 16px; align-items: center; padding: 14px 20px; background: rgba(255,255,255,.94); border-bottom: 1px solid #d0d5dd; }
+    header a { color: #175cd3; text-decoration: none; font-weight: 650; }
+    main { padding: 20px; }
+    section { margin-bottom: 28px; }
+    h1 { font-size: 20px; margin: 0 12px 0 0; }
+    h2 { font-size: 18px; margin: 0 0 10px; }
+    .frame { overflow: auto; border: 1px solid #d0d5dd; background: white; border-radius: 8px; height: 82vh; }
+    .frame img { display: block; max-width: none; }
+    .overview img { width: 100%; height: auto; display: block; border: 1px solid #d0d5dd; border-radius: 8px; background: white; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>HereticSheets DB Entity Tree</h1>
+    <a href="db_entity_tree_overview.svg">overview SVG</a>
+    <a href="db_entity_tree_full.svg">full SVG</a>
+    <a href="db_entity_tree.md">source notes</a>
+  </header>
+  <main>
+    <section class="overview">
+      <h2>Overview</h2>
+      <img src="db_entity_tree_overview.svg" alt="HereticSheets DB overview graph">
+    </section>
+    <section>
+      <h2>Full tree</h2>
+      <div class="frame"><img src="db_entity_tree_full.svg" alt="Full HereticSheets DB entity tree"></div>
+    </section>
+  </main>
+</body>
+</html>

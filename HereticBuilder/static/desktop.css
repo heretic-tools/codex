@@ -13,6 +13,7 @@
       --green: #00a000;
       --red: #b00020;
       --font: Tahoma, "MS Sans Serif", Arial, sans-serif;
+      --win-scrollbar-size: 24px;
     }
 
     * {
@@ -165,7 +166,7 @@
     }
 
     .panel.is-scrollable .panel-content {
-      padding-right: 40px;
+      padding-right: var(--win-scrollbar-size);
     }
 
     .win-scrollbar {
@@ -173,9 +174,9 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: 24px;
+      width: var(--win-scrollbar-size);
       display: grid;
-      grid-template-rows: 24px minmax(0, 1fr) 24px;
+      grid-template-rows: var(--win-scrollbar-size) minmax(0, 1fr) var(--win-scrollbar-size);
       background: var(--window);
       z-index: 2;
     }
@@ -185,9 +186,9 @@
     }
 
     .scroll-button {
-      width: 24px;
-      min-width: 24px;
-      height: 24px;
+      width: var(--win-scrollbar-size);
+      min-width: var(--win-scrollbar-size);
+      height: var(--win-scrollbar-size);
       display: grid;
       place-items: center;
       padding: 0;
@@ -425,7 +426,7 @@
       }
 
       .panel.is-scrollable .panel-content {
-        padding-right: 40px;
+        padding-right: var(--win-scrollbar-size);
       }
 
       h1 {

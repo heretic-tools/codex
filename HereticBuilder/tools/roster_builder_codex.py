@@ -38,17 +38,22 @@ def faction_href(faction_id):
     return f"/codex/faction/{escape_attr(faction_id)}"
 
 
+def datasheet_href(faction_id, datasheet_id):
+    return f"/codex/faction/{faction_id}/datasheet/{datasheet_id}"
+
+
 def detachment_href(faction_id, detachment_id):
     return f"/codex/faction/{faction_id}/detachment/{detachment_id}"
 
 
-def title_bar_context(hero_image):
-    if not hero_image:
+def title_bar_context(hero_image=None, hero_image_url=None):
+    if not hero_image_url and hero_image:
+        hero_image_url = faction_image_url(hero_image)
+    if not hero_image_url:
         return {"title_bar_class": "", "title_bar_style_attr": ""}
-    image_url = faction_image_url(hero_image)
     return {
         "title_bar_class": "faction-hero-title",
-        "title_bar_style_attr": f' style="--faction-hero-image: url(\'{image_url}\');"',
+        "title_bar_style_attr": f' style="--faction-hero-image: url(\'{hero_image_url}\');"',
     }
 
 
@@ -85,13 +90,24 @@ def render_launcher(button):
     )
 
 
-def render_codex_page(title, window_title, task_title, page_class, grid_label, buttons, back_href, back_label, hero_image=None):
+def render_codex_page(
+    title,
+    window_title,
+    task_title,
+    page_class,
+    grid_label,
+    buttons,
+    back_href,
+    back_label,
+    hero_image=None,
+    hero_image_url=None,
+):
     if len(buttons) > 5:
         page_class = f"{page_class} many-buttons-page"
 
     return render_template(
         "codex.html",
-        **title_bar_context(hero_image),
+        **title_bar_context(hero_image, hero_image_url),
         document_title=escape_html(f"{title} - HereticTools"),
         page_class=escape_attr(page_class),
         title=escape_attr(title),
@@ -104,10 +120,20 @@ def render_codex_page(title, window_title, task_title, page_class, grid_label, b
     )
 
 
-def render_codex_content_page(title, window_title, task_title, page_class, content_html, back_href, back_label, hero_image=None):
+def render_codex_content_page(
+    title,
+    window_title,
+    task_title,
+    page_class,
+    content_html,
+    back_href,
+    back_label,
+    hero_image=None,
+    hero_image_url=None,
+):
     return render_template(
         "codex_content.html",
-        **title_bar_context(hero_image),
+        **title_bar_context(hero_image, hero_image_url),
         document_title=escape_html(f"{title} - HereticTools"),
         page_class=escape_attr(page_class),
         title=escape_attr(title),
@@ -467,24 +493,27 @@ def detachment_meta(detachment):
     return " / ".join(meta)
 
 
-def render_datasheet_item(datasheet):
+def render_datasheet_item(datasheet, faction_id):
     image = find_unit_image(datasheet["name"], datasheet.get("id"))
     meta = f'{datasheet["points"]} pts' if datasheet.get("points") is not None else ""
+    href = datasheet_href(faction_id, datasheet["id"])
     if not image:
-        return render_list_item(datasheet["name"], meta)
+        return render_list_item(datasheet["name"], meta, href=href)
     return (
-        '<div class="list-item datasheet-tile has-unit-image">'
+        f'<a class="list-item datasheet-tile has-unit-image" href="{escape_attr(href)}">'
         f'<span class="unit-art-frame" aria-hidden="true"><img class="unit-art" src="{unit_image_url(image)}" alt=""></span>'
         '<span class="datasheet-tile-text">'
         f'<span class="list-item-title">{escape_html(datasheet["name"])}</span>'
         f'<span class="list-item-meta">{escape_html(meta)}</span>'
         '</span>'
-        '</div>'
+        '</a>'
     )
 
 
 DATASHEET_GROUPS = (
     ("Epic Heroes", {"Epic Hero"}),
+    ("Leaders", {"Character"}),
+    ("Supports", {"Character"}),
     ("Characters", {"Character"}),
     ("Battleline", {"Battleline"}),
     ("Infantry", {"Infantry"}),
@@ -532,6 +561,25 @@ def datasheet_keywords(heretic_builder, datasheet_ids):
         result = {datasheet_id: set() for datasheet_id in datasheet_ids}
         for row in rows:
             result.setdefault(row["datasheetId"], set()).add(row["name"])
+    return result
+
+
+def datasheet_attachment_types(heretic_builder, datasheet_ids):
+    if not datasheet_ids:
+        return {}
+    placeholders = ",".join("?" for _ in datasheet_ids)
+    with heretic_builder.connect(readonly=True) as conn:
+        rows = conn.execute(
+            f"""
+            select datasheetId, bodyguardType
+            from datasheet_bodyguard_group
+            where datasheetId in ({placeholders})
+            """,
+            datasheet_ids,
+        )
+        result = {datasheet_id: set() for datasheet_id in datasheet_ids}
+        for row in rows:
+            result.setdefault(row["datasheetId"], set()).add(row["bodyguardType"])
     return result
 
 
@@ -611,12 +659,16 @@ def codex_datasheets_for_faction(heretic_builder, faction_id):
     return heretic_builder.datasheets(faction_id).get("datasheets", [])
 
 
-def datasheet_group_name(datasheet, keywords):
+def datasheet_group_name(datasheet, keywords, attachment_types):
     if datasheet.get("allyType") == "allied":
         return "Allied Units"
     if "Epic Hero" in keywords:
         return "Epic Heroes"
     if "Character" in keywords:
+        if "leader" in attachment_types:
+            return "Leaders"
+        if "support" in attachment_types:
+            return "Supports"
         return "Characters"
     if "Battleline" in keywords:
         return "Battleline"
@@ -647,7 +699,7 @@ def datasheet_group_name(datasheet, keywords):
     return "Other Datasheets"
 
 
-def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheets):
+def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheets, faction_id):
     datasheets = [
         {**datasheet, "allyType": "native"}
         for datasheet in native_datasheets
@@ -656,10 +708,12 @@ def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheet
         for datasheet in allied_datasheets
     ]
     keyword_map = datasheet_keywords(heretic_builder, [datasheet["id"] for datasheet in datasheets])
+    attachment_type_map = datasheet_attachment_types(heretic_builder, [datasheet["id"] for datasheet in datasheets])
     grouped = {name: [] for name in DATASHEET_GROUP_ORDER}
     for datasheet in datasheets:
         keywords = keyword_map.get(datasheet["id"], set())
-        grouped[datasheet_group_name(datasheet, keywords)].append(datasheet)
+        attachment_types = attachment_type_map.get(datasheet["id"], set())
+        grouped[datasheet_group_name(datasheet, keywords, attachment_types)].append(datasheet)
 
     sections = []
     for group_name in DATASHEET_GROUP_ORDER:
@@ -667,7 +721,7 @@ def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheet
         if not group_datasheets:
             continue
         items_html = "".join(
-            render_datasheet_item(datasheet)
+            render_datasheet_item(datasheet, faction_id)
             for datasheet in sorted(group_datasheets, key=lambda item: item["name"].lower())
         )
         sections.append(
@@ -907,14 +961,7 @@ def render_faction_detachment_page(heretic_builder, faction_id, detachment_id):
     enhancements = detachment_enhancements_for(heretic_builder, detachment["id"])
     stratagems = detachment_stratagems_for(heretic_builder, detachment["id"])
 
-    sections = [
-        '<section class="rule-card detachment-summary-card">'
-        '<div class="unit-card-heading">'
-        f'<h2>{escape_html(detachment["name"])}</h2>'
-        f'<div class="detachment-tag-row"><span class="unit-card-tag">{escape_html(detachment_meta(detachment))}</span></div>'
-        '</div>'
-        '</section>'
-    ]
+    sections = []
     sections.extend(render_rule_article(rule["name"], rule["components"]) for rule in rules)
     sections.append(render_detachment_details(details))
     sections.append(render_detachment_enhancements(enhancements))
@@ -972,7 +1019,7 @@ def render_faction_datasheets_page(heretic_builder, faction_id):
         if datasheet.get("points", 0) > 0
     ]
     if datasheets or allied_datasheets:
-        content_html = render_datasheet_groups(heretic_builder, datasheets, allied_datasheets)
+        content_html = render_datasheet_groups(heretic_builder, datasheets, allied_datasheets, faction["id"])
     else:
         content_html = '<div class="empty-state">No datasheets found.</div>'
     return render_codex_content_page(
