@@ -258,14 +258,15 @@
       text-shadow: 1px 1px 0 var(--ink);
     }
 
+    .unit-faction-ability-tag {
+      background: #006b53;
+      border-color: #10a37f #003c2f #003c2f #10a37f;
+    }
+
     .unit-rules-grid {
       grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr));
       align-items: start;
       gap: 8px;
-    }
-
-    .unit-detail-content > .unit-wargear-rules-card {
-      grid-column: 1 / -1;
     }
 
     .unit-detail-page .rule-card:not(.unit-table-card) {
@@ -497,9 +498,34 @@
       background: #d7d7d7;
     }
 
+    .unit-statline-card .unit-stat-table {
+      table-layout: auto;
+    }
+
+    .unit-statline-card .unit-stat-table th,
+    .unit-statline-card .unit-stat-table td {
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+
+    .unit-statline-card .unit-stat-table thead th,
+    .unit-statline-card .unit-stat-table tbody td {
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    .unit-statline-card .unit-stat-table tbody th {
+      width: auto;
+      white-space: normal;
+    }
+
     .unit-statline-card .unit-stat-table:not(.unit-stat-table-no-model) thead th:first-child,
     .unit-statline-card .unit-stat-table:not(.unit-stat-table-no-model) tbody th {
       width: 28%;
+    }
+
+    .unit-stat-table .unit-invulnerable-save-cell {
+      white-space: nowrap;
     }
 
     .unit-points-table {
@@ -614,28 +640,14 @@
       text-align: center;
     }
 
-    .unit-weapon-row.weapon-group-color-0:not(.is-default-weapon) {
-      background: #dff7ff;
-    }
-
-    .unit-weapon-row.weapon-group-color-1:not(.is-default-weapon) {
-      background: #fff3b0;
-    }
-
-    .unit-weapon-row.weapon-group-color-2:not(.is-default-weapon) {
-      background: #e5f6d3;
-    }
-
-    .unit-weapon-row.weapon-group-color-3:not(.is-default-weapon) {
-      background: #ffddeb;
-    }
-
-    .unit-weapon-row.weapon-group-color-4:not(.is-default-weapon) {
-      background: #e8e1ff;
-    }
-
-    .unit-weapon-row.is-default-weapon {
+    .unit-weapon-table tbody tr:nth-child(odd) th,
+    .unit-weapon-table tbody tr:nth-child(odd) td {
       background: #d7d7d7;
+    }
+
+    .unit-weapon-table tbody tr:nth-child(even) th,
+    .unit-weapon-table tbody tr:nth-child(even) td {
+      background: #c8c8c8;
     }
 
     .unit-plain-rules {
@@ -762,11 +774,16 @@
       }
 
       .unit-rules-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        display: block;
+        column-count: 3;
+        column-gap: 8px;
       }
 
-      .unit-rules-grid .unit-composition-card {
-        grid-column: span 2;
+      .unit-rules-grid > .rule-card {
+        width: 100%;
+        margin-bottom: 8px;
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
     }
 
@@ -1055,6 +1072,16 @@
       .unit-stat-table:not(.unit-weapon-table):not(.unit-stat-table-no-model) thead th:first-child,
       .unit-stat-table:not(.unit-weapon-table):not(.unit-stat-table-no-model) tbody th {
         width: 34%;
+      }
+
+      .unit-statline-card .unit-stat-table {
+        table-layout: auto;
+      }
+
+      .unit-statline-card .unit-stat-table:not(.unit-stat-table-no-model) thead th:first-child,
+      .unit-statline-card .unit-stat-table:not(.unit-stat-table-no-model) tbody th {
+        width: auto;
+        min-width: 72px;
       }
 
       .unit-weapon-table {

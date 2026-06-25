@@ -45,10 +45,6 @@ def ordinal(value):
     return f"{value}{suffix}"
 
 
-def weapon_group_class(index):
-    return f"weapon-group-color-{index % 5}"
-
-
 def base_size_entries(value):
     text = str(value or "").strip()
     if not text or text == "-":
@@ -85,6 +81,26 @@ def weapon_ability_tags(abilities):
 
 def weapon_bucket(profile):
     return "melee" if str(profile.get("type") or "").lower() == "melee" else "ranged"
+
+
+def weapon_profile_skill(profile):
+    if weapon_bucket(profile) == "melee":
+        return profile.get("weaponSkill") or "-"
+    return profile.get("ballisticSkill") or "-"
+
+
+def weapon_profile_key(profile):
+    return (
+        profile_display_name(profile).lower(),
+        str(profile.get("type") or "").lower(),
+        str(profile.get("range") or ""),
+        str(profile.get("attacks") or ""),
+        str(weapon_profile_skill(profile)),
+        str(profile.get("strength") or ""),
+        str(profile.get("armourPenetration") or ""),
+        str(profile.get("damage") or ""),
+        str(profile.get("abilities") or "-").lower(),
+    )
 
 
 def plain_wargear_group_rule(group):
@@ -329,7 +345,7 @@ def datasheet_detail(heretic_builder, faction_id, datasheet_id):
             dict_row(save)
             for save in conn.execute(
                 """
-                select inv.save, inv.meleeSave, inv.rangedSave, inv.rules,
+                select inv.miniatureId, inv.save, inv.meleeSave, inv.rangedSave, inv.rules,
                        m.name as miniatureName
                 from invulnerable_save inv
                 left join miniature m on m.id = inv.miniatureId
@@ -396,12 +412,74 @@ def render_unit_meta_item(label, value):
     )
 
 
-def render_statline_table(miniatures):
+def format_invulnerable_save_value(value):
+    text = normalize_rule_text(value)
+    if text in {"", "-"}:
+        return ""
+    if text.endswith("++"):
+        return text
+    if text.endswith("+"):
+        return f"{text}+"
+    return text
+
+
+def compact_invulnerable_save(save):
+    base_save = format_invulnerable_save_value(save.get("save"))
+    rules_text = normalize_rule_text(save.get("rules")).lower()
+    if base_save and "ranged attacks only" in rules_text:
+        return f"R{base_save}"
+    if base_save and "melee attacks only" in rules_text:
+        return f"M{base_save}"
+    if base_save:
+        return base_save
+
+    parts = []
+    melee_save = format_invulnerable_save_value(save.get("meleeSave"))
+    ranged_save = format_invulnerable_save_value(save.get("rangedSave"))
+    if melee_save:
+        parts.append(f"M{melee_save}")
+    if ranged_save:
+        parts.append(f"R{ranged_save}")
+    return "/".join(parts)
+
+
+def invulnerable_save_title(save):
+    details = []
+    if save.get("miniatureName"):
+        details.append(save["miniatureName"])
+    rules = normalize_rule_text(save.get("rules"))
+    if rules not in {"", "-"}:
+        details.append(rules)
+    return ": ".join(details)
+
+
+def render_invulnerable_save_cell(save):
+    value = compact_invulnerable_save(save) if save else "-"
+    title = invulnerable_save_title(save) if save else ""
+    title_attr = ""
+    if title:
+        label = f"Invulnerable save {value}: {title}"
+        title_attr = f' title="{escape_attr(title)}" aria-label="{escape_attr(label)}"'
+    return f'          <td class="unit-invulnerable-save-cell" data-label="INV"{title_attr}>{escape_html(value)}</td>\n'
+
+
+def render_statline_table(miniatures, invulnerable_saves=None):
     visible = [miniature for miniature in miniatures if not miniature.get("statlineHidden")]
     if not visible:
         return ""
+    invulnerable_saves = invulnerable_saves or []
+    global_invulnerable_save = next((save for save in invulnerable_saves if not save.get("miniatureId")), None)
+    invulnerable_saves_by_miniature = {
+        save["miniatureId"]: save
+        for save in invulnerable_saves
+        if save.get("miniatureId")
+    }
+    has_invulnerable_column = bool(invulnerable_saves)
     has_model_column = len(visible) > 1
     model_header_html = render_template("codex_unit_statline_model_header.html") if has_model_column else ""
+    invulnerable_header_html = ""
+    if has_invulnerable_column:
+        invulnerable_header_html = '          <th class="unit-invulnerable-save-cell" scope="col">INV</th>\n'
     rows = []
     for miniature in visible:
         model_cell_html = ""
@@ -410,12 +488,17 @@ def render_statline_table(miniatures):
                 "codex_unit_statline_model_cell.html",
                 model_name=escape_html(miniature["name"]),
             )
+        invulnerable_cell_html = ""
+        if has_invulnerable_column:
+            invulnerable_save = invulnerable_saves_by_miniature.get(miniature["id"], global_invulnerable_save)
+            invulnerable_cell_html = render_invulnerable_save_cell(invulnerable_save)
         rows.append(render_template(
             "codex_unit_statline_row.html",
             model_cell_html=model_cell_html,
             movement=escape_html(miniature["movement"]),
             toughness=escape_html(miniature["toughness"]),
             save=escape_html(miniature["save"]),
+            invulnerable_cell_html=invulnerable_cell_html,
             wounds=escape_html(miniature["wounds"]),
             leadership=escape_html(miniature["leadership"]),
             objective_control=escape_html(miniature["objectiveControl"]),
@@ -424,6 +507,7 @@ def render_statline_table(miniatures):
         "codex_unit_statline.html",
         table_class="unit-stat-table-no-model" if not has_model_column else "",
         model_header_html=model_header_html,
+        invulnerable_header_html=invulnerable_header_html,
         rows_html="".join(rows),
     )
 
@@ -500,54 +584,30 @@ def render_weapon_profiles_table(groups):
         for item_name, profile_names in profile_names_by_item.items()
         if len(profile_names) > 1
     }
+
     profiles = {"ranged": [], "melee": []}
-    seen = {}
-    for index, group in enumerate(weapon_groups):
-        group_class = weapon_group_class(index)
+    seen = set()
+    for group in weapon_groups:
         for profile in group["profiles"]:
-            if weapon_bucket(profile) == "melee":
-                skill = profile.get("weaponSkill") or "-"
-            else:
-                skill = profile.get("ballisticSkill") or "-"
-            abilities = profile.get("abilities") or "-"
-            profile_key = (
-                profile_display_name(profile).lower(),
-                str(profile.get("type") or "").lower(),
-                str(profile.get("range") or ""),
-                str(profile.get("attacks") or ""),
-                str(skill),
-                str(profile.get("strength") or ""),
-                str(profile.get("armourPenetration") or ""),
-                str(profile.get("damage") or ""),
-                str(abilities).lower(),
-            )
-            existing = seen.get(profile_key)
-            if existing is not None:
-                if profile.get("defaultValue"):
-                    existing["isDefault"] = True
+            profile_key = weapon_profile_key(profile)
+            if profile_key in seen:
                 continue
-            item = {
+            seen.add(profile_key)
+            profiles[weapon_bucket(profile)].append({
                 "profile": profile,
-                "skill": skill,
-                "abilities": abilities,
-                "groupClass": group_class,
-                "isDefault": bool(profile.get("defaultValue")),
+                "skill": weapon_profile_skill(profile),
+                "abilities": profile.get("abilities") or "-",
                 "hasModes": profile["itemName"].lower() in multi_profile_items,
-            }
-            seen[profile_key] = item
-            profiles[weapon_bucket(profile)].append(item)
+            })
 
     group_html = []
     for bucket, title, skill_label in (("ranged", "Ranged Weapons", "BS"), ("melee", "Melee Weapons", "WS")):
         rows = []
         for item in profiles[bucket]:
             profile = item["profile"]
-            row_classes = ["unit-weapon-row", item["groupClass"]]
-            if item["isDefault"]:
-                row_classes.append("is-default-weapon")
             rows.append(render_template(
                 "codex_unit_weapon_row.html",
-                row_class=escape_attr(" ".join(row_classes)),
+                row_class="unit-weapon-row",
                 profile_name=escape_html(profile_display_name(profile)),
                 mode_marker_html=render_template("codex_unit_weapon_mode_marker.html") if item["hasModes"] else "",
                 ability_tags_html=weapon_ability_tags(item["abilities"]),
@@ -588,19 +648,83 @@ def render_wargear_rules_section(rules):
     )
 
 
-def render_text_section(title, text, class_name=""):
-    if is_empty_rule(text):
-        return ""
-    classes = " ".join(item for item in ("rule-card", class_name) if item)
-    return render_template(
-        "codex_unit_text_section.html",
-        class_attr=escape_attr(classes),
-        title=escape_html(title),
-        body_html=render_rich_text(text),
+def class_names(*groups):
+    result = []
+    seen = set()
+    for group in groups:
+        if not group:
+            continue
+        items = group if isinstance(group, (list, tuple)) else str(group).split()
+        for item in items:
+            if item and item not in seen:
+                result.append(item)
+                seen.add(item)
+    return result
+
+
+def info_card_key(title):
+    return normalize_rule_text(title).lower()
+
+
+def merge_info_cards(cards):
+    merged = []
+    by_key = {}
+    for card in cards:
+        if not card:
+            continue
+        key = info_card_key(card["title"])
+        existing = by_key.get(key)
+        if existing is None:
+            existing = {
+                "title": card["title"],
+                "classes": list(card["classes"]),
+                "tags": list(card.get("tags") or []),
+                "bodyParts": list(card.get("bodyParts") or []),
+            }
+            by_key[key] = existing
+            merged.append(existing)
+            continue
+        existing["classes"] = class_names(existing["classes"], card["classes"])
+        for tag in card.get("tags") or []:
+            if tag not in existing["tags"]:
+                existing["tags"].append(tag)
+        existing["bodyParts"].extend(card.get("bodyParts") or [])
+    return merged
+
+
+def render_info_card(card):
+    tag_html = "".join(
+        render_template("codex_unit_ability_tag.html", label=escape_html(tag))
+        for tag in card.get("tags") or []
+    )
+    if tag_html:
+        heading_html = (
+            '<div class="unit-card-heading">'
+            f'<h3>{escape_html(card["title"])}</h3>{tag_html}'
+            '</div>'
+        )
+    else:
+        heading_html = f'<h3>{escape_html(card["title"])}</h3>'
+    return (
+        f'<section class="{escape_attr(" ".join(card["classes"]))}">'
+        f'{heading_html}'
+        f'{"".join(card.get("bodyParts") or [])}'
+        '</section>'
     )
 
 
-def render_ability_section(ability):
+def text_info_card(title, text, class_name=""):
+    if is_empty_rule(text):
+        return None
+    return {
+        "title": title,
+        "classes": class_names("rule-card", class_name),
+        "tags": [],
+        "bodyParts": [render_rich_text(text)],
+    }
+
+
+def ability_info_card(ability):
     tags = []
     if ability.get("abilityType"):
         tags.append(ability["abilityType"].title())
@@ -610,9 +734,7 @@ def render_ability_section(ability):
         tags.append("Aura")
     if ability.get("isBondsman"):
         tags.append("Bondsman")
-    tag_html = ""
-    if tags:
-        tag_html = render_template("codex_unit_ability_tag.html", label=escape_html(" / ".join(tags)))
+    tag_labels = [" / ".join(tags)] if tags else []
 
     restriction_html = ""
     if ability.get("restriction"):
@@ -637,14 +759,12 @@ def render_ability_section(ability):
                 sub_ability_name=escape_html(sub_ability["name"]),
                 rules_html=render_rich_text(sub_ability["rules"]),
             ))
-    return render_template(
-        "codex_unit_ability.html",
-        ability_name=escape_html(ability["name"]),
-        tag_html=tag_html,
-        restriction_html=restriction_html,
-        body_html="".join(body_parts),
-        sub_abilities_html="".join(sub_abilities),
-    )
+    return {
+        "title": ability["name"],
+        "classes": class_names("rule-card unit-info-card unit-ability-card"),
+        "tags": tag_labels,
+        "bodyParts": [restriction_html, *body_parts, "".join(sub_abilities)],
+    }
 
 
 def render_invulnerable_saves(saves):
@@ -682,19 +802,28 @@ def render_unit_keywords(keywords):
     )
 
 
-def render_unit_keyword_tags(keywords):
-    if not keywords:
+def is_faction_ability(ability):
+    return str(ability.get("abilityType") or "").lower() == "faction"
+
+
+def render_unit_keyword_tags(keywords, faction_abilities=None):
+    faction_abilities = faction_abilities or []
+    if not keywords and not faction_abilities:
         return ""
-    tags_html = "".join(
+    keyword_tags_html = "".join(
         render_template(
             "codex_unit_keyword_tag.html",
             label=escape_html(keyword),
         )
         for keyword in keywords
     )
+    faction_tags_html = "".join(
+        f'<span class="unit-keyword-tag unit-faction-ability-tag">{escape_html(ability["name"])}</span>'
+        for ability in faction_abilities
+    )
     return render_template(
         "codex_unit_keyword_tags.html",
-        tags_html=tags_html,
+        tags_html=f"{keyword_tags_html}{faction_tags_html}",
     )
 
 
@@ -709,28 +838,30 @@ def render_datasheet_page(heretic_builder, faction_id, datasheet_id):
         detail["paidWargear"],
     )
     base_sizes_html = render_base_sizes(datasheet.get("baseSize"))
-    statline_html = render_statline_table(detail["miniatures"])
+    statline_html = render_statline_table(detail["miniatures"], detail["invulnerableSaves"])
     weapons_html = render_weapon_profiles_table(detail["wargearGroups"])
 
-    info_sections = [
-        render_invulnerable_saves(detail["invulnerableSaves"]),
-    ]
-    info_sections.extend(render_ability_section(ability) for ability in detail["abilities"])
-    info_sections.extend(
-        render_text_section(rule["name"], rule["rules"], "unit-info-card unit-rule-card")
+    faction_abilities = [ability for ability in detail["abilities"] if is_faction_ability(ability)]
+    datasheet_abilities = [ability for ability in detail["abilities"] if not is_faction_ability(ability)]
+
+    info_cards = []
+    info_cards.extend(ability_info_card(ability) for ability in datasheet_abilities)
+    info_cards.extend(
+        text_info_card(rule["name"], rule["rules"], "unit-info-card unit-rule-card")
         for rule in detail["rules"]
     )
-    info_sections.extend(
-        render_text_section(
+    info_cards.extend(
+        text_info_card(
             damage["name"] if not damage.get("damagedAt") else f'{damage["name"]}: {damage["damagedAt"]} wounds',
             damage["rules"],
             "unit-info-card unit-damage-card",
         )
         for damage in detail["damageRows"]
     )
+    info_sections = [render_info_card(card) for card in merge_info_cards(info_cards)]
     content_html = render_template(
         "codex_unit_detail.html",
-        keyword_tags_html=render_unit_keyword_tags(detail["keywords"]),
+        keyword_tags_html=render_unit_keyword_tags(detail["keywords"], faction_abilities),
         statline_html=statline_html,
         points_html=render_reference_stack(points_html, base_sizes_html),
         weapons_html=weapons_html,
