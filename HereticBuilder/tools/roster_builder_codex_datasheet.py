@@ -591,12 +591,18 @@ def render_weapon_profiles_table(groups):
         rows = []
         for item in profiles[bucket]:
             profile = item["profile"]
+            weapon_type = str(profile.get("type") or "").upper()
+            type_tag_html = (
+                f'<span class="unit-weapon-type">{escape_html(weapon_type)}</span>'
+                if weapon_type else ""
+            )
             rows.append(render_template(
                 "codex_unit_weapon_row.html",
                 row_class="unit-weapon-row",
                 profile_name=escape_html(profile_display_name(profile)),
                 mode_marker_html=render_template("codex_unit_weapon_mode_marker.html") if item["hasModes"] else "",
                 ability_tags_html=weapon_ability_tags(item["abilities"]),
+                type_tag_html=type_tag_html,
                 range=escape_html(profile["range"]),
                 attacks=escape_html(profile["attacks"]),
                 skill=escape_html(item["skill"]),
