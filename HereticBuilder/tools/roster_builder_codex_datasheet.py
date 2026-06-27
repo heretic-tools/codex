@@ -465,52 +465,36 @@ def render_invulnerable_save_cell(save):
     return f'          <td class="unit-invulnerable-save-cell" data-label="INV"{title_attr}>{escape_html(value)}</td>\n'
 
 
-def render_statline_table(miniatures, invulnerable_saves=None):
+def render_statline_tiles(miniatures, invulnerable_saves=None):
     visible = [miniature for miniature in miniatures if not miniature.get("statlineHidden")]
     if not visible:
         return ""
     invulnerable_saves = invulnerable_saves or []
-    global_invulnerable_save = next((save for save in invulnerable_saves if not save.get("miniatureId")), None)
-    invulnerable_saves_by_miniature = {
-        save["miniatureId"]: save
-        for save in invulnerable_saves
-        if save.get("miniatureId")
-    }
-    has_invulnerable_column = bool(invulnerable_saves)
-    has_model_column = len(visible) > 1
-    model_header_html = render_template("codex_unit_statline_model_header.html") if has_model_column else ""
-    invulnerable_header_html = ""
-    if has_invulnerable_column:
-        invulnerable_header_html = '          <th class="unit-invulnerable-save-cell" scope="col">INV</th>\n'
-    rows = []
+    has_model_label = len(visible) > 1
+    stat_fields = [
+        ("movement", "M"),
+        ("toughness", "T"),
+        ("save", "SV"),
+        ("wounds", "W"),
+        ("leadership", "LD"),
+        ("objectiveControl", "OC"),
+    ]
+    groups = []
     for miniature in visible:
-        model_cell_html = ""
-        if has_model_column:
-            model_cell_html = render_template(
-                "codex_unit_statline_model_cell.html",
-                model_name=escape_html(miniature["name"]),
-            )
-        invulnerable_cell_html = ""
-        if has_invulnerable_column:
-            invulnerable_save = invulnerable_saves_by_miniature.get(miniature["id"], global_invulnerable_save)
-            invulnerable_cell_html = render_invulnerable_save_cell(invulnerable_save)
-        rows.append(render_template(
-            "codex_unit_statline_row.html",
-            model_cell_html=model_cell_html,
-            movement=escape_html(miniature["movement"]),
-            toughness=escape_html(miniature["toughness"]),
-            save=escape_html(miniature["save"]),
-            invulnerable_cell_html=invulnerable_cell_html,
-            wounds=escape_html(miniature["wounds"]),
-            leadership=escape_html(miniature["leadership"]),
-            objective_control=escape_html(miniature["objectiveControl"]),
-        ))
+        parts = []
+        if has_model_label:
+            parts.append(f'    <div class="unit-stat-model-label">{escape_html(miniature["name"])}</div>\n')
+        tiles = "".join(
+            render_template("codex_unit_stat_tile.html", value=escape_html(miniature[field]), label=label)
+            for field, label in stat_fields
+        )
+        parts.append(f'    <div class="unit-stat-tiles">\n{tiles}    </div>\n')
+        groups.append("".join(parts))
+    inv_html = render_invulnerable_saves(invulnerable_saves)
+    tiles_html = "".join(groups) + inv_html
     return render_template(
         "codex_unit_statline.html",
-        table_class="unit-stat-table-no-model" if not has_model_column else "",
-        model_header_html=model_header_html,
-        invulnerable_header_html=invulnerable_header_html,
-        rows_html="".join(rows),
+        tiles_html=tiles_html,
     )
 
 
@@ -851,7 +835,7 @@ def render_datasheet_page(heretic_builder, faction_id, datasheet_id):
         detail["paidWargear"],
     )
     base_sizes_html = render_base_sizes(datasheet.get("baseSize"))
-    statline_html = render_statline_table(detail["miniatures"], detail["invulnerableSaves"])
+    statline_html = render_statline_tiles(detail["miniatures"], detail["invulnerableSaves"])
     weapons_html = render_weapon_profiles_table(detail["wargearGroups"])
 
     faction_abilities = [ability for ability in detail["abilities"] if is_faction_ability(ability)]
