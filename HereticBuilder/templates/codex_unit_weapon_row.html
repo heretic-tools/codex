@@ -1,13 +1,16 @@
-        <tr class="{{ row_class }}">
-          <th scope="row">
-            {{ mode_marker_html }}
-            <span class="weapon-profile-name">{{ profile_name }}</span>
-            <span class="weapon-ability-tags">{{ ability_tags_html }}</span>
-          </th>
-          <td data-label="R">{{ range }}</td>
-          <td data-label="A">{{ attacks }}</td>
-          <td data-label="{{ skill_label }}">{{ skill }}</td>
-          <td data-label="S">{{ strength }}</td>
-          <td data-label="AP">{{ armour_penetration }}</td>
-          <td data-label="D">{{ damage }}</td>
-        </tr>
+      <div class="unit-weapon-card">
+        <div class="unit-weapon-header">
+          <span class="unit-weapon-chevron">▾</span>
+          <strong class="unit-weapon-name">{{ profile_name }}</strong>
+          {{ type_tag_html }}
+          {{ ability_tags_html }}
+        </div>
+        <div class="unit-weapon-chips">
+          <div class="unit-weapon-chip"><i>RANGE</i><b>{{ range }}</b></div>
+          <div class="unit-weapon-chip"><i>A</i><b>{{ attacks }}</b></div>
+          <div class="unit-weapon-chip"><i>{{ skill_label }}</i><b>{{ skill }}</b></div>
+          <div class="unit-weapon-chip"><i>S</i><b>{{ strength }}</b></div>
+          <div class="unit-weapon-chip"><i>AP</i><b>{{ armour_penetration }}</b></div>
+          <div class="unit-weapon-chip"><i>D</i><b>{{ damage }}</b></div>
+        </div>
+      </div>
