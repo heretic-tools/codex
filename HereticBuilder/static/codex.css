@@ -362,12 +362,12 @@
 
     .errata-card {
       border-left-width: 6px;
-      border-left-color: #8a2d2d;
+      border-left-color: var(--accent);
       background: #d7d7d7;
     }
 
     .errata-card .faq-card-kicker {
-      background: #8a2d2d;
+      background: var(--accent);
     }
 
     .question-card .faq-card-kicker {
