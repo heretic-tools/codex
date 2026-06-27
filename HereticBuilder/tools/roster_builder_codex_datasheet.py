@@ -479,6 +479,13 @@ def render_statline_tiles(miniatures, invulnerable_saves=None):
         ("leadership", "LD"),
         ("objectiveControl", "OC"),
     ]
+    # Build lookup: miniature name (or "" for unit-wide) → compact inv save value
+    inv_by_name = {}
+    for save in invulnerable_saves:
+        value = compact_invulnerable_save(save)
+        if value:
+            inv_by_name[save.get("miniatureName") or ""] = value
+
     groups = []
     for miniature in visible:
         parts = []
@@ -488,10 +495,12 @@ def render_statline_tiles(miniatures, invulnerable_saves=None):
             render_template("codex_unit_stat_tile.html", value=escape_html(miniature[field]), label=label)
             for field, label in stat_fields
         )
+        inv_value = inv_by_name.get(miniature.get("name", "")) or inv_by_name.get("")
+        if inv_value:
+            tiles += f'      <div class="unit-stat-tile unit-stat-tile--inv"><b>{escape_html(inv_value)}</b><span>INV</span></div>\n'
         parts.append(f'    <div class="unit-stat-tiles">\n{tiles}    </div>\n')
         groups.append("".join(parts))
-    inv_html = render_invulnerable_saves(invulnerable_saves)
-    tiles_html = "".join(groups) + inv_html
+    tiles_html = "".join(groups)
     return render_template(
         "codex_unit_statline.html",
         tiles_html=tiles_html,

@@ -789,6 +789,10 @@
       opacity: .78;
     }
 
+    .unit-stat-tile--inv {
+      grid-column: 3;
+    }
+
     .unit-stat-model-label {
       font-family: var(--font-pixel);
       font-size: 9px;

@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
 
 :root {
       color-scheme: light;
@@ -27,7 +26,7 @@
       --accent-ink:   #fff5f5;
       --lore-bg:      #e9dcc0;
       --lore-ink:     #2c2417;
-      --font-pixel:   "Silkscreen", "Courier New", monospace;
+      --font-pixel:   Tahoma, "MS Sans Serif", Arial, sans-serif;
     }
 
     * {
@@ -168,10 +167,11 @@
     }
 
     .panel.is-scrollable .panel-content {
-      padding-right: var(--win-scrollbar-size);
+      padding-right: 22px;
     }
 
     .win-scrollbar {
+      display: none;
       position: absolute;
       top: 0;
       right: 0;
@@ -497,7 +497,7 @@
     }
 
     .taskbar-search-results.has-search-scrollbar .taskbar-search-results-list {
-      padding-right: var(--win-scrollbar-size);
+      padding-right: 0;
     }
 
     .taskbar-search-scrollbar {
