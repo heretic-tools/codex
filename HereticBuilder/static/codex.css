@@ -174,8 +174,8 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
-      box-shadow: inset 1px 1px 0 #dfdfdf, 1px 1px 0 var(--ink);
+      border-color: var(--bevel-raised);
+      box-shadow: var(--inset-hi), 1px 1px 0 var(--ink);
     }
 
     .rule-card h2,
@@ -235,7 +235,7 @@
 
     .rule-card.is-boxed-text {
       background: #d7d7d7;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
       box-shadow: inset -1px -1px 0 #efefef, inset 1px 1px 0 var(--shadow);
     }
 
@@ -245,7 +245,7 @@
       overflow-x: auto;
       border-style: solid;
       border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
     }
 
     .rule-table {
@@ -293,7 +293,7 @@
       background: #fff;
       border-style: solid;
       border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
     }
 
     .rule-image-card figcaption {
@@ -525,7 +525,7 @@
       background: #d7d7d7;
       border-style: solid;
       border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
       font-size: 12px;
       line-height: 1;
     }
@@ -633,7 +633,7 @@
 
     .unit-stat-table tbody th,
     .unit-stat-table tbody td {
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
     }
 
     .unit-stat-table tbody th {
@@ -1024,8 +1024,8 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
-      box-shadow: inset 1px 1px 0 #dfdfdf;
+      border-color: var(--bevel-raised);
+      box-shadow: var(--inset-hi);
       text-align: left;
     }
 
@@ -1117,7 +1117,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
       line-height: 1.4;
     }
 
@@ -1143,7 +1143,7 @@
         background: #d7d7d7;
         border-style: solid;
         border-width: 2px;
-        border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+        border-color: var(--bevel-inset);
         box-shadow: inset 1px 1px 0 #9a9a9a, inset -1px -1px 0 #efefef;
       }
 
