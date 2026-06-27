@@ -18,12 +18,12 @@
 
     .codex-page .title-bar.faction-hero-title {
       position: relative;
-      min-height: 112px;
+      min-height: 140px;
       align-items: end;
       overflow: hidden;
       isolation: isolate;
       background:
-        linear-gradient(180deg, transparent 0%, transparent 42%, rgba(0, 0, 0, .38) 68%, rgba(0, 0, 0, .74) 100%),
+        linear-gradient(180deg, transparent 0%, transparent 36%, rgba(0, 0, 0, .50) 68%, rgba(0, 0, 0, .85) 100%),
         var(--faction-hero-image, linear-gradient(90deg, var(--title), var(--title-hot)));
       background-position: top center;
       background-size: cover;
@@ -36,7 +36,7 @@
       overflow: visible;
       padding-bottom: 5px;
       white-space: normal;
-      font-size: 24px;
+      font-size: 29px;
       line-height: 1.16;
     }
 
@@ -1226,7 +1226,7 @@
       }
 
       .codex-page .title-bar.faction-hero-title {
-        min-height: 96px;
+        min-height: 112px;
       }
 
       .unit-card-heading {
