@@ -1,4 +1,3 @@
-
 :root {
       color-scheme: light;
       --desktop: #008080;
@@ -15,18 +14,6 @@
       --red: #b00020;
       --font: Tahoma, "MS Sans Serif", Arial, sans-serif;
       --win-scrollbar-size: 24px;
-
-      /* design system additions */
-      --bevel-raised: var(--light) var(--shadow) var(--shadow) var(--light);
-      --bevel-inset:  var(--shadow) var(--light) var(--light) var(--shadow);
-      --inset-hi:     inset 0 1px 0 var(--light);
-      --panel:        #cdcdcd;
-      --tile:         #dadada;
-      --accent:       #7c1414;
-      --accent-ink:   #fff5f5;
-      --lore-bg:      #e9dcc0;
-      --lore-ink:     #2c2417;
-      --font-pixel:   Tahoma, "MS Sans Serif", Arial, sans-serif;
     }
 
     * {
@@ -95,7 +82,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
       box-shadow: 1px 1px 0 var(--ink);
     }
 
@@ -134,7 +121,7 @@
       color: var(--ink);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
       font-size: 12px;
       line-height: 1;
     }
@@ -147,7 +134,7 @@
       overflow: hidden;
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       margin: 8px;
       background: #d4d4d4;
     }
@@ -167,11 +154,10 @@
     }
 
     .panel.is-scrollable .panel-content {
-      padding-right: 22px;
+      padding-right: var(--win-scrollbar-size);
     }
 
     .win-scrollbar {
-      display: none;
       position: absolute;
       top: 0;
       right: 0;
@@ -198,14 +184,14 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
       font-size: 11px;
       line-height: 1;
       cursor: pointer;
     }
 
     .scroll-button:active {
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       padding: 1px 0 0 1px;
     }
 
@@ -241,15 +227,15 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
-      box-shadow: var(--inset-hi);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      box-shadow: inset 1px 1px 0 #dfdfdf;
       cursor: grab;
       touch-action: none;
     }
 
     .scroll-thumb:active {
       cursor: grabbing;
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
     }
 
     .masthead {
@@ -268,7 +254,7 @@
       background: var(--yellow);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
       box-shadow: inset -2px -2px 0 #e0c060, inset 2px 2px 0 #ffffcc;
       font-size: 36px;
       font-weight: 700;
@@ -307,8 +293,8 @@
       background: var(--window);
       border-style: solid;
       border-width: 3px;
-      border-color: var(--bevel-raised);
-      box-shadow: var(--inset-hi), 1px 1px 0 var(--ink);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      box-shadow: inset 1px 1px 0 #dfdfdf, 1px 1px 0 var(--ink);
       cursor: pointer;
       text-align: center;
       touch-action: manipulation;
@@ -320,7 +306,7 @@
 
     .launcher:active,
     .launcher[aria-pressed="true"] {
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       box-shadow: inset 2px 2px 0 var(--mid);
       transform: translate(1px, 1px);
     }
@@ -377,7 +363,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
       font-weight: 700;
     }
 
@@ -412,7 +398,7 @@
       background: var(--light);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       border-radius: 0;
       font: inherit;
       letter-spacing: 0;
@@ -445,7 +431,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
       font: inherit;
       font-size: 12px;
       font-weight: 700;
@@ -460,7 +446,7 @@
     }
 
     .taskbar-search-clear:active {
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       padding: 1px 0 1px 1px;
     }
 
@@ -476,7 +462,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
       box-shadow: 2px 2px 0 var(--ink);
       z-index: 20;
     }
@@ -497,7 +483,7 @@
     }
 
     .taskbar-search-results.has-search-scrollbar .taskbar-search-results-list {
-      padding-right: 0;
+      padding-right: var(--win-scrollbar-size);
     }
 
     .taskbar-search-scrollbar {

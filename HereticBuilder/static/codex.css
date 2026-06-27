@@ -18,12 +18,12 @@
 
     .codex-page .title-bar.faction-hero-title {
       position: relative;
-      min-height: 140px;
+      min-height: 112px;
       align-items: end;
       overflow: hidden;
       isolation: isolate;
       background:
-        linear-gradient(180deg, transparent 0%, transparent 36%, rgba(0, 0, 0, .50) 68%, rgba(0, 0, 0, .85) 100%),
+        linear-gradient(180deg, transparent 0%, transparent 42%, rgba(0, 0, 0, .38) 68%, rgba(0, 0, 0, .74) 100%),
         var(--faction-hero-image, linear-gradient(90deg, var(--title), var(--title-hot)));
       background-position: top center;
       background-size: cover;
@@ -36,7 +36,7 @@
       overflow: visible;
       padding-bottom: 5px;
       white-space: normal;
-      font-size: 29px;
+      font-size: 24px;
       line-height: 1.16;
     }
 
@@ -77,7 +77,6 @@
     }
 
     .codex-page .section-tag {
-      font-family: var(--font-pixel);
       min-height: 26px;
       display: inline-flex;
       align-items: center;
@@ -175,8 +174,8 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
-      box-shadow: var(--inset-hi), 1px 1px 0 var(--ink);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      box-shadow: inset 1px 1px 0 #dfdfdf, 1px 1px 0 var(--ink);
     }
 
     .rule-card h2,
@@ -214,7 +213,6 @@
     }
 
     .rule-card-subtitle {
-      font-family: var(--font-pixel);
       display: inline-flex;
       max-width: 100%;
       padding: 2px 7px;
@@ -222,7 +220,6 @@
       color: var(--light);
       font-size: 12px;
       font-weight: 800;
-      text-transform: uppercase;
       line-height: 1.1;
       text-shadow: 1px 1px 0 var(--ink);
     }
@@ -238,7 +235,7 @@
 
     .rule-card.is-boxed-text {
       background: #d7d7d7;
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       box-shadow: inset -1px -1px 0 #efefef, inset 1px 1px 0 var(--shadow);
     }
 
@@ -248,7 +245,7 @@
       overflow-x: auto;
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
     }
 
     .rule-table {
@@ -296,7 +293,7 @@
       background: #fff;
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
     }
 
     .rule-image-card figcaption {
@@ -349,7 +346,6 @@
     }
 
     .faq-card-kicker {
-      font-family: var(--font-pixel);
       width: fit-content;
       max-width: 100%;
       padding: 2px 6px;
@@ -364,12 +360,12 @@
 
     .errata-card {
       border-left-width: 6px;
-      border-left-color: var(--accent);
+      border-left-color: #8a2d2d;
       background: #d7d7d7;
     }
 
     .errata-card .faq-card-kicker {
-      background: var(--accent);
+      background: #8a2d2d;
     }
 
     .question-card .faq-card-kicker {
@@ -422,7 +418,6 @@
     }
 
     .unit-keyword-tag {
-      font-family: var(--font-pixel);
       display: inline-flex;
       max-width: 100%;
       padding: 1px 5px;
@@ -439,7 +434,6 @@
     }
 
     .unit-faction-ability-tag {
-      font-family: var(--font-pixel);
       background: #006b53;
       border-color: #10a37f #003c2f #003c2f #10a37f;
     }
@@ -496,7 +490,6 @@
     .unit-points-card > h3,
     .unit-table-card > h3,
     .unit-card-heading h3 {
-      font-family: var(--font-pixel);
       width: fit-content;
       max-width: 100%;
       padding: 3px 7px;
@@ -509,7 +502,6 @@
     }
 
     .unit-summary-kicker {
-      font-family: var(--font-pixel);
       text-transform: uppercase;
     }
 
@@ -533,7 +525,7 @@
       background: #d7d7d7;
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       font-size: 12px;
       line-height: 1;
     }
@@ -551,71 +543,6 @@
       margin-top: -1px;
     }
 
-    .unit-weapon-card {
-      background: var(--window);
-      border: 1px solid var(--mid);
-      box-shadow: var(--inset-hi);
-    }
-
-    .unit-weapon-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 9px;
-    }
-
-    .unit-weapon-chevron {
-      font-family: var(--font-pixel);
-      font-size: 10px;
-      opacity: .6;
-      flex: 0 0 auto;
-      width: 12px;
-    }
-
-    .unit-weapon-name {
-      flex: 1;
-      font-size: 13px;
-    }
-
-    .unit-weapon-type {
-      padding: 1px 5px;
-      font-size: 9px;
-      font-weight: 700;
-      font-family: var(--font-pixel);
-      color: var(--light);
-      background: var(--title);
-    }
-
-    .unit-weapon-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      padding: 0 9px 9px;
-    }
-
-    .unit-weapon-chip {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 42px;
-      padding: 3px 6px;
-      background: var(--tile);
-      border: 1px solid var(--mid);
-    }
-
-    .unit-weapon-chip i {
-      font-family: var(--font-pixel);
-      font-size: 8px;
-      opacity: .7;
-      font-style: normal;
-    }
-
-    .unit-weapon-chip b {
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.1;
-    }
-
     .unit-card-heading {
       display: flex;
       align-items: start;
@@ -624,7 +551,6 @@
     }
 
     .unit-card-tag {
-      font-family: var(--font-pixel);
       flex: 0 0 auto;
       padding: 2px 6px;
       background: var(--title);
@@ -689,7 +615,6 @@
     }
 
     .unit-stat-table thead th {
-      font-family: var(--font-pixel);
       background: transparent;
       color: var(--light);
       border-width: 2px 0;
@@ -708,7 +633,7 @@
 
     .unit-stat-table tbody th,
     .unit-stat-table tbody td {
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
     }
 
     .unit-stat-table tbody th {
@@ -758,54 +683,6 @@
 
     .unit-stat-table .unit-invulnerable-save-cell {
       white-space: nowrap;
-    }
-
-    .unit-stat-tiles {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 5px;
-    }
-
-    .unit-stat-tile {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 8px 2px 6px;
-      background: var(--tile);
-      border: 2px solid;
-      border-color: var(--bevel-raised);
-    }
-
-    .unit-stat-tile b {
-      font-size: 22px;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    .unit-stat-tile span {
-      margin-top: 3px;
-      font-family: var(--font-pixel);
-      font-size: 9px;
-      opacity: .78;
-    }
-
-    .unit-stat-tile--inv {
-      grid-column: 3;
-    }
-
-    .unit-stat-model-label {
-      font-family: var(--font-pixel);
-      font-size: 9px;
-      letter-spacing: 0.05em;
-      opacity: .7;
-      text-transform: uppercase;
-      padding: 2px 0;
-    }
-
-    .unit-stat-tiles-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
     }
 
     .unit-points-table {
@@ -962,16 +839,13 @@
     }
 
     .detachment-section-title {
-      font-family: var(--font-pixel);
       margin: 2px 0 0;
       padding: 5px 8px;
-      background: linear-gradient(90deg, var(--title), var(--title-hot));
+      background: var(--title);
       color: var(--light);
-      font-size: 13px;
-      letter-spacing: 0.05em;
+      font-size: 18px;
       line-height: 1.1;
       text-shadow: 1px 1px 0 var(--ink);
-      text-transform: uppercase;
     }
 
     .detachment-card-grid {
@@ -1039,10 +913,10 @@
     .unit-lore-card,
     .detachment-lore {
       padding: 10px 12px;
-      color: var(--lore-ink);
+      color: #2c2518;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, .38), transparent 36%),
-        var(--lore-bg);
+        #efe2c2;
       border-style: solid;
       border-width: 2px 2px 2px 6px;
       border-color: #fff8df #8f7e5b #8f7e5b #8a6a2e;
@@ -1055,7 +929,7 @@
     .rule-card.is-quote h3,
     .lore-flavor-card h3,
     .unit-lore-card h3 {
-      color: var(--lore-ink);
+      color: #5b3f18;
       font-size: 13px;
       line-height: 1.12;
       text-transform: uppercase;
@@ -1150,8 +1024,8 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-raised);
-      box-shadow: var(--inset-hi);
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      box-shadow: inset 1px 1px 0 #dfdfdf;
       text-align: left;
     }
 
@@ -1243,7 +1117,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--bevel-inset);
+      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       line-height: 1.4;
     }
 
@@ -1269,7 +1143,7 @@
         background: #d7d7d7;
         border-style: solid;
         border-width: 2px;
-        border-color: var(--bevel-inset);
+        border-color: var(--shadow) var(--light) var(--light) var(--shadow);
         box-shadow: inset 1px 1px 0 #9a9a9a, inset -1px -1px 0 #efefef;
       }
 
@@ -1344,7 +1218,7 @@
       }
 
       .codex-page .title-bar.faction-hero-title {
-        min-height: 112px;
+        min-height: 96px;
       }
 
       .unit-card-heading {
