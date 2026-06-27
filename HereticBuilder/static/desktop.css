@@ -96,7 +96,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      border-color: var(--bevel-raised);
       box-shadow: 1px 1px 0 var(--ink);
     }
 
@@ -135,7 +135,7 @@
       color: var(--ink);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      border-color: var(--bevel-raised);
       font-size: 12px;
       line-height: 1;
     }
@@ -148,7 +148,7 @@
       overflow: hidden;
       border-style: solid;
       border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
       margin: 8px;
       background: #d4d4d4;
     }
@@ -198,14 +198,14 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      border-color: var(--bevel-raised);
       font-size: 11px;
       line-height: 1;
       cursor: pointer;
     }
 
     .scroll-button:active {
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
       padding: 1px 0 0 1px;
     }
 
@@ -241,15 +241,15 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
-      box-shadow: inset 1px 1px 0 #dfdfdf;
+      border-color: var(--bevel-raised);
+      box-shadow: var(--inset-hi);
       cursor: grab;
       touch-action: none;
     }
 
     .scroll-thumb:active {
       cursor: grabbing;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
     }
 
     .masthead {
@@ -268,7 +268,7 @@
       background: var(--yellow);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      border-color: var(--bevel-raised);
       box-shadow: inset -2px -2px 0 #e0c060, inset 2px 2px 0 #ffffcc;
       font-size: 36px;
       font-weight: 700;
@@ -307,8 +307,8 @@
       background: var(--window);
       border-style: solid;
       border-width: 3px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
-      box-shadow: inset 1px 1px 0 #dfdfdf, 1px 1px 0 var(--ink);
+      border-color: var(--bevel-raised);
+      box-shadow: var(--inset-hi), 1px 1px 0 var(--ink);
       cursor: pointer;
       text-align: center;
       touch-action: manipulation;
@@ -320,7 +320,7 @@
 
     .launcher:active,
     .launcher[aria-pressed="true"] {
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
       box-shadow: inset 2px 2px 0 var(--mid);
       transform: translate(1px, 1px);
     }
@@ -377,7 +377,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      border-color: var(--bevel-raised);
       font-weight: 700;
     }
 
@@ -412,7 +412,7 @@
       background: var(--light);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
       border-radius: 0;
       font: inherit;
       letter-spacing: 0;
@@ -445,7 +445,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      border-color: var(--bevel-raised);
       font: inherit;
       font-size: 12px;
       font-weight: 700;
@@ -460,7 +460,7 @@
     }
 
     .taskbar-search-clear:active {
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--bevel-inset);
       padding: 1px 0 1px 1px;
     }
 
@@ -476,7 +476,7 @@
       background: var(--window);
       border-style: solid;
       border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+      border-color: var(--bevel-raised);
       box-shadow: 2px 2px 0 var(--ink);
       z-index: 20;
     }
