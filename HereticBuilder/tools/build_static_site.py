@@ -87,6 +87,14 @@ def codex_root_site_url(path, base_path):
     return site_url(path, base_path)
 
 
+def codex_root_href(path):
+    if path == "/codex":
+        return "/"
+    if path.startswith("/codex/"):
+        return path.removeprefix("/codex")
+    return path
+
+
 def inject_static_config(html, base_path, mount_codex_at_root=False):
     runtime_base_path = "" if mount_codex_at_root else base_path
     config = (
@@ -116,11 +124,7 @@ def inject_static_config(html, base_path, mount_codex_at_root=False):
 
 
 def codex_root_route(route):
-    if route == "/codex":
-        return "/"
-    if route.startswith("/codex/"):
-        return route.removeprefix("/codex")
-    return route
+    return codex_root_href(route)
 
 
 def route_to_file(out_dir, route, mount_codex_at_root=False):
@@ -167,7 +171,7 @@ def copy_assets(out_dir):
     (out_dir / ".nojekyll").write_text("", encoding="utf-8")
 
 
-def search_index_items(builder):
+def search_index_items(builder, mount_codex_at_root=False):
     with builder.connect(readonly=True) as conn:
         items = []
         for method_name in STATIC_SEARCH_METHODS:
@@ -179,6 +183,8 @@ def search_index_items(builder):
         href = item.get("href") or ""
         if not title or not href:
             continue
+        if mount_codex_at_root:
+            href = codex_root_href(href)
         normalized.append({
             "type": compact_text(item.get("type")) or "Result",
             "title": title,
@@ -189,10 +195,10 @@ def search_index_items(builder):
     return normalized
 
 
-def write_search_index(builder, out_dir):
+def write_search_index(builder, out_dir, mount_codex_at_root=False):
     payload = {
         "version": 1,
-        "items": search_index_items(builder),
+        "items": search_index_items(builder, mount_codex_at_root),
     }
     (out_dir / "search-index.json").write_text(
         json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
@@ -320,7 +326,7 @@ def main():
 
     copy_assets(out_dir)
     page_count = write_static_pages(builder, out_dir, base_path, args.mount_codex_at_root)
-    write_search_index(builder, out_dir)
+    write_search_index(builder, out_dir, args.mount_codex_at_root)
 
     print(f"Static site: {out_dir}")
     print(f"Pages: {page_count}")

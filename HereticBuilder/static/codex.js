@@ -31,13 +31,13 @@
   }
 
   function normalizeCoreRulePath(pathname) {
-    const ruleMatch = pathname.match(/^\/codex\/core-rules\/rule\/(\d{1,2})(?:\.00)?$/);
+    const ruleMatch = pathname.match(/^(\/(?:codex\/)?core-rules)\/rule\/(\d{1,2})(?:\.00)?$/);
     if (ruleMatch) {
-      return `/codex/core-rules/section/${ruleMatch[1].padStart(2, "0")}`;
+      return `${ruleMatch[1]}/section/${ruleMatch[2].padStart(2, "0")}`;
     }
-    const sectionMatch = pathname.match(/^\/codex\/core-rules\/section\/(\d{1,2})$/);
+    const sectionMatch = pathname.match(/^(\/(?:codex\/)?core-rules)\/section\/(\d{1,2})$/);
     if (sectionMatch) {
-      return `/codex/core-rules/section/${sectionMatch[1].padStart(2, "0")}`;
+      return `${sectionMatch[1]}/section/${sectionMatch[2].padStart(2, "0")}`;
     }
     return pathname;
   }
@@ -98,10 +98,7 @@
   }
 
   function isCoreRulesReferenceHref(href) {
-    return (
-      href.startsWith("/codex/core-rules/rule/")
-      || href.startsWith("/codex/core-rules/section/")
-    );
+    return /^\/(?:codex\/)?core-rules\/(?:rule|section)\//.test(href);
   }
 
   function rememberRuleReturnHref(event) {
