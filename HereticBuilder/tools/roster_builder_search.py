@@ -4,6 +4,13 @@ from roster_builder_codex_rich_text import (
     core_rule_href,
     normalize_rule_text,
 )
+from roster_builder_codex import (
+    datasheet_href as codex_datasheet_href,
+    detachment_href as codex_detachment_href,
+    faction_href as codex_faction_href,
+    visible_codex_datasheets_for_faction,
+)
+from roster_builder_routes import scoped_slug_map
 
 
 CORE_RULES_PUBLICATION_ID = "4cdf7a87-0914-49e8-b5df-b9f8be4d13c6"
@@ -31,16 +38,46 @@ def normalize_rule_section_code(value):
     return f"{int(match.group(1)):02d}"
 
 
-def faction_href(faction_id):
-    return f"/codex/faction/{faction_id}"
+def faction_href(faction_name):
+    return codex_faction_href(faction_name)
 
 
-def datasheet_href(faction_id, datasheet_id):
-    return f"/codex/faction/{faction_id}/datasheet/{datasheet_id}"
+def codex_route_maps(builder):
+    cached = getattr(builder, "_codex_search_route_maps", None)
+    if cached is not None:
+        return cached
 
+    datasheet_routes = {}
+    detachment_routes = {}
+    for faction in builder.bootstrap()["factions"]:
+        native_datasheets, allied_datasheets = visible_codex_datasheets_for_faction(builder, faction["id"])
+        datasheets = [
+            {**datasheet, "allyType": "native"}
+            for datasheet in native_datasheets
+        ] + [
+            {**datasheet, "allyType": "allied"}
+            for datasheet in allied_datasheets
+        ]
+        datasheet_slug_by_id = scoped_slug_map(datasheets)
+        for datasheet in datasheets:
+            datasheet_routes[(faction["id"], datasheet["id"])] = codex_datasheet_href(
+                faction,
+                datasheet,
+                datasheet_slug_by_id[datasheet["id"]],
+            )
 
-def detachment_href(faction_id, detachment_id):
-    return f"/codex/faction/{faction_id}/detachment/{detachment_id}"
+        detachments = builder.detachments(faction["id"]).get("detachments", [])
+        detachment_slug_by_id = scoped_slug_map(detachments)
+        for detachment in detachments:
+            detachment_routes[(faction["id"], detachment["id"])] = codex_detachment_href(
+                faction,
+                detachment,
+                detachment_slug_by_id[detachment["id"]],
+            )
+
+    cached = {"datasheets": datasheet_routes, "detachments": detachment_routes}
+    setattr(builder, "_codex_search_route_maps", cached)
+    return cached
 
 
 def clipped_excerpt(text, query, tokens, length=180):
@@ -241,7 +278,7 @@ class RosterSearchMixin:
                 "title": row["name"],
                 "meta": "Codex",
                 "text": compact_text(row["commonName"], row["lore"]),
-                "href": faction_href(row["id"]),
+                "href": faction_href(row["name"]),
             }
             for row in rows
         ]
@@ -369,7 +406,7 @@ class RosterSearchMixin:
                 "title": row["name"],
                 "meta": compact_text(row["factionName"]),
                 "text": compact_text(row["componentText"], row["faqText"]),
-                "href": f"{faction_href(row['factionId'])}/army-rule",
+                "href": f"{faction_href(row['factionName'])}/army-rule",
             }
             for row in rows
         ]
@@ -482,6 +519,7 @@ class RosterSearchMixin:
             order by lower(fk.name), lower(d.name)
             """
         ).fetchall()
+        href_by_key = codex_route_maps(self)["datasheets"]
         return [
             {
                 "type": "Datasheet",
@@ -500,9 +538,10 @@ class RosterSearchMixin:
                     row["wargearText"],
                     row["faqText"],
                 ),
-                "href": datasheet_href(row["factionId"], row["id"]),
+                "href": href_by_key[(row["factionId"], row["id"])],
             }
             for row in rows
+            if (row["factionId"], row["id"]) in href_by_key
         ]
 
     def search_detachment_items(self, conn):
@@ -537,15 +576,17 @@ class RosterSearchMixin:
             order by lower(fk.name), lower(d.name)
             """
         ).fetchall()
+        href_by_key = codex_route_maps(self)["detachments"]
         return [
             {
                 "type": "Detachment",
                 "title": row["name"],
                 "meta": row["factionName"],
                 "text": compact_text(row["detailText"], row["faqText"]),
-                "href": detachment_href(row["factionId"], row["id"]),
+                "href": href_by_key[(row["factionId"], row["id"])],
             }
             for row in rows
+            if (row["factionId"], row["id"]) in href_by_key
         ]
 
     def search_detachment_rule_items(self, conn):
@@ -575,15 +616,17 @@ class RosterSearchMixin:
             order by lower(fk.name), lower(d.name), dr.displayOrder, lower(dr.name)
             """
         ).fetchall()
+        href_by_key = codex_route_maps(self)["detachments"]
         return [
             {
                 "type": "Detachment Rule",
                 "title": row["name"],
                 "meta": compact_text(row["factionName"], row["detachmentName"]),
                 "text": row["componentText"],
-                "href": detachment_href(row["factionId"], row["detachmentId"]),
+                "href": href_by_key[(row["factionId"], row["detachmentId"])],
             }
             for row in rows
+            if (row["factionId"], row["detachmentId"]) in href_by_key
         ]
 
     def search_enhancement_items(self, conn):
@@ -612,6 +655,7 @@ class RosterSearchMixin:
             order by lower(fk.name), lower(d.name), e.displayOrder, lower(e.name)
             """
         ).fetchall()
+        href_by_key = codex_route_maps(self)["detachments"]
         return [
             {
                 "type": "Enhancement",
@@ -624,9 +668,10 @@ class RosterSearchMixin:
                     row["enhancementType"],
                     row["faqText"],
                 ),
-                "href": detachment_href(row["factionId"], row["detachmentId"]),
+                "href": href_by_key[(row["factionId"], row["detachmentId"])],
             }
             for row in rows
+            if (row["factionId"], row["detachmentId"]) in href_by_key
         ]
 
     def search_detachment_stratagem_items(self, conn):
@@ -656,6 +701,7 @@ class RosterSearchMixin:
             order by lower(fk.name), lower(d.name), s.displayOrder, lower(s.name)
             """
         ).fetchall()
+        href_by_key = codex_route_maps(self)["detachments"]
         return [
             {
                 "type": "Stratagem",
@@ -670,7 +716,8 @@ class RosterSearchMixin:
                     row["secondaryEffect"],
                     row["faqText"],
                 ),
-                "href": detachment_href(row["factionId"], row["detachmentId"]),
+                "href": href_by_key[(row["factionId"], row["detachmentId"])],
             }
             for row in rows
+            if (row["factionId"], row["detachmentId"]) in href_by_key
         ]

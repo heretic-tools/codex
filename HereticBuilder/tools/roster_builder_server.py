@@ -112,29 +112,30 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlparse(self.path)
+        request_path = parsed.path.rstrip("/") or "/"
         params = parse_qs(parsed.query)
         try:
-            if parsed.path == "/":
+            if request_path == "/":
                 self.send_html(render_template("home.html"))
-            elif parsed.path.startswith("/static/"):
-                self.send_static(parsed.path)
-            elif parsed.path == "/codex":
+            elif request_path.startswith("/static/"):
+                self.send_static(request_path)
+            elif request_path == "/codex":
                 self.send_html(render_codex_root_page())
-            elif parsed.path == "/codex/core-rules":
+            elif request_path == "/codex/core-rules":
                 self.send_html(render_core_rules_page())
-            elif parsed.path == "/codex/core-rules/rules":
+            elif request_path == "/codex/core-rules/rules":
                 self.send_html(render_core_rules_rules_page(self.heretic_builder))
-            elif parsed.path == "/codex/core-rules/stratagems":
+            elif request_path == "/codex/core-rules/stratagems":
                 self.send_html(render_core_stratagems_page(self.heretic_builder))
-            elif parsed.path == "/codex/core-rules/faq":
+            elif request_path == "/codex/core-rules/faq":
                 self.send_html(render_core_faq_page(self.heretic_builder))
-            elif parsed.path.startswith("/codex/core-rules/section/"):
+            elif request_path.startswith("/codex/core-rules/section/"):
                 self.send_html(render_core_rules_section_page(
                     self.heretic_builder,
-                    unquote(parsed.path.removeprefix("/codex/core-rules/section/")),
+                    unquote(request_path.removeprefix("/codex/core-rules/section/")),
                 ))
-            elif parsed.path.startswith("/codex/core-rules/rule/"):
-                ref = unquote(parsed.path.removeprefix("/codex/core-rules/rule/"))
+            elif request_path.startswith("/codex/core-rules/rule/"):
+                ref = unquote(request_path.removeprefix("/codex/core-rules/rule/"))
                 # Major rule references are section landing pages with sub-rule buttons.
                 import re as _re
                 _m = _re.fullmatch(r"(\d{1,2})(?:\.00)?", ref.strip())
@@ -144,45 +145,45 @@ class Handler(BaseHTTPRequestHandler):
                     self.end_headers()
                 else:
                     self.send_html(render_core_rule_page(self.heretic_builder, ref))
-            elif parsed.path.startswith("/codex/faction/"):
-                self.send_faction_codex_page(parsed.path)
-            elif parsed.path == "/codex/imperium":
+            elif request_path.startswith("/codex/faction/"):
+                self.send_faction_codex_page(request_path)
+            elif request_path == "/codex/imperium":
                 self.send_html(render_faction_group_page(self.heretic_builder, "imperium"))
-            elif parsed.path == "/codex/imperium/adeptus-astartes":
+            elif request_path == "/codex/imperium/adeptus-astartes":
                 self.send_html(render_adeptus_astartes_page(self.heretic_builder))
-            elif parsed.path == "/codex/chaos":
+            elif request_path == "/codex/chaos":
                 self.send_html(render_faction_group_page(self.heretic_builder, "chaos"))
-            elif parsed.path == "/codex/xenos":
+            elif request_path == "/codex/xenos":
                 self.send_html(render_faction_group_page(self.heretic_builder, "xenos"))
-            elif parsed.path in ICON_ASSETS:
-                self.send_png(ICON_ASSETS[parsed.path])
-            elif parsed.path.startswith("/assets/faction-images/"):
-                filename = Path(unquote(parsed.path)).name
+            elif request_path in ICON_ASSETS:
+                self.send_png(ICON_ASSETS[request_path])
+            elif request_path.startswith("/assets/faction-images/"):
+                filename = Path(unquote(request_path)).name
                 self.send_png(FACTION_IMAGE_ROOT / filename)
-            elif parsed.path.startswith("/assets/unit-images/"):
-                filename = Path(unquote(parsed.path)).name
+            elif request_path.startswith("/assets/unit-images/"):
+                filename = Path(unquote(request_path)).name
                 self.send_png(UNIT_IMAGE_ROOT / filename)
-            elif parsed.path == "/api/search":
+            elif request_path == "/api/search":
                 self.send_json(self.heretic_builder.search(
                     params.get("q", [""])[0],
                     params.get("limit", ["30"])[0],
                 ))
-            elif parsed.path == "/api/bootstrap":
+            elif request_path == "/api/bootstrap":
                 self.send_json(self.heretic_builder.bootstrap())
-            elif parsed.path == "/api/detachments":
+            elif request_path == "/api/detachments":
                 self.send_json(self.heretic_builder.detachments(params.get("factionId", [""])[0]))
-            elif parsed.path == "/api/datasheets":
+            elif request_path == "/api/datasheets":
                 self.send_json(self.heretic_builder.datasheets(
                     params.get("factionId", [""])[0],
                     params.get("detachmentIds", [params.get("detachmentId", [""])[0]])[0],
                     params.get("q", [""])[0],
                     params.get("allyType", ["native"])[0],
                 ))
-            elif parsed.path == "/api/allied-factions":
+            elif request_path == "/api/allied-factions":
                 self.send_json(self.heretic_builder.allied_factions(params.get("rosterId", [""])[0]))
-            elif parsed.path == "/api/roster":
+            elif request_path == "/api/roster":
                 self.send_json(self.heretic_builder.roster(params.get("id", [""])[0]))
-            elif parsed.path == "/api/unit":
+            elif request_path == "/api/unit":
                 self.send_json(self.heretic_builder.unit_detail(params.get("id", [""])[0]))
             else:
                 self.send_json({"error": "Not found"}, status=404)

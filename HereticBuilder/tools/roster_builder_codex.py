@@ -10,6 +10,7 @@ from roster_builder_codex_rich_text import (
     render_rich_text,
     render_rule_component,
 )
+from roster_builder_routes import resolve_entity_ref, scoped_slug_map, slugify_name
 from roster_builder_templates import render_template
 from roster_builder_utils import dict_row
 
@@ -34,16 +35,24 @@ def find_unit_image(name, datasheet_id=None):
     return UNIT_IMAGES_BY_NAME.get(str(name).lower())
 
 
-def faction_href(faction_id):
-    return f"/codex/faction/{escape_attr(faction_id)}"
+def entity_name(value):
+    if isinstance(value, dict):
+        return value.get("name") or value.get("id") or ""
+    return value
 
 
-def datasheet_href(faction_id, datasheet_id):
-    return f"/codex/faction/{faction_id}/datasheet/{datasheet_id}"
+def faction_href(faction):
+    return f"/codex/faction/{slugify_name(entity_name(faction))}"
 
 
-def detachment_href(faction_id, detachment_id):
-    return f"/codex/faction/{faction_id}/detachment/{detachment_id}"
+def datasheet_href(faction, datasheet, datasheet_slug=None):
+    slug = datasheet_slug or slugify_name(entity_name(datasheet))
+    return f"{faction_href(faction)}/datasheet/{slug}"
+
+
+def detachment_href(faction, detachment, detachment_slug=None):
+    slug = detachment_slug or slugify_name(entity_name(detachment))
+    return f"{faction_href(faction)}/detachment/{slug}"
 
 
 CORE_RULES_PUBLICATION_ID = "4cdf7a87-0914-49e8-b5df-b9f8be4d13c6"
@@ -752,8 +761,8 @@ def render_faction_group_page(heretic_builder, group_key):
     buttons = [
         {
             "label": faction["name"],
-            "route": faction["id"],
-            "href": faction_href(faction["id"]),
+            "route": slugify_name(faction["name"]),
+            "href": faction_href(faction),
             "image": find_faction_image(faction["name"], faction["id"]),
         }
         for faction in group_factions
@@ -796,8 +805,8 @@ def render_adeptus_astartes_page(heretic_builder):
         buttons=[
             {
                 "label": faction["name"],
-                "route": faction["id"],
-                "href": faction_href(faction["id"]),
+                "route": slugify_name(faction["name"]),
+                "href": faction_href(faction),
                 "image": find_faction_image(faction["name"], faction["id"]),
             }
             for faction in group_factions
@@ -825,6 +834,18 @@ def faction_by_id(heretic_builder, faction_id):
             """,
             [faction_id],
         ).fetchone()
+        if not row:
+            rows = conn.execute(
+                """
+                select id, name, lore
+                from faction_keyword
+                where excludedFromArmyBuilder = 0
+                order by lower(name)
+                """
+            ).fetchall()
+            resolved_id = resolve_entity_ref(rows, faction_id)
+            if resolved_id:
+                row = next((item for item in rows if item["id"] == resolved_id), None)
     if not row:
         raise ValueError("Faction not found")
     return dict_row(row)
@@ -836,7 +857,7 @@ def faction_hero_image(faction):
 
 def render_faction_page(heretic_builder, faction_id):
     faction = faction_by_id(heretic_builder, faction_id)
-    base_href = faction_href(faction["id"])
+    base_href = faction_href(faction)
     return render_codex_page(
         title=faction["name"],
         window_title=f"{faction['name']}",
@@ -927,7 +948,7 @@ def render_faction_army_rule_page(heretic_builder, faction_id):
         task_title=f"{faction['name']} / Army Rule",
         page_class="faction-detail-page",
         content_html=content_html,
-        back_href=faction_href(faction["id"]),
+        back_href=faction_href(faction),
         back_label=f"Back to {faction['name']}",
         hero_image=faction_hero_image(faction),
     )
@@ -992,10 +1013,10 @@ def detachment_badges_html(detachment):
     return f'<div class="detachment-badge-row">{badges_html}</div>' if badges_html else ""
 
 
-def render_datasheet_item(datasheet, faction_id):
+def render_datasheet_item(datasheet, faction, datasheet_slug):
     image = find_unit_image(datasheet["name"], datasheet.get("id"))
     meta = f'{datasheet["points"]} pts' if datasheet.get("points") is not None else ""
-    href = datasheet_href(faction_id, datasheet["id"])
+    href = datasheet_href(faction, datasheet, datasheet_slug)
     if not image:
         return render_list_item(datasheet["name"], meta, href=href)
     return (
@@ -1158,6 +1179,47 @@ def codex_datasheets_for_faction(heretic_builder, faction_id):
     return heretic_builder.datasheets(faction_id).get("datasheets", [])
 
 
+def visible_codex_datasheets_for_faction(heretic_builder, faction_id):
+    native_datasheets = [
+        datasheet
+        for datasheet in codex_datasheets_for_faction(heretic_builder, faction_id)
+        if datasheet.get("points", 0) > 0
+    ]
+    allied_datasheets = [
+        datasheet
+        for datasheet in allied_datasheets_for_faction(heretic_builder, faction_id)
+        if datasheet.get("points", 0) > 0
+    ]
+    return native_datasheets, allied_datasheets
+
+
+def visible_datasheet_slug_map(heretic_builder, faction_id):
+    native_datasheets, allied_datasheets = visible_codex_datasheets_for_faction(heretic_builder, faction_id)
+    rows = [
+        {**datasheet, "allyType": "native"}
+        for datasheet in native_datasheets
+    ] + [
+        {**datasheet, "allyType": "allied"}
+        for datasheet in allied_datasheets
+    ]
+    return scoped_slug_map(rows)
+
+
+def datasheet_id_for_faction(heretic_builder, faction_id, datasheet_ref):
+    native_datasheets, allied_datasheets = visible_codex_datasheets_for_faction(heretic_builder, faction_id)
+    rows = [
+        {**datasheet, "allyType": "native"}
+        for datasheet in native_datasheets
+    ] + [
+        {**datasheet, "allyType": "allied"}
+        for datasheet in allied_datasheets
+    ]
+    resolved_id = resolve_entity_ref(rows, datasheet_ref)
+    if not resolved_id:
+        raise ValueError("Datasheet not found")
+    return resolved_id
+
+
 def datasheet_group_name(datasheet, keywords, attachment_types):
     if datasheet.get("allyType") == "allied":
         return "Allied Units"
@@ -1198,7 +1260,7 @@ def datasheet_group_name(datasheet, keywords, attachment_types):
     return "Other Datasheets"
 
 
-def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheets, faction_id):
+def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheets, faction):
     datasheets = [
         {**datasheet, "allyType": "native"}
         for datasheet in native_datasheets
@@ -1206,6 +1268,7 @@ def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheet
         {**datasheet, "allyType": "allied"}
         for datasheet in allied_datasheets
     ]
+    slug_by_id = scoped_slug_map(datasheets)
     keyword_map = datasheet_keywords(heretic_builder, [datasheet["id"] for datasheet in datasheets])
     attachment_type_map = datasheet_attachment_types(heretic_builder, [datasheet["id"] for datasheet in datasheets])
     grouped = {name: [] for name in DATASHEET_GROUP_ORDER}
@@ -1220,7 +1283,7 @@ def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheet
         if not group_datasheets:
             continue
         items_html = "".join(
-            render_datasheet_item(datasheet, faction_id)
+            render_datasheet_item(datasheet, faction, slug_by_id[datasheet["id"]])
             for datasheet in sorted(group_datasheets, key=lambda item: item["name"].lower())
         )
         sections.append(
@@ -1234,7 +1297,7 @@ def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheet
 
 def detachment_by_id_for_faction(heretic_builder, faction_id, detachment_id):
     with heretic_builder.connect(readonly=True) as conn:
-        row = conn.execute(
+        rows = conn.execute(
             """
             select d.id, d.name, d.bannerImage, d.rowImage, d.isCombatPatrol,
                    coalesce(dfdpc.detachmentPointsCost, d.detachmentPointsCost) as detachmentPointsCost,
@@ -1250,13 +1313,21 @@ def detachment_by_id_for_faction(heretic_builder, faction_id, detachment_id):
               on dfd.detachmentId = d.id
             left join force_disposition fd
               on fd.id = dfd.forceDispositionId
-            where d.id = ?
+            where d.isCombatPatrol = 0
+            order by d.displayOrder, lower(d.name), d.id
             """,
-            [faction_id, faction_id, detachment_id],
-        ).fetchone()
+            [faction_id, faction_id],
+        ).fetchall()
+    resolved_id = resolve_entity_ref(rows, detachment_id)
+    row = next((item for item in rows if item["id"] == resolved_id), None)
     if not row:
         raise ValueError("Detachment not found")
     return dict_row(row)
+
+
+def detachment_slug_map_for_faction(heretic_builder, faction_id):
+    detachments = heretic_builder.detachments(faction_id).get("detachments", [])
+    return scoped_slug_map(detachments)
 
 
 def detachment_rules_for(heretic_builder, detachment_id):
@@ -1524,7 +1595,7 @@ def render_faction_detachment_page(heretic_builder, faction_id, detachment_id):
         task_title=f"{faction['name']} / {detachment['name']}",
         page_class="faction-detail-page detachment-detail-page",
         content_html=content_html,
-        back_href=f"{faction_href(faction['id'])}/detachments",
+        back_href=f"{faction_href(faction)}/detachments",
         back_label=f"Back to {faction['name']} Detachments",
         hero_image=faction_hero_image(faction),
     )
@@ -1534,11 +1605,12 @@ def render_faction_detachments_page(heretic_builder, faction_id):
     faction = faction_by_id(heretic_builder, faction_id)
     detachments = heretic_builder.detachments(faction["id"]).get("detachments", [])
     if detachments:
+        slug_by_id = scoped_slug_map(detachments)
         items_html = "".join(
             render_list_item(
                 detachment["name"],
                 "",
-                href=detachment_href(faction["id"], detachment["id"]),
+                href=detachment_href(faction, detachment, slug_by_id[detachment["id"]]),
                 badge_html=detachment_badges_html(detachment),
             )
             for detachment in detachments
@@ -1552,7 +1624,7 @@ def render_faction_detachments_page(heretic_builder, faction_id):
         task_title=f"{faction['name']} / Detachments",
         page_class="faction-detail-page many-buttons-page",
         content_html=content_html,
-        back_href=faction_href(faction["id"]),
+        back_href=faction_href(faction),
         back_label=f"Back to {faction['name']}",
         hero_image=faction_hero_image(faction),
     )
@@ -1560,18 +1632,9 @@ def render_faction_detachments_page(heretic_builder, faction_id):
 
 def render_faction_datasheets_page(heretic_builder, faction_id):
     faction = faction_by_id(heretic_builder, faction_id)
-    datasheets = [
-        datasheet
-        for datasheet in codex_datasheets_for_faction(heretic_builder, faction["id"])
-        if datasheet.get("points", 0) > 0
-    ]
-    allied_datasheets = [
-        datasheet
-        for datasheet in allied_datasheets_for_faction(heretic_builder, faction["id"])
-        if datasheet.get("points", 0) > 0
-    ]
+    datasheets, allied_datasheets = visible_codex_datasheets_for_faction(heretic_builder, faction["id"])
     if datasheets or allied_datasheets:
-        content_html = render_datasheet_groups(heretic_builder, datasheets, allied_datasheets, faction["id"])
+        content_html = render_datasheet_groups(heretic_builder, datasheets, allied_datasheets, faction)
     else:
         content_html = '<div class="empty-state">No datasheets found.</div>'
     return render_codex_content_page(
@@ -1580,7 +1643,7 @@ def render_faction_datasheets_page(heretic_builder, faction_id):
         task_title=f"{faction['name']} / Data Sheets",
         page_class="faction-detail-page many-buttons-page",
         content_html=content_html,
-        back_href=faction_href(faction["id"]),
+        back_href=faction_href(faction),
         back_label=f"Back to {faction['name']}",
         hero_image=faction_hero_image(faction),
     )

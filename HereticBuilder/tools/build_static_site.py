@@ -25,6 +25,8 @@ from roster_builder_codex import (  # noqa: E402
     CORE_RULES_PUBLICATION_ID,
     core_rule_section_href,
     core_rule_sections,
+    datasheet_href,
+    detachment_slug_map_for_faction,
     detachment_href,
     faction_href,
     render_adeptus_astartes_page,
@@ -41,10 +43,12 @@ from roster_builder_codex import (  # noqa: E402
     render_faction_detachments_page,
     render_faction_group_page,
     render_faction_page,
+    visible_codex_datasheets_for_faction,
 )
 from roster_builder_codex_datasheet import render_datasheet_page  # noqa: E402
 from roster_builder_codex_rich_text import core_rule_href  # noqa: E402
 from roster_builder_core import HereticBuilder  # noqa: E402
+from roster_builder_routes import scoped_slug_map  # noqa: E402
 from roster_builder_search import compact_text  # noqa: E402
 from roster_builder_templates import render_template  # noqa: E402
 
@@ -195,39 +199,34 @@ def core_rule_reference_routes(builder):
 
 
 def detachment_routes(builder):
-    with builder.connect(readonly=True) as conn:
-        rows = conn.execute(
-            """
-            select distinct dfk.factionKeywordId as factionId, d.id as detachmentId
-            from detachment d
-            join detachment_faction_keyword dfk on dfk.detachmentId = d.id
-            join faction_keyword fk on fk.id = dfk.factionKeywordId
-            where fk.excludedFromArmyBuilder = 0
-            order by dfk.factionKeywordId, d.id
-            """
-        ).fetchall()
-    return [
-        (detachment_href(row["factionId"], row["detachmentId"]), row["factionId"], row["detachmentId"])
-        for row in rows
-    ]
+    routes = []
+    for faction in builder.bootstrap()["factions"]:
+        detachments = builder.detachments(faction["id"]).get("detachments", [])
+        slug_by_id = detachment_slug_map_for_faction(builder, faction["id"])
+        routes.extend(
+            (detachment_href(faction, detachment, slug_by_id[detachment["id"]]), faction["id"], detachment["id"])
+            for detachment in detachments
+        )
+    return routes
 
 
 def datasheet_routes(builder):
-    with builder.connect(readonly=True) as conn:
-        rows = conn.execute(
-            """
-            select distinct dfk.factionKeywordId as factionId, d.id as datasheetId
-            from datasheet d
-            join datasheet_faction_keyword dfk on dfk.datasheetId = d.id
-            join faction_keyword fk on fk.id = dfk.factionKeywordId
-            where fk.excludedFromArmyBuilder = 0
-            order by dfk.factionKeywordId, d.id
-            """
-        ).fetchall()
-    return [
-        (f"{faction_href(row['factionId'])}/datasheet/{row['datasheetId']}", row["factionId"], row["datasheetId"])
-        for row in rows
-    ]
+    routes = []
+    for faction in builder.bootstrap()["factions"]:
+        native_datasheets, allied_datasheets = visible_codex_datasheets_for_faction(builder, faction["id"])
+        datasheets = [
+            {**datasheet, "allyType": "native"}
+            for datasheet in native_datasheets
+        ] + [
+            {**datasheet, "allyType": "allied"}
+            for datasheet in allied_datasheets
+        ]
+        slug_by_id = scoped_slug_map(datasheets)
+        routes.extend(
+            (datasheet_href(faction, datasheet, slug_by_id[datasheet["id"]]), faction["id"], datasheet["id"])
+            for datasheet in datasheets
+        )
+    return routes
 
 
 def write_static_pages(builder, out_dir, base_path):
@@ -257,7 +256,7 @@ def write_static_pages(builder, out_dir, base_path):
     write("/codex/imperium/adeptus-astartes", render_adeptus_astartes_page(builder))
 
     for faction in builder.bootstrap()["factions"]:
-        route = faction_href(faction["id"])
+        route = faction_href(faction)
         write(route, render_faction_page(builder, faction["id"]))
         write(f"{route}/army-rule", render_faction_army_rule_page(builder, faction["id"]))
         write(f"{route}/detachments", render_faction_detachments_page(builder, faction["id"]))

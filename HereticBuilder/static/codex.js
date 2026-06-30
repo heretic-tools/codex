@@ -30,8 +30,27 @@
     return `${basePath}${path}`;
   }
 
+  function normalizeCoreRulePath(pathname) {
+    const ruleMatch = pathname.match(/^\/codex\/core-rules\/rule\/(\d{1,2})(?:\.00)?$/);
+    if (ruleMatch) {
+      return `/codex/core-rules/section/${ruleMatch[1].padStart(2, "0")}`;
+    }
+    const sectionMatch = pathname.match(/^\/codex\/core-rules\/section\/(\d{1,2})$/);
+    if (sectionMatch) {
+      return `/codex/core-rules/section/${sectionMatch[1].padStart(2, "0")}`;
+    }
+    return pathname;
+  }
+
+  function normalizeInternalHref(pathname, search = "", hash = "") {
+    let path = stripBasePath(pathname);
+    path = path.replace(/\/+$/, "") || "/";
+    path = normalizeCoreRulePath(path);
+    return `${path}${search}${hash}`;
+  }
+
   function currentHref() {
-    return `${stripBasePath(window.location.pathname)}${window.location.search}${window.location.hash}`;
+    return normalizeInternalHref(window.location.pathname, window.location.search, window.location.hash);
   }
 
   function sameOriginHref(value) {
@@ -43,7 +62,7 @@
       if (url.origin !== window.location.origin) {
         return "";
       }
-      return `${stripBasePath(url.pathname)}${url.search}${url.hash}`;
+      return normalizeInternalHref(url.pathname, url.search, url.hash);
     } catch (_error) {
       return "";
     }

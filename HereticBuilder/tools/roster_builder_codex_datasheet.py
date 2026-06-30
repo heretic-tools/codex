@@ -1,6 +1,7 @@
 import re
 
 from roster_builder_codex import (
+    datasheet_id_for_faction,
     escape_attr,
     escape_html,
     faction_by_id,
@@ -889,6 +890,7 @@ def render_unit_keyword_tags(keywords, faction_abilities=None):
 
 def render_datasheet_page(heretic_builder, faction_id, datasheet_id):
     faction = faction_by_id(heretic_builder, faction_id)
+    datasheet_id = datasheet_id_for_faction(heretic_builder, faction["id"], datasheet_id)
     detail = datasheet_detail(heretic_builder, faction["id"], datasheet_id)
     datasheet = detail["datasheet"]
     image = find_unit_image(datasheet["name"], datasheet["id"])
@@ -943,7 +945,7 @@ def render_datasheet_page(heretic_builder, faction_id, datasheet_id):
         task_title=f"{faction['name']} / {datasheet['name']}",
         page_class="faction-detail-page unit-detail-page",
         content_html=content_html,
-        back_href=f"{faction_href(faction['id'])}/datasheets",
+        back_href=f"{faction_href(faction)}/datasheets",
         back_label=f"Back to {faction['name']} Data Sheets",
         hero_image_url=unit_image_url(image) if image else None,
     )
