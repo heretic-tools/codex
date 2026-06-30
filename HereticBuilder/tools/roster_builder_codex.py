@@ -340,8 +340,35 @@ def render_core_rules_rules_page(heretic_builder):
 def render_core_rules_section_page(heretic_builder, section_code):
     section = core_rule_section_by_code(heretic_builder, section_code)
     containers = core_rule_containers_for_section(heretic_builder, section["id"])
-    items_html = "".join(render_rule_container_item(container) for container in containers)
-    content_html = f'<div class="list-grid core-rules-list-grid">{items_html}</div>'
+
+    intro_parts = []
+    sub_containers = []
+    for container in containers:
+        if is_zero_subrule(container["subtitle"]):
+            try:
+                rule = core_rule_by_reference(heretic_builder, container["subtitle"])
+                for component in rule["components"]:
+                    part = render_rule_component(component, container["subtitle"])
+                    if part:
+                        intro_parts.append(part)
+                faq_html = render_faq_update_sections(
+                    rule.get("faqs") or [], errata_title="", faq_title="",
+                )
+                if faq_html:
+                    intro_parts.append(faq_html)
+            except ValueError:
+                pass
+        else:
+            sub_containers.append(container)
+
+    intro_html = (
+        f'<article class="codex-content core-rule-content">{"".join(intro_parts)}</article>'
+        if intro_parts else ""
+    )
+    items_html = "".join(render_rule_container_item(container) for container in sub_containers)
+    grid_html = f'<div class="list-grid core-rules-list-grid">{items_html}</div>' if items_html else ""
+    content_html = intro_html + grid_html
+
     return render_codex_content_page(
         title=section["name"],
         window_title=section["name"],
@@ -606,16 +633,26 @@ def render_behaviour_type(behaviour, current_rule_reference=None):
     return "".join(cards)
 
 
+def is_zero_subrule(subtitle):
+    """True for subtitles like '19.00' — the intro/overview entry for a major rule."""
+    parts = str(subtitle or "").split(".")
+    return len(parts) == 2 and parts[1] == "00"
+
+
+def display_subtitle(subtitle):
+    """For '19.00' returns '19', for '19.01' returns '19.01'."""
+    if is_zero_subrule(subtitle):
+        return str(int(subtitle.split(".")[0]))
+    return subtitle
+
+
 def render_core_rule_page(heretic_builder, reference):
     rule = core_rule_by_reference(heretic_builder, reference)
     current_rule_reference = rule["subtitle"]
-    heading = f'{rule["subtitle"]} {rule["title"]}' if rule.get("subtitle") else rule["title"]
-    sections = [
-        f'<section class="rule-card core-rule-heading-card">'
-        f'<div class="core-rule-number">{escape_html(rule["subtitle"])}</div>'
-        f'<h2>{escape_html(rule["title"])}</h2>'
-        f'</section>'
-    ]
+    disp = display_subtitle(rule["subtitle"])
+    heading = f'{disp} {rule["title"]}' if disp else rule["title"]
+    # The rule number + title are already in the page header, so no heading card here.
+    sections = []
     sections.extend(render_rule_component(component, current_rule_reference) for component in rule["components"])
     if rule.get("stratagem"):
         sections.append(render_stratagem_card(rule["stratagem"], current_rule_reference))
@@ -629,7 +666,7 @@ def render_core_rule_page(heretic_builder, reference):
     )
     if faq_html:
         sections.append(faq_html)
-    if len([section for section in sections if section]) == 1:
+    if not [section for section in sections if section]:
         sections.append('<section class="rule-card"><p>No rule text found.</p></section>')
     content_html = '<article class="codex-content core-rule-content">' + "".join(section for section in sections if section) + "</article>"
     return render_codex_content_page(
@@ -879,8 +916,7 @@ def render_faction_army_rule_page(heretic_builder, faction_id):
             components = "".join(render_rule_component(component) for component in rule["components"])
             rule_html.append(
                 f'<article class="codex-content">'
-                f'<section class="rule-card"><h2>{escape_html(rule["name"])}</h2></section>'
-                f'{components}'
+                f'{render_rule_body_with_title(rule["name"], components)}'
                 f'{render_faq_update_sections(rule.get("faqs") or [], errata_title="", faq_title="")}'
                 f'</article>'
             )
@@ -897,7 +933,7 @@ def render_faction_army_rule_page(heretic_builder, faction_id):
     )
 
 
-def render_list_item(title, meta, href=None, extra_class=""):
+def render_list_item(title, meta, href=None, extra_class="", badge_html=""):
     meta_html = f'<div class="list-item-meta">{escape_html(meta)}</div>' if meta else ""
     classes = " ".join(item for item in ("list-item", extra_class) if item)
     if href:
@@ -905,12 +941,14 @@ def render_list_item(title, meta, href=None, extra_class=""):
             f'<a class="{escape_attr(classes)}" href="{escape_attr(href)}">'
             f'<div class="list-item-title">{escape_html(title)}</div>'
             f'{meta_html}'
+            f'{badge_html}'
             '</a>'
         )
     return (
         f'<div class="{escape_attr(classes)}">'
         f'<div class="list-item-title">{escape_html(title)}</div>'
         f'{meta_html}'
+        f'{badge_html}'
         '</div>'
     )
 
@@ -927,6 +965,31 @@ def detachment_meta_items(detachment):
 def detachment_meta(detachment):
     meta = detachment_meta_items(detachment)
     return " / ".join(meta)
+
+
+def disposition_slug(name):
+    return re.sub(r"[^a-z0-9]+", "-", (name or "").lower()).strip("-")
+
+
+def render_disposition_badge(name):
+    if not name:
+        return ""
+    slug = disposition_slug(name)
+    classes = "disposition-badge"
+    if slug:
+        classes += f" disposition-{slug}"
+    return f'<span class="{escape_attr(classes)}">{escape_html(name)}</span>'
+
+
+def render_meta_badge(label):
+    return f'<span class="meta-badge">{escape_html(label)}</span>'
+
+
+def detachment_badges_html(detachment):
+    badges = [render_meta_badge(item) for item in detachment_meta_items(detachment)]
+    badges.append(render_disposition_badge(detachment.get("forceDisposition")))
+    badges_html = "".join(badge for badge in badges if badge)
+    return f'<div class="detachment-badge-row">{badges_html}</div>' if badges_html else ""
 
 
 def render_datasheet_item(datasheet, faction_id):
@@ -1174,7 +1237,8 @@ def detachment_by_id_for_faction(heretic_builder, faction_id, detachment_id):
         row = conn.execute(
             """
             select d.id, d.name, d.bannerImage, d.rowImage, d.isCombatPatrol,
-                   coalesce(dfdpc.detachmentPointsCost, d.detachmentPointsCost) as detachmentPointsCost
+                   coalesce(dfdpc.detachmentPointsCost, d.detachmentPointsCost) as detachmentPointsCost,
+                   fd.name as forceDisposition
             from detachment d
             join detachment_faction_keyword dfk
               on dfk.detachmentId = d.id
@@ -1182,6 +1246,10 @@ def detachment_by_id_for_faction(heretic_builder, faction_id, detachment_id):
             left join detachment_faction_detachment_points_cost dfdpc
               on dfdpc.detachmentId = d.id
              and dfdpc.factionKeywordId = ?
+            left join detachment_force_disposition dfd
+              on dfd.detachmentId = d.id
+            left join force_disposition fd
+              on fd.id = dfd.forceDispositionId
             where d.id = ?
             """,
             [faction_id, faction_id, detachment_id],
@@ -1275,12 +1343,21 @@ def render_section_title(title):
     return f'<h2 class="detachment-section-title">{escape_html(title)}</h2>'
 
 
+def render_rule_body_with_title(title, components_html):
+    """Merge the rule name into the first rule-card so the name and its text are
+    a single block, not two separate cards."""
+    title_html = f'<h2 class="rule-card-title">{escape_html(title)}</h2>'
+    if components_html.lstrip().startswith("<section"):
+        idx = components_html.find(">")
+        return components_html[:idx + 1] + title_html + components_html[idx + 1:]
+    return f'<section class="rule-card">{title_html}</section>{components_html}'
+
+
 def render_rule_article(title, components):
     components_html = "".join(render_rule_component(component) for component in components)
     return (
         '<article class="codex-content">'
-        f'<section class="rule-card"><h2>{escape_html(title)}</h2></section>'
-        f'{components_html}'
+        f'{render_rule_body_with_title(title, components_html)}'
         '</article>'
     )
 
@@ -1390,15 +1467,16 @@ def render_detachment_stratagems(stratagems):
 
 
 def render_detachment_summary_card(detachment):
+    # The detachment name is already shown in the page header, so this card holds
+    # only the DP / disposition badges (omitted entirely when there are none).
     tags = detachment_meta_items(detachment)
-    tag_html = "".join(f'<span class="unit-card-tag">{escape_html(tag)}</span>' for tag in tags)
-    tag_row_html = f'<div class="detachment-tag-row">{tag_html}</div>' if tag_html else ""
+    tag_html = "".join(render_meta_badge(tag) for tag in tags)
+    tag_html += render_disposition_badge(detachment.get("forceDisposition"))
+    if not tag_html:
+        return ""
     return (
         '<section class="rule-card detachment-detail-card detachment-summary-card">'
-        '<div class="unit-card-heading">'
-        f'<h2>{escape_html(detachment["name"])}</h2>'
-        f'{tag_row_html}'
-        '</div>'
+        f'<div class="detachment-tag-row">{tag_html}</div>'
         '</section>'
     )
 
@@ -1459,8 +1537,9 @@ def render_faction_detachments_page(heretic_builder, faction_id):
         items_html = "".join(
             render_list_item(
                 detachment["name"],
-                detachment_meta(detachment),
+                "",
                 href=detachment_href(faction["id"], detachment["id"]),
+                badge_html=detachment_badges_html(detachment),
             )
             for detachment in detachments
         )

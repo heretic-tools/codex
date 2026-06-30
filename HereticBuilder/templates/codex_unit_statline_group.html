@@ -1,0 +1,28 @@
+  <div class="unit-statline-group">
+{{ name_html }}    <div class="unit-table-wrap">
+      <table class="unit-stat-table unit-stat-table-no-model">
+        <thead>
+          <tr>
+            <th scope="col">M</th>
+            <th scope="col">T</th>
+            <th scope="col">SV</th>
+{{ invulnerable_header_html }}
+            <th scope="col">W</th>
+            <th scope="col">LD</th>
+            <th scope="col">OC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="M">{{ movement }}</td>
+            <td data-label="T">{{ toughness }}</td>
+            <td data-label="SV">{{ save }}</td>
+{{ invulnerable_cell_html }}
+            <td data-label="W">{{ wounds }}</td>
+            <td data-label="LD">{{ leadership }}</td>
+            <td data-label="OC">{{ objective_control }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>

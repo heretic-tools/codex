@@ -36,13 +36,17 @@
       height: 100%;
       background: var(--desktop);
       overflow: hidden;
+      overscroll-behavior: none;
     }
 
     body {
+      position: fixed;
+      inset: 0;
       margin: 0;
       min-width: 320px;
       height: 100vh;
       height: 100svh;
+      overscroll-behavior: none;
       color: var(--ink);
       background:
         linear-gradient(45deg, rgba(255, 255, 255, .06) 25%, transparent 25%) 0 0 / 16px 16px,
@@ -60,13 +64,17 @@
     }
 
     .desktop {
+      --desktop-pad-top: max(12px, env(safe-area-inset-top));
+      --desktop-pad-right: max(12px, env(safe-area-inset-right));
+      --desktop-pad-bottom: max(12px, env(safe-area-inset-bottom));
+      --desktop-pad-left: max(12px, env(safe-area-inset-left));
       height: 100vh;
       height: 100svh;
       min-height: 0;
       display: grid;
       grid-template-rows: minmax(0, 1fr) auto;
       gap: 12px;
-      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+      padding: var(--desktop-pad-top) var(--desktop-pad-right) var(--desktop-pad-bottom) var(--desktop-pad-left);
       overflow: hidden;
     }
 
@@ -329,7 +337,14 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 4px;
+      /* Full-bleed to the screen edges (no wallpaper around the bar): span the
+         whole viewport width and drop the bottom desktop padding. The desktop
+         padding is re-applied inside so the content stays inset at every
+         breakpoint. */
+      width: 100vw;
+      max-width: none;
+      margin: 0 0 calc(-1 * var(--desktop-pad-bottom)) calc(50% - 50vw);
+      padding: 4px var(--desktop-pad-right) var(--desktop-pad-bottom) var(--desktop-pad-left);
       background: var(--window);
       border-style: solid;
       border-width: 2px 0 0;
@@ -385,6 +400,8 @@
       border-color: var(--shadow) var(--light) var(--light) var(--shadow);
       border-radius: 0;
       font: inherit;
+      /* >=16px stops iOS from auto-zooming when the field gains focus. */
+      font-size: 16px;
       letter-spacing: 0;
       outline: none;
       box-shadow: inset 1px 1px 0 #909090;
@@ -528,7 +545,10 @@
       }
 
       .desktop {
-        padding: 8px;
+        --desktop-pad-top: 8px;
+        --desktop-pad-right: 8px;
+        --desktop-pad-bottom: 8px;
+        --desktop-pad-left: 8px;
       }
 
       .panel {

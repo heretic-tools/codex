@@ -397,7 +397,6 @@
     .unit-detail-page .panel-content {
       gap: 10px;
       padding: 12px;
-      padding-left: 4px;
     }
 
     .unit-detail-content,
@@ -426,7 +425,7 @@
       border-style: solid;
       border-width: 1px;
       border-color: #1084d0 #000040 #000040 #1084d0;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
       line-height: 1.1;
       overflow-wrap: anywhere;
@@ -555,17 +554,65 @@
       padding: 2px 6px;
       background: var(--title);
       color: var(--light);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
       line-height: 1.1;
       text-shadow: 1px 1px 0 var(--ink);
+    }
+
+    /* Force-disposition badge — retro VGA palette with a raised Win95 bevel. */
+    .disposition-badge {
+      flex: 0 0 auto;
+      justify-self: start;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      background: #000080;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.1;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, .6);
+      border-style: solid;
+      border-width: 2px;
+      border-color: rgba(255, 255, 255, .5) rgba(0, 0, 0, .5) rgba(0, 0, 0, .5) rgba(255, 255, 255, .5);
+    }
+
+    .disposition-take-and-hold   { background: #1a7a1a; }
+    .disposition-disruption      { background: #000080; }
+    .disposition-priority-assets { background: #6f6f00; }
+    .disposition-purge-the-foe   { background: #800000; }
+    .disposition-reconnaissance  { background: #138a8a; }
+
+    /* Neutral meta badge (e.g. DP, Combat Patrol) — gray Win95 chip. */
+    .meta-badge {
+      flex: 0 0 auto;
+      justify-self: start;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      background: var(--window);
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.1;
+      border-style: solid;
+      border-width: 2px;
+      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
+    }
+
+    .detachment-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
     }
 
     .unit-restriction {
       padding: 5px 6px;
       background: #d7d7d7;
       border-left: 4px solid var(--title);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
     }
 
@@ -596,7 +643,7 @@
       border-collapse: separate;
       border-spacing: 0;
       background: var(--window);
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.12;
     }
 
@@ -641,6 +688,10 @@
       font-weight: 800;
     }
 
+    .unit-stat-table tbody td {
+      font-weight: 700;
+    }
+
     .unit-stat-table tbody th,
     .unit-weapon-table thead th:first-child {
       padding-left: 7px;
@@ -683,6 +734,17 @@
 
     .unit-stat-table .unit-invulnerable-save-cell {
       white-space: nowrap;
+    }
+
+    .unit-statline-group + .unit-statline-group {
+      margin-top: 12px;
+    }
+
+    .unit-statline-group-name {
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.2;
     }
 
     .unit-points-table {
@@ -737,7 +799,7 @@
     }
 
     .unit-weapon-table {
-      font-size: 11px;
+      font-size: 12px;
     }
 
     .unit-weapon-table thead th:first-child,
@@ -783,7 +845,7 @@
       border-style: solid;
       border-width: 1px;
       border-color: #1084d0 #000040 #000040 #1084d0;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
       line-height: 1.1;
       text-shadow: 1px 1px 0 var(--ink);
@@ -795,6 +857,10 @@
       color: var(--title);
       font-weight: 800;
       text-align: center;
+    }
+
+    .unit-weapon-table tbody td {
+      font-weight: 700;
     }
 
     .unit-weapon-table tbody tr:nth-child(odd) th,
@@ -812,14 +878,14 @@
       white-space: pre-wrap;
       overflow-wrap: anywhere;
       font: inherit;
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.24;
     }
 
     .unit-info-card > p,
     .unit-info-card li,
     .unit-info-card .unit-plain-rules {
-      font-size: 12px;
+      font-size: 13px;
     }
 
     .unit-keywords-card p {
@@ -834,7 +900,6 @@
       display: flex;
       flex: 0 0 auto;
       flex-wrap: wrap;
-      justify-content: flex-end;
       gap: 5px;
     }
 
@@ -1223,6 +1288,7 @@
 
       .unit-card-heading {
         display: grid;
+        justify-items: start;
       }
 
       .detachment-tag-row {
@@ -1234,18 +1300,19 @@
     @media (max-width: 460px) {
       .codex-page {
         max-width: 100vw;
-        padding-right: 4px;
-        padding-left: 4px;
+        --desktop-pad-right: 4px;
+        --desktop-pad-left: 4px;
       }
 
       .codex-page .shell,
-      .codex-page .taskbar,
       .codex-page .title-bar {
         max-width: 100%;
       }
 
       .codex-page .taskbar {
         min-width: 0;
+        /* Allow the full-bleed taskbar (width:100vw) past the page max-width. */
+        max-width: none;
       }
 
       .codex-page .task-status {
@@ -1318,7 +1385,7 @@
       .unit-weapon-table {
         min-width: 0;
         table-layout: fixed;
-        font-size: 10px;
+        font-size: 11px;
         line-height: 1.12;
       }
 
@@ -1349,7 +1416,7 @@
       }
 
       .unit-weapon-table {
-        font-size: 9px;
+        font-size: 10px;
       }
 
       .unit-weapon-table thead th:first-child,

@@ -41,11 +41,14 @@ class RosterCatalogMixin:
                 """
                 select d.id, d.name,
                        coalesce(dfdpc.detachmentPointsCost, d.detachmentPointsCost) as detachmentPointsCost,
-                       d.isCombatPatrol
+                       d.isCombatPatrol,
+                       fd.name as forceDisposition
                 from detachment d
                 join detachment_faction_keyword dfk on dfk.detachmentId = d.id
                 left join detachment_faction_detachment_points_cost dfdpc
                   on dfdpc.detachmentId = d.id and dfdpc.factionKeywordId = ?
+                left join detachment_force_disposition dfd on dfd.detachmentId = d.id
+                left join force_disposition fd on fd.id = dfd.forceDispositionId
                 where dfk.factionKeywordId = ?
                   and (? or d.isCombatPatrol = 0)
                 order by d.isCombatPatrol, d.displayOrder, lower(d.name)
