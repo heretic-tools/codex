@@ -11,6 +11,7 @@
   let controller = null;
   let searchTimer = 0;
   let dragStart = null;
+  let staticSearchIndexPromise = null;
 
   resultList.className = "taskbar-search-results-list";
   resultList.setAttribute("role", "list");
@@ -38,12 +39,182 @@
   clearButton.textContent = "x";
   input.after(clearButton);
 
+  const TASKBAR_GAP = 54;
+  const basePath = normalizeBasePath(document.querySelector('meta[name="heretic-base-path"]')?.content || "");
+  const staticSearchIndexUrl = document.querySelector('meta[name="heretic-search-index"]')?.content || "";
+
+  function normalizeBasePath(value) {
+    const path = String(value || "").trim().replace(/\/+$/, "");
+    return path && path !== "/" ? `/${path.replace(/^\/+/, "")}` : "";
+  }
+
+  function siteHref(path) {
+    if (!path || !path.startsWith("/") || path.startsWith("//")) {
+      return path;
+    }
+    return `${basePath}${path}`;
+  }
+
+  function compactText(...values) {
+    return values
+      .map((value) => String(value || ""))
+      .join(" ")
+      .replace(/\*+/g, "")
+      .replace(/■/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function searchTokens(value) {
+    return compactText(value).toLocaleLowerCase().match(/[\p{L}\p{N}_']+/gu) || [];
+  }
+
+  function clippedExcerpt(text, query, tokens) {
+    const source = compactText(text);
+    if (!source) {
+      return "";
+    }
+    const folded = source.toLocaleLowerCase();
+    const queryIndex = folded.indexOf(query);
+    const indexes = queryIndex >= 0 ? [queryIndex] : tokens
+      .map((token) => folded.indexOf(token))
+      .filter((index) => index >= 0);
+    const start = Math.max(0, (indexes.length ? Math.min(...indexes) : 0) - 48);
+    const end = Math.min(source.length, start + 180);
+    let excerpt = source.slice(start, end).trim();
+    if (start > 0) {
+      excerpt = `...${excerpt}`;
+    }
+    if (end < source.length) {
+      excerpt = `${excerpt}...`;
+    }
+    return excerpt;
+  }
+
+  function resultScore(item, query, tokens) {
+    const title = compactText(item.title).toLocaleLowerCase();
+    const meta = compactText(item.meta).toLocaleLowerCase();
+    const text = compactText(item.text).toLocaleLowerCase();
+    const haystack = `${title} ${meta} ${text}`;
+    if (!tokens.every((token) => haystack.includes(token))) {
+      return null;
+    }
+
+    let score = 0;
+    if (title === query) {
+      score += 300;
+    } else if (title.startsWith(query)) {
+      score += 220;
+    } else if (title.includes(query)) {
+      score += 160;
+    } else if (meta.includes(query)) {
+      score += 80;
+    } else if (text.includes(query)) {
+      score += 40;
+    }
+
+    tokens.forEach((token) => {
+      if (title.startsWith(token)) {
+        score += 60;
+      } else if (title.includes(token)) {
+        score += 45;
+      } else if (meta.includes(token)) {
+        score += 25;
+      } else if (text.includes(token)) {
+        score += 10;
+      }
+    });
+    return score;
+  }
+
+  function matchStaticResults(items, query, limit) {
+    const queryText = compactText(query).toLocaleLowerCase();
+    const tokens = searchTokens(query);
+    if (!queryText || !tokens.length) {
+      return [];
+    }
+
+    const seen = new Set();
+    const matched = [];
+    items.forEach((item) => {
+      if (!item.title || !item.href) {
+        return;
+      }
+      const key = [item.type || "", String(item.title).toLocaleLowerCase(), item.href].join("\u0000");
+      if (seen.has(key)) {
+        return;
+      }
+      seen.add(key);
+      const score = resultScore(item, queryText, tokens);
+      if (score === null) {
+        return;
+      }
+      matched.push({
+        score,
+        type: item.type || "Result",
+        title: compactText(item.title),
+        meta: compactText(item.meta),
+        excerpt: clippedExcerpt(item.text, queryText, tokens),
+        href: item.href,
+      });
+    });
+
+    matched.sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score;
+      }
+      if (left.type !== right.type) {
+        return left.type.localeCompare(right.type);
+      }
+      return left.title.localeCompare(right.title);
+    });
+    return matched.slice(0, limit).map(({ score: _score, ...item }) => item);
+  }
+
+  function loadStaticSearchIndex() {
+    if (!staticSearchIndexPromise) {
+      staticSearchIndexPromise = fetch(staticSearchIndexUrl).then((response) => {
+        if (!response.ok) {
+          throw new Error(`Search index failed: ${response.status}`);
+        }
+        return response.json();
+      }).then((payload) => payload.items || []);
+    }
+    return staticSearchIndexPromise;
+  }
+
+  // Keep the results panel above the on-screen keyboard. On mobile the panel is
+  // fixed to the bottom of the layout viewport, but the keyboard does not shrink
+  // the layout viewport (notably on iOS), so the panel would hide behind it. The
+  // VisualViewport API reports the keyboard inset, letting us lift the panel and
+  // cap its height to the visible area.
+  function positionResults() {
+    if (results.hidden) {
+      return;
+    }
+    const viewport = window.visualViewport;
+    const isFixed = getComputedStyle(results).position === "fixed";
+    if (!viewport || !isFixed) {
+      results.style.bottom = "";
+      results.style.maxHeight = "";
+      return;
+    }
+    const keyboardInset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+    results.style.bottom = `${keyboardInset + TASKBAR_GAP}px`;
+    results.style.maxHeight = `${Math.max(120, Math.round(viewport.height - TASKBAR_GAP - 12))}px`;
+    refreshScrollbar();
+  }
+
   function setOpen(open) {
     root.classList.toggle("is-open", open);
     input.setAttribute("aria-expanded", String(open));
     results.hidden = !open;
     if (open) {
+      positionResults();
       requestAnimationFrame(refreshScrollbar);
+    } else {
+      results.style.bottom = "";
+      results.style.maxHeight = "";
     }
   }
 
@@ -79,7 +250,7 @@
     items.forEach((item) => {
       const link = document.createElement("a");
       link.className = "taskbar-search-result";
-      link.href = item.href;
+      link.href = siteHref(item.href);
       link.setAttribute("role", "listitem");
 
       const title = document.createElement("span");
@@ -127,6 +298,19 @@
   }
 
   async function runSearch(query) {
+    if (staticSearchIndexUrl) {
+      try {
+        const items = await loadStaticSearchIndex();
+        if (input.value.trim() !== query) {
+          return;
+        }
+        renderResults(matchStaticResults(items, query, 30));
+      } catch (_error) {
+        renderMessage("Search unavailable");
+      }
+      return;
+    }
+
     if (controller) {
       controller.abort();
     }
@@ -203,7 +387,14 @@
     dragStart = null;
   });
   resultList.addEventListener("scroll", updateThumb, { passive: true });
-  window.addEventListener("resize", refreshScrollbar);
+  window.addEventListener("resize", () => {
+    positionResults();
+    refreshScrollbar();
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", positionResults);
+    window.visualViewport.addEventListener("scroll", positionResults);
+  }
   if ("ResizeObserver" in window) {
     const observer = new ResizeObserver(refreshScrollbar);
     observer.observe(results);

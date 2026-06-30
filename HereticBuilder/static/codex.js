@@ -3,9 +3,35 @@
   const titleBar = document.querySelector(".title-bar");
   const page = document.querySelector(".codex-page");
   const ruleReturnStorageKey = "hereticCoreRuleReturnStack";
+  const basePath = normalizeBasePath(document.querySelector('meta[name="heretic-base-path"]')?.content || "");
+
+  function normalizeBasePath(value) {
+    const path = String(value || "").trim().replace(/\/+$/, "");
+    return path && path !== "/" ? `/${path.replace(/^\/+/, "")}` : "";
+  }
+
+  function stripBasePath(pathname) {
+    if (!basePath) {
+      return pathname || "/";
+    }
+    if (pathname === basePath) {
+      return "/";
+    }
+    if (pathname.startsWith(`${basePath}/`)) {
+      return pathname.slice(basePath.length) || "/";
+    }
+    return pathname || "/";
+  }
+
+  function siteHref(path) {
+    if (!path || !path.startsWith("/") || path.startsWith("//")) {
+      return path;
+    }
+    return `${basePath}${path}`;
+  }
 
   function currentHref() {
-    return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    return `${stripBasePath(window.location.pathname)}${window.location.search}${window.location.hash}`;
   }
 
   function sameOriginHref(value) {
@@ -17,7 +43,7 @@
       if (url.origin !== window.location.origin) {
         return "";
       }
-      return `${url.pathname}${url.search}${url.hash}`;
+      return `${stripBasePath(url.pathname)}${url.search}${url.hash}`;
     } catch (_error) {
       return "";
     }
@@ -92,14 +118,14 @@
 
   function goUp() {
     if (titleBar?.dataset.upHref) {
-      window.location.href = titleBar.dataset.upHref;
+      window.location.href = siteHref(sameOriginHref(titleBar.dataset.upHref));
     }
   }
 
   function closeWindow() {
     const returnHref = ruleReturnHref();
     if (returnHref) {
-      window.location.href = returnHref;
+      window.location.href = siteHref(returnHref);
       return;
     }
     goUp();
@@ -109,7 +135,7 @@
     launchers.forEach((item) => item.setAttribute("aria-pressed", "false"));
     button.setAttribute("aria-pressed", "true");
     if (button.dataset.href) {
-      window.location.href = button.dataset.href;
+      window.location.href = siteHref(sameOriginHref(button.dataset.href));
       return;
     }
     history.replaceState(null, "", `#${button.dataset.route}`);

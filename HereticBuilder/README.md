@@ -12,6 +12,22 @@ python3 tools/roster_builder.py
 
 Open `http://127.0.0.1:4175`.
 
+## Static Build
+
+Build a serverless Codex export for static hosts such as GitHub Pages:
+
+```bash
+python3 tools/build_static_site.py
+```
+
+For a GitHub Pages project site, pass the repository path:
+
+```bash
+python3 tools/build_static_site.py --base-path /HereticSheets
+```
+
+The generated site is written to `../dist/`.
+
 ## Unit Image Pixelizer
 
 Create low-resolution, limited-palette 90s-style PNGs from the unit image links
