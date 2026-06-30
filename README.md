@@ -10,6 +10,17 @@ Raw SQLite snapshot for HereticSheets builder research.
 
 - `HereticBuilder/` - local viewer and minimal roster builder.
 
+## Deploy
+
+The static Codex build is ready for GitHub Pages. After creating the GitHub
+repository, push this project and set Pages to deploy from GitHub Actions.
+
+The workflow builds `dist/` with:
+
+```bash
+python3 HereticBuilder/tools/build_static_site.py --out dist --base-path "/<repo-name>"
+```
+
 ## Verify
 
 ```bash
