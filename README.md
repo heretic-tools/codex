@@ -13,7 +13,8 @@ Raw SQLite snapshot for HereticSheets builder research.
 ## Deploy
 
 The static Codex build is ready for GitHub Pages. After creating the GitHub
-repository, push this project and set Pages to deploy from GitHub Actions.
+repository, push this project; the workflow enables Pages and deploys from
+GitHub Actions.
 
 The workflow builds `dist/` with:
 
