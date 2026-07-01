@@ -32,10 +32,12 @@ global.fetch = async (path) => {
 const { loadCatalog } = await import("../HereticBuilder/static/builder_catalog.js");
 const { state } = await import("../HereticBuilder/static/builder_state.js");
 const {
+  availableCompositions,
   costForDetachment,
   defaultMiniatures,
   defaultWargear,
   factionScope,
+  unitSummary,
 } = await import("../HereticBuilder/static/builder_model.js");
 const { validateAllegianceAbilities } = await import("../HereticBuilder/static/builder_allegiance_rules.js");
 const { validateAlliedUnits } = await import("../HereticBuilder/static/builder_allied_rules.js");
@@ -51,6 +53,7 @@ const {
 const { validateRoster } = await import("../HereticBuilder/static/builder_rules.js");
 const { validateWargearLoadouts } = await import("../HereticBuilder/static/builder_wargear_rules.js");
 const { validateWarlord } = await import("../HereticBuilder/static/builder_warlord_rules.js");
+const { canonicalWargearKey } = await import("../HereticBuilder/static/builder_loadout_math.js");
 
 const realCatalog = await loadCatalog();
 state.catalog = realCatalog;
@@ -389,10 +392,12 @@ function datasheetIdForEnhancementBodyguard(enhancement, datasheetName) {
 
 export {
   state,
+  availableCompositions,
   costForDetachment,
   defaultMiniatures,
   defaultWargear,
   factionScope,
+  unitSummary,
   validateAllegianceAbilities,
   validateAlliedUnits,
   validateAttachedUnits,
@@ -416,6 +421,7 @@ export {
   miniatureNamed,
   datasheetNamed,
   combatPatrolDatasheetNamed,
+  canonicalWargearKey,
   rosterUnitRef,
   rosterUnitFromDatasheetId,
   enhancementNamed,

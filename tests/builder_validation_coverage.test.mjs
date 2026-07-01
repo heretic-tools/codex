@@ -3,6 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
+import { validationConceptForCode } from "./builder_validation_concepts.mjs";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -14,7 +15,7 @@ test("every Builder validation code is covered by a focused validation test", as
   const sourceCodes = new Set();
   for (const fileName of staticFiles) {
     const source = await readFile(join(staticDir, fileName), "utf8");
-    for (const match of source.matchAll(/validationMessage\(\s*"([^"]+)"/g)) {
+    for (const match of source.matchAll(/validation(?:Message|Warning)\(\s*"([^"]+)"/g)) {
       sourceCodes.add(match[1]);
     }
   }
@@ -40,4 +41,10 @@ test("every Builder validation code is covered by a focused validation test", as
     .sort();
 
   assert.deepEqual(missingCodes, []);
+
+  const missingConceptCodes = [...sourceCodes]
+    .filter((code) => !validationConceptForCode(code))
+    .sort();
+
+  assert.deepEqual(missingConceptCodes, []);
 });

@@ -15,6 +15,7 @@ import {
   validateKeywordRestrictions,
   validateSuccessorChapterEpicHeroes,
   validateUnitCompositions,
+  unitSummary,
   validateRoster,
   validateWargearLoadouts,
   validateWarlord,
@@ -201,6 +202,69 @@ test("enhancements enforce required keywords, excluded keywords, and required wa
     wargearMessages
   );
   assert.ok(messageCodes(wargearMessages).includes("enhancement.model_does_not_have_required_wargear"));
+});
+
+test("model enhancements use conditional keywords selected through allegiance abilities", () => {
+  state.catalog = realCatalog;
+  const detachment = detachmentNamed("Headhunter Task Force");
+  const group = allegianceGroup("Headhunter Task Force Keywords", "Headhunter Task Force", ["Character"]);
+  const characterAbility = allegianceAbility(group.id, "Character");
+  const unit = defaultWargearUnit("Vindicator");
+  unit.allegianceAbilities = [characterAbility];
+  unit.miniatureEnhancements = [{
+    ...enhancementNamed("Gunnery Honours", "Headhunter Task Force"),
+    targetId: unit.miniatures[0].rosterUnitMiniatureId,
+  }];
+
+  const validation = validateRoster({
+    id: "headhunter-vindicator-character",
+    name: "Headhunter Vindicator Character",
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachment.id],
+    units: [unit],
+  });
+  const codes = messageCodes(validation.messages);
+  assert.ok(!codes.includes("enhancement.unit_does_not_have_required_keywords"));
+});
+
+test("upgrade enhancements are unit-level options with their own required groups", () => {
+  state.catalog = realCatalog;
+  const detachment = detachmentNamed("Abhuman Auxiliaries");
+  const roster = {
+    factionKeywordId: factionNamed("Astra Militarum").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+  };
+  const sharpEyes = enhancementNamed("Sharp Eyes (Upgrade)", "Abhuman Auxiliaries");
+
+  assert.equal(sharpEyes.enhancementType, "upgrade");
+  assert.equal(sharpEyes.isEquipableByNonCharacterUnit, true);
+
+  const ratlings = {
+    ...rosterUnitFromDatasheetId(datasheetNamed("Ratlings").id, "ratlings-upgrade"),
+    unitEnhancements: [sharpEyes],
+  };
+  const validMessages = [];
+  validateEnhancements(roster, [detachment], [ratlings], validMessages);
+  assert.ok(!messageCodes(validMessages).includes("enhancement.unit_does_not_have_required_keywords"));
+  assert.ok(!messageCodes(validMessages).includes("enhancement.model_does_not_have_required_keywords"));
+  assert.equal(unitSummary({ ...roster, detachmentIds: [detachment.id] }, ratlings).unitEnhancements[0].points, 10);
+
+  const shockTroops = {
+    ...rosterUnitFromDatasheetId(datasheetNamed("Cadian Shock Troops").id, "shock-troops-upgrade"),
+    unitEnhancements: [sharpEyes],
+  };
+  const invalidMessages = [];
+  validateEnhancements(roster, [detachment], [shockTroops], invalidMessages);
+  assert.ok(messageCodes(invalidMessages).includes("enhancement.model_does_not_have_required_keywords"));
+
+  const duplicateMessages = [];
+  validateEnhancements(roster, [detachment], [0, 1, 2, 3].map((index) => ({
+    ...rosterUnitFromDatasheetId(datasheetNamed("Ratlings").id, `ratlings-upgrade-${index}`),
+    unitEnhancements: [sharpEyes],
+  })), duplicateMessages);
+  assert.ok(messageCodes(duplicateMessages).includes("enhancement.models_have_same_enhancements"));
+  assert.ok(!messageCodes(duplicateMessages).includes("enhancement.roster_has_too_many_enhancements"));
 });
 
 test("Combat Patrol enhancements enforce the configured default and reject alternatives", () => {

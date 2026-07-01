@@ -33,6 +33,22 @@ function groupBy(rows, key) {
   return map;
 }
 
+function contextKey(datasheetId, miniatureId = null) {
+  return `${datasheetId || ""}:${miniatureId || ""}`;
+}
+
+function wargearAliasesByContext(rows) {
+  const map = new Map();
+  for (const row of rows || []) {
+    const key = contextKey(row.datasheetId, row.miniatureId);
+    if (!map.has(key)) {
+      map.set(key, new Map());
+    }
+    map.get(key).set(row.wargearItemId, row.key);
+  }
+  return map;
+}
+
 async function loadCatalog() {
   const [
     bootstrap,
@@ -260,6 +276,8 @@ async function loadCatalog() {
     wargearGroups,
     wargearOptions,
     wargearItems,
+    wargearAliases: bootstrap.wargearAliases || [],
+    wargearAliasesByContext: wargearAliasesByContext(bootstrap.wargearAliases || []),
     factionById: byId(bootstrap.factions || []),
     battleSizeById: byId(bootstrap.battleSizes || []),
     detachmentById: byId(detachments),

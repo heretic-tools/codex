@@ -25,7 +25,7 @@ Old local rosters are intentionally not supported. The static client now uses `h
 - unit-level wargear: `unit.wargear`
 - model-level wargear: `unit.miniatures[].wargear`
 
-Flat legacy `unit.wargear` entries are no longer rerouted into miniature wargear.
+Unit-level `unit.wargear` is no longer rerouted into miniature wargear.
 
 ## Audit Method
 

@@ -5,6 +5,7 @@ import {
   countKey,
   loadoutChoiceSets,
   validLoadoutsFromChoiceSets,
+  wargearOptionKey,
 } from "./builder_loadout_math.js";
 
 function costForDetachment(detachmentId, factionKeywordId) {
@@ -140,7 +141,7 @@ function compositionFactionIds(roster, allyType = "native") {
 }
 
 function selectedAllegianceAbilities(unit) {
-  return normalizeSelectedRows(unit.allegianceAbilities || unit.allegianceAbilityIds, state.catalog.allegianceAbilityById)
+  return normalizeSelectedRows(unit.allegianceAbilities, state.catalog.allegianceAbilityById)
     .map((ability) => ({
       ...ability,
       groupId: ability.groupId || ability.allegianceAbilityGroupId,
@@ -149,18 +150,12 @@ function selectedAllegianceAbilities(unit) {
 }
 
 function selectedUnitEnhancements(unit) {
-  return normalizeSelectedRows(unit.unitEnhancements || unit.enhancementIds, state.catalog.enhancementById);
+  return normalizeSelectedRows(unit.unitEnhancements, state.catalog.enhancementById);
 }
 
 function selectedMiniatureEnhancements(unit) {
   const direct = unit.miniatureEnhancements || [];
-  const fromMiniatures = (unit.miniatures || []).flatMap((miniature) => (
-    (miniature.enhancementIds || miniature.enhancements || []).map((enhancement) => ({
-      ...(typeof enhancement === "string" ? { id: enhancement } : enhancement),
-      targetId: miniature.rosterUnitMiniatureId || miniature.id || `${unit.id}:${miniature.miniatureId}`,
-    }))
-  ));
-  return normalizeSelectedRows([...direct, ...fromMiniatures], state.catalog.enhancementById);
+  return normalizeSelectedRows(direct, state.catalog.enhancementById);
 }
 
 function compositionMiniatures(composition) {
@@ -198,7 +193,7 @@ function conditionalKeywordApplies(row, roster, detachmentIds, allegianceAbility
   if (row.requiredAllegianceAbilityId && !allegianceAbilityIds.has(row.requiredAllegianceAbilityId)) {
     return false;
   }
-  if (row.requiredRosterFactionKeywordId && row.requiredRosterFactionKeywordId !== roster.factionKeywordId) {
+  if (row.requiredRosterFactionKeywordId && !factionScope(roster.factionKeywordId).includes(row.requiredRosterFactionKeywordId)) {
     return false;
   }
   if (row.requiredDetachmentId && !detachmentIds.has(row.requiredDetachmentId)) {
@@ -207,7 +202,14 @@ function conditionalKeywordApplies(row, roster, detachmentIds, allegianceAbility
   return true;
 }
 
-function unitKeywords(roster, unit, miniatures, allegianceAbilities, warlordMiniatureIds) {
+function conditionalKeywordRowsForUnit(roster, unit, allegianceAbilities, warlordMiniatureIds) {
+  const detachmentIds = new Set(roster.detachmentIds || []);
+  const allegianceAbilityIds = new Set(allegianceAbilities.map((item) => item.id));
+  return (state.catalog.conditionalKeywordsByDatasheetId.get(unit.datasheetId) || [])
+    .filter((row) => conditionalKeywordApplies(row, roster, detachmentIds, allegianceAbilityIds, warlordMiniatureIds));
+}
+
+function unitKeywords(roster, unit, miniatures, allegianceAbilities, warlordMiniatureIds, conditionalKeywordRows = null) {
   const keywordIds = new Set();
   for (const miniature of miniatures) {
     if ((miniature.count || 0) <= 0) {
@@ -224,12 +226,8 @@ function unitKeywords(roster, unit, miniatures, allegianceAbilities, warlordMini
       }
     }
   }
-  const detachmentIds = new Set(roster.detachmentIds || []);
-  const allegianceAbilityIds = new Set(allegianceAbilities.map((item) => item.id));
-  for (const row of state.catalog.conditionalKeywordsByDatasheetId.get(unit.datasheetId) || []) {
-    if (conditionalKeywordApplies(row, roster, detachmentIds, allegianceAbilityIds, warlordMiniatureIds)) {
-      keywordIds.add(row.keywordId);
-    }
+  for (const row of conditionalKeywordRows ?? conditionalKeywordRowsForUnit(roster, unit, allegianceAbilities, warlordMiniatureIds)) {
+    keywordIds.add(row.keywordId);
   }
   return [...keywordIds]
     .map((id) => state.catalog.keywordById.get(id))
@@ -240,8 +238,8 @@ function unitKeywords(roster, unit, miniatures, allegianceAbilities, warlordMini
 function rosterWarlordMiniatureIds(roster) {
   const ids = [];
   for (const unit of roster.units || []) {
-    const composition = state.catalog.compositionById.get(unit.compositionId)
-      || defaultComposition(unit.datasheetId, compositionFactionIds(roster, unit.allyType || "native"), roster.detachmentIds || []);
+    const factionIds = compositionFactionIds(roster, unit.allyType || "native");
+    const composition = effectiveComposition(unit, factionIds, roster.detachmentIds || []);
     for (const miniature of miniaturesForUnit(unit, composition)) {
       if (miniature.isWarlord && miniature.count > 0) {
         ids.push(miniature.miniatureId);
@@ -276,13 +274,14 @@ function unitSummary(roster, unit) {
   const datasheet = state.catalog.datasheetById.get(unit.datasheetId) || {};
   const allyType = unit.allyType || "native";
   const factionIds = compositionFactionIds(roster, allyType);
-  const composition = state.catalog.compositionById.get(unit.compositionId)
-    || defaultComposition(unit.datasheetId, factionIds, roster.detachmentIds || []);
+  const composition = effectiveComposition(unit, factionIds, roster.detachmentIds || []);
   const miniatures = miniaturesForUnit(unit, composition);
   const selectedAbilities = selectedAllegianceAbilities(unit);
   const ownWarlordMiniatureIds = miniatures.filter((item) => item.isWarlord && item.count > 0).map((item) => item.miniatureId);
   const rosterWarlordIds = new Set([...rosterWarlordMiniatureIds(roster), ...ownWarlordMiniatureIds]);
-  const keywords = unitKeywords(roster, unit, miniatures, selectedAbilities, rosterWarlordIds);
+  const conditionalKeywordRows = conditionalKeywordRowsForUnit(roster, unit, selectedAbilities, rosterWarlordIds);
+  const conditionalKeywordIds = unique(conditionalKeywordRows.map((item) => item.keywordId));
+  const keywords = unitKeywords(roster, unit, miniatures, selectedAbilities, rosterWarlordIds, conditionalKeywordRows);
   const keywordIds = keywords.map((item) => item.id);
   const unitEnhancements = selectedUnitEnhancements(unit).map((enhancement) => ({
     ...enhancement,
@@ -292,7 +291,7 @@ function unitSummary(roster, unit) {
     const miniature = miniatures.find((item) => (
       item.rosterUnitMiniatureId === enhancement.targetId || item.id === enhancement.targetId
     ));
-    const targetKeywordIds = miniature ? miniatureKeywordIds(miniature.miniatureId) : keywordIds;
+    const targetKeywordIds = miniature ? unique([...miniatureKeywordIds(miniature.miniatureId), ...conditionalKeywordIds]) : keywordIds;
     return {
       ...enhancement,
       points: enhancementPoints(enhancement.id, targetKeywordIds),
@@ -318,6 +317,7 @@ function unitSummary(roster, unit) {
     selectedCompositionId: composition?.id || "",
     selectedCompositionAvailable: compositionAvailable,
     keywordIds,
+    conditionalKeywordIds,
     keywordNames: keywords.map((item) => item.name),
     factionKeywordIds: idsFromRows(state.catalog.datasheetFactionKeywordsByDatasheetId.get(unit.datasheetId), "factionKeywordId"),
     isWarlord: ownWarlordMiniatureIds.length > 0,
@@ -399,13 +399,96 @@ function compositionIsAvailable(composition, factionKeywordIds, detachmentIds) {
   return true;
 }
 
+function compositionSpecificity(composition, factionKeywordIds, detachmentIds) {
+  const requiredDetachmentIds = state.catalog.requiredDetachmentsByCompositionId
+    .get(composition.id)
+    ?.map((row) => row.detachmentId) || [];
+  const requiredFactionIds = state.catalog.requiredFactionKeywordsByCompositionId
+    .get(composition.id)
+    ?.map((row) => row.factionKeywordId) || [];
+  const detachmentSpecific = requiredDetachmentIds.some((id) => detachmentIds.includes(id)) ? 2 : 0;
+  const factionSpecific = requiredFactionIds.some((id) => factionKeywordIds.includes(id)) ? 1 : 0;
+  return detachmentSpecific + factionSpecific;
+}
+
+function compositionShapeKey(composition) {
+  return (state.catalog.compositionMiniaturesByCompositionId.get(composition?.id) || [])
+    .map((row) => `${row.miniatureId}:${Number(row.min || 0)}-${Number(row.max || 0)}`)
+    .sort()
+    .join("|");
+}
+
 function defaultComposition(datasheetId, factionKeywordIds, detachmentIds) {
   const compositions = [...(state.catalog.compositionsByDatasheetId.get(datasheetId) || [])]
+    .filter((item) => compositionIsAvailable(item, factionKeywordIds, detachmentIds))
     .sort((left, right) => (
       Number(Boolean(right.isDefault)) - Number(Boolean(left.isDefault))
+      || compositionSpecificity(right, factionKeywordIds, detachmentIds) - compositionSpecificity(left, factionKeywordIds, detachmentIds)
       || (left.displayOrder || 0) - (right.displayOrder || 0)
     ));
-  return compositions.find((item) => compositionIsAvailable(item, factionKeywordIds, detachmentIds)) || null;
+  return compositions[0] || null;
+}
+
+function availableCompositions(datasheetId, factionKeywordIds, detachmentIds) {
+  const byShape = new Map();
+  for (const composition of state.catalog.compositionsByDatasheetId.get(datasheetId) || []) {
+    if (!compositionIsAvailable(composition, factionKeywordIds, detachmentIds)) {
+      continue;
+    }
+    const shape = compositionShapeKey(composition) || composition.id;
+    const previous = byShape.get(shape);
+    if (!previous || (
+      compositionSpecificity(composition, factionKeywordIds, detachmentIds) - compositionSpecificity(previous, factionKeywordIds, detachmentIds)
+      || Number(Boolean(composition.isDefault)) - Number(Boolean(previous.isDefault))
+      || (previous.displayOrder || 0) - (composition.displayOrder || 0)
+    ) > 0) {
+      byShape.set(shape, composition);
+    }
+  }
+  return [...byShape.values()].sort((left, right) => (
+      (left.displayOrder || 0) - (right.displayOrder || 0)
+      || compositionSpecificity(right, factionKeywordIds, detachmentIds) - compositionSpecificity(left, factionKeywordIds, detachmentIds)
+      || (left.points || 0) - (right.points || 0)
+      || String(left.id || "").localeCompare(String(right.id || ""))
+  ));
+}
+
+function moreSpecificEquivalentComposition(datasheetId, saved, factionKeywordIds, detachmentIds) {
+  const savedShape = compositionShapeKey(saved);
+  if (!savedShape) {
+    return null;
+  }
+  const savedSpecificity = compositionSpecificity(saved, factionKeywordIds, detachmentIds);
+  return [...(state.catalog.compositionsByDatasheetId.get(datasheetId) || [])]
+    .filter((item) => item.id !== saved.id)
+    .filter((item) => compositionShapeKey(item) === savedShape)
+    .filter((item) => compositionIsAvailable(item, factionKeywordIds, detachmentIds))
+    .filter((item) => compositionSpecificity(item, factionKeywordIds, detachmentIds) > savedSpecificity)
+    .sort((left, right) => (
+      compositionSpecificity(right, factionKeywordIds, detachmentIds) - compositionSpecificity(left, factionKeywordIds, detachmentIds)
+      || Number(Boolean(right.isDefault)) - Number(Boolean(left.isDefault))
+      || (left.displayOrder || 0) - (right.displayOrder || 0)
+    ))[0] || null;
+}
+
+function effectiveComposition(unit, factionKeywordIds, detachmentIds) {
+  const fallback = defaultComposition(unit.datasheetId, factionKeywordIds, detachmentIds);
+  const saved = state.catalog.compositionById.get(unit.compositionId);
+  if (!saved || !compositionIsAvailable(saved, factionKeywordIds, detachmentIds)) {
+    return fallback;
+  }
+  const equivalent = moreSpecificEquivalentComposition(unit.datasheetId, saved, factionKeywordIds, detachmentIds);
+  if (equivalent) {
+    return equivalent;
+  }
+  if (
+    saved.isDefault
+    && fallback?.isDefault
+    && compositionSpecificity(fallback, factionKeywordIds, detachmentIds) > compositionSpecificity(saved, factionKeywordIds, detachmentIds)
+  ) {
+    return fallback;
+  }
+  return saved;
 }
 
 function compositionLabel(composition) {
@@ -512,9 +595,9 @@ function optionItemCounts(optionCounts) {
   const result = {};
   for (const [optionId, count] of Object.entries(optionCounts || {})) {
     const optionRow = state.catalog.wargearOptionById.get(optionId);
-    const item = optionRow ? state.catalog.wargearItemById.get(optionRow.wargearItemId) : null;
-    if (item) {
-      result[lowerName(item.name)] = (result[lowerName(item.name)] || 0) + Number(count || 0);
+    const key = wargearOptionKey(optionRow);
+    if (key) {
+      result[key] = (result[key] || 0) + Number(count || 0);
     }
   }
   return cleanCounts(result);
@@ -527,9 +610,9 @@ function defaultWargearOptionsByKey(datasheetId, miniatureId) {
       continue;
     }
     for (const option of state.catalog.wargearOptionsByGroupId.get(group.id) || []) {
-      const item = state.catalog.wargearItemById.get(option.wargearItemId);
-      if (item) {
-        rows.push({ key: lowerName(item.name), option });
+      const key = wargearOptionKey(option);
+      if (key) {
+        rows.push({ key, option });
       }
     }
   }
@@ -626,6 +709,9 @@ function closestValidDefaultLoadout(datasheetId, miniatureId, preferredOptions, 
 }
 
 function defaultMiniatureWargear(datasheetId, miniatureId, modelCount) {
+  if ((modelCount || 0) <= 0) {
+    return {};
+  }
   const result = {};
   const loadout = baseMiniatureLoadout(datasheetId, miniatureId);
   if (loadout) {
@@ -715,6 +801,7 @@ function rosterPoints(roster) {
 
 export {
   alliedFactionName,
+  availableCompositions,
   availableDatasheets,
   availableDetachments,
   availableUnitSources,

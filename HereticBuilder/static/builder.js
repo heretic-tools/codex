@@ -3,6 +3,7 @@ import { siteHref, state } from "./builder_state.js";
 import { getAllRosters, newId, openLocalDb, removeRoster, saveRoster } from "./builder_storage.js";
 import {
   alliedFactionName,
+  availableCompositions,
   availableDatasheets,
   availableDetachments,
   availableUnitSources,
@@ -511,7 +512,7 @@ function normalizeStoredEnhancementRows(rows) {
 }
 
 function selectedUnitEnhancementIds(unit) {
-  return new Set(normalizeStoredEnhancementRows(unit.unitEnhancements || unit.enhancementIds).map((row) => row.id));
+  return new Set(normalizeStoredEnhancementRows(unit.unitEnhancements).map((row) => row.id));
 }
 
 function miniatureTargetId(unit, miniature) {
@@ -531,9 +532,54 @@ function selectedMiniatureEnhancementIds(unit, miniature) {
   const direct = normalizeStoredEnhancementRows(unit.miniatureEnhancements)
     .filter((row) => targetIds.has(row.targetId))
     .map((row) => row.id);
-  const saved = miniaturesForEdit(unit).find((item) => targetIds.has(item.rosterUnitMiniatureId || item.id || `${unit.id}:${item.miniatureId || item.id}`));
-  const nested = normalizeStoredEnhancementRows(saved?.enhancementIds || saved?.enhancements).map((row) => row.id);
-  return new Set([...direct, ...nested]);
+  return new Set(direct);
+}
+
+function withComposition(candidate, compositionId) {
+  const composition = state.catalog.compositionById.get(compositionId);
+  if (!composition) {
+    return candidate;
+  }
+  return {
+    ...candidate,
+    compositionId: composition.id,
+    wargear: defaultWargear(candidate.datasheetId, composition.id),
+    miniatures: defaultMiniatures(candidate.datasheetId, composition.id),
+    miniatureEnhancements: [],
+  };
+}
+
+function renderCompositionOptions(roster, unit, summary, container) {
+  const factionIds = compositionFactionIds(roster, summary.allyType || unit.allyType || "native");
+  const options = availableCompositions(unit.datasheetId, factionIds, roster.detachmentIds || []);
+  if (options.length <= 1) {
+    return;
+  }
+  const group = document.createElement("section");
+  group.className = "wargear-group composition-group";
+  const title = document.createElement("h4");
+  title.textContent = "Composition";
+  const row = document.createElement("label");
+  row.className = "composition-row";
+  const select = document.createElement("select");
+  select.value = summary.selectedCompositionId || summary.compositionId || unit.compositionId || "";
+  for (const composition of options) {
+    const item = option(
+      composition.id,
+      `${compositionLabel(composition)} / ${composition.points || 0} pts`
+    );
+    select.appendChild(item);
+  }
+  select.addEventListener("change", async () => {
+    const nextUnits = (roster.units || []).map((candidate) => (
+      candidate.id === unit.id ? withComposition(candidate, select.value) : candidate
+    ));
+    await saveRoster({ ...roster, units: nextUnits });
+    await refreshRosters();
+  });
+  row.appendChild(select);
+  group.append(title, row);
+  container.appendChild(group);
 }
 
 function compareEnhancements(left, right) {
@@ -568,7 +614,7 @@ function enhancementCanBeOffered(unit, selectedIds) {
 }
 
 function withUnitEnhancement(candidate, enhancementId, checked) {
-  const rows = normalizeStoredEnhancementRows(candidate.unitEnhancements || candidate.enhancementIds)
+  const rows = normalizeStoredEnhancementRows(candidate.unitEnhancements)
     .filter((row) => row.id !== enhancementId);
   if (checked) {
     rows.push({ id: enhancementId });
@@ -582,17 +628,7 @@ function withMiniatureEnhancement(candidate, targetIds, targetId, enhancementId,
   if (checked) {
     directRows.push({ id: enhancementId, targetId });
   }
-  const miniatures = miniaturesForEdit(candidate).map((miniature) => {
-    const miniatureId = miniature.rosterUnitMiniatureId || miniature.id || `${candidate.id}:${miniature.miniatureId || miniature.id}`;
-    if (!targetIds.has(miniatureId)) {
-      return miniature;
-    }
-    const enhancementIds = normalizeStoredEnhancementRows(miniature.enhancementIds || miniature.enhancements)
-      .map((row) => row.id)
-      .filter((id) => id !== enhancementId);
-    return { ...miniature, enhancementIds };
-  });
-  return { ...candidate, miniatureEnhancements: directRows, miniatures };
+  return { ...candidate, miniatureEnhancements: directRows };
 }
 
 function renderEnhancementRow(roster, unit, enhancement, keywordIds, checked, onChange) {
@@ -944,6 +980,7 @@ function renderUnitScreen() {
   renderValidation(roster, validation, el.unitValidationList);
 
   clearChildren(el.unitDetailOptions);
+  renderCompositionOptions(roster, unit, summary, el.unitDetailOptions);
   renderWarlordOptions(roster, unit, summary, el.unitDetailOptions);
   renderEnhancementOptions(roster, unit, summary, el.unitDetailOptions);
   renderWargearOptions(roster, unit, summary, el.unitDetailOptions);

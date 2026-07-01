@@ -1,5 +1,6 @@
 export {
   alliedFactionName,
+  availableCompositions,
   availableDatasheets,
   availableDetachments,
   availableUnitSources,

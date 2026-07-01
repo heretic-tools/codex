@@ -661,7 +661,8 @@ Principles:
 Recommended storage split:
 
 - Cache Storage: immutable app shell, icons, image assets, data chunks, `manifest.json`.
-- IndexedDB: user rosters, selected units, selected wargear, enhancements, attachments, local migration metadata.
+- IndexedDB: user rosters, selected units, selected wargear, enhancements,
+  attachments, and catalog `dataVersion` metadata for repair/invalidation.
 - localStorage: only tiny preferences such as selected roster id, last faction, UI flags. Avoid storing full rosters there.
 
 Why IndexedDB, not only Cache Storage:
@@ -771,17 +772,17 @@ RosterUnit
   allyType
   compositionId
   miniatures[]
-  unitWargear[]
-  allegianceAbilityIds[]
-  unitEnhancementIds[]
+  wargear{}
+  allegianceAbilities[]
+  unitEnhancements[]
+  miniatureEnhancements[]
 
 RosterUnitMiniature
-  id
+  rosterUnitMiniatureId
   miniatureId
   count
   isWarlord
-  wargear[]
-  enhancementIds[]
+  wargear{}
 
 AttachedUnit
   id
@@ -892,13 +893,13 @@ Acceptance:
 - All current Python validation branches have JS equivalents.
 - Empty/inactive tables are represented but harmless.
 
-### Phase 5: offline/cache, import/export, migrations
+### Phase 5: offline/cache, import/export, data-version repair
 
 Deliverables:
 
 - Service worker for app shell and immutable data chunks.
 - Data version detection.
-- Local roster migration or compatibility warning on dataVersion changes.
+- Current-app roster repair/invalidation on `dataVersion` changes.
 - Export/import roster JSON.
 - "Clear local data" control.
 
@@ -975,8 +976,10 @@ Deployment:
 5. Combat Patrol is special.
    `detachment_linked_datasheet` and `isCombatPatrolDefault` enhancements imply exact-roster rules. It should be either fully implemented as a mode or hidden in MVP.
 
-6. Data updates need migrations.
-   Roster ids reference catalog ids. If dataVersion changes and ids disappear, client must mark affected units/options and offer repair.
+6. Data updates need repair/invalidation.
+   Roster ids reference catalog ids. If `dataVersion` changes and ids disappear,
+   the client must mark affected current-app units/options and offer repair or
+   clearing local data.
 
 7. Thin client means "thin backend", not "no validation".
    All validation still runs locally; otherwise the builder will accept illegal rosters.

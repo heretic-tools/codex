@@ -83,7 +83,7 @@ test("Adeptus Astartes chapter detachment point overrides are applied", () => {
 
 test("successor chapter Epic Heroes conflict with parent-faction Epic Heroes", () => {
   state.catalog = realCatalog;
-  const messages = [];
+  const torGaradonMessages = [];
   validateSuccessorChapterEpicHeroes([
     {
       id: "pedro",
@@ -99,8 +99,27 @@ test("successor chapter Epic Heroes conflict with parent-faction Epic Heroes", (
       keywordNames: ["Epic Hero"],
       factionKeywordIds: [factionNamed("Adeptus Astartes").id, factionNamed("Imperial Fists").id],
     },
-  ], messages);
-  assert.ok(messageCodes(messages).includes("roster.successor_chapter_epic_hero_in_roster"));
+  ], torGaradonMessages);
+  assert.ok(messageCodes(torGaradonMessages).includes("roster.successor_chapter_epic_hero_in_roster"));
+
+  const ultramarinesMessages = [];
+  validateSuccessorChapterEpicHeroes([
+    {
+      id: "pedro",
+      name: "Pedro Kantor",
+      isSuccessorChapter: true,
+      keywordNames: ["Epic Hero"],
+      factionKeywordIds: [factionNamed("Adeptus Astartes").id, factionNamed("Imperial Fists").id],
+    },
+    {
+      id: "calgar",
+      name: "Marneus Calgar",
+      isSuccessorChapter: false,
+      keywordNames: ["Epic Hero"],
+      factionKeywordIds: [factionNamed("Adeptus Astartes").id, factionNamed("Ultramarines").id],
+    },
+  ], ultramarinesMessages);
+  assert.ok(!messageCodes(ultramarinesMessages).includes("roster.successor_chapter_epic_hero_in_roster"));
 });
 
 test("Devoted of Ynnead requires Yvraine or the Yncarne as Warlord", () => {

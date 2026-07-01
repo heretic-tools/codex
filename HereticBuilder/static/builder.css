@@ -933,6 +933,28 @@ button.choice-row:focus-visible {
   white-space: nowrap;
 }
 
+.composition-row {
+  min-width: 0;
+  display: grid;
+}
+
+.composition-row select {
+  width: 100%;
+  min-height: 30px;
+  padding: 3px 6px;
+  color: var(--ink);
+  background: var(--light);
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+  outline: none;
+}
+
+.composition-row select:focus {
+  outline: 1px dotted var(--ink);
+  outline-offset: -4px;
+}
+
 .enhancement-row {
   grid-template-columns: 24px minmax(0, 1fr) auto;
 }

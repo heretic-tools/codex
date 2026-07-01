@@ -10,16 +10,18 @@ function validateDetachmentUniqueKeywords(detachments, messages) {
   const byKeyword = new Map();
   for (const detachment of detachments) {
     for (const row of state.catalog.detachmentUniqueKeywordsByDetachmentId.get(detachment.id) || []) {
-      const keyword = state.catalog.keywordById.get(row.keywordId)?.name || "Unknown";
-      if (!byKeyword.has(keyword)) {
-        byKeyword.set(keyword, []);
+      if (!byKeyword.has(row.keywordId)) {
+        byKeyword.set(row.keywordId, {
+          name: state.catalog.keywordById.get(row.keywordId)?.name || "Unknown",
+          detachments: [],
+        });
       }
-      byKeyword.get(keyword).push(detachment.name);
+      byKeyword.get(row.keywordId).detachments.push(detachment.name);
     }
   }
-  for (const [keyword, names] of byKeyword.entries()) {
+  for (const { name, detachments: names } of byKeyword.values()) {
     if (names.length > 1) {
-      messages.push(validationMessage("roster.detachment_unique_keyword_error", `Detachments share unique keyword ${keyword}: ${names.join(", ")}.`));
+      messages.push(validationMessage("roster.detachment_unique_keyword_error", `Detachments share unique keyword ${name}: ${names.join(", ")}.`));
     }
   }
 }
@@ -37,6 +39,18 @@ function validateUnitCompositions(units, messages) {
   }
 }
 
+function nonRootFactionScopeIds(factionKeywordIds) {
+  const ids = new Set();
+  for (const factionKeywordId of factionKeywordIds || []) {
+    for (const scopeId of factionScope(factionKeywordId)) {
+      if (state.catalog.factionKeywordById.get(scopeId)?.parentFactionKeywordId) {
+        ids.add(scopeId);
+      }
+    }
+  }
+  return ids;
+}
+
 function validateSuccessorChapterEpicHeroes(units, messages) {
   const successorUnits = units.filter((unit) => unit.isSuccessorChapter && unitHasKeyword(unit, "Epic Hero"));
   if (!successorUnits.length) {
@@ -44,13 +58,14 @@ function validateSuccessorChapterEpicHeroes(units, messages) {
   }
   const epicUnits = units.filter((unit) => unitHasKeyword(unit, "Epic Hero"));
   for (const successor of successorUnits) {
-    const successorFactions = new Set(successor.factionKeywordIds || []);
+    const successorFactions = nonRootFactionScopeIds(successor.factionKeywordIds);
     const shared = [];
     for (const unit of epicUnits) {
       if (unit.id === successor.id) {
         continue;
       }
-      if (setIntersects(successorFactions, new Set(unit.factionKeywordIds || []))) {
+      const unitFactions = nonRootFactionScopeIds(unit.factionKeywordIds);
+      if ([...unitFactions].some((factionId) => successorFactions.has(factionId))) {
         shared.push(unit.name);
       }
     }

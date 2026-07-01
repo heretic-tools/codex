@@ -1,5 +1,5 @@
 import { state } from "./builder_state.js";
-import { conditionalKeywordApplies, lowerName, miniatureKeywordIds, namesForIds } from "./builder_model.js";
+import { conditionalKeywordApplies, factionScope, lowerName, miniatureKeywordIds, namesForIds } from "./builder_model.js";
 import { keywordNameInIds } from "./builder_validation_core.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
@@ -36,7 +36,12 @@ function validateWarlord(roster, detachments, units, messages) {
   if (!units.length) {
     return;
   }
-  const faction = state.catalog.factionKeywordById.get(roster.factionKeywordId) || state.catalog.factionById.get(roster.factionKeywordId) || {};
+  const faction = factionScope(roster.factionKeywordId)
+    .map((id) => state.catalog.factionKeywordById.get(id) || state.catalog.factionById.get(id))
+    .find((item) => item?.mandatoryWarlordId)
+    || state.catalog.factionKeywordById.get(roster.factionKeywordId)
+    || state.catalog.factionById.get(roster.factionKeywordId)
+    || {};
   const mandatoryWarlordId = faction.mandatoryWarlordId;
   const mandatoryWarlord = mandatoryWarlordId ? state.catalog.miniatureById.get(mandatoryWarlordId) : null;
   const warlordIds = units.flatMap((unit) => unit.warlordMiniatureIds || []);

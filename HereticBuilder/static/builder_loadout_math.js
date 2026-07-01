@@ -1,7 +1,31 @@
 import { state } from "./builder_state.js";
 
-function lowerName(value) {
-  return String(value || "").trim().toLocaleLowerCase();
+function contextKey(datasheetId, miniatureId = null) {
+  return `${datasheetId || ""}:${miniatureId || ""}`;
+}
+
+function canonicalWargearKey(wargearItemId, context = {}) {
+  if (!wargearItemId) {
+    return "";
+  }
+  const aliases = state.catalog.wargearAliasesByContext || new Map();
+  const exact = aliases.get(contextKey(context.datasheetId, context.miniatureId))?.get(wargearItemId);
+  if (exact) {
+    return exact;
+  }
+  const datasheetWide = aliases.get(contextKey(context.datasheetId, null))?.get(wargearItemId);
+  if (datasheetWide) {
+    return datasheetWide;
+  }
+  return `id:${wargearItemId}`;
+}
+
+function wargearOptionKey(optionRow) {
+  const group = optionRow ? state.catalog.wargearGroupById.get(optionRow.wargearOptionGroupId) : null;
+  return canonicalWargearKey(optionRow?.wargearItemId, {
+    datasheetId: group?.datasheetId,
+    miniatureId: group?.miniatureId,
+  });
 }
 
 function countKey(counts) {
@@ -78,19 +102,20 @@ function combinationsWithReplacement(items, limit, start = 0) {
   return result;
 }
 
-function choiceItems(rows) {
+function choiceItems(rows, context = {}) {
   const counts = {};
   for (const row of rows || []) {
     const item = state.catalog.wargearItemById.get(row.wargearItemId);
     if (item) {
-      counts[lowerName(item.name)] = (counts[lowerName(item.name)] || 0) + (row.count || 0);
+      const key = canonicalWargearKey(row.wargearItemId, context);
+      counts[key] = (counts[key] || 0) + (row.count || 0);
     }
   }
   return cleanCounts(counts);
 }
 
-function loadoutChoiceItems(choiceId) {
-  return choiceItems(state.catalog.loadoutChoiceItemsByChoiceId.get(choiceId));
+function loadoutChoiceItems(choiceId, context) {
+  return choiceItems(state.catalog.loadoutChoiceItemsByChoiceId.get(choiceId), context);
 }
 
 function loadoutChoiceSets(datasheetId, miniatureId) {
@@ -102,7 +127,10 @@ function loadoutChoiceSets(datasheetId, miniatureId) {
     ))
     .map((row) => ({
       ...row,
-      choices: (state.catalog.loadoutChoicesBySetId.get(row.id) || []).map((choice) => loadoutChoiceItems(choice.id)),
+      choices: (state.catalog.loadoutChoicesBySetId.get(row.id) || []).map((choice) => loadoutChoiceItems(choice.id, {
+        datasheetId: row.datasheetId,
+        miniatureId: row.miniatureId,
+      })),
     }));
 }
 
@@ -222,10 +250,12 @@ function wargearLoadoutMatchesChoiceSets(datasheetId, miniatureId, selectedCount
 
 export {
   addCounts,
+  canonicalWargearKey,
   choiceItems,
   cleanCounts,
   countKey,
   loadoutChoiceSets,
   validLoadoutsFromChoiceSets,
+  wargearOptionKey,
   wargearLoadoutMatchesChoiceSets,
 };

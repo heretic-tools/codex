@@ -300,6 +300,87 @@ def default_ids(conn):
     }
 
 
+def lower_name(value):
+    return str(value or "").strip().lower()
+
+
+def add_wargear_alias_item(buckets, datasheet_id, miniature_id, wargear_item_id, name):
+    key_name = lower_name(name)
+    if not datasheet_id or not wargear_item_id or not key_name:
+        return
+    key = (datasheet_id, None)
+    names = buckets.setdefault(key, {})
+    names.setdefault(key_name, set()).add(wargear_item_id)
+
+
+def wargear_alias_source_rows(conn):
+    queries = (
+        """
+        select groups.datasheetId, groups.miniatureId, options.wargearItemId, items.name
+        from wargear_option options
+        join wargear_option_group groups on groups.id = options.wargearOptionGroupId
+        join wargear_item items on items.id = options.wargearItemId
+        """,
+        """
+        select sets.datasheetId, sets.miniatureId, items.wargearItemId, wargear.name
+        from loadout_choice_set sets
+        join loadout_choice choices on choices.loadoutChoiceSetId = sets.id
+        join loadout_choice_wargear_item items on items.loadoutChoiceId = choices.id
+        join wargear_item wargear on wargear.id = items.wargearItemId
+        """,
+        """
+        select sets.datasheetId, sets.miniatureId, items.wargearItemId, wargear.name
+        from limited_wargear_choice_set sets
+        join limited_wargear_choice choices on choices.limitedWargearChoiceSetId = sets.id
+        join limited_wargear_choice_wargear_item items on items.limitedWargearChoiceId = choices.id
+        join wargear_item wargear on wargear.id = items.wargearItemId
+        """,
+        """
+        select sets.datasheetId, sets.miniatureId, items.wargearItemId, wargear.name
+        from all_model_wargear_choice_set sets
+        join all_model_wargear_choice choices on choices.allModelWargearChoiceSetId = sets.id
+        join all_model_wargear_choice_wargear_item items on items.allModelWargearChoiceId = choices.id
+        join wargear_item wargear on wargear.id = items.wargearItemId
+        """,
+    )
+    for query in queries:
+        yield from conn.execute(query)
+
+
+def wargear_aliases(conn):
+    buckets = {}
+    for row in wargear_alias_source_rows(conn):
+        add_wargear_alias_item(
+            buckets,
+            row["datasheetId"],
+            row["miniatureId"],
+            row["wargearItemId"],
+            row["name"],
+        )
+
+    aliases = []
+    for (datasheet_id, miniature_id), names in buckets.items():
+        for name, item_ids in names.items():
+            if len(item_ids) < 2:
+                continue
+            for item_id in sorted(item_ids):
+                aliases.append({
+                    "datasheetId": datasheet_id,
+                    "miniatureId": miniature_id,
+                    "wargearItemId": item_id,
+                    "key": f"name:{name}",
+                })
+    return sorted(
+        aliases,
+        key=lambda item: (
+            item["datasheetId"] or "",
+            item["miniatureId"] or "",
+            item["key"],
+            item["wargearItemId"],
+        ),
+    )
+
+
 def bootstrap_payload(conn, version, counts):
     defaults = default_ids(conn)
     factions = [
@@ -330,6 +411,7 @@ def bootstrap_payload(conn, version, counts):
         **defaults,
         "factions": factions,
         "battleSizes": battle_sizes,
+        "wargearAliases": wargear_aliases(conn),
         "tableCounts": counts,
     }
 

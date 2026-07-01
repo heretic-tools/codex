@@ -24,12 +24,12 @@ The Builder now covers every current `validationMessage(...)` error code with at
 least one `node:test` assertion, but it is still not fully proven equivalent to
 the WH 40K app. The highest-risk remaining areas are:
 
-1. Wargear validation parity: our loadout engine uses normalized item names as
-   matching keys in several places, while the official app exposes
-   `RawWargearItem`, `RawWargearChoice`, `LoadoutKey`, and a dedicated
-   `WargearValidation` pipeline. Current data has many duplicate wargear names,
-   including same-datasheet bridge cases in Cthonian Beserks and `’Ardmob
-   Boyz`.
+1. Wargear validation parity: Builder now routes loadout matching through
+   `canonicalWargearKey`, using item IDs by default and same-context
+   duplicate-name aliases only where the catalog needs a bridge. The official
+   app still exposes richer `RawWargearItem`, `RawWargearChoice`, `LoadoutKey`,
+   and `WargearValidation` concepts, so exact diagnostic parity still needs WH
+   app fixture comparison.
 2. Some parity remains data-version-sensitive. Empty v879 tables now have
    synthetic coverage for their code paths, but still need live WH app
    comparison once Games Workshop populates those tables.
@@ -38,8 +38,8 @@ Resolved during implementation:
 
 - Enhancement/warlord interaction now checks the targeted miniature for
   miniature enhancements.
-- New-table ally restricting keyword rows now respect the keyword's faction
-  scope when present.
+- Ally restricting keyword rows now respect the allied source parent's faction
+  ancestry when a keyword restriction points at a parent faction.
 - `factionScope` now walks the full `faction_keyword` table rather than the
   bootstrap-visible faction list.
 - `RosterAttachedUnitValidator.UnitMustBeAttached` is implemented for explicit
@@ -51,20 +51,23 @@ The data export itself is not the main problem: key table counts in
 `data/heretic_db.sqlite` match the installed WH 40K app runtime DB one-for-one
 for the roster validation tables checked below.
 
-Implementation update, 2026-07-01:
+Implementation updates, 2026-07-01 to 2026-07-02:
 
 - Builder validation messages now include stable `code` values.
 - `factionScope` now walks the full `faction_keyword` catalog map.
 - Enhancement `cannotBeWarlord` now checks the targeted miniature for miniature
   enhancements.
-- New-table ally restricting keyword rows are scoped through the keyword's
-  faction restriction when that scope is present.
+- Ally restricting keyword rows are scoped through the allied source parent's
+  faction ancestry when the keyword restriction points at a parent faction.
 - Initial `node:test` coverage exists for those fixes and for code emission.
 - Golden validation coverage now includes Heretic Astartes allied exceptions,
   allegiance ability edge cases, Adeptus Astartes/Ynnead/Ynnari faction
   exceptions, attachment group paths, and high-risk wargear fixtures for
   duplicate-name all-model matching, substitutions, limited thresholds, and
   zero-count miniature wargear.
+- Mandatory faction allegiance abilities are read through `factionScope`, so
+  future parent-faction rows apply to child roster factions. v879 has no live
+  rows in that table.
 - Attachment coverage now includes valid leader/bodyguard groups, incomplete
   groups, duplicate membership, invalid leader requirements, and invalid support
   requirements. Explicit leader/support-without-bodyguard groups now emit
@@ -74,21 +77,70 @@ Implementation update, 2026-07-01:
 - Enhancement golden coverage now includes roster/per-unit/duplicate limits,
   required detachment, required keyword/faction groups, excluded keywords,
   required wargear, attached bodyguard requirements, and attached-unit
-  enhancement limits.
+  enhancement limits. Model-targeted enhancement checks now include active
+  conditional keywords from the unit summary, covering Character-granting
+  allegiance abilities such as Headhunter Task Force vehicle Characters.
+- Unit-level enhancement coverage now explicitly includes
+  `enhancementType = upgrade`. Sharp Eyes (Upgrade) proves upgrade required
+  datasheet/faction groups, upgrade points, and the per-enhancement duplicate
+  limit of 3 are enforced independently from the Strike Force roster
+  enhancement limit of 4.
+- Old-roster runtime fallbacks for `attachedUnits`, `allegianceAbilityIds`,
+  `enhancementIds`, and nested miniature enhancement arrays were removed. The
+  static Builder now validates only the current new-app roster shape.
 - Warlord and top-level roster coverage now includes missing/multiple/invalid
   warlord cases, Supreme Commander enforcement, detachment unique keyword
-  collisions, detachment excluded datasheets, Combat Patrol linked datasheet
-  constraints, unit composition diagnostics, and duplicate datasheet limits
-  including Epic Heroes.
+  collisions by keyword ID, detachment excluded datasheets, Combat Patrol
+  linked datasheet constraints, unit composition diagnostics, and duplicate
+  datasheet limits including Epic Heroes.
+- Default composition selection now prefers matching detachment-specific rows,
+  then faction-specific rows, before generic rows. Saved generic default
+  composition IDs are also normalized to the more specific current default, and
+  saved generic non-default composition IDs normalize to a more specific
+  equivalent when the model-count shape is the same. Live coverage checks
+  Pantheon of Woe C'tan points, Blood Angels Bladeguard Veteran Squad points,
+  and Blood Angels large Assault Intercessors with Jump Packs points.
+- The unit edit screen now exposes a current-roster composition picker. It only
+  lists compositions available for the selected roster faction/detachments,
+  hides generic/specific duplicates with the same model-count shape, and resets
+  model-level wargear/enhancements when switching composition.
 - Allied golden coverage now includes all four Heretic Astartes cult-legion
   parent factions, Titanicus Traitoris titan keyword caps, Agents of the
   Imperium allowed-warlord requirements, and slotless Retinue donor/receiver
   counting.
 - Keyword restriction groups are now loaded through `factionScope`, so
   parent-scoped restriction rows are inherited by child roster factions.
+- Wargear matching now uses `canonicalWargearKey`: normal rows use item-ID keys,
+  while confirmed same-context duplicate-name bridges use explicit `name:`
+  aliases.
+- Limited wargear validation is option-aware: base/default components embedded
+  in upgrade choices do not spend optional limited caps, while default-only
+  limited choices still count against `choiceLimit` and `duplicateLimit`.
+  Overlapping combo rows are validated by bounded exact cover rather than by
+  summing independent occurrences.
+- Default miniature wargear is not generated for zero-count optional models.
+- Canonical wargear aliases are now precomputed by `export_builder_data.py` into
+  `bootstrap.wargearAliases`, keeping the static runtime to a small lookup path.
+  The export stores only datasheet-scope alias rows; miniature contexts use the
+  existing datasheet fallback.
+- Conditional keywords with `requiredRosterFactionKeywordId` now match through
+  `factionScope`, so parent-faction requirements can apply to child rosters.
+  v879 live rows are Dark Angels scoped; synthetic coverage guards future child
+  faction data.
+- Faction mandatory warlord lookup also walks `factionScope` from child to
+  parent. v879 has no live faction mandatory warlord rows, but synthetic
+  coverage guards future parent-faction data.
+- Live Warlord coverage now includes `detachment_granted_warlord_miniature`:
+  Deathleaper is invalid as Warlord by default but valid in Vanguard Onslaught.
+- Duplicate-unit coverage now includes conditional Battleline. Houndpack Lance
+  War Dog Brigands use the Battleline duplicate cap of 6 rather than the
+  standard Strike Force cap of 3.
+- Test coverage now includes a dev-only concept map from Builder validation
+  codes to official-like validator/error names. The static Builder runtime does
+  not ship this map.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
-  current `validationMessage(...)` error code at least once; `npm test` passes
-  41 validation tests.
+  current `validationMessage(...)` and `validationWarning(...)` code at least
+  once; `npm test` passes 56 validation tests.
 
 ## Evidence baseline
 
@@ -198,7 +250,7 @@ Status values:
 | `MissingRequiredWargearItem` | `builder_allegiance_rules.js:39-43` | Covered | v879 has 4 allegiance abilities with `requiresWargearItemId`. |
 | `MissingAllegianceAbility` | `builder_allegiance_rules.js:33-35` | Covered | v879 has 5 mandatory allegiance groups. |
 | `TooManyAllegianceAbilities` | `builder_allegiance_rules.js:36-38` | Covered | Blocks more than one selected ability in a unit group. |
-| `MissingMandatoryAllegianceAbility` | `builder_allegiance_rules.js:61-73` | Covered, data-empty | Table has 0 rows in v879. |
+| `MissingMandatoryAllegianceAbility` | `builder_allegiance_rules.js:63-84` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage proves parent-faction rows are inherited through `factionScope`. |
 | `AlliedFactionDetachmentValidator` | `builder_allied_rules.js:162-168` | Covered | Uses required detachment from `allied_faction` plus join table. |
 | `InvalidDetachmentError` | `builder_allied_rules.js:162-168` | Covered | Message is custom, semantics present. |
 | `AlliedKeywordCountValidator` | `builder_allied_rules.js:47-70` | Covered | Includes battle-size and warlord-gated keyword limits. |
@@ -217,7 +269,7 @@ Status values:
 | `DetachmentPointsBattleSizeLimitExceeded` | `builder_roster_validation.js:47-50` | Covered | Semantics present. |
 | `DetachmentRequiredDatasheetValidator` | `builder_restriction_rules.js:78-107` | Covered, data-empty | `detachment_required_datasheet` is empty in v879 and guarded by a synthetic test; Combat Patrol linked datasheets are live and covered separately. |
 | `DetachmentDatasheetsMissing` | `builder_restriction_rules.js:78-99` | Covered, data-empty | Required table empty; linked Combat Patrol path live. |
-| `EnhancementValidator` | `builder_enhancement_rules.js:78-163` | Covered | Broad code coverage includes limits, target type, Combat Patrol defaults, allied-unit rejection, Epic Hero rejection, excluded models, required keywords/wargear, bodyguard requirements, and `cannotBeWarlord` target scope. |
+| `EnhancementValidator` | `builder_enhancement_rules.js:78-163` | Covered | Broad code coverage includes limits, target type, `unit` and `upgrade` enhancement types, Combat Patrol defaults, allied-unit rejection, Epic Hero rejection, excluded models, required keywords/wargear, bodyguard requirements, conditional Character keywords on model targets, and `cannotBeWarlord` target scope. |
 | `ModelsHaveSameEnhancements` | `builder_enhancement_rules.js:106-117` | Covered | Per-enhancement limit. |
 | `RosterHasTooManyEnhancements` | `builder_enhancement_rules.js:101-105` | Covered | Battle-size enhancement limit. |
 | `UnitHasTooManyEnhancements` | `builder_enhancement_rules.js:82-99` | Covered | More than one selected enhancement on a unit. |
@@ -228,12 +280,12 @@ Status values:
 | `AttachedModelHasTooManyEnhancements` | `builder_attachment_rules.js:132-147` | Covered | Attached unit group enhancement count > 1. |
 | `FactionKeywordExcludedDatasheetValidator` | `builder_model.js:356-360`, `builder_roster_validation.js:78-86` | Covered | Uses faction scope. |
 | `FactionDatasheetNotAllowed` | `builder_roster_validation.js:78-86` | Covered | Semantics present. |
-| `KeywordAllyRestrictingKeywordValidator` | `builder_allied_rules.js:83-125` | Covered | Legacy rows and synthetic new-table scoping are covered. v879 new table remains empty. |
+| `KeywordAllyRestrictingKeywordValidator` | `builder_allied_rules.js:92-130` | Covered | Legacy rows and synthetic new-table scoping are covered, including child allied parents inheriting parent restrictions. v879 new table remains empty. |
 | `RestrictingKeywordError` | `builder_allied_rules.js:108-123` | Covered | Count logic and faction-scoped new-table behavior are covered. |
 | `KeywordRestrictionGroupValidator` | `builder_restriction_rules.js:110-184` | Covered | Faction rows now load through `factionScope`; zero-limit and detachment min/max messages are covered. |
 | `KeywordRestrictionGroupError` | `builder_restriction_rules.js:141-180` | Covered | Limit, zero-limit, detachment min/max messages are custom. |
-| `MandatoryWarlordValidator` | `builder_warlord_rules.js:38-79` | Covered | Faction mandatory rows are empty; detachment mandatory rows live. |
-| `MandatoryWarlordNotNotPresentInRoster` | `builder_warlord_rules.js:42-50` | Covered, data-empty for faction | Detachment mandatory uses selected warlord list. |
+| `MandatoryWarlordValidator` | `builder_warlord_rules.js:38-82` | Covered | Faction mandatory rows are empty in v879 but lookup walks child-to-parent `factionScope`; detachment mandatory rows live. |
+| `MandatoryWarlordNotNotPresentInRoster` | `builder_warlord_rules.js:42-53` | Covered, data-empty for faction | Detachment mandatory uses selected warlord list; synthetic coverage guards parent-faction mandatory warlord rows. |
 | `MandatoryWarlordNotSelected` | `builder_warlord_rules.js:48-50`, `73-79` | Covered | Semantics present. |
 | `SupremeCommanderNotSelected` | `builder_warlord_rules.js:63-68` | Covered | v879 has 17 supreme commander miniatures. |
 | `MaxModelCountValidator` | `builder_restriction_rules.js:26-36` | Covered | Uses datasheet max model count and composition availability. |
@@ -246,20 +298,20 @@ Status values:
 | `UnitMustBeAttached` | `builder_attachment_rules.js:75-82` | Covered for explicit attached groups | Leader/support members in an attached group with no bodyguard emit `attached_unit.must_be_attached`. Empty roster attachment state still returns no error because v879 has no standalone must-attach flag. |
 | `RosterDetachmentValidator` | `builder_roster_validation.js:38-45`, `builder_restriction_rules.js:5-24` | Covered | Selection, faction availability, unique keyword. |
 | `RosterDetachmentNotSelected` | `builder_roster_validation.js:38-40` | Covered | Semantics present. |
-| `RosterDetachmentUniqueKeywordError` | `builder_restriction_rules.js:5-24` | Covered | Current keyword names are unique enough for this path; ID-keying would be safer. |
-| `RosterPointsValidator` | `builder_roster_validation.js:35-54` | Covered | Unit points sum versus battle-size points. |
+| `RosterDetachmentUniqueKeywordError` | `builder_restriction_rules.js:5-26` | Covered | Uses `detachment_unique_keyword.keywordId`; same display names on different keyword IDs do not collide. |
+| `RosterPointsValidator` | `builder_roster_validation.js:35-54`, `builder_model.js:255-264` | Covered | Unit points sum versus battle-size points, including `datasheet_points_step` duplicate-position costs. |
 | `RosterPointsLimitExceeded` | `builder_roster_validation.js:51-54` | Covered | Semantics present. |
 | `RosterUnitLimitValidator` | `builder_roster_validation.js:66-95` | Covered | Duplicate limit, Epic Hero limit, successor conflict. |
 | `RosterHasTooManyOfEpicHero` | `builder_validation_core.js:24-31`, `builder_roster_validation.js:88-93` | Covered | Epic Hero duplicate limit = 1. |
-| `RosterHasEpicHeroAndSuccessorChapter` | `builder_restriction_rules.js:39-63` | Partial | Checks direct shared faction keyword IDs. Needs golden tests for parent-faction wording in official message. |
-| `RosterHasTooManyOfUnit` | `builder_roster_validation.js:88-93` | Covered | Battleline/Dedicated Transport limit 6, else battle-size duplicate limit. |
-| `UnitCompositionValidator` | `builder_model.js:386-408`, `builder_restriction_rules.js:26-36` | Covered | Required faction/detachment composition rows. |
+| `RosterHasEpicHeroAndSuccessorChapter` | `builder_restriction_rules.js:39-78` | Covered | Compares non-root faction scope IDs, so Pedro Kantor conflicts with Imperial Fists Epic Heroes but not unrelated Adeptus Astartes root-share Epic Heroes such as Ultramarines. |
+| `RosterHasTooManyOfUnit` | `builder_roster_validation.js:88-93` | Covered | Battleline/Dedicated Transport limit 6, else battle-size duplicate limit. Live coverage includes conditional Battleline from Houndpack Lance War Dog Brigands. |
+| `UnitCompositionValidator` | `builder_model.js:386-459`, `builder_restriction_rules.js:26-36` | Covered | Required faction/detachment composition rows; default composition selection now prefers matching detachment-specific rows, then faction-specific rows, before generic rows. Same-shape generic/specific duplicates normalize to the more specific available composition, and the unit edit UI exposes the available current-roster compositions. |
 | `InvalidUnitComposition` | `builder_restriction_rules.js:31-35` | Covered | Semantics present. |
-| `WargearLoadoutValidator` | `builder_wargear_rules.js:221-248`, `builder_loadout_math.js:81-220` | Partial | Engine exists, but algorithm is simplified and name-keyed. Needs parity tests for official loadout diagnostics. |
-| `LoadoutKey` | `builder_loadout_math.js:7-12`, `36-37` | Partial | Our key is normalized name counts, not proven equivalent to official `LoadoutKey`. |
-| `InvalidWargearLoadout` | `builder_wargear_rules.js:226-244` | Partial | Miniature/unit loadout failures covered. Name-key matching can mask ID-level differences. |
-| `InvalidWargearRequirement` | `builder_wargear_rules.js:130-194` | Partial | Limited and all-model requirements covered, but all-model path is much simpler than official diagnostics. |
-| `WarlordValidator` | `builder_warlord_rules.js:34-84` | Covered | Missing/multiple/eligibility/conditional Character. |
+| `WargearLoadoutValidator` | `builder_wargear_rules.js:256-282`, `builder_loadout_math.js:81-220` | Partial | Engine now uses canonical item-ID keys with explicit duplicate-name aliases, but exact official diagnostics still need WH app fixture comparison. |
+| `LoadoutKey` | `builder_loadout_math.js:3-29`, `36-37` | Partial | Builder has a canonical key layer, but it is not proven identical to official `LoadoutKey`. |
+| `InvalidWargearLoadout` | `builder_wargear_rules.js:231-278` | Partial | Miniature/unit loadout failures covered with canonical keys. Exact diagnostic category parity still needs WH app comparison. |
+| `InvalidWargearRequirement` | `builder_wargear_rules.js:90-245` | Partial | Limited thresholds use total unit model count, option-aware base/upgrade filtering, default-only choices, and duplicate caps. All-model substitutions are grouped by datasheet/miniature context, but exact official diagnostics still need WH app comparison. |
+| `WarlordValidator` | `builder_warlord_rules.js:34-84` | Covered | Missing/multiple/eligibility/conditional Character and detachment-granted Warlord overrides. |
 | `InvalidWarlordGeneric` | `builder_warlord_rules.js:80-84` | Covered | Message custom. |
 | `InvalidWarlordDueToEnhancements` | `builder_enhancement_rules.js:158-160` | Covered | Miniature enhancements check the enhanced model against the selected warlord miniature; unit-level enhancements still apply at unit scope. |
 | `MissingWarlord` | `builder_warlord_rules.js:52-56` | Covered | Semantics present. |
@@ -268,15 +320,37 @@ Status values:
 
 ## Confirmed or high-risk discrepancies
 
-### 1. Wargear matching is not proven equivalent
+### 1. Wargear matching is safer, but not fully proven equivalent
 
 Builder code:
 
-- `builder_loadout_math.js:81-89` converts choice item rows into counts keyed by
-  `lowerName(item.name)`.
-- `builder_wargear_rules.js:32-48` converts selected wargear into counts keyed by
-  `lowerName(item.name)`.
-- `builder_model.js:511-520` does the same for default option item counts.
+- `builder_loadout_math.js` provides `canonicalWargearKey`.
+- `export_builder_data.py` precomputes canonical `name:` alias rows into
+  `bootstrap.wargearAliases`; runtime code does not scan the catalog to discover
+  them.
+- `builder_loadout_math.js` converts regular loadout choice rows through the
+  canonical key layer.
+- `builder_wargear_rules.js` converts selected, limited, and all-model wargear
+  through the same key layer.
+- Limited wargear thresholds use total unit model count, so mixed-model units
+  such as 20-model Cadian Shock Troops apply the 20-model `choiceLimit` and
+  `duplicateLimit` rows even though the restricted miniature count is 18.
+- Limited wargear choice validation filters selected roster options through the
+  option context, preventing base wargear such as Pathfinder pulse carbines or
+  Tankbusta base rokkit launchas from spending optional upgrade caps.
+- Limited wargear selected counts are matched against choice rows by bounded
+  exact cover, so overlapping combo rows such as Battle Sisters Squad `Heavy
+  bolter + Ministorum flamer` do not self-overcount against `choiceLimit`.
+- Default-only limited choices remain countable, so caps such as Hyperadapted
+  Raveners' Venom bolt limit are not silently skipped.
+- All-model substitution checks are grouped by substitute-family inside each
+  datasheet/miniature context, so a substitute weapon requires an active base
+  line from the same substitute family. Alternative base sets such as Termagant
+  fleshborers/spinefists/devourers still do not create false positives, while
+  independent slots such as Einhyr Hearthguard guns and melee weapons cannot
+  satisfy one another.
+- `builder_model.js` uses the same key layer when repairing default miniature
+  loadouts and skips default wargear for zero-count optional miniatures.
 
 Data facts:
 
@@ -285,26 +359,36 @@ Data facts:
   `Heavy plasma axe` item IDs:
   - base/loadout item: `5a2b0491-c8db-4394-90cc-849d3b7d60ed`
   - all-model item: `95e3c57e-a5bf-4a43-bf6a-12b0605c7d48`
-- The second ID has no `wargear_option` row, so name-normalization may be
-  intentionally compensating for odd source data. That makes this a parity
-  hotspot rather than an immediate "switch all matching to IDs" fix.
+- The second ID has no `wargear_option` row, so the canonical key layer keeps an
+  explicit same-context `name:heavy plasma axe` bridge instead of blindly
+  switching all matching to raw item IDs.
 - `’Ardmob Boyz` has another same-datasheet duplicate-name bridge for Boss Nob
   `Big Choppa`, where loadout and option rows share the same displayed name but
   do not collapse to one simple item-ID rule in every source row.
 
 Implemented guard rails:
 
+- A canonical-key test now proves normal wargear uses `id:` keys while the
+  Cthonian duplicate bridge collapses to the same `name:` alias.
+- An alias-inventory test now proves v879 has exactly two canonical `name:`
+  contexts: Cthonian Beserks Heavy plasma axe and `’Ardmob Boyz` Big Choppa.
 - Golden tests now cover Cthonian Beserks duplicate-name all-model matching,
   Cthonian mixed all-model invalidity, `’Ardmob Boyz` duplicate-name Big Choppa
   loadout bridging, Eliminator Sergeant substitutions, Eliminator mixed
-  all-model invalidity, Termagant limited thresholds, zero-count model wargear,
-  invalid unit/model scope, and invalid unit/model loadouts.
+  all-model invalidity, Canoptek Macrocytes substitute-without-base rejection,
+  Hernkyn Yaegirs base-plus-substitute validity, Einhyr Hearthguard independent
+  substitute-family anchoring, Termagant limited thresholds, Cadian Shock Troops
+  total unit model-count thresholds plus duplicate caps, Battle Sisters Squad
+  overlapping limited combo rows, Pathfinder/Tankbustas limited choices that
+  include base wargear, Hyperadapted Raveners default-only limited caps,
+  zero-count model wargear, invalid unit/model scope, invalid unit and model
+  loadouts, and a full default-catalog sweep proving generated default wargear
+  no longer self-validates as invalid.
 
 Remaining action:
 
 - Compare those fixtures against the official app's exact diagnostics before
-  changing the name-normalized bridge or introducing a canonical item-id/loadout
-  key layer.
+  tightening or expanding canonical alias behavior.
 
 ### 2. Resolved: Enhancement `cannotBeWarlord` target scope
 
@@ -336,9 +420,10 @@ Coverage:
 
 Builder code:
 
-- `builder_allied_rules.js:83-125` handles both new-table
+- `builder_allied_rules.js:92-130` handles both new-table
   `keyword_ally_restricting_keyword` rows and the legacy
-  `keyword.allyRestrictingKeywordId` path and scopes it by allied parent faction.
+  `keyword.allyRestrictingKeywordId` path and scopes it by allied parent faction
+  ancestry.
 
 Data:
 
@@ -348,13 +433,14 @@ Data:
 
 Fix:
 
-- New-table rows are only applied when the keyword's faction restriction matches
-  the allied faction parent scope.
+- Restricting keyword rows are only applied when the keyword's faction
+  restriction matches the allied source parent or one of that parent faction's
+  ancestors.
 
 Coverage:
 
-- A synthetic new-table regression fixture verifies both the non-matching and
-  matching allied parent cases.
+- Synthetic new-table regression fixtures verify non-matching, exact matching,
+  and child-parent ancestry cases.
 
 ### 4. Resolved for explicit groups: `UnitMustBeAttached`
 
@@ -481,9 +567,10 @@ parity issue:
 ## Minimum golden parity suite
 
 Static audit cannot prove exact Battle Forge parity. Builder-side fixtures now
-cover every current `validationMessage(...)` code at least once. The remaining
-parity work is to create the same roster cases in WH 40K app and Builder, then
-compare valid/invalid state and error categories.
+cover every current `validationMessage(...)` and `validationWarning(...)` code
+at least once, and every code has a test-only official-like concept mapping.
+The remaining parity work is to create the same roster cases in WH 40K app and
+Builder, then compare valid/invalid state and error categories.
 
 Required cases:
 
@@ -534,8 +621,9 @@ Required cases:
 4. Done for explicit attached groups: implement `UnitMustBeAttached`.
    Remaining external check: watch for any future standalone must-attach flag.
 5. Done: harden `KeywordAllyRestrictingKeywordValidator` for future new-table
-   rows.
+   rows and parent-scope allied source matching.
 6. Done: rework `factionScope` to use the full faction keyword table.
-7. Remaining: revisit wargear matching after official-app fixture comparison.
-   Do not blindly switch to IDs without handling the Cthonian Beserks all-model
-   and `’Ardmob Boyz` Big Choppa duplicate-name bridge cases.
+7. Done for Builder: introduce `canonicalWargearKey` with item-ID default keys
+   and duplicate-name bridge aliases. Remaining external check: compare the
+   golden wargear fixtures against WH app exact diagnostics before tightening or
+   expanding alias behavior.

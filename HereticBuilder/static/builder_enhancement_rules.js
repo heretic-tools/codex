@@ -94,7 +94,9 @@ function validateEnhancements(roster, detachments, units, messages) {
     }
     for (const enhancement of unit.miniatureEnhancements || []) {
       const miniature = (unit.miniatures || []).find((item) => item.rosterUnitMiniatureId === enhancement.targetId || item.id === enhancement.targetId);
-      const keywordIds = new Set(miniature ? miniatureKeywordIds(miniature.miniatureId) : unit.keywordIds || []);
+      const keywordIds = new Set(miniature
+        ? [...miniatureKeywordIds(miniature.miniatureId), ...(unit.conditionalKeywordIds || [])]
+        : unit.keywordIds || []);
       const targetName = miniature?.name || unit.name;
       selected.push({ unit, enhancement, keywordIds, targetName, miniature, targetKind: "miniature" });
       unitSelected.push(enhancement);

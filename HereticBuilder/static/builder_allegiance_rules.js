@@ -1,4 +1,5 @@
 import { state } from "./builder_state.js";
+import { factionScope } from "./builder_model.js";
 import { rosterSummary, unitHasWargearItem } from "./builder_validation_core.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
@@ -59,7 +60,18 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
       messages.push(validationMessage("allegiance_ability.group_limit_exceeded", `Select at most ${group.maxRosterLimit} ${group.name} choices.`));
     }
   }
-  for (const row of state.catalog.mandatoryAllegianceAbilitiesByFactionId.get(roster.factionKeywordId) || []) {
+  const mandatoryRows = [];
+  const seenMandatoryAbilityIds = new Set();
+  for (const factionId of factionScope(roster.factionKeywordId)) {
+    for (const row of state.catalog.mandatoryAllegianceAbilitiesByFactionId.get(factionId) || []) {
+      if (seenMandatoryAbilityIds.has(row.allegianceAbilityId)) {
+        continue;
+      }
+      seenMandatoryAbilityIds.add(row.allegianceAbilityId);
+      mandatoryRows.push(row);
+    }
+  }
+  for (const row of mandatoryRows) {
     const ability = state.catalog.allegianceAbilityById.get(row.allegianceAbilityId);
     const groupId = ability?.allegianceAbilityGroupId;
     for (const unit of units) {

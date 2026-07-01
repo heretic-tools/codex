@@ -3,7 +3,7 @@ import { idsFromRows, setIntersects } from "./builder_model.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
 function attachedGroups(roster) {
-  return roster.attachments || roster.attachedUnits || [];
+  return roster.attachments || [];
 }
 
 function attachedUnitCanAttach(roster, detachmentIds, attached, bodyguard, units) {

@@ -145,7 +145,7 @@ test("allegiance abilities reject wrong groups and mandatory faction choices", (
     allegianceAbilityGroupById: new Map([[group.id, group]]),
     allegianceAbilityGroups: [group],
     mandatoryAllegianceAbilitiesByFactionId: new Map([[
-      "synthetic-faction",
+      "parent-faction",
       [{ allegianceAbilityId: mandatory.id }],
     ]]),
     allegianceAbilityById: new Map([
@@ -153,13 +153,17 @@ test("allegiance abilities reject wrong groups and mandatory faction choices", (
       [alternate.id, alternate],
     ]),
     wargearItemById: new Map(),
-    factionById: new Map([["synthetic-faction", { id: "synthetic-faction", name: "Synthetic Faction" }]]),
+    factionKeywordById: new Map([
+      ["child-faction", { id: "child-faction", parentFactionKeywordId: "parent-faction" }],
+      ["parent-faction", { id: "parent-faction", parentFactionKeywordId: "" }],
+    ]),
+    factionById: new Map([["child-faction", { id: "child-faction", name: "Synthetic Child Faction" }]]),
     battleSizeById: new Map(),
   };
   withCatalog(catalog, () => {
     const mandatoryMessages = [];
     validateAllegianceAbilities(
-      { factionKeywordId: "synthetic-faction" },
+      { factionKeywordId: "child-faction" },
       [],
       [allegianceUnit({ id: "mandatory-miss", group, abilities: [alternate] })],
       mandatoryMessages

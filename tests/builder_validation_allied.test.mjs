@@ -336,3 +336,69 @@ test("new-table ally restricting keyword rows respect keyword faction scope when
     assert.ok(messageCodes(messages).includes("allied_keyword_restricting_keyword.outnumbered_keywords"));
   });
 });
+
+test("ally restricting keyword rows match allied parent faction ancestry", () => {
+  const baseCatalog = {
+    factionAlliedFactionsByFactionId: new Map([["roster-faction", [{ alliedFactionId: "ally" }]]]),
+    alliedFactionParentsByAlliedFactionId: new Map([["ally", [{ factionKeywordId: "matching-child" }]]]),
+    keywordAllyRestrictingKeywords: [{ keywordId: "restricted-keyword", restrictingKeywordId: "restricting-keyword" }],
+    keywordById: new Map([
+      ["restricted-keyword", {
+        id: "restricted-keyword",
+        name: "Restricted",
+        allyRestrictingFactionKeywordId: "matching-parent",
+      }],
+      ["restricting-keyword", { id: "restricting-keyword", name: "Restricting" }],
+    ]),
+    keywords: [],
+    alliedFactionById: new Map([["ally", {}]]),
+    alliedFactionDatasheetsByAlliedFactionId: new Map([["ally", [{ datasheetId: "d1" }, { datasheetId: "d2" }]]]),
+    alliedFactionPointsLimitsByAlliedFactionId: new Map(),
+    alliedFactionKeywordsByAlliedFactionId: new Map(),
+    alliedFactionAllowedWarlordsByAlliedFactionId: new Map(),
+    alliedFactionRequiredDetachmentsByAlliedFactionId: new Map(),
+    alliedFactionAllegianceAbilitiesByAlliedFactionId: new Map(),
+    alliedFactionKeywordSlotlessGroupsByKeywordId: new Map(),
+    alliedFactionKeywordSlotlessDonorsByGroupId: new Map(),
+    alliedFactionKeywordSlotlessReceiversByGroupId: new Map(),
+    miniatureById: new Map(),
+    detachmentById: new Map(),
+    factionById: new Map([["roster-faction", { id: "roster-faction", name: "Roster Faction" }]]),
+    factionKeywordById: new Map([
+      ["matching-parent", { id: "matching-parent", name: "Matching Parent" }],
+      ["matching-child", { id: "matching-child", name: "Matching Child", parentFactionKeywordId: "matching-parent" }],
+    ]),
+    battleSizeById: new Map(),
+    allegianceAbilityById: new Map(),
+    allegianceAbilityGroupById: new Map(),
+  };
+  const roster = { factionKeywordId: "roster-faction", battleSizeId: "strike" };
+  const alliedUnits = [
+    { id: "u1", name: "Unit 1", allyType: "ally", datasheetId: "d1", keywordIds: ["restricted-keyword"], points: 10, warlordMiniatureIds: [] },
+    { id: "u2", name: "Unit 2", allyType: "ally", datasheetId: "d2", keywordIds: ["restricted-keyword"], points: 10, warlordMiniatureIds: [] },
+  ];
+
+  withCatalog(baseCatalog, () => {
+    const messages = [];
+    validateAlliedUnits(roster, [], alliedUnits, messages);
+    assert.ok(messageCodes(messages).includes("allied_keyword_restricting_keyword.outnumbered_keywords"));
+  });
+
+  const childOnlyRestrictionCatalog = {
+    ...baseCatalog,
+    alliedFactionParentsByAlliedFactionId: new Map([["ally", [{ factionKeywordId: "matching-parent" }]]]),
+    keywordById: new Map([
+      ["restricted-keyword", {
+        id: "restricted-keyword",
+        name: "Restricted",
+        allyRestrictingFactionKeywordId: "matching-child",
+      }],
+      ["restricting-keyword", { id: "restricting-keyword", name: "Restricting" }],
+    ]),
+  };
+  withCatalog(childOnlyRestrictionCatalog, () => {
+    const messages = [];
+    validateAlliedUnits(roster, [], alliedUnits, messages);
+    assert.ok(!messageCodes(messages).includes("allied_keyword_restricting_keyword.outnumbered_keywords"));
+  });
+});

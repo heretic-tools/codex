@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   state,
+  availableCompositions,
   costForDetachment,
   defaultMiniatures,
   defaultWargear,
@@ -119,6 +120,27 @@ test("generic warlord validation covers missing, multiple, invalid, and Supreme 
     }),
   ], supremeCommanderMessages);
   assert.ok(messageCodes(supremeCommanderMessages).includes("mandatory_warlord.supreme_commander_not_selected"));
+
+  const deathleaperWarlord = enhancementTargetUnit({
+    id: "deathleaper",
+    datasheetName: "Deathleaper",
+    miniatureName: "Deathleaper",
+    factionNames: ["Tyranids"],
+    isWarlord: true,
+  });
+  const deathleaperWithoutGrantMessages = [];
+  validateWarlord({
+    factionKeywordId: factionNamed("Tyranids").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+  }, [], [deathleaperWarlord], deathleaperWithoutGrantMessages);
+  assert.ok(messageCodes(deathleaperWithoutGrantMessages).includes("warlord.invalid_generic"));
+
+  const deathleaperWithGrantMessages = [];
+  validateWarlord({
+    factionKeywordId: factionNamed("Tyranids").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+  }, [detachmentNamed("Vanguard Onslaught")], [deathleaperWarlord], deathleaperWithGrantMessages);
+  assert.ok(!messageCodes(deathleaperWithGrantMessages).includes("warlord.invalid_generic"));
 });
 
 test("faction mandatory warlord validation covers missing required model and wrong selection", () => {
@@ -131,6 +153,21 @@ test("faction mandatory warlord validation covers missing required model and wro
       {
         id: "synthetic-faction",
         name: "Synthetic Faction",
+        mandatoryWarlordId: mandatoryMiniature.id,
+      },
+    ], [
+      "child-faction",
+      {
+        id: "child-faction",
+        name: "Child Faction",
+        parentFactionKeywordId: "parent-faction",
+      },
+    ], [
+      "parent-faction",
+      {
+        id: "parent-faction",
+        name: "Parent Faction",
+        parentFactionKeywordId: "",
         mandatoryWarlordId: mandatoryMiniature.id,
       },
     ]]),
@@ -178,6 +215,20 @@ test("faction mandatory warlord validation covers missing required model and wro
       allegianceAbilities: [],
     }], notSelectedMessages);
     assert.ok(messageCodes(notSelectedMessages).includes("mandatory_warlord.not_selected"));
+
+    const parentScopeMessages = [];
+    validateWarlord({ factionKeywordId: "child-faction" }, [], [{
+      id: "other-unit",
+      name: "Other Unit",
+      datasheetId: "other-datasheet",
+      warlordMiniatureIds: [otherMiniature.id],
+      miniatures: [{
+        miniatureId: otherMiniature.id,
+        count: 1,
+      }],
+      allegianceAbilities: [],
+    }], parentScopeMessages);
+    assert.ok(messageCodes(parentScopeMessages).includes("mandatory_warlord.not_present_in_roster"));
   });
 });
 
@@ -190,6 +241,32 @@ test("detachment and composition validators cover unique, excluded, linked, and 
     detachmentNamed("Kabalite Cartel"),
   ], uniqueMessages);
   assert.ok(messageCodes(uniqueMessages).includes("roster.detachment_unique_keyword_error"));
+
+  withCatalog({
+    detachmentUniqueKeywordsByDetachmentId: new Map([
+      ["detachment-a", [{ keywordId: "keyword-a" }]],
+      ["detachment-b", [{ keywordId: "keyword-b" }]],
+      ["detachment-c", [{ keywordId: "keyword-a" }]],
+    ]),
+    keywordById: new Map([
+      ["keyword-a", { id: "keyword-a", name: "Shared Display Name" }],
+      ["keyword-b", { id: "keyword-b", name: "Shared Display Name" }],
+    ]),
+  }, () => {
+    const sameNameMessages = [];
+    validateDetachmentUniqueKeywords([
+      { id: "detachment-a", name: "Detachment A" },
+      { id: "detachment-b", name: "Detachment B" },
+    ], sameNameMessages);
+    assert.ok(!messageCodes(sameNameMessages).includes("roster.detachment_unique_keyword_error"));
+
+    const sameIdMessages = [];
+    validateDetachmentUniqueKeywords([
+      { id: "detachment-a", name: "Detachment A" },
+      { id: "detachment-c", name: "Detachment C" },
+    ], sameIdMessages);
+    assert.ok(messageCodes(sameIdMessages).includes("roster.detachment_unique_keyword_error"));
+  });
 
   const shadowLegion = detachmentNamed("Shadow Legion");
   const excludedRow = realCatalog.detachmentExcludedDatasheets.find((row) => (
@@ -271,6 +348,23 @@ test("validateRoster reports roster-level detachment, points, Combat Patrol, nat
   });
   assert.ok(messageCodes(pointsValidation.messages).includes("roster.points_limit_exceeded"));
 
+  const steppedDatasheet = datasheetNamed("Eradicator Squad");
+  const steppedComposition = defaultCompositionForDatasheet(steppedDatasheet.id);
+  const steppedPoints = realCatalog.datasheetPointsStepsByDatasheetId.get(steppedDatasheet.id)?.[0];
+  assert.ok(steppedPoints, "Expected Eradicator Squad to have a datasheet points step");
+  const steppedPointsValidation = validateRoster({
+    id: "stepped-points",
+    name: "Stepped Points",
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Gladius Task Force").id],
+    units: [0, 1, 2].map((index) => rosterUnitRef("Eradicator Squad", `eradicator-${index}`)),
+  });
+  assert.equal(
+    steppedPointsValidation.points.total,
+    (steppedComposition.points * 3) + steppedPoints.stepPoints
+  );
+
   const combatPatrolDatasheet = combatPatrolDatasheetNamed("Assault Force Intercessor Squad");
   const combatPatrolValidation = validateRoster({
     id: "combat-patrol-unit",
@@ -301,6 +395,120 @@ test("validateRoster reports roster-level detachment, points, Combat Patrol, nat
     units: [rosterUnitRef("Librarian", "librarian")],
   });
   assert.ok(messageCodes(excludedValidation.messages).includes("roster.faction_datasheet_not_allowed"));
+});
+
+test("default unit composition prefers matching detachment and faction specific rows", () => {
+  state.catalog = realCatalog;
+
+  const genericCtanValidation = validateRoster({
+    id: "generic-void-dragon",
+    name: "Generic Void Dragon",
+    factionKeywordId: factionNamed("Necrons").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Hypercrypt Legion").id],
+    units: [rosterUnitRef("C’tan Shard of the Void Dragon", "generic-void-dragon")],
+  });
+  assert.equal(genericCtanValidation.points.total, 345);
+
+  const pantheonCtanValidation = validateRoster({
+    id: "pantheon-void-dragon",
+    name: "Pantheon Void Dragon",
+    factionKeywordId: factionNamed("Necrons").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Pantheon of Woe").id],
+    units: [rosterUnitRef("C’tan Shard of the Void Dragon", "pantheon-void-dragon")],
+  });
+  assert.equal(pantheonCtanValidation.points.total, 380);
+
+  const voidDragon = datasheetNamed("C’tan Shard of the Void Dragon");
+  const genericVoidDragonComposition = (realCatalog.compositionsByDatasheetId.get(voidDragon.id) || [])
+    .find((composition) => !(realCatalog.requiredDetachmentsByCompositionId.get(composition.id) || []).length);
+  assert.ok(genericVoidDragonComposition, "Expected generic Void Dragon composition");
+  const savedGenericPantheonValidation = validateRoster({
+    id: "saved-generic-pantheon-void-dragon",
+    name: "Saved Generic Pantheon Void Dragon",
+    factionKeywordId: factionNamed("Necrons").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Pantheon of Woe").id],
+    units: [{
+      ...rosterUnitRef("C’tan Shard of the Void Dragon", "saved-generic-pantheon-void-dragon"),
+      compositionId: genericVoidDragonComposition.id,
+    }],
+  });
+  assert.equal(savedGenericPantheonValidation.points.total, 380);
+
+  const genericBladeguardValidation = validateRoster({
+    id: "generic-bladeguard",
+    name: "Generic Bladeguard",
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Gladius Task Force").id],
+    units: [rosterUnitRef("Bladeguard Veteran Squad", "generic-bladeguard")],
+  });
+  assert.equal(genericBladeguardValidation.points.total, 80);
+
+  const bloodAngelsBladeguardValidation = validateRoster({
+    id: "blood-angels-bladeguard",
+    name: "Blood Angels Bladeguard",
+    factionKeywordId: factionNamed("Blood Angels").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Liberator Assault Group").id],
+    units: [rosterUnitRef("Bladeguard Veteran Squad", "blood-angels-bladeguard")],
+  });
+  assert.equal(bloodAngelsBladeguardValidation.points.total, 85);
+
+  const bladeguard = datasheetNamed("Bladeguard Veteran Squad");
+  const genericBladeguardComposition = (realCatalog.compositionsByDatasheetId.get(bladeguard.id) || [])
+    .find((composition) => !(realCatalog.requiredFactionKeywordsByCompositionId.get(composition.id) || []).length);
+  assert.ok(genericBladeguardComposition, "Expected generic Bladeguard composition");
+  const savedGenericBloodAngelsValidation = validateRoster({
+    id: "saved-generic-blood-angels-bladeguard",
+    name: "Saved Generic Blood Angels Bladeguard",
+    factionKeywordId: factionNamed("Blood Angels").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Liberator Assault Group").id],
+    units: [{
+      ...rosterUnitRef("Bladeguard Veteran Squad", "saved-generic-blood-angels-bladeguard"),
+      compositionId: genericBladeguardComposition.id,
+    }],
+  });
+  assert.equal(savedGenericBloodAngelsValidation.points.total, 85);
+
+  const assaultJumpPack = datasheetNamed("Assault Intercessors with Jump Packs");
+  const genericLargeAssaultJumpPackComposition = (realCatalog.compositionsByDatasheetId.get(assaultJumpPack.id) || [])
+    .find((composition) => (
+      !composition.isDefault
+      && !(realCatalog.requiredFactionKeywordsByCompositionId.get(composition.id) || []).length
+      && !(realCatalog.requiredDetachmentsByCompositionId.get(composition.id) || []).length
+      && composition.displayOrder === 2
+    ));
+  assert.ok(genericLargeAssaultJumpPackComposition, "Expected generic large Assault Intercessors with Jump Packs composition");
+  assert.equal(genericLargeAssaultJumpPackComposition.points, 160);
+  const savedGenericLargeBloodAngelsValidation = validateRoster({
+    id: "saved-generic-large-blood-angels-assault-jump-pack",
+    name: "Saved Generic Large Blood Angels Assault Intercessors with Jump Packs",
+    factionKeywordId: factionNamed("Blood Angels").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Liberator Assault Group").id],
+    units: [{
+      ...rosterUnitRef("Assault Intercessors with Jump Packs", "saved-generic-large-blood-angels-assault-jump-pack"),
+      compositionId: genericLargeAssaultJumpPackComposition.id,
+    }],
+  });
+  assert.equal(savedGenericLargeBloodAngelsValidation.points.total, 180);
+
+  const bloodAngelsAssaultJumpPackOptions = availableCompositions(
+    assaultJumpPack.id,
+    factionScope(factionNamed("Blood Angels").id),
+    [detachmentNamed("Liberator Assault Group").id]
+  );
+  assert.deepEqual(
+    bloodAngelsAssaultJumpPackOptions.map((composition) => composition.points),
+    [95, 180]
+  );
+  assert.ok(bloodAngelsAssaultJumpPackOptions.every((composition) => (
+    realCatalog.requiredFactionKeywordsByCompositionId.get(composition.id) || []
+  ).some((row) => row.factionKeywordId === factionNamed("Blood Angels").id)));
 });
 
 test("validateRoster enforces duplicate datasheet limits for non-Battleline and Epic Heroes", () => {
@@ -338,6 +546,27 @@ test("validateRoster enforces duplicate datasheet limits for non-Battleline and 
     })),
   });
   assert.ok(messageCodes(guillimanValidation.messages).includes("roster.unit_limit_exceeded"));
+
+  const houndpackBase = {
+    factionKeywordId: factionNamed("Chaos Knights").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachmentNamed("Houndpack Lance").id],
+  };
+  const battlelineWarDogValidation = validateRoster({
+    ...houndpackBase,
+    id: "battleline-war-dog-duplicates",
+    name: "Battleline War Dog Duplicates",
+    units: [0, 1, 2, 3].map((index) => rosterUnitRef("War Dog Brigand", `war-dog-brigand-${index}`)),
+  });
+  assert.ok(!messageCodes(battlelineWarDogValidation.messages).includes("roster.unit_limit_exceeded"));
+
+  const tooManyBattlelineWarDogsValidation = validateRoster({
+    ...houndpackBase,
+    id: "too-many-battleline-war-dog-duplicates",
+    name: "Too Many Battleline War Dog Duplicates",
+    units: [0, 1, 2, 3, 4, 5, 6].map((index) => rosterUnitRef("War Dog Brigand", `too-many-war-dog-brigand-${index}`)),
+  });
+  assert.ok(messageCodes(tooManyBattlelineWarDogsValidation.messages).includes("roster.unit_limit_exceeded"));
 });
 
 test("keyword restriction groups are inherited through roster faction parent scope", () => {

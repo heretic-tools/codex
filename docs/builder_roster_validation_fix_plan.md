@@ -21,6 +21,10 @@ Related audits:
   targeted miniature for miniature enhancements.
 - 2026-07-01: Scoped new-table ally restricting keyword rows through the
   keyword's faction scope when present.
+- 2026-07-02: Tightened ally restricting keyword faction matching to compare
+  the restriction against each allied source parent's faction ancestry. Synthetic
+  coverage now proves child allied parents inherit parent restrictions, while
+  parent allied sources do not match child-only restrictions.
 - 2026-07-01: Added golden tests for Heretic Astartes allied points, keyword
   caps, mutually exclusive ally buckets, required CSM detachment allies, and
   Khorne/Nurgle/Slaanesh/Tzeentch outnumbering restrictions.
@@ -54,6 +58,53 @@ Related audits:
   enforcement, detachment unique keywords, detachment excluded datasheets,
   Combat Patrol linked datasheet constraints, unit composition errors, and
   duplicate datasheet limits including Epic Heroes.
+- 2026-07-02: Added live catalog coverage for `datasheet_points_step`, proving
+  duplicate-position points are added starting at the configured `stepAt` copy.
+- 2026-07-02: Default unit composition selection now prefers matching
+  detachment-specific rows, then faction-specific rows, before generic rows.
+  Saved generic default composition IDs are also normalized to the more
+  specific current default. Live coverage checks Pantheon of Woe C'tan points
+  and Blood Angels Bladeguard Veteran Squad points.
+- 2026-07-02: Saved generic non-default composition IDs are normalized to a
+  more specific faction/detachment composition when the model-count shape is the
+  same. This keeps selected unit compositions aligned with the current roster
+  faction/detachment context, such as Blood Angels Assault Intercessors with
+  Jump Packs using their faction-specific points row.
+- 2026-07-02: Model-targeted enhancements now include active conditional
+  keywords from the unit summary when checking the target model. Live coverage
+  verifies a Headhunter Task Force Vindicator that selects the `Character`
+  allegiance ability can take a Character-only enhancement without a false
+  missing-keyword error.
+- 2026-07-02: Added live coverage for `enhancementType = upgrade`. Sharp Eyes
+  (Upgrade) is validated as a unit-level upgrade with its own required
+  datasheet/faction group, contributes points, and enforces its per-enhancement
+  limit of 3 separately from the Strike Force roster enhancement limit of 4.
+- 2026-07-02: Removed old-roster runtime fallbacks for `attachedUnits`,
+  `allegianceAbilityIds`, `enhancementIds`, and nested miniature enhancement
+  arrays. The new Builder data shape is now the only shape accepted by the
+  static client.
+- 2026-07-02: Conditional keywords that require a roster faction now compare the
+  required faction through `factionScope`, so parent-faction requirements apply
+  to child rosters. v879 live rows are Dark Angels scoped; synthetic coverage
+  guards future child-faction data.
+- 2026-07-02: Faction mandatory warlord lookup now walks `factionScope` from
+  child to parent, so future parent-faction mandatory warlord rows apply to
+  child rosters unless the child defines its own row. v879 has no live faction
+  mandatory warlord rows.
+- 2026-07-02: Added live coverage for `detachment_granted_warlord_miniature`.
+  Deathleaper remains blocked as Warlord outside Vanguard Onslaught, but the
+  detachment grant correctly overrides `cannotBeWarlord`.
+- 2026-07-02: Added live duplicate-limit coverage for conditional Battleline.
+  Houndpack Lance War Dog Brigands use the Battleline duplicate cap of 6 rather
+  than the standard Strike Force cap of 3.
+- 2026-07-02: Added the current-roster unit composition selector to the unit
+  edit screen. The picker lists only compositions available for the roster's
+  faction/detachments, hides generic/specific duplicates with the same model
+  shape, and resets model-level wargear/enhancements when the selected
+  composition changes.
+- 2026-07-02: Tightened detachment unique keyword validation to compare
+  `detachment_unique_keyword.keywordId` rather than display names, with
+  synthetic coverage for same-name/different-ID keywords.
 - 2026-07-01: Expanded allied golden coverage for all four Heretic Astartes
   cult-legion parent factions, Titanicus Traitoris titan caps, Agents of the
   Imperium allowed-warlord requirements, and slotless Retinue donor/receiver
@@ -65,11 +116,58 @@ Related audits:
   illegal datasheets, detachment required datasheets, detachment keyword
   min/max restrictions, faction mandatory warlords, and invalid wargear scope
   and loadout paths.
-- 2026-07-01: Audited all current `validationMessage(...)` codes in Builder
-  validators against the split `tests/builder_validation_*.test.mjs` suite;
-  uncovered list is now empty and `npm test` passes 41 validation tests.
+- 2026-07-02: Mandatory faction allegiance abilities now read inherited
+  parent-faction rows through `factionScope`, with synthetic coverage for a
+  child roster inheriting a parent mandatory ability. v879 has no live rows in
+  `faction_keyword_mandatory_allegiance_ability`.
+- 2026-07-01: Audited all current `validationMessage(...)` and
+  `validationWarning(...)` codes in Builder validators against the split
+  `tests/builder_validation_*.test.mjs` suite; uncovered list is now empty and
+  `npm test` passes 43 validation tests.
 - 2026-07-01: Added an automated validation-code coverage test so new
-  `validationMessage(...)` codes cannot be added without a focused test.
+  validation message or warning codes cannot be added without a focused test.
+- 2026-07-02: Introduced `canonicalWargearKey` for loadout validation/default
+  repair. Normal wargear now matches by item ID, while confirmed same-context
+  duplicate-name bridges such as Cthonian Beserks Heavy plasma axe and
+  `’Ardmob Boyz` Big Choppa use explicit `name:` aliases.
+- 2026-07-02: Moved canonical wargear alias discovery to build/export time.
+  Runtime Builder now receives the tiny precomputed `bootstrap.wargearAliases`
+  list and only performs map lookups. Alias rows are stored at datasheet scope
+  only, relying on runtime fallback for miniature-specific contexts.
+- 2026-07-02: Added an inventory test proving v879 has exactly two canonical
+  `name:` alias contexts: Cthonian Beserks Heavy plasma axe and `’Ardmob Boyz`
+  Big Choppa.
+- 2026-07-02: Added test-only concept mapping for every Builder
+  validation/warning code. The runtime client keeps validation messages thin:
+  `{ level, code, text }`.
+- 2026-07-02: Tightened successor chapter Epic Hero validation to compare
+  non-root faction scope IDs. Pedro Kantor now conflicts with Imperial Fists
+  Epic Heroes while unrelated Adeptus Astartes root-share Epic Heroes such as
+  Ultramarines are allowed.
+- 2026-07-02: Fixed limited wargear threshold evaluation to use total unit
+  model count and added Cadian Shock Troops coverage for 20-model choice limits
+  and duplicate caps. `npm test` now passes 44 validation tests.
+- 2026-07-02: Made limited wargear validation option-aware, so base/default
+  wargear embedded in upgrade choices does not spend upgrade caps, while
+  default-only limited choices still count. Pathfinder Team and Tankbustas
+  default loadouts now stay valid, and Hyperadapted Raveners still enforce the
+  Venom bolt cap.
+- 2026-07-02: Stopped generating default wargear for zero-count optional
+  miniatures and added a full default-catalog wargear sweep. `npm test` now
+  passes 48 validation tests.
+- 2026-07-02: Tightened all-model substitution validation by grouping checks by
+  datasheet/miniature context. Canoptek Macrocytes substitute-only loadouts now
+  fail, while Hernkyn Yaegirs and Termagants valid base-plus-substitute
+  alternatives remain valid. `npm test` now passes 49 validation tests.
+- 2026-07-02: Split all-model substitute anchoring by substitute family inside
+  each datasheet/miniature context, so independent all-model slots cannot
+  satisfy one another. Added Einhyr Hearthguard coverage for a valid gun line
+  plus unanchored melee substitute. `npm test` now passes 50 validation tests.
+- 2026-07-02: Reworked limited wargear choice coverage from independent
+  occurrence summing to bounded exact-cover matching. Overlapping combo rows
+  such as Battle Sisters Squad `Heavy bolter + Ministorum flamer` no longer
+  self-overcount against `choiceLimit`. `npm test` now passes 56 validation
+  tests.
 - 2026-07-01: Split the oversized validation test file into focused suites by
   rule family plus a shared catalog/helper module.
 
@@ -214,11 +312,11 @@ Done when:
 - Parent/child faction cases match WH app.
 - Asuryani/Ynnari and named chapter cases are covered by tests.
 
-### 6. Rework wargear parity carefully
+### 6. Rework wargear parity carefully - done for Builder, WH app comparison remains
 
 Problem:
 
-- Builder's loadout matching is keyed by normalized wargear names.
+- Builder's old loadout matching was keyed by normalized wargear names.
 - Official app exposes dedicated `RawWargearChoice`, `RawWargearItem`,
   `LoadoutKey`, and `WargearValidation` concepts.
 - v879 has duplicate wargear names, including same-datasheet edge cases.
@@ -230,13 +328,16 @@ Rules:
 
 Fix:
 
-- Introduce a `canonicalWargearKey` layer.
-- Use item IDs for normal cases.
+- Introduce a `canonicalWargearKey` layer. Done.
+- Use item IDs for normal cases. Done.
 - Support explicit alias/group keys only where GW data requires equivalence,
   such as confirmed duplicate-name loadout bridges.
+- Precompute alias rows during static data export, so the GitHub Pages client
+  does not scan the full wargear catalog at runtime. Done.
 - Re-check:
   - regular `loadout_choice_set`;
-  - `limited_wargear_choice_set`;
+  - `limited_wargear_choice_set`, including total unit model-count thresholds
+    duplicate caps, and base-option versus upgrade-option context;
   - `all_model_wargear_choice_set`;
   - base loadouts;
   - zero-count miniature behavior.
@@ -246,20 +347,35 @@ Done when:
 - Golden wargear fixtures match WH app valid/invalid results.
 - Cthonian Beserks, `’Ardmob Boyz`, and Eliminator Squad are covered by
   regression tests.
+- Cadian Shock Troops total model-count threshold and duplicate-cap behavior is
+  covered by regression tests.
+- Battle Sisters Squad overlapping limited combo rows are covered by an
+  exact-cover regression test.
+- Pathfinder Team and Tankbustas limited choices with embedded base wargear are
+  covered by regression tests.
+- Hyperadapted Raveners default-only limited caps are covered by regression
+  tests.
+- Canoptek Macrocytes substitute-without-base and Hernkyn Yaegirs
+  base-plus-substitute all-model behavior are covered by regression tests.
+- Einhyr Hearthguard independent all-model substitute families are covered by a
+  regression test.
+- Full default-catalog generated wargear is covered by a regression test.
 
-### 7. Improve message parity
+### 7. Improve message parity - done for Builder, WH app comparison remains
 
 After logic parity is stable:
 
-- Map Builder codes to official-like validation concepts.
+- Map Builder codes to official-like validation concepts. Done through the
+  test-only `tests/builder_validation_concepts.mjs` parity map.
 - Keep text concise for the UI.
 - Avoid depending on exact official copyrighted phrasing.
 
 Done when:
 
 - UI shows useful errors.
-- Tests assert stable codes.
-- Audit can map each official validator/error to a Builder code.
+- Tests assert stable codes and test-only concept coverage.
+- Audit can map each official validator/error to a Builder code/concept without
+  shipping that map in the static Builder runtime.
 
 ### 8. Final verification and audit update
 

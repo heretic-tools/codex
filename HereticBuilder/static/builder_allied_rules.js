@@ -1,5 +1,5 @@
 import { state } from "./builder_state.js";
-import { idsFromRows, namesForIds, unique } from "./builder_model.js";
+import { factionScope, idsFromRows, namesForIds, unique } from "./builder_model.js";
 import { rosterSummary } from "./builder_validation_core.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
@@ -23,7 +23,7 @@ function alliedFactionParentMatches(alliedFactionId, factionKeywordId) {
     return true;
   }
   return (state.catalog.alliedFactionParentsByAlliedFactionId.get(alliedFactionId) || [])
-    .some((row) => row.factionKeywordId === factionKeywordId);
+    .some((row) => factionScope(row.factionKeywordId).includes(factionKeywordId));
 }
 
 function slotlessAlliedKeywordCount(alliedFactionKeywordId, units) {
