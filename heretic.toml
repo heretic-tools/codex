@@ -11,3 +11,7 @@ mount_codex_at_root = true
 [profiles.org-pages]
 base_path = ""
 mount_codex_at_root = false
+
+[profiles.builder-pages]
+base_path = "/builder"
+mount_codex_at_root = false

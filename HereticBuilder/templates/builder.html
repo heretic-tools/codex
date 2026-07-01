@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Heretic Builder</title>
+  <link rel="stylesheet" href="/static/desktop.css">
+  <link rel="stylesheet" href="/static/codex.css">
+  <link rel="stylesheet" href="/static/builder.css?v=builder-5">
+</head>
+<body>
+  <main class="desktop codex-page builder-page">
+    <section class="shell builder-shell" aria-label="Heretic Builder">
+      <div class="title-bar builder-title-bar">
+        <div class="title">
+          <span class="builder-title-icon" aria-hidden="true">
+            <img src="/assets/icons/builder.png" alt="">
+          </span>
+          <span id="builder-window-title">Rosters</span>
+        </div>
+        <div class="builder-title-actions">
+          <div id="data-status" class="builder-status" role="status">Loading</div>
+          <div class="title-controls" aria-hidden="true">
+            <span class="title-control">x</span>
+          </div>
+        </div>
+      </div>
+      <div class="builder-breadcrumb-row">
+        <nav id="builder-breadcrumbs" class="breadcrumb-menu builder-breadcrumbs" aria-label="Breadcrumb"></nav>
+        <button id="delete-roster-button" class="breadcrumb-menu-item builder-delete-roster-button" type="button" hidden>Delete Roster</button>
+      </div>
+
+      <div class="panel builder-panel">
+        <div class="panel-content builder-panel-content">
+          <section id="list-screen" class="screen list-screen" aria-label="Roster list">
+            <div id="roster-list" class="roster-list" role="list"></div>
+            <button id="new-roster-button" class="roster-row create-roster-button" type="button">
+              <span>
+                <strong>Create Roster</strong>
+              </span>
+            </button>
+          </section>
+
+          <section id="create-screen" class="screen create-screen" aria-label="Create roster" hidden>
+            <button id="create-back-button" class="plain-button" type="button">Back</button>
+            <form id="roster-form" class="roster-form">
+              <label class="field">
+                <span>Name</span>
+                <input id="roster-name" name="name" type="text" maxlength="80" autocomplete="off" value="New Roster">
+              </label>
+
+              <label class="field">
+                <span>Faction</span>
+                <select id="faction-select" name="factionKeywordId"></select>
+              </label>
+
+              <label class="field">
+                <span>Battle Size</span>
+                <select id="battle-size-select" name="battleSizeId"></select>
+              </label>
+
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Confirm</button>
+              </div>
+            </form>
+          </section>
+
+          <section id="roster-screen" class="screen roster-screen" aria-label="Roster editor" hidden>
+            <section class="roster-shell">
+              <aside class="roster-sidebar">
+                <div class="roster-title-block">
+                  <h1 id="detail-name">Roster</h1>
+                  <p id="detail-meta" class="meta-line"></p>
+                </div>
+
+                <div class="summary-grid">
+                  <div class="metric">
+                    <span class="metric-label">Points</span>
+                    <strong id="points-metric">0 / 0</strong>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Detachments</span>
+                    <strong id="detachments-metric">0</strong>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-label">Units</span>
+                    <strong id="units-metric">0</strong>
+                  </div>
+                </div>
+
+                <div id="validation-list" class="validation-list" aria-label="Validation"></div>
+              </aside>
+
+              <section class="roster-editor">
+                <section class="editor-card">
+                  <div class="card-head">
+                    <h2>Detachments</h2>
+                  </div>
+                  <div class="detachment-picker">
+                    <label class="field">
+                      <span>Add Detachment</span>
+                      <select id="detachment-select" name="detachmentId"></select>
+                    </label>
+                    <button id="add-detachment-button" class="primary-button" type="button">Add</button>
+                  </div>
+                  <div id="detachment-list" class="detachment-list"></div>
+                </section>
+
+                <section class="editor-card">
+                  <div class="card-head">
+                    <h2>Units</h2>
+                  </div>
+                  <div class="unit-picker">
+                    <label class="field">
+                      <span>Source</span>
+                      <select id="unit-source-select" name="allyType"></select>
+                    </label>
+                    <label class="field">
+                      <span>Search</span>
+                      <input id="unit-search" name="unitSearch" type="search" autocomplete="off">
+                    </label>
+                    <label class="field">
+                      <span>Add Unit</span>
+                      <select id="unit-select" name="datasheetId"></select>
+                    </label>
+                    <button id="add-unit-button" class="primary-button" type="button">Add</button>
+                  </div>
+                  <div id="unit-list" class="unit-list"></div>
+                </section>
+              </section>
+            </section>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <footer class="taskbar" aria-label="Desktop taskbar">
+      <a class="start-button boosty-button" href="https://boosty.to/heretic" target="_blank" rel="noopener noreferrer" aria-label="Open Heretic on Boosty">
+        <span class="start-mark boosty-mark" aria-hidden="true">
+          <img class="start-art boosty-art" src="/assets/icons/boosty.png" alt="">
+        </span>
+        Boosty
+      </a>
+    </footer>
+  </main>
+
+  <script src="/static/win-scrollbars.js" defer></script>
+  <script src="/static/builder.js" type="module"></script>
+</body>
+</html>

@@ -1,6 +1,53 @@
 from roster_builder_utils import dict_row, plain_text
 
 class RosterCatalogMixin:
+    def faction_keyword_scope(self, conn, faction_keyword_id):
+        if not faction_keyword_id:
+            return []
+        scope = []
+        seen = set()
+        current_id = faction_keyword_id
+        while current_id and current_id not in seen:
+            seen.add(current_id)
+            scope.append(current_id)
+            row = conn.execute(
+                "select parentFactionKeywordId from faction_keyword where id = ?",
+                [current_id],
+            ).fetchone()
+            current_id = row["parentFactionKeywordId"] if row else None
+        return scope
+
+    def faction_keyword_scopes(self, conn, faction_keyword_ids):
+        scope = []
+        seen = set()
+        for faction_keyword_id in faction_keyword_ids or []:
+            for scoped_id in self.faction_keyword_scope(conn, faction_keyword_id):
+                if scoped_id in seen:
+                    continue
+                seen.add(scoped_id)
+                scope.append(scoped_id)
+        return scope
+
+    def faction_keyword_descendants(self, conn, faction_keyword_id):
+        if not faction_keyword_id:
+            return []
+        descendants = []
+        pending = [faction_keyword_id]
+        seen = {faction_keyword_id}
+        while pending:
+            parent_id = pending.pop(0)
+            rows = conn.execute(
+                "select id from faction_keyword where parentFactionKeywordId = ?",
+                [parent_id],
+            ).fetchall()
+            for row in rows:
+                if row["id"] in seen:
+                    continue
+                seen.add(row["id"])
+                descendants.append(row["id"])
+                pending.append(row["id"])
+        return descendants
+
     def bootstrap(self):
         with self.connect(readonly=True) as conn:
             factions = [dict_row(row) for row in conn.execute(
@@ -80,14 +127,30 @@ class RosterCatalogMixin:
               )
             """.format(placeholders=placeholders)
         faction_excluded = ""
+        faction_scope = []
+        descendant_faction_ids = []
         if not ally_type or ally_type == "native":
+            with self.connect(readonly=True) as conn:
+                faction_scope = self.faction_keyword_scope(conn, faction_id)
+                descendant_faction_ids = self.faction_keyword_descendants(conn, faction_id)
+            faction_scope_placeholders = ",".join("?" for _ in faction_scope) or "''"
             faction_excluded = """
               and not exists (
                 select 1 from faction_keyword_excluded_datasheet fked
                 where fked.datasheetId = d.id
-                  and fked.factionKeywordId = ?
+                  and fked.factionKeywordId in ({placeholders})
               )
-            """
+            """.format(placeholders=faction_scope_placeholders)
+        descendant_filter = ""
+        if descendant_faction_ids:
+            descendant_placeholders = ",".join("?" for _ in descendant_faction_ids)
+            descendant_filter = """
+              and not exists (
+                select 1 from datasheet_faction_keyword child_dfk
+                where child_dfk.datasheetId = d.id
+                  and child_dfk.factionKeywordId in ({placeholders})
+              )
+            """.format(placeholders=descendant_placeholders)
         with self.connect(readonly=True) as conn:
             composition_faction_ids = self.composition_faction_keyword_ids(conn, faction_id, ally_type)
         if not composition_faction_ids:
@@ -131,10 +194,22 @@ class RosterCatalogMixin:
         search = ""
         if query:
             search = "and d.name like ?"
+        combat_patrol_excluded = """
+              and not exists (
+                select 1 from publication p
+                where p.id = d.publicationId
+                  and p.isCombatPatrol = 1
+              )
+        """
         if ally_type and ally_type != "native":
-            source_join = "join allied_faction_datasheet afd on afd.datasheetId = d.id and afd.alliedFactionId = ?"
+            source_join = """
+            join allied_faction_datasheet afd
+              on afd.datasheetId = d.id and afd.alliedFactionId = ?
+            join faction_keyword_allied_faction fkaf
+              on fkaf.alliedFactionId = afd.alliedFactionId and fkaf.factionKeywordId = ?
+            """
             source_where = ""
-            params = [ally_type]
+            params = [ally_type, faction_id]
         else:
             source_join = "join datasheet_faction_keyword dfk on dfk.datasheetId = d.id"
             source_placeholders = ",".join("?" for _ in composition_faction_ids)
@@ -142,7 +217,9 @@ class RosterCatalogMixin:
             params = [*composition_faction_ids]
         params.extend(detachment_ids)
         if faction_excluded:
-            params.append(faction_id)
+            params.extend(faction_scope)
+        if descendant_filter:
+            params.extend(descendant_faction_ids)
         params.extend([*composition_faction_ids, *detachment_ids])
         if query:
             params.append(f"%{query}%")
@@ -161,6 +238,8 @@ class RosterCatalogMixin:
               {source_where}
               {excluded}
               {faction_excluded}
+              {descendant_filter}
+              {combat_patrol_excluded}
               {composition}
               {search}
             order by lower(d.name)
@@ -184,30 +263,3 @@ class RosterCatalogMixin:
         if isinstance(value, str):
             return [item for item in value.split(",") if item]
         return [item for item in value if item]
-
-    def allied_factions(self, roster_id):
-        with self.connect(readonly=True) as conn:
-            roster = conn.execute("select factionKeywordId from roster where id = ?", [roster_id]).fetchone()
-            if not roster:
-                raise ValueError("Roster not found")
-            rows = conn.execute(
-                """
-                select af.id, af.canTakeEnhancements, af.isMutuallyExclusiveKeywordLimit,
-                       af.requiredWarlordMiniatureId, af.requiredDetachmentId,
-                       group_concat(distinct fk.name) as name
-                from faction_keyword_allied_faction fkaf
-                join allied_faction af on af.id = fkaf.alliedFactionId
-                left join allied_faction_parent_faction_keyword afpfk on afpfk.alliedFactionId = af.id
-                left join faction_keyword fk on fk.id = afpfk.factionKeywordId
-                where fkaf.factionKeywordId = ?
-                group by af.id
-                order by lower(coalesce(name, 'Allied'))
-                """,
-                [roster["factionKeywordId"]],
-            ).fetchall()
-        return {
-            "alliedFactions": [
-                {**dict_row(row), "name": row["name"] or "Allied"}
-                for row in rows
-            ]
-        }

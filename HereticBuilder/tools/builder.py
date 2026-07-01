@@ -4,6 +4,16 @@ from __future__ import annotations
 import argparse
 
 from build_static_site import add_static_build_arguments, build_from_args, print_build_result
+from build_builder_site import (
+    add_builder_site_arguments,
+    build_builder_site_from_args,
+    print_builder_site_build_result,
+)
+from export_builder_data import (
+    add_export_builder_data_arguments,
+    export_builder_data_from_args,
+    print_export_builder_data_result,
+)
 
 
 def parse_args():
@@ -19,6 +29,18 @@ def parse_args():
     )
     add_static_build_arguments(build_parser)
 
+    build_builder_parser = subparsers.add_parser(
+        "build-builder",
+        help="Build the standalone static Builder app.",
+    )
+    add_builder_site_arguments(build_builder_parser)
+
+    export_builder_data_parser = subparsers.add_parser(
+        "export-builder-data",
+        help="Export catalog-only builder data for a static client.",
+    )
+    add_export_builder_data_arguments(export_builder_data_parser)
+
     return parser.parse_args()
 
 
@@ -26,6 +48,12 @@ def main():
     args = parse_args()
     if args.command == "build":
         print_build_result(build_from_args(args))
+        return
+    if args.command == "build-builder":
+        print_builder_site_build_result(build_builder_site_from_args(args))
+        return
+    if args.command == "export-builder-data":
+        print_export_builder_data_result(export_builder_data_from_args(args))
         return
     raise SystemExit(f"Unknown command: {args.command}")
 

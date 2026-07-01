@@ -1,16 +1,8 @@
 # HereticBuilder
 
-Minimal local tools for exploring and editing the HereticSheets SQLite snapshot.
+Static build tools for the HereticTools Codex and standalone Builder exports.
 
 The database stays in the parent project at `../data/heretic_db.sqlite`.
-
-## HereticBuilder
-
-```bash
-python3 tools/roster_builder.py
-```
-
-Open `http://127.0.0.1:4175`.
 
 ## Static Build
 
@@ -34,6 +26,33 @@ the current project Pages and organization Pages shapes:
 ```bash
 python3 tools/builder.py build --profile project-pages
 python3 tools/builder.py build --profile org-pages
+```
+
+## Builder Data Export
+
+Export catalog-only JSON for the standalone GitHub Pages Builder client:
+
+```bash
+python3 tools/builder.py export-builder-data
+```
+
+The generated data pack is written to `../dist/builder-data/` by default. It
+contains immutable catalog/rule tables plus `manifest.json`, `bootstrap.json`,
+and `audit.json`; local user tables such as `roster*` are intentionally not
+exported.
+
+## Static Builder App
+
+Build the standalone Builder shell plus its catalog data pack:
+
+```bash
+python3 tools/builder.py build-builder
+```
+
+For the `https://heretic-tools.github.io/builder/` project Pages deployment:
+
+```bash
+python3 tools/builder.py build-builder --profile builder-pages
 ```
 
 ## Unit Image Pixelizer

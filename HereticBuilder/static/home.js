@@ -23,8 +23,8 @@
   launchers.forEach((button) => {
     button.addEventListener("click", () => {
       selectLauncher(button);
-      if (button.dataset.route === "codex") {
-        window.location.href = siteHref("/codex");
+      if (button.dataset.href) {
+        window.location.href = siteHref(button.dataset.href);
       }
     });
   });

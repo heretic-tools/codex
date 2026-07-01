@@ -8,7 +8,6 @@
   const results = root.querySelector(".taskbar-search-results");
   const resultList = document.createElement("div");
   const clearButton = document.createElement("button");
-  let controller = null;
   let searchTimer = 0;
   let dragStart = null;
   let staticSearchIndexPromise = null;
@@ -41,7 +40,7 @@
 
   const TASKBAR_GAP = 54;
   const basePath = normalizeBasePath(document.querySelector('meta[name="heretic-base-path"]')?.content || "");
-  const staticSearchIndexUrl = document.querySelector('meta[name="heretic-search-index"]')?.content || "";
+  const staticSearchIndexUrl = document.querySelector('meta[name="heretic-search-index"]')?.content || siteHref("/search-index.json");
 
   function normalizeBasePath(value) {
     const path = String(value || "").trim().replace(/\/+$/, "");
@@ -298,40 +297,13 @@
   }
 
   async function runSearch(query) {
-    if (staticSearchIndexUrl) {
-      try {
-        const items = await loadStaticSearchIndex();
-        if (input.value.trim() !== query) {
-          return;
-        }
-        renderResults(matchStaticResults(items, query, 30));
-      } catch (_error) {
-        renderMessage("Search unavailable");
-      }
-      return;
-    }
-
-    if (controller) {
-      controller.abort();
-    }
-    controller = new AbortController();
-
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=30`, {
-        signal: controller.signal,
-      });
-      if (!response.ok) {
-        throw new Error(`Search failed: ${response.status}`);
-      }
-      const payload = await response.json();
+      const items = await loadStaticSearchIndex();
       if (input.value.trim() !== query) {
         return;
       }
-      renderResults(payload.results || []);
-    } catch (error) {
-      if (error.name === "AbortError") {
-        return;
-      }
+      renderResults(matchStaticResults(items, query, 30));
+    } catch (_error) {
       renderMessage("Search unavailable");
     }
   }
