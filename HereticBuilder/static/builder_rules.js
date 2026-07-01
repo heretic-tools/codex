@@ -10,7 +10,11 @@ export {
   defaultMiniatures,
   defaultWargear,
   detachmentBadgeNode,
+  detachmentDispositionBadgeNode,
+  detachmentDispositionName,
+  enhancementPoints,
   factionScope,
+  miniatureKeywordIds,
   unitSummary,
 } from "./builder_model.js";
 export { rosterSummary, validateRoster } from "./builder_roster_validation.js";

@@ -185,8 +185,20 @@
     link.addEventListener("click", rememberRuleReturnHref);
   });
 
-  titleBar?.addEventListener("click", closeWindow);
+  function isInteractiveTarget(event) {
+    return Boolean(event.target?.closest?.("a, button, input, select, textarea, [role='link'], [role='button']"));
+  }
+
+  titleBar?.addEventListener("click", (event) => {
+    if (isInteractiveTarget(event)) {
+      return;
+    }
+    closeWindow();
+  });
   titleBar?.addEventListener("keydown", (event) => {
+    if (isInteractiveTarget(event)) {
+      return;
+    }
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       closeWindow();

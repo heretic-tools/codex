@@ -6,17 +6,14 @@
   <title>Heretic Builder</title>
   <link rel="stylesheet" href="/static/desktop.css">
   <link rel="stylesheet" href="/static/codex.css">
-  <link rel="stylesheet" href="/static/builder.css?v=builder-5">
+  <link rel="stylesheet" href="/static/builder.css?v=builder-7">
 </head>
 <body>
   <main class="desktop codex-page builder-page">
     <section class="shell builder-shell" aria-label="Heretic Builder">
       <div class="title-bar builder-title-bar">
         <div class="title">
-          <span class="builder-title-icon" aria-hidden="true">
-            <img src="/assets/icons/builder.png" alt="">
-          </span>
-          <span id="builder-window-title">Rosters</span>
+          <span id="builder-window-title" class="window-title-text">Builder</span>
         </div>
         <div class="builder-title-actions">
           <div id="data-status" class="builder-status" role="status">Loading</div>
@@ -69,23 +66,7 @@
             <section class="roster-shell">
               <aside class="roster-sidebar">
                 <div class="roster-title-block">
-                  <h1 id="detail-name">Roster</h1>
                   <p id="detail-meta" class="meta-line"></p>
-                </div>
-
-                <div class="summary-grid">
-                  <div class="metric">
-                    <span class="metric-label">Points</span>
-                    <strong id="points-metric">0 / 0</strong>
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Detachments</span>
-                    <strong id="detachments-metric">0</strong>
-                  </div>
-                  <div class="metric">
-                    <span class="metric-label">Units</span>
-                    <strong id="units-metric">0</strong>
-                  </div>
                 </div>
 
                 <div id="validation-list" class="validation-list" aria-label="Validation"></div>
@@ -94,11 +75,12 @@
               <section class="roster-editor">
                 <section class="editor-card">
                   <div class="card-head">
-                    <h2>Detachments</h2>
+                    <h2 id="detachment-heading">Detachments</h2>
+                    <span id="detachment-points-metric" class="card-head-metric">0 / 0 DP</span>
                   </div>
                   <div class="detachment-picker">
                     <label class="field">
-                      <span>Add Detachment</span>
+                      <span class="visually-hidden">Add Detachment</span>
                       <select id="detachment-select" name="detachmentId"></select>
                     </label>
                     <button id="add-detachment-button" class="primary-button" type="button">Add</button>
@@ -108,24 +90,46 @@
 
                 <section class="editor-card">
                   <div class="card-head">
-                    <h2>Units</h2>
+                    <h2 id="unit-heading">Units</h2>
+                    <span id="unit-points-metric" class="card-head-metric">0 / 0 pts</span>
                   </div>
                   <div class="unit-picker">
-                    <label class="field">
-                      <span>Source</span>
-                      <select id="unit-source-select" name="allyType"></select>
-                    </label>
-                    <label class="field">
-                      <span>Search</span>
-                      <input id="unit-search" name="unitSearch" type="search" autocomplete="off">
-                    </label>
-                    <label class="field">
-                      <span>Add Unit</span>
-                      <select id="unit-select" name="datasheetId"></select>
-                    </label>
-                    <button id="add-unit-button" class="primary-button" type="button">Add</button>
+                    <div class="builder-search unit-search-wrap" role="search">
+                      <label class="visually-hidden" for="unit-search">Search</label>
+                      <input id="unit-search" class="builder-search-input" name="unitSearch" type="search" autocomplete="off" placeholder="Search" aria-label="Search">
+                      <button id="unit-search-clear" class="builder-search-clear" type="button" aria-label="Clear search">x</button>
+                    </div>
+                    <div class="unit-add-row">
+                      <label class="field">
+                        <span class="visually-hidden">Add Unit</span>
+                        <select id="unit-select" name="datasheetId"></select>
+                      </label>
+                      <button id="add-unit-button" class="primary-button" type="button">Add</button>
+                    </div>
                   </div>
                   <div id="unit-list" class="unit-list"></div>
+                </section>
+              </section>
+            </section>
+          </section>
+
+          <section id="unit-screen" class="screen unit-screen" aria-label="Unit editor" hidden>
+            <section class="roster-shell unit-detail-shell">
+              <aside class="roster-sidebar">
+                <button id="unit-back-button" class="plain-button" type="button">Back to Roster</button>
+                <div class="roster-title-block">
+                  <p id="unit-detail-meta" class="meta-line"></p>
+                </div>
+                <div id="unit-validation-list" class="validation-list" aria-label="Unit validation"></div>
+              </aside>
+
+              <section class="roster-editor">
+                <section class="editor-card">
+                  <div class="card-head">
+                    <h2 id="unit-detail-heading">Wargear</h2>
+                    <span id="unit-detail-points" class="card-head-metric">0 pts</span>
+                  </div>
+                  <div id="unit-detail-options" class="wargear-list"></div>
                 </section>
               </section>
             </section>

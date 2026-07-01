@@ -117,6 +117,29 @@
       line-height: 1.16;
     }
 
+    .title-home-link,
+    .window-title-text,
+    .window-title-separator {
+      color: inherit;
+      text-shadow: inherit;
+    }
+
+    .title-home-link {
+      text-decoration: none;
+    }
+
+    .title-home-link:hover,
+    .title-home-link:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .window-title-text {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .title-controls {
       display: flex;
       flex: 0 0 auto;

@@ -33,6 +33,22 @@ function detachmentBadgeNode(detachment) {
   return badge;
 }
 
+function detachmentDispositionBadgeNode(detachment) {
+  const disposition = forceDispositionForDetachment(detachment.id);
+  if (!disposition?.name) {
+    return null;
+  }
+  const badge = document.createElement("span");
+  const slug = dispositionSlug(disposition.name);
+  badge.className = slug ? `disposition-badge disposition-${slug}` : "meta-badge";
+  badge.textContent = disposition.name;
+  return badge;
+}
+
+function detachmentDispositionName(detachment) {
+  return forceDispositionForDetachment(detachment.id)?.name || "";
+}
+
 function factionScope(factionKeywordId) {
   const scope = [];
   const seen = new Set();
@@ -714,6 +730,9 @@ export {
   defaultWargear,
   detachmentAllowed,
   detachmentBadgeNode,
+  detachmentDispositionBadgeNode,
+  detachmentDispositionName,
+  enhancementPoints,
   factionExcludesDatasheet,
   factionScope,
   idsFromRows,
