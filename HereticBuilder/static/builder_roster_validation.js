@@ -13,6 +13,7 @@ import { validateAllegianceAbilities } from "./builder_allegiance_rules.js";
 import { validateAlliedUnits } from "./builder_allied_rules.js";
 import { validateAttachedUnits } from "./builder_attachment_rules.js";
 import { validateEnhancements } from "./builder_enhancement_rules.js";
+import { validationMessage, validationWarning } from "./builder_validation_messages.js";
 import { validateWarlord } from "./builder_warlord_rules.js";
 import {
   validateDetachmentDatasheets,
@@ -36,21 +37,21 @@ function validateRoster(roster) {
   const totalPoints = units.reduce((total, unit) => total + (unit.points || 0), 0);
 
   if (!detachmentIds.length) {
-    messages.push({ level: "error", text: "Pick a detachment." });
+    messages.push(validationMessage("roster.detachment_not_selected", "Pick a detachment."));
   }
   for (const detachmentId of detachmentIds) {
     const detachment = state.catalog.detachmentById.get(detachmentId);
     if (!detachmentAllowed(detachmentId, roster.factionKeywordId)) {
-      messages.push({ level: "error", text: `${detachment?.name || "Detachment"} is not available to this faction.` });
+      messages.push(validationMessage("roster.detachment_not_allowed", `${detachment?.name || "Detachment"} is not available to this faction.`));
     }
   }
   const detachmentLimit = size?.detachmentPointsLimit || 0;
   if (detachmentLimit && detachmentPoints > detachmentLimit) {
-    messages.push({ level: "error", text: `Roster uses ${detachmentPoints} detachment points; limit is ${detachmentLimit}.` });
+    messages.push(validationMessage("roster.detachment_points_limit_exceeded", `Roster uses ${detachmentPoints} detachment points; limit is ${detachmentLimit}.`));
   }
   const pointsLimit = size?.pointsLimit || 0;
   if (pointsLimit && totalPoints > pointsLimit) {
-    messages.push({ level: "error", text: `Roster is ${totalPoints - pointsLimit} points over the ${pointsLimit} point limit.` });
+    messages.push(validationMessage("roster.points_limit_exceeded", `Roster is ${totalPoints - pointsLimit} points over the ${pointsLimit} point limit.`));
   }
   validateDetachmentUniqueKeywords(detachments, messages);
   validateWarlord(roster, detachments, units, messages);
@@ -73,29 +74,29 @@ function validateRoster(roster) {
     }
     const datasheet = state.catalog.datasheetById.get(unit.datasheetId);
     if (datasheetIsCombatPatrol(datasheet)) {
-      messages.push({ level: "error", text: `${unit.name} is a Combat Patrol datasheet and cannot be used in roster builder.` });
+      messages.push(validationMessage("roster.combat_patrol_datasheet", `${unit.name} is a Combat Patrol datasheet and cannot be used in roster builder.`));
     }
     const isFactionExcluded = factionExcludesDatasheet(roster.factionKeywordId, unit.datasheetId);
     if ((unit.allyType || "native") === "native") {
       if (!isFactionExcluded && !datasheetIsNativeToFaction(roster.factionKeywordId, unit.datasheetId)) {
-        messages.push({ level: "error", text: `${unit.name} is not native to ${rosterSummary(roster).factionName}.` });
+        messages.push(validationMessage("roster.unit_not_native", `${unit.name} is not native to ${rosterSummary(roster).factionName}.`));
       }
     }
     if (isFactionExcluded) {
-      messages.push({ level: "error", text: `${unit.name} is excluded from ${rosterSummary(roster).factionName} rosters.` });
+      messages.push(validationMessage("roster.faction_datasheet_not_allowed", `${unit.name} is excluded from ${rosterSummary(roster).factionName} rosters.`));
     }
   }
   for (const [datasheetId, count] of Object.entries(counts)) {
     const unit = firstByDatasheet.get(datasheetId);
     const effectiveLimit = duplicateLimitForUnit(unit, duplicateLimit);
     if (count > effectiveLimit) {
-      messages.push({ level: "error", text: `${unit.name} has ${count} units; limit is ${effectiveLimit}.` });
+      messages.push(validationMessage("roster.unit_limit_exceeded", `${unit.name} has ${count} units; limit is ${effectiveLimit}.`));
     }
   }
   validateSuccessorChapterEpicHeroes(units, messages);
 
   if (!units.length) {
-    messages.push({ level: "warning", text: "Roster has no units." });
+    messages.push(validationWarning("roster.empty", "Roster has no units."));
   }
   return {
     state: messages.some((item) => item.level === "error") ? "invalid" : "valid",

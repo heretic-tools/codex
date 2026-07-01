@@ -1,5 +1,6 @@
 import { state } from "./builder_state.js";
 import { idsFromRows, setIntersects } from "./builder_model.js";
+import { validationMessage } from "./builder_validation_messages.js";
 
 function attachedGroups(roster) {
   return roster.attachments || roster.attachedUnits || [];
@@ -63,7 +64,7 @@ function validateAttachedUnits(roster, detachments, units, messages) {
   for (const [rosterUnitId, groupIds] of membership.entries()) {
     if (groupIds.size > 1) {
       const unit = units.find((item) => item.id === rosterUnitId);
-      messages.push({ level: "error", text: `${unit?.name || "Unit"} is part of more than one attached unit.` });
+      messages.push(validationMessage("attached_unit.duplicate_membership", `${unit?.name || "Unit"} is part of more than one attached unit.`));
     }
   }
   const detachmentIds = detachments.map((detachment) => detachment.id);
@@ -75,13 +76,13 @@ function validateAttachedUnits(roster, detachments, units, messages) {
     const bodyguards = members.filter((member) => member.attachmentType === "bodyguard");
     const attachedModels = members.filter((member) => member.attachmentType === "leader" || member.attachmentType === "support");
     if (!bodyguards.length || !attachedModels.length) {
-      messages.push({ level: "error", text: `Attached unit ${group.id} is incomplete.` });
+      messages.push(validationMessage("attached_unit.incomplete", `Attached unit ${group.id} is incomplete.`));
       continue;
     }
     const bodyguard = bodyguards[0];
     for (const attached of attachedModels) {
       if (!attachedUnitCanAttach(roster, detachmentIds, attached, bodyguard, units)) {
-        messages.push({ level: "error", text: `${attached.name} cannot attach to ${bodyguard.name} as ${attached.attachmentType}.` });
+        messages.push(validationMessage("attached_unit.missing_requirements", `${attached.name} cannot attach to ${bodyguard.name} as ${attached.attachmentType}.`));
       }
     }
   }
@@ -142,7 +143,7 @@ function validateAttachedUnitEnhancementLimits(roster, units, messages) {
       }
     }
     if (enhancementIds.size > 1) {
-      messages.push({ level: "error", text: `Attached unit ${group.id} has more than 1 enhancement.` });
+      messages.push(validationMessage("enhancement.attached_unit_too_many_enhancements", `Attached unit ${group.id} has more than 1 enhancement.`));
     }
   }
 }

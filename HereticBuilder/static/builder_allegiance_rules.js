@@ -1,5 +1,6 @@
 import { state } from "./builder_state.js";
 import { rosterSummary, unitHasWargearItem } from "./builder_validation_core.js";
+import { validationMessage } from "./builder_validation_messages.js";
 
 function validateAllegianceAbilities(roster, detachments, units, messages) {
   const detachmentIds = new Set(detachments.map((detachment) => detachment.id));
@@ -9,7 +10,7 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
     const selectedAbilities = unit.allegianceAbilities || [];
     if (!groupId) {
       for (const ability of selectedAbilities) {
-        messages.push({ level: "error", text: `${unit.name} cannot select ${ability.name} from ${ability.groupName}.` });
+        messages.push(validationMessage("allegiance_ability.not_allowed", `${unit.name} cannot select ${ability.name} from ${ability.groupName}.`));
       }
       continue;
     }
@@ -19,27 +20,27 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
     }
     if (group.detachmentId && !detachmentIds.has(group.detachmentId)) {
       for (const ability of selectedAbilities.filter((item) => item.groupId === groupId)) {
-        messages.push({ level: "error", text: `${unit.name} cannot select ${ability.name} without its required detachment.` });
+        messages.push(validationMessage("allegiance_ability.required_detachment_missing", `${unit.name} cannot select ${ability.name} without its required detachment.`));
       }
       continue;
     }
     for (const ability of selectedAbilities) {
       if (ability.groupId !== groupId) {
-        messages.push({ level: "error", text: `${unit.name} cannot select ${ability.name} from ${ability.groupName}.` });
+        messages.push(validationMessage("allegiance_ability.not_allowed", `${unit.name} cannot select ${ability.name} from ${ability.groupName}.`));
       }
     }
     const selected = selectedAbilities.filter((item) => item.groupId === groupId);
     groupCounts.set(groupId, (groupCounts.get(groupId) || 0) + selected.length);
     if (group.isMandatory && !selected.length) {
-      messages.push({ level: "error", text: `${unit.name} must select one ${group.name}.` });
+      messages.push(validationMessage("allegiance_ability.not_selected", `${unit.name} must select one ${group.name}.`));
     }
     if (selected.length > 1) {
-      messages.push({ level: "error", text: `${unit.name} has too many ${group.name} selections.` });
+      messages.push(validationMessage("allegiance_ability.multiple_selected", `${unit.name} has too many ${group.name} selections.`));
     }
     for (const ability of selected) {
       if (ability.requiresWargearItemId && !unitHasWargearItem(unit, ability.requiresWargearItemId)) {
         const itemName = state.catalog.wargearItemById.get(ability.requiresWargearItemId)?.name || "required wargear";
-        messages.push({ level: "error", text: `${unit.name} with ${ability.name} must be equipped with ${itemName}.` });
+        messages.push(validationMessage("allegiance_ability.missing_wargear_item", `${unit.name} with ${ability.name} must be equipped with ${itemName}.`));
       }
     }
   }
@@ -52,10 +53,10 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
     }
     const count = groupCounts.get(group.id) || 0;
     if (group.minRosterLimit != null && count < group.minRosterLimit) {
-      messages.push({ level: "error", text: `Select at least ${group.minRosterLimit} ${group.name} choices.` });
+      messages.push(validationMessage("allegiance_ability.group_limit_not_reached", `Select at least ${group.minRosterLimit} ${group.name} choices.`));
     }
     if (group.maxRosterLimit != null && count > group.maxRosterLimit) {
-      messages.push({ level: "error", text: `Select at most ${group.maxRosterLimit} ${group.name} choices.` });
+      messages.push(validationMessage("allegiance_ability.group_limit_exceeded", `Select at most ${group.maxRosterLimit} ${group.name} choices.`));
     }
   }
   for (const row of state.catalog.mandatoryAllegianceAbilitiesByFactionId.get(roster.factionKeywordId) || []) {
@@ -67,7 +68,7 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
         continue;
       }
       if (!selectedIds.has(row.allegianceAbilityId)) {
-        messages.push({ level: "error", text: `${unit.name} must select ${ability?.name || "required ability"} for ${rosterSummary(roster).factionName}.` });
+        messages.push(validationMessage("allegiance_ability.mandatory_not_selected", `${unit.name} must select ${ability?.name || "required ability"} for ${rosterSummary(roster).factionName}.`));
       }
     }
   }

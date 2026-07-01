@@ -56,7 +56,7 @@ function factionScope(factionKeywordId) {
   while (current && !seen.has(current)) {
     seen.add(current);
     scope.push(current);
-    current = state.catalog.factionById.get(current)?.parentFactionKeywordId || "";
+    current = state.catalog.factionKeywordById.get(current)?.parentFactionKeywordId || "";
   }
   return scope;
 }

@@ -1,6 +1,7 @@
 import { state } from "./builder_state.js";
 import { factionScope, idsFromRows, namesForIds, setIntersects } from "./builder_model.js";
 import { unitHasKeyword } from "./builder_validation_core.js";
+import { validationMessage } from "./builder_validation_messages.js";
 
 function validateDetachmentUniqueKeywords(detachments, messages) {
   if (detachments.length < 2) {
@@ -18,7 +19,7 @@ function validateDetachmentUniqueKeywords(detachments, messages) {
   }
   for (const [keyword, names] of byKeyword.entries()) {
     if (names.length > 1) {
-      messages.push({ level: "error", text: `Detachments share unique keyword ${keyword}: ${names.join(", ")}.` });
+      messages.push(validationMessage("roster.detachment_unique_keyword_error", `Detachments share unique keyword ${keyword}: ${names.join(", ")}.`));
     }
   }
 }
@@ -26,12 +27,12 @@ function validateDetachmentUniqueKeywords(detachments, messages) {
 function validateUnitCompositions(units, messages) {
   for (const unit of units) {
     if (unit.maxModelCount && unit.modelCount > unit.maxModelCount) {
-      messages.push({ level: "error", text: `${unit.name} has ${unit.modelCount} models; limit is ${unit.maxModelCount}.` });
+      messages.push(validationMessage("unit.max_model_count_too_many_models", `${unit.name} has ${unit.modelCount} models; limit is ${unit.maxModelCount}.`));
     }
     if (!unit.selectedCompositionId) {
-      messages.push({ level: "error", text: `${unit.name} has an invalid unit composition.` });
+      messages.push(validationMessage("unit_composition.invalid_unit_composition", `${unit.name} has an invalid unit composition.`));
     } else if (!unit.selectedCompositionAvailable) {
-      messages.push({ level: "error", text: `${unit.name} uses a composition that is not available to this faction or detachment.` });
+      messages.push(validationMessage("unit_composition.unavailable", `${unit.name} uses a composition that is not available to this faction or detachment.`));
     }
   }
 }
@@ -54,10 +55,10 @@ function validateSuccessorChapterEpicHeroes(units, messages) {
       }
     }
     if (shared.length) {
-      messages.push({
-        level: "error",
-        text: `${successor.name} cannot be included with other Epic Heroes from the same parent faction: ${shared.join(", ")}.`,
-      });
+      messages.push(validationMessage(
+        "roster.successor_chapter_epic_hero_in_roster",
+        `${successor.name} cannot be included with other Epic Heroes from the same parent faction: ${shared.join(", ")}.`
+      ));
     }
   }
 }
@@ -72,13 +73,13 @@ function validateDetachmentDatasheets(detachments, units, messages) {
       if ((state.catalog.detachmentExcludedDatasheets || []).some((row) => (
         row.detachmentId === detachment.id && row.datasheetId === unit.datasheetId
       ))) {
-        messages.push({ level: "error", text: `${unit.name} is excluded from ${detachment.name}.` });
+        messages.push(validationMessage("detachment.datasheet_not_allowed", `${unit.name} is excluded from ${detachment.name}.`));
       }
     }
     for (const row of state.catalog.detachmentRequiredDatasheetsByDetachmentId.get(detachment.id) || []) {
       const datasheet = state.catalog.datasheetById.get(row.datasheetId);
       if (!counts[row.datasheetId]) {
-        messages.push({ level: "error", text: `${detachment.name} requires ${datasheet?.name || "a required unit"}.` });
+        messages.push(validationMessage("detachment.datasheets_missing", `${detachment.name} requires ${datasheet?.name || "a required unit"}.`));
       }
     }
     if (!detachment.isCombatPatrol) {
@@ -93,15 +94,15 @@ function validateDetachmentDatasheets(detachments, units, messages) {
       const datasheet = state.catalog.datasheetById.get(linked.datasheetId);
       const actual = counts[linked.datasheetId] || 0;
       if (actual !== linked.count) {
-        messages.push({
-          level: "error",
-          text: `${detachment.name} requires exactly ${linked.count} ${datasheet?.name || "linked"} unit(s); roster has ${actual}.`,
-        });
+        messages.push(validationMessage(
+          "detachment.linked_datasheet_count_mismatch",
+          `${detachment.name} requires exactly ${linked.count} ${datasheet?.name || "linked"} unit(s); roster has ${actual}.`
+        ));
       }
     }
     for (const unit of units) {
       if (!linkedCounts.has(unit.datasheetId)) {
-        messages.push({ level: "error", text: `${unit.name} is not part of ${detachment.name}.` });
+        messages.push(validationMessage("detachment.linked_datasheet_not_allowed", `${unit.name} is not part of ${detachment.name}.`));
       }
     }
   }
@@ -143,9 +144,9 @@ function addKeywordLimitMessage(messages, group, count, limit, detachmentName) {
   const scope = detachmentName ? ` in ${detachmentName}` : "";
   const prefix = group.excludedFactionKeywordName ? `Excluding ${group.excludedFactionKeywordName} units, ` : "";
   if (limit === 0) {
-    messages.push({ level: "error", text: `${prefix}${labels} units are not allowed${scope}.` });
+    messages.push(validationMessage("keyword_restriction_group.limit_zero", `${prefix}${labels} units are not allowed${scope}.`));
   } else {
-    messages.push({ level: "error", text: `${prefix}${labels} has ${count} units${scope}; limit is ${limit}.` });
+    messages.push(validationMessage("keyword_restriction_group.limit_exceeded", `${prefix}${labels} has ${count} units${scope}; limit is ${limit}.`));
   }
 }
 
@@ -174,7 +175,7 @@ function validateKeywordRestrictions(roster, detachments, units, messages) {
       }
       const count = countKeywordRestrictedUnits(units, group);
       if (row.minRosterLimit != null && count < row.minRosterLimit) {
-        messages.push({ level: "error", text: `${detachment.name} requires at least ${row.minRosterLimit} ${group.keywordNames.join(", ")} unit(s).` });
+        messages.push(validationMessage("keyword_restriction_group.minimum_not_met", `${detachment.name} requires at least ${row.minRosterLimit} ${group.keywordNames.join(", ")} unit(s).`));
       }
       if (row.maxRosterLimit != null && count > row.maxRosterLimit) {
         addKeywordLimitMessage(messages, group, count, row.maxRosterLimit, detachment.name);
