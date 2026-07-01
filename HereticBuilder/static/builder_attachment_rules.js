@@ -75,6 +75,12 @@ function validateAttachedUnits(roster, detachments, units, messages) {
     }));
     const bodyguards = members.filter((member) => member.attachmentType === "bodyguard");
     const attachedModels = members.filter((member) => member.attachmentType === "leader" || member.attachmentType === "support");
+    if (!bodyguards.length && attachedModels.length) {
+      for (const attached of attachedModels) {
+        messages.push(validationMessage("attached_unit.must_be_attached", `${attached.name} must be attached to a bodyguard unit.`));
+      }
+      continue;
+    }
     if (!bodyguards.length || !attachedModels.length) {
       messages.push(validationMessage("attached_unit.incomplete", `Attached unit ${group.id} is incomplete.`));
       continue;

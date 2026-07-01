@@ -21,6 +21,57 @@ Related audits:
   targeted miniature for miniature enhancements.
 - 2026-07-01: Scoped new-table ally restricting keyword rows through the
   keyword's faction scope when present.
+- 2026-07-01: Added golden tests for Heretic Astartes allied points, keyword
+  caps, mutually exclusive ally buckets, required CSM detachment allies, and
+  Khorne/Nurgle/Slaanesh/Tzeentch outnumbering restrictions.
+- 2026-07-01: Added golden tests for allegiance ability mandatory selection,
+  single-choice enforcement, required detachment scope, required wargear, and
+  roster min/max keyword groups.
+- 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
+  detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
+  Ynnead mandatory warlords, and Asuryani/Ynnari keyword restriction
+  exclusions.
+- 2026-07-01: Fixed keyword restriction groups to load through the roster
+  faction parent scope, matching the rest of the Builder faction-scope model.
+- 2026-07-01: Added attachment group tests for incomplete, duplicate, invalid,
+  and valid leader/bodyguard group paths.
+- 2026-07-01: Added attachment support-unit missing-requirements coverage and
+  split explicit leader/support-without-bodyguard groups into
+  `attached_unit.must_be_attached`, matching the official `attach_unit_required`
+  localization. v879 still exposes no standalone must-attach catalog flag beyond
+  attachment state groups and `datasheet_bodyguard_group.bodyguardType`.
+- 2026-07-01: Added wargear golden tests for Cthonian Beserks duplicate-name
+  all-model matching, `’Ardmob Boyz` duplicate-name Big Choppa loadout bridging,
+  Eliminator Squad all-model/substitute behavior, Termagant limited wargear
+  thresholds, and zero-count miniature wargear.
+- 2026-07-01: Added enhancement golden tests for roster enhancement limits,
+  duplicate enhancement limits, per-unit enhancement limits, required
+  detachment, required keyword/faction groups, excluded keywords, required
+  wargear, attached bodyguard requirements, and attached-unit enhancement
+  limits.
+- 2026-07-01: Added warlord and top-level roster golden tests for missing
+  warlord, multiple warlords, invalid non-Character warlord, Supreme Commander
+  enforcement, detachment unique keywords, detachment excluded datasheets,
+  Combat Patrol linked datasheet constraints, unit composition errors, and
+  duplicate datasheet limits including Epic Heroes.
+- 2026-07-01: Expanded allied golden coverage for all four Heretic Astartes
+  cult-legion parent factions, Titanicus Traitoris titan caps, Agents of the
+  Imperium allowed-warlord requirements, and slotless Retinue donor/receiver
+  pairs.
+- 2026-07-01: Added coverage for previously unasserted validation codes:
+  unavailable/disallowed allies, required allied allegiance abilities,
+  wrong-group/mandatory allegiance choices, Combat Patrol enhancements,
+  enhancement target type and target eligibility failures, top-level roster
+  illegal datasheets, detachment required datasheets, detachment keyword
+  min/max restrictions, faction mandatory warlords, and invalid wargear scope
+  and loadout paths.
+- 2026-07-01: Audited all current `validationMessage(...)` codes in Builder
+  validators against the split `tests/builder_validation_*.test.mjs` suite;
+  uncovered list is now empty and `npm test` passes 41 validation tests.
+- 2026-07-01: Added an automated validation-code coverage test so new
+  `validationMessage(...)` codes cannot be added without a focused test.
+- 2026-07-01: Split the oversized validation test file into focused suites by
+  rule family plus a shared catalog/helper module.
 
 ## Order of work
 
@@ -50,7 +101,7 @@ Done when:
 - Every `messages.push({ level, text })` in validation code also has `code`.
 - Tests assert validation codes first and human text second.
 
-### 2. Add golden parity fixtures - started
+### 2. Add golden parity fixtures - done for Builder, WH app comparison remains
 
 Before rewriting risky logic, lock down representative cases.
 
@@ -81,9 +132,11 @@ Required fixture groups:
   - Valid leader/bodyguard.
   - Invalid leader/bodyguard keyword.
   - Support unit missing required group.
-  - Official `UnitMustBeAttached` trigger case.
+  - Explicit leader/support-without-bodyguard `UnitMustBeAttached` case.
+  - Future standalone must-attach case only if official data exposes a flag.
 - Wargear:
   - Cthonian Beserks heavy plasma axe / concussion maul / twin gauntlet.
+  - `’Ardmob Boyz` Boss Nob duplicate-name Big Choppa bridge.
   - Eliminator Sergeant substitute all-model set.
   - Termagants all-model substitutions.
   - Limited-wargear model-count thresholds.
@@ -117,29 +170,32 @@ Done when:
 - Existing validation behavior stays stable except for confirmed fixes.
 - New targeted tests cover each fixed rule.
 
-### 4. Implement attachment parity
+### 4. Implement attachment parity - done for v879
 
 Problem:
 
 - Official app has a distinct `UnitMustBeAttached` error.
-- Builder currently validates existing attachment groups, but returns early when
-  no groups exist.
+- v879 exposes that error text as `attach_unit_required`, but has no standalone
+  catalog flag saying a datasheet must always be attached outside an explicit
+  attached group.
 
 Fix:
 
-- Use golden fixtures to identify the exact official trigger.
-- Add a standalone `attachment.unit_must_be_attached` validation path if the app
-  requires a unit to be attached even before a group exists.
+- Emit `attached_unit.must_be_attached` when an explicit attached group contains
+  leader/support members without a bodyguard.
 - Keep incomplete-group validation separate from must-be-attached validation.
+- Keep standalone leader/support-capable units valid unless a future official
+  data version adds a separate must-attach flag.
 
 Done when:
 
 - Builder distinguishes:
-  - a unit that must be attached but is not;
-  - an incomplete manually-created attachment group;
+  - a leader/support member in an attached group that must be attached to a
+    bodyguard;
+  - a bodyguard-only or empty manually-created attachment group;
   - an invalid leader/support/bodyguard pairing.
 
-### 5. Verify keyword restriction scope
+### 5. Verify keyword restriction scope - done for Builder, WH app comparison remains
 
 Problem:
 
@@ -188,7 +244,8 @@ Fix:
 Done when:
 
 - Golden wargear fixtures match WH app valid/invalid results.
-- Cthonian Beserks and Eliminator Squad are covered by regression tests.
+- Cthonian Beserks, `’Ardmob Boyz`, and Eliminator Squad are covered by
+  regression tests.
 
 ### 7. Improve message parity
 

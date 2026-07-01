@@ -325,11 +325,12 @@ Important app-audit deltas to track:
    local Python baseline. The installed app confirms a very similar taxonomy,
    but the source of truth should now be this app-derived validator list.
 2. `UnitMustBeAttached` / `attach_unit_required` exists in the app binary and
-   strings. Current Builder validates attached groups that already exist, but
-   should be specifically tested for a unit that the app says must be attached.
-   The exact data flag is not a simple DB column; evidence points to compiled
-   logic around `RosterAttachedUnitValidator`, `hasAttachedUnit`,
-   `datasheet_bodyguard_group` and Combat Patrol attached-unit aggregates.
+   strings. Builder now emits `attached_unit.must_be_attached` for explicit
+   attached groups that contain leader/support members without a bodyguard. The
+   exact standalone data flag is not present as a simple DB column in v879;
+   evidence points to compiled logic around `RosterAttachedUnitValidator`,
+   `hasAttachedUnit`, `datasheet_bodyguard_group` and Combat Patrol
+   attached-unit aggregates.
 3. `invalid_warlord_generic` lives in `UI_BattleForgeUI.bundle`, not in the
    datasource validation strings. Any error-string extractor that only reads
    `Datasource_BattleForgeDatasource.bundle` is incomplete.
@@ -422,6 +423,7 @@ taxonomy is recoverable from binary offsets and localized error keys, but the
 exact Swift control flow is not shipped as source.
 
 The largest rule surfaces remain allies, enhancements, attachments and wargear.
-The one app-derived gap requiring extra Builder attention is
-`UnitMustBeAttached` / `attach_unit_required`, because it exists in the app but
-is not represented as an obvious standalone DB field.
+The explicit attached-group `UnitMustBeAttached` path is now covered in Builder;
+the remaining attachment watch item is whether future app data exposes a
+standalone must-attach flag that is not represented as an obvious DB field in
+v879.

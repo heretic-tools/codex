@@ -151,7 +151,8 @@ function addKeywordLimitMessage(messages, group, count, limit, detachmentName) {
 }
 
 function validateKeywordRestrictions(roster, detachments, units, messages) {
-  const groupRows = state.catalog.keywordRestrictionGroupsByFactionId.get(roster.factionKeywordId) || [];
+  const groupRows = factionScope(roster.factionKeywordId)
+    .flatMap((factionId) => state.catalog.keywordRestrictionGroupsByFactionId.get(factionId) || []);
   const groups = new Map(groupRows.map((row) => [row.id, keywordRestrictionGroupFromRow(row)]));
   const warlordIds = new Set(units.flatMap((unit) => unit.warlordMiniatureIds || []));
   for (const group of groups.values()) {
