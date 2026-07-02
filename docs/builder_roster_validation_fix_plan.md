@@ -33,8 +33,8 @@ Related audits:
   roster min/max keyword groups.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
-  Ynnead mandatory warlords, and Asuryani/Ynnari keyword restriction
-  exclusions.
+  Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,
+  and Drukhari Harlequin character limits.
 - 2026-07-01: Fixed keyword restriction groups to load through the roster
   faction parent scope, matching the rest of the Builder faction-scope model.
 - 2026-07-01: Added attachment group tests for incomplete, duplicate, invalid,
@@ -122,6 +122,10 @@ Related audits:
 - 2026-07-02: Added live coverage for `detachment_granted_warlord_miniature`.
   Deathleaper remains blocked as Warlord outside Vanguard Onslaught, but the
   detachment grant correctly overrides `cannotBeWarlord`.
+- 2026-07-02: Added real-catalog coverage for every live v879 detachment
+  warlord row. The test proves invalid and valid states for all 2
+  `detachment_mandatory_warlord_miniature` rows and the 1
+  `detachment_granted_warlord_miniature` row.
 - 2026-07-02: Added live duplicate-limit coverage for conditional Battleline.
   Houndpack Lance War Dog Brigands use the Battleline duplicate cap of 6 rather
   than the standard Strike Force cap of 3.
@@ -133,6 +137,36 @@ Related audits:
 - 2026-07-02: Tightened detachment unique keyword validation to compare
   `detachment_unique_keyword.keywordId` rather than display names, with
   synthetic coverage for same-name/different-ID keywords.
+- 2026-07-02: Added real-catalog coverage for every live v879
+  `detachment_unique_keyword` shared group. The test proves valid and invalid
+  states across all 57 current rows and 27 current shared unique-keyword groups.
+- 2026-07-02: Added real-catalog coverage for every live v879 datasheet
+  exclusion row. The test proves invalid and control-valid states for all 23
+  `detachment_excluded_datasheet` rows and all 23
+  `faction_keyword_excluded_datasheet` rows.
+- 2026-07-02: Added real-catalog coverage for every live v879
+  `detachment_linked_datasheet` row. The test proves exact valid, missing-row
+  invalid, and extra-not-linked invalid states for all 107 current rows across
+  all 24 current Combat Patrol detachments.
+- 2026-07-02: Added real-catalog coverage for every live v879
+  `allied_faction_points_limit` row. The test proves valid-at-cap and
+  invalid-over-cap states for all 39 current allied points-limit rows.
+- 2026-07-02: Added real-catalog coverage for every live v879
+  `faction_keyword_allied_faction` row. The test proves each of the 87 current
+  allowed roster-faction/ally-bucket pairs avoids `allied_faction.not_available`
+  and each ally bucket still rejects a control roster faction without that row.
+- 2026-07-02: Added real-catalog coverage for every live v879
+  `allied_faction_keyword` row. The tests prove valid-at-cap and
+  invalid-over-cap states for all 54 current keyword-limit rows, mixed-keyword
+  rejection for all 12 current mutually exclusive battle-size buckets, and
+  slotless donor/receiver reduction for all 12 current slotless groups.
+- 2026-07-02: Added real-catalog coverage for every live v879
+  `allied_faction_required_detachment` row. The test proves missing-detachment
+  invalid and selected-detachment valid states for all 29 current rows.
+- 2026-07-02: Added real-catalog coverage for every live v879
+  `allied_faction_allowed_warlord_miniature` row. The test proves
+  missing-Warlord invalid and each configured Warlord miniature valid for all 28
+  current rows.
 - 2026-07-01: Expanded allied golden coverage for all four Heretic Astartes
   cult-legion parent factions, Titanicus Traitoris titan caps, Agents of the
   Imperium allowed-warlord requirements, and slotless Retinue donor/receiver
@@ -198,12 +232,31 @@ Related audits:
 - 2026-07-02: Reworked limited wargear choice coverage from independent
   occurrence summing to bounded exact-cover matching. Overlapping combo rows
   such as Battle Sisters Squad `Heavy bolter + Ministorum flamer` no longer
-  self-overcount against `choiceLimit`. `npm test` now passes 64 validation
+  self-overcount against `choiceLimit`. `npm test` now passes 79 validation
   tests.
 - 2026-07-02: Added live wargear coverage for additional v879 loadout shapes:
   alternate loadout rows replacing regular sets, duplicate-allowed loadout
   choices, unit-scoped limited wargear caps across model rows, and unit-scoped
   all-model base choices.
+- 2026-07-02: Added an executable WH app wargear parity manifest with 25
+  high-risk Builder cases and expected validation codes/concepts. The manifest
+  is test-only and gives the future WH app comparison a concrete checklist.
+- 2026-07-02: Added an executable minimum WH app parity manifest that maps the
+  non-wargear required audit groups to focused Builder test files, anchors, and
+  expected validation codes/concepts.
+- 2026-07-02: Tightened the minimum parity manifest and allied tests so the
+  Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
+  points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
+  invalid/valid pairs.
+- 2026-07-02: Expanded the Aeldari parity fixture and minimum manifest to cover
+  Drukhari keyword restriction limits for Harlequin characters, not only the
+  Asuryani/Ynnari zero-limit exception.
+- 2026-07-02: Added real-catalog coverage for every live v879 top-level
+  `keyword_restriction_group` with a configured limit. The test proves valid and
+  invalid states for all 15 current top-level groups.
+- 2026-07-02: Added real-catalog coverage for every live v879
+  `restriction_group_detachment_limit` row. The test proves min and max valid /
+  invalid states for all 7 current detachment-linked keyword restriction rows.
 - 2026-07-01: Split the oversized validation test file into focused suites by
   rule family plus a shared catalog/helper module.
 
@@ -256,6 +309,7 @@ Required fixture groups:
 - Ynnari / Asuryani / Drukhari:
   - Devoted of Ynnead mandatory warlord.
   - Asuryani keyword restriction groups excluding Ynnari.
+  - Drukhari Harlequin character keyword restriction limits.
 - Enhancements:
   - Battle-size enhancement limit.
   - Required keyword groups.
@@ -282,7 +336,11 @@ Required fixture groups:
 
 Done when:
 
-- Each fixture records the expected Builder validation codes.
+- Each fixture records the expected Builder validation codes/concepts.
+- The minimum parity fixture groups are mapped by
+  `tests/builder_validation_minimum_parity_manifest.test.mjs`.
+- The manifest anchors the required subcases, not only the surrounding test
+  names.
 - Manual WH app comparison is documented for each fixture group.
 
 ### 3. Apply safe rule fixes - done for first batch
@@ -346,7 +404,18 @@ Fix:
 Done when:
 
 - Parent/child faction cases match WH app.
-- Asuryani/Ynnari and named chapter cases are covered by tests.
+- Asuryani/Ynnari, Drukhari, and named chapter cases are covered by tests.
+- Every current top-level live keyword restriction group with a configured limit
+  is covered by valid and invalid real-catalog regression paths.
+- Every current detachment-linked keyword restriction min/max row is covered by
+  valid and invalid real-catalog regression paths.
+- Every current detachment unique-keyword shared group is covered by valid and
+  invalid real-catalog regression paths.
+- Every current detachment-level and faction-level datasheet exclusion row is
+  covered by invalid and control-valid real-catalog regression paths.
+- Every current Combat Patrol linked-datasheet row is covered by exact-valid,
+  missing-required invalid, and extra-not-linked invalid real-catalog regression
+  paths.
 
 ### 6. Rework wargear parity carefully - done for Builder, WH app comparison remains
 
@@ -396,6 +465,9 @@ Done when:
 - Einhyr Hearthguard independent all-model substitute families are covered by a
   regression test.
 - Full default-catalog generated wargear is covered by a regression test.
+- A 25-case executable WH app parity manifest covers the high-risk wargear
+  shapes and expected Builder codes/concepts, including Cthonian Beserks twin
+  concussion gauntlet valid and over-limit states.
 
 ### 7. Improve message parity - done for Builder, WH app comparison remains
 

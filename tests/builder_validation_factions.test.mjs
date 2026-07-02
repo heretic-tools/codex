@@ -155,7 +155,7 @@ test("Devoted of Ynnead requires Yvraine or the Yncarne as Warlord", () => {
   assert.ok(!messageCodes(validMessages).includes("mandatory_warlord.detachment_not_selected"));
 });
 
-test("Asuryani keyword restriction groups exclude Ynnari units where configured", () => {
+test("Aeldari keyword restriction groups cover Asuryani/Ynnari exclusions and Drukhari limits", () => {
   state.catalog = realCatalog;
   const roster = {
     factionKeywordId: factionNamed("Asuryani").id,
@@ -183,6 +183,98 @@ test("Asuryani keyword restriction groups exclude Ynnari units where configured"
     warlordMiniatureIds: [],
   }], ynnariMessages);
   assert.ok(!messageCodes(ynnariMessages).includes("keyword_restriction_group.limit_zero"));
+
+  const deathJesterDatasheet = datasheetNamed("Death Jester");
+  const drukhariRoster = {
+    factionKeywordId: factionNamed("Drukhari").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+  };
+  const drukhariValidMessages = [];
+  validateKeywordRestrictions(
+    drukhariRoster,
+    [],
+    [rosterUnitFromDatasheetId(deathJesterDatasheet.id, "death-jester-1")],
+    drukhariValidMessages
+  );
+  assert.ok(!messageCodes(drukhariValidMessages).includes("keyword_restriction_group.limit_exceeded"));
+
+  const drukhariLimitMessages = [];
+  validateKeywordRestrictions(
+    drukhariRoster,
+    [],
+    [
+      rosterUnitFromDatasheetId(deathJesterDatasheet.id, "death-jester-1"),
+      rosterUnitFromDatasheetId(deathJesterDatasheet.id, "death-jester-2"),
+    ],
+    drukhariLimitMessages
+  );
+  assert.ok(messageCodes(drukhariLimitMessages).includes("keyword_restriction_group.limit_exceeded"));
+});
+
+test("all live top-level keyword restriction limits have valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  const limitedGroups = realCatalog.keywordRestrictionGroups
+    .filter((group) => group.limit != null);
+  assert.equal(limitedGroups.length, 15);
+
+  for (const group of limitedGroups) {
+    const keywordIds = (realCatalog.keywordRestrictionGroupKeywordsByGroupId.get(group.id) || [])
+      .map((row) => row.keywordId);
+    assert.ok(keywordIds.length, `${group.id} should have restricted keywords`);
+
+    const validMessages = [];
+    const validUnits = group.limit === 0
+      ? [{
+        id: `${group.id}:excluded-valid`,
+        name: "Excluded Valid",
+        keywordIds,
+        factionKeywordIds: [group.excludedFactionKeywordId],
+        warlordMiniatureIds: [],
+      }]
+      : Array.from({ length: group.limit }, (_, index) => ({
+        id: `${group.id}:valid-${index}`,
+        name: "Restricted Valid",
+        keywordIds,
+        factionKeywordIds: [group.factionKeywordId],
+        warlordMiniatureIds: [],
+      }));
+    validateKeywordRestrictions(
+      {
+        factionKeywordId: group.factionKeywordId,
+        battleSizeId: battleSizeNamed("Strike Force").id,
+      },
+      [],
+      validUnits,
+      validMessages
+    );
+    assert.ok(
+      !messageCodes(validMessages).some((code) => code.startsWith("keyword_restriction_group.")),
+      `${group.id} should allow its configured limit`
+    );
+
+    const invalidCount = group.limit === 0 ? 1 : group.limit + 1;
+    const invalidUnits = Array.from({ length: invalidCount }, (_, index) => ({
+      id: `${group.id}:invalid-${index}`,
+      name: "Restricted Invalid",
+      keywordIds,
+      factionKeywordIds: [group.factionKeywordId],
+      warlordMiniatureIds: [],
+    }));
+    const invalidMessages = [];
+    validateKeywordRestrictions(
+      {
+        factionKeywordId: group.factionKeywordId,
+        battleSizeId: battleSizeNamed("Strike Force").id,
+      },
+      [],
+      invalidUnits,
+      invalidMessages
+    );
+    const expectedCode = group.limit === 0
+      ? "keyword_restriction_group.limit_zero"
+      : "keyword_restriction_group.limit_exceeded";
+    assert.ok(messageCodes(invalidMessages).includes(expectedCode), `${group.id} should emit ${expectedCode}`);
+  }
 });
 
 test("detachment keyword restrictions enforce minimum and maximum roster limits", () => {
@@ -216,4 +308,63 @@ test("detachment keyword restrictions enforce minimum and maximum roster limits"
     maximumMessages
   );
   assert.ok(messageCodes(maximumMessages).includes("keyword_restriction_group.limit_exceeded"));
+});
+
+test("all live detachment keyword restriction limits have valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  const limits = realCatalog.restrictionGroupDetachmentLimits;
+  assert.equal(limits.length, 7);
+  const neutralRosterFactionId = factionNamed("Harlequins").id;
+
+  for (const limit of limits) {
+    const detachment = realCatalog.detachmentById.get(limit.detachmentId);
+    const group = realCatalog.keywordRestrictionGroups.find((item) => item.id === limit.restrictionGroupId);
+    assert.ok(detachment, `${limit.detachmentId} should resolve to a detachment`);
+    assert.ok(group, `${limit.restrictionGroupId} should resolve to a keyword restriction group`);
+
+    const keywordIds = (realCatalog.keywordRestrictionGroupKeywordsByGroupId.get(group.id) || [])
+      .map((row) => row.keywordId);
+    assert.ok(keywordIds.length, `${group.id} should have restricted keywords`);
+    const unit = (id) => ({
+      id,
+      name: "Restricted Detachment Unit",
+      keywordIds,
+      factionKeywordIds: [group.factionKeywordId],
+      warlordMiniatureIds: [],
+    });
+    const validateCount = (count) => {
+      const messages = [];
+      validateKeywordRestrictions(
+        {
+          factionKeywordId: neutralRosterFactionId,
+          battleSizeId: battleSizeNamed("Strike Force").id,
+        },
+        [detachment],
+        Array.from({ length: count }, (_, index) => unit(`${limit.id}:${index}`)),
+        messages
+      );
+      return messageCodes(messages);
+    };
+
+    if (limit.minRosterLimit != null) {
+      assert.ok(
+        !validateCount(limit.minRosterLimit).some((code) => code.startsWith("keyword_restriction_group.")),
+        `${detachment.name}:${group.id} should allow the configured detachment minimum`
+      );
+      assert.ok(
+        validateCount(limit.minRosterLimit - 1).includes("keyword_restriction_group.minimum_not_met"),
+        `${detachment.name}:${group.id} should emit keyword_restriction_group.minimum_not_met`
+      );
+    }
+    if (limit.maxRosterLimit != null) {
+      assert.ok(
+        !validateCount(limit.maxRosterLimit).some((code) => code.startsWith("keyword_restriction_group.")),
+        `${detachment.name}:${group.id} should allow the configured detachment maximum`
+      );
+      assert.ok(
+        validateCount(limit.maxRosterLimit + 1).includes("keyword_restriction_group.limit_exceeded"),
+        `${detachment.name}:${group.id} should emit keyword_restriction_group.limit_exceeded`
+      );
+    }
+  }
 });

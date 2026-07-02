@@ -62,7 +62,8 @@ Implementation updates, 2026-07-01 to 2026-07-02:
 - Initial `node:test` coverage exists for those fixes and for code emission.
 - Golden validation coverage now includes Heretic Astartes allied exceptions,
   allegiance ability edge cases, Adeptus Astartes/Ynnead/Ynnari faction
-  exceptions, attachment group paths, and high-risk wargear fixtures for
+  exceptions, Drukhari keyword restriction limits, attachment group paths, and
+  high-risk wargear fixtures for
   duplicate-name all-model matching, substitutions, limited thresholds, and
   zero-count miniature wargear.
 - Mandatory faction allegiance abilities are read through `factionScope`, so
@@ -116,9 +117,11 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   shape.
 - Warlord and top-level roster coverage now includes missing/multiple/invalid
   warlord cases, Supreme Commander enforcement, detachment unique keyword
-  collisions by keyword ID, detachment excluded datasheets, Combat Patrol
-  linked datasheet constraints, conditional Character Warlord eligibility, unit
-  composition diagnostics, and duplicate datasheet limits including Epic Heroes.
+  collisions by keyword ID, all current live detachment unique-keyword shared
+  groups, all current live detachment/faction datasheet exclusions, Combat
+  Patrol linked datasheet constraints across all current linked rows,
+  conditional Character Warlord eligibility, unit composition diagnostics, and
+  duplicate datasheet limits including Epic Heroes.
 - Default composition selection now prefers matching detachment-specific rows,
   then faction-specific rows, before generic rows. Saved generic default
   composition IDs are also normalized to the more specific current default, and
@@ -134,6 +137,24 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   parent factions, Titanicus Traitoris titan keyword caps, Agents of the
   Imperium allowed-warlord requirements, and slotless Retinue donor/receiver
   counting.
+- Allied points-limit coverage now walks every live v879
+  `allied_faction_points_limit` row and proves valid-at-cap plus
+  invalid-over-cap states for all 39 current rows.
+- Allied availability coverage now walks every live v879
+  `faction_keyword_allied_faction` row and proves all 87 current
+  roster-faction/ally-bucket pairs are available, with unavailable control
+  rosters for each ally bucket.
+- Allied keyword-limit coverage now walks every live v879
+  `allied_faction_keyword` row and proves valid-at-cap plus invalid-over-cap
+  states for all 54 current rows. It also covers all 12 current mutually
+  exclusive battle-size buckets and all 12 current slotless donor/receiver
+  groups.
+- Allied required-detachment coverage now walks every live v879
+  `allied_faction_required_detachment` row and proves missing-detachment
+  invalid plus selected-detachment valid states for all 29 current rows.
+- Allied allowed-warlord coverage now walks every live v879
+  `allied_faction_allowed_warlord_miniature` row and proves missing-Warlord
+  invalid plus selected configured Warlord valid states for all 28 current rows.
 - Keyword restriction groups are now loaded through `factionScope`, so
   parent-scoped restriction rows are inherited by child roster factions.
 - Wargear matching now uses `canonicalWargearKey`: normal rows use item-ID keys,
@@ -158,6 +179,10 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   coverage guards future parent-faction data.
 - Live Warlord coverage now includes `detachment_granted_warlord_miniature`:
   Deathleaper is invalid as Warlord by default but valid in Vanguard Onslaught.
+- Live detachment Warlord coverage now walks every v879
+  `detachment_mandatory_warlord_miniature` and
+  `detachment_granted_warlord_miniature` row, proving invalid and valid states
+  for all 3 current rows.
 - Duplicate-unit coverage now includes conditional Battleline. Houndpack Lance
   War Dog Brigands use the Battleline duplicate cap of 6 rather than the
   standard Strike Force cap of 3.
@@ -169,7 +194,17 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `InvalidWargearRequirement` for limited/all-model requirement failures.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 64 validation tests.
+  once; `npm test` passes 79 validation tests.
+- The minimum parity manifest now anchors required subcases, including Heretic
+  Astartes daemon allies under/over the points cap and Khorne, Nurgle, Slaanesh,
+  and Tzeentch Battleline outnumbering invalid/valid pairs. It also carries the
+  Aeldari/Drukhari keyword restriction subcases as explicit anchors.
+- Live keyword restriction coverage now walks every v879 top-level
+  `keyword_restriction_group` with a configured limit and proves valid plus
+  invalid states for all 15 current groups.
+- Live detachment-linked keyword restriction coverage now walks every v879
+  `restriction_group_detachment_limit` row and proves valid plus invalid min/max
+  states for all 7 current rows.
 
 ## Evidence baseline
 
@@ -284,23 +319,25 @@ Status values:
 | `MissingAllegianceAbility` | `builder_allegiance_rules.js:33-35` | Covered | v879 has 5 mandatory allegiance groups. |
 | `TooManyAllegianceAbilities` | `builder_allegiance_rules.js:36-38` | Covered | Blocks more than one selected ability in a unit group. |
 | `MissingMandatoryAllegianceAbility` | `builder_allegiance_rules.js:63-84` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage proves parent-faction rows are inherited through `factionScope` and that selecting the mandatory ability satisfies the rule. |
-| `AlliedFactionDetachmentValidator` | `builder_allied_rules.js:162-168` | Covered | Uses required detachment from `allied_faction` plus join table. |
-| `InvalidDetachmentError` | `builder_allied_rules.js:162-168` | Covered | Message is custom, semantics present. |
-| `AlliedKeywordCountValidator` | `builder_allied_rules.js:47-70` | Covered | Includes battle-size and warlord-gated keyword limits. |
-| `InvalidMutuallyExclusiveKeywords` | `builder_allied_rules.js:66-69` | Covered | Active keyword bucket count > 1. |
+| `AlliedFactionValidator` | `builder_allied_rules.js:141-145` | Covered | Uses `faction_keyword_allied_faction`; all 87 current rows have available coverage plus unavailable controls. |
+| `AlliedFactionNotAvailable` | `builder_allied_rules.js:141-145` | Covered | Semantics present across every current live ally bucket. |
+| `AlliedFactionDetachmentValidator` | `builder_allied_rules.js:162-168` | Covered | Uses required detachment from `allied_faction` plus join table; all 29 current `allied_faction_required_detachment` rows have missing and selected coverage. |
+| `InvalidDetachmentError` | `builder_allied_rules.js:162-168` | Covered | Message is custom; semantics are covered across every current live required-detachment row. |
+| `AlliedKeywordCountValidator` | `builder_allied_rules.js:47-70` | Covered | Includes battle-size and warlord-gated keyword limits; all 54 current `allied_faction_keyword` rows have valid-at-cap and invalid-over-cap coverage. |
+| `InvalidMutuallyExclusiveKeywords` | `builder_allied_rules.js:66-69` | Covered | Active keyword bucket count > 1; all 12 current mutually exclusive battle-size buckets are covered. |
 | `AlliedRequiredWarlordKeywordCountLimitExceeded` | `builder_allied_rules.js:53-64` | Covered | Skips rows until required warlord is selected, then enforces cap. |
-| `AlliedKeywordCountLimitExceeded` | `builder_allied_rules.js:61-64` | Covered | Counts ally units with configured keyword, with slotless reduction. |
-| `AlliedPointsValidator` | `builder_allied_rules.js:178-184` | Covered | Per battle-size allied points caps. |
-| `AlliedPointsLimitExceeded` | `builder_allied_rules.js:180-184` | Covered | Semantics present. |
+| `AlliedKeywordCountLimitExceeded` | `builder_allied_rules.js:61-64` | Covered | Counts ally units with configured keyword, with slotless reduction; all 12 current slotless donor/receiver groups are covered. |
+| `AlliedPointsValidator` | `builder_allied_rules.js:178-184` | Covered | Per battle-size allied points caps; all 39 current `allied_faction_points_limit` rows have valid-at-cap and invalid-over-cap coverage. |
+| `AlliedPointsLimitExceeded` | `builder_allied_rules.js:180-184` | Covered | Semantics present across every current live points-limit row. |
 | `AlliedUnitsRequiredAllegianceValidator` | `builder_allied_rules.js:72-81` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage checks missing and selected required ability states. |
 | `RequiredAllegianceAbilityMissing` | `builder_allied_rules.js:72-81` | Covered, data-empty | Synthetic coverage emits only when the required ability is absent. |
-| `AlliedUnitsRequiredWarlordValidator` | `builder_allied_rules.js:148-160` | Covered | Handles required warlord and allowed warlord list. |
-| `RequiredWarlordMissing` | `builder_allied_rules.js:148-160` | Covered | Semantics present. |
-| `DetachmentExcludedDatasheetValidator` | `builder_restriction_rules.js:70-76` | Covered | Uses `detachment_excluded_datasheet`. |
+| `AlliedUnitsRequiredWarlordValidator` | `builder_allied_rules.js:148-160` | Covered | Handles required warlord and allowed warlord list; all 28 current `allied_faction_allowed_warlord_miniature` rows have missing and selected coverage. |
+| `RequiredWarlordMissing` | `builder_allied_rules.js:148-160` | Covered | Semantics present across every current live allowed-warlord row. |
+| `DetachmentExcludedDatasheetValidator` | `builder_restriction_rules.js:70-76` | Covered | Uses `detachment_excluded_datasheet`; all 23 current rows have invalid/control-valid coverage. |
 | `DetachmentDatasheetNotAllowed` | `builder_restriction_rules.js:70-76` | Covered | Semantics present. |
 | `DetachmentPointsLimitValidator` | `builder_roster_validation.js:32-50` | Covered | Uses battle-size DP limit and detachment point override. |
 | `DetachmentPointsBattleSizeLimitExceeded` | `builder_roster_validation.js:47-50` | Covered | Semantics present. |
-| `DetachmentRequiredDatasheetValidator` | `builder_restriction_rules.js:78-107` | Covered, data-empty | `detachment_required_datasheet` is empty in v879; synthetic coverage checks missing and selected required datasheet states. Combat Patrol linked datasheets are live and covered separately. |
+| `DetachmentRequiredDatasheetValidator` | `builder_restriction_rules.js:78-107` | Covered, data-empty for required table | `detachment_required_datasheet` is empty in v879; synthetic coverage checks missing and selected required datasheet states. Combat Patrol linked datasheets are live, and all 107 current linked rows across 24 detachments have exact/missing/extra coverage. |
 | `DetachmentDatasheetsMissing` | `builder_restriction_rules.js:78-99` | Covered, data-empty | Synthetic coverage emits only when the required datasheet is absent. |
 | `EnhancementValidator` | `builder_enhancement_rules.js:78-163`, `builder_model.js:152-159`, `builder_model.js:264-270` | Covered | Broad code coverage includes limits, target type, `unit` and `upgrade` enhancement types, Combat Patrol defaults, allied-unit rejection, Epic Hero rejection, excluded models, required keywords/wargear, bodyguard requirements, conditional Character and roster-faction keywords on model targets, keyword-specific point overrides, current-shape compact enhancement rows, and `cannotBeWarlord` target scope. |
 | `ModelsHaveSameEnhancements` | `builder_enhancement_rules.js:106-117` | Covered | Per-enhancement limit. |
@@ -311,14 +348,14 @@ Status values:
 | `ModelDoesNotHaveRequiredKeywords` | `builder_enhancement_rules.js:87-91`, `142-144` | Covered | Miniature target keywords checked. |
 | `ModelHasEnhancementWithExcludedKeyword` | `builder_enhancement_rules.js:36-42`, `145-148` | Covered | v879 has 32 excluded keyword rows. |
 | `AttachedModelHasTooManyEnhancements` | `builder_attachment_rules.js:132-147` | Covered | Attached unit group enhancement count > 1. |
-| `FactionKeywordExcludedDatasheetValidator` | `builder_model.js:356-360`, `builder_roster_validation.js:78-86` | Covered | Uses faction scope. |
+| `FactionKeywordExcludedDatasheetValidator` | `builder_model.js:356-360`, `builder_roster_validation.js:78-86` | Covered | Uses faction scope; all 23 current rows have invalid/control-valid coverage through `validateRoster`. |
 | `FactionDatasheetNotAllowed` | `builder_roster_validation.js:78-86` | Covered | Semantics present. |
 | `KeywordAllyRestrictingKeywordValidator` | `builder_allied_rules.js:92-130` | Covered | Legacy rows and synthetic new-table scoping are covered, including child allied parents inheriting parent restrictions. v879 new table remains empty. |
 | `RestrictingKeywordError` | `builder_allied_rules.js:108-123` | Covered | Count logic and faction-scoped new-table behavior are covered. |
-| `KeywordRestrictionGroupValidator` | `builder_restriction_rules.js:110-184` | Covered | Faction rows now load through `factionScope`; zero-limit and detachment min/max messages are covered. |
+| `KeywordRestrictionGroupValidator` | `builder_restriction_rules.js:110-184` | Covered | Faction rows now load through `factionScope`; every current top-level limited group and every current detachment-linked min/max row has valid/invalid coverage. |
 | `KeywordRestrictionGroupError` | `builder_restriction_rules.js:141-180` | Covered | Limit, zero-limit, detachment min/max messages are custom. |
 | `MandatoryWarlordValidator` | `builder_warlord_rules.js:38-82` | Covered | Faction mandatory rows are empty in v879 but lookup walks child-to-parent `factionScope`; detachment mandatory rows live. |
-| `MandatoryWarlordNotNotPresentInRoster` | `builder_warlord_rules.js:42-53` | Covered, data-empty for faction | Detachment mandatory uses selected warlord list; synthetic coverage guards parent-faction mandatory warlord rows. |
+| `MandatoryWarlordNotNotPresentInRoster` | `builder_warlord_rules.js:42-53` | Covered, data-empty for faction | Detachment mandatory uses selected warlord list; all 2 current detachment mandatory rows are covered, and synthetic coverage guards parent-faction mandatory warlord rows. |
 | `MandatoryWarlordNotSelected` | `builder_warlord_rules.js:48-50`, `73-79` | Covered | Semantics present. |
 | `SupremeCommanderNotSelected` | `builder_warlord_rules.js:63-68` | Covered | v879 has 17 supreme commander miniatures. |
 | `MaxModelCountValidator` | `builder_restriction_rules.js:26-36` | Covered | Uses datasheet max model count and composition availability. |
@@ -331,7 +368,7 @@ Status values:
 | `UnitMustBeAttached` | `builder_attachment_rules.js:75-82` | Covered for explicit attached groups | Leader/support members in an attached group with no bodyguard emit `attached_unit.must_be_attached`. Empty roster attachment state still returns no error because v879 has no standalone must-attach flag. |
 | `RosterDetachmentValidator` | `builder_roster_validation.js:38-45`, `builder_restriction_rules.js:5-24` | Covered | Selection, faction availability, unique keyword. |
 | `RosterDetachmentNotSelected` | `builder_roster_validation.js:38-40` | Covered | Semantics present. |
-| `RosterDetachmentUniqueKeywordError` | `builder_restriction_rules.js:5-26` | Covered | Uses `detachment_unique_keyword.keywordId`; same display names on different keyword IDs do not collide. |
+| `RosterDetachmentUniqueKeywordError` | `builder_restriction_rules.js:5-26` | Covered | Uses `detachment_unique_keyword.keywordId`; same display names on different keyword IDs do not collide, and all 57 current rows / 27 shared groups have valid/invalid coverage. |
 | `RosterPointsValidator` | `builder_roster_validation.js:35-54`, `builder_model.js:255-264` | Covered | Unit points sum versus battle-size points, including `datasheet_points_step` duplicate-position costs. |
 | `RosterPointsLimitExceeded` | `builder_roster_validation.js:51-54` | Covered | Semantics present. |
 | `RosterUnitLimitValidator` | `builder_roster_validation.js:66-95` | Covered | Duplicate limit, Epic Hero limit, successor conflict. |
@@ -344,7 +381,7 @@ Status values:
 | `LoadoutKey` | `builder_loadout_math.js:3-29`, `36-37` | Partial | Builder has a canonical key layer, but it is not proven identical to official `LoadoutKey`. |
 | `InvalidWargearLoadout` | `builder_wargear_rules.js:231-278`, `tests/builder_validation_concepts.mjs:66-69` | Partial | Miniature/unit loadout failures are covered with canonical keys and mapped to the official error concept. Exact WH app valid/invalid fixture parity still needs comparison. |
 | `InvalidWargearRequirement` | `builder_wargear_rules.js:90-245`, `tests/builder_validation_concepts.mjs:70` | Partial | Limited thresholds use total unit model count, option-aware base/upgrade filtering, default-only choices, and duplicate caps. All-model substitutions are grouped by datasheet/miniature context, and requirement failures map to the official error concept. Exact WH app fixture parity still needs comparison. |
-| `WarlordValidator` | `builder_warlord_rules.js:34-84` | Covered | Missing/multiple/eligibility/conditional Character and detachment-granted Warlord overrides. |
+| `WarlordValidator` | `builder_warlord_rules.js:34-84` | Covered | Missing/multiple/eligibility/conditional Character and the 1 current detachment-granted Warlord override. |
 | `InvalidWarlordGeneric` | `builder_warlord_rules.js:80-84` | Covered | Message custom. |
 | `InvalidWarlordDueToEnhancements` | `builder_enhancement_rules.js:158-160` | Covered | Miniature enhancements check the enhanced model against the selected warlord miniature; unit-level enhancements still apply at unit scope. |
 | `MissingWarlord` | `builder_warlord_rules.js:52-56` | Covered | Semantics present. |
@@ -413,8 +450,9 @@ Implemented guard rails:
   Cthonian mixed all-model invalidity, `’Ardmob Boyz` duplicate-name Big Choppa
   loadout bridging, Eliminator Sergeant substitutions, Eliminator mixed
   all-model invalidity, Canoptek Macrocytes substitute-without-base rejection,
-  Hernkyn Yaegirs base-plus-substitute validity, Einhyr Hearthguard independent
-  substitute-family anchoring, Termagant limited thresholds, Cadian Shock Troops
+  Hernkyn Yaegirs and Termagants base-plus-substitute validity, Einhyr
+  Hearthguard independent substitute-family anchoring, Termagant limited
+  thresholds, Cadian Shock Troops
   total unit model-count thresholds plus duplicate caps, Battle Sisters Squad
   overlapping limited combo rows, Pathfinder/Tankbustas limited choices that
   include base wargear, Hyperadapted Raveners default-only limited caps,
@@ -424,11 +462,18 @@ Implemented guard rails:
   zero-count model wargear, invalid unit/model scope, invalid unit and model
   loadouts, and a full default-catalog sweep proving generated default wargear
   no longer self-validates as invalid.
+- `tests/builder_validation_wargear_parity_cases.test.mjs` exports and executes
+  a 25-case manifest for the future WH app comparison. Each case records the
+  high-risk Builder fixture, expected validation code state, and official-like
+  concept category. The Cthonian Beserks required fixture now includes twin
+  concussion gauntlet valid and over-limit states, not only heavy plasma axe /
+  concussion maul all-model matching.
 
 Remaining action:
 
-- Compare those fixtures against the official app's exact diagnostics before
-  tightening or expanding canonical alias behavior.
+- Compare the executable parity manifest against the official app's exact
+  valid/invalid state and diagnostics before tightening or expanding canonical
+  alias behavior.
 
 ### 2. Resolved: Enhancement `cannotBeWarlord` target scope
 
@@ -545,8 +590,9 @@ Fix:
 Coverage:
 
 - A synthetic parent/child fixture verifies inherited keyword restriction rows.
-- Real fixtures cover Asuryani/Ynnari zero-limit exclusions plus detachment
-  min/max restriction rows.
+- Real fixtures cover Asuryani/Ynnari zero-limit exclusions, Drukhari Harlequin
+  character limits, every v879 top-level limited keyword restriction group, and
+  every v879 detachment min/max restriction row.
 
 ### 6. Resolved: `factionScope` full faction keyword lookup
 
@@ -609,6 +655,13 @@ parity issue:
 Static audit cannot prove exact Battle Forge parity. Builder-side fixtures now
 cover every current `validationMessage(...)` and `validationWarning(...)` code
 at least once, and every code has a test-only official-like concept mapping.
+`tests/builder_validation_minimum_parity_manifest.test.mjs` maps the required
+minimum groups below to focused Builder test files, anchors, and expected codes;
+`tests/builder_validation_wargear_parity_cases.test.mjs` adds the executable
+25-case wargear checklist. Both manifests require their codes/categories to
+resolve through the test-only official-like concept map. The minimum manifest
+also anchors the required subcases inside those focused tests, instead of only
+checking broad test titles.
 The remaining parity work is to create the same roster cases in WH 40K app and
 Builder, then compare valid/invalid state and error categories.
 
@@ -625,6 +678,7 @@ Required cases:
 3. Ynnari / Asuryani / Drukhari:
    - Devoted of Ynnead mandatory warlord.
    - Asuryani restriction groups excluding Ynnari.
+   - Drukhari Harlequin character keyword restriction limits.
 4. Enhancements:
    - Roster enhancement limit by battle size.
    - Required keyword group success/failure.

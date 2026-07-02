@@ -75,11 +75,22 @@ const VALIDATION_CONCEPT_BY_CODE = {
   "warlord.not_selected": "WarlordValidator",
 };
 
+const OFFICIAL_VALIDATION_CONCEPTS = new Set([
+  ...Object.values(VALIDATION_CONCEPT_BY_CODE),
+  "LoadoutKey",
+]);
+
 function validationConceptForCode(code) {
   return VALIDATION_CONCEPT_BY_CODE[code] || "";
 }
 
+function validationConceptKnown(concept) {
+  return OFFICIAL_VALIDATION_CONCEPTS.has(concept);
+}
+
 export {
+  OFFICIAL_VALIDATION_CONCEPTS,
   VALIDATION_CONCEPT_BY_CODE,
   validationConceptForCode,
+  validationConceptKnown,
 };

@@ -255,6 +255,95 @@ test("faction mandatory warlord validation covers missing required model and wro
   });
 });
 
+test("all live detachment warlord rows have valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.detachmentMandatoryWarlordMiniatures.length, 2);
+  assert.equal(realCatalog.detachmentGrantedWarlordMiniatures.length, 1);
+
+  const unitForWarlordMiniature = (miniatureId, id) => {
+    const miniature = realCatalog.miniatureById.get(miniatureId);
+    assert.ok(miniature, `Expected miniature ${miniatureId}`);
+    const datasheet = realCatalog.datasheetById.get(miniature.datasheetId);
+    assert.ok(datasheet, `Expected datasheet for ${miniature.name}`);
+    const rosterUnitMiniatureId = `${id}:${miniatureId}`;
+    return {
+      id,
+      name: datasheet.name,
+      datasheetId: datasheet.id,
+      allyType: "native",
+      factionKeywordIds: (realCatalog.datasheetFactionKeywordsByDatasheetId.get(datasheet.id) || [])
+        .map((row) => row.factionKeywordId),
+      keywordIds: keywordIdsForDatasheet(datasheet.id),
+      warlordMiniatureIds: [miniatureId],
+      unitEnhancements: [],
+      miniatureEnhancements: [],
+      allegianceAbilities: [],
+      miniatures: [{
+        ...miniature,
+        id: rosterUnitMiniatureId,
+        rosterUnitMiniatureId,
+        miniatureId,
+        count: 1,
+        isWarlord: true,
+        wargear: {},
+      }],
+    };
+  };
+
+  const mandatoryRowsByDetachmentId = new Map();
+  for (const row of realCatalog.detachmentMandatoryWarlordMiniatures) {
+    if (!mandatoryRowsByDetachmentId.has(row.detachmentId)) {
+      mandatoryRowsByDetachmentId.set(row.detachmentId, []);
+    }
+    mandatoryRowsByDetachmentId.get(row.detachmentId).push(row);
+  }
+  assert.equal(mandatoryRowsByDetachmentId.size, 1);
+  const wrongWarlordId = miniatureNamed("Farseer").id;
+  for (const [detachmentId, rows] of mandatoryRowsByDetachmentId.entries()) {
+    assert.ok(!rows.some((row) => row.miniatureId === wrongWarlordId));
+    const detachment = realCatalog.detachmentById.get(detachmentId);
+    assert.ok(detachment, `${detachmentId} should resolve to a detachment`);
+    const rosterFactionId = realCatalog.detachmentFactionKeywords.find((row) => row.detachmentId === detachmentId)?.factionKeywordId;
+    assert.ok(rosterFactionId, `${detachment.name} should have a roster faction`);
+
+    const invalidMessages = [];
+    validateWarlord(
+      { factionKeywordId: rosterFactionId, battleSizeId: battleSizeNamed("Strike Force").id },
+      [detachment],
+      [unitForWarlordMiniature(wrongWarlordId, `${detachmentId}:wrong-warlord`)],
+      invalidMessages
+    );
+    assert.ok(messageCodes(invalidMessages).includes("mandatory_warlord.detachment_not_selected"));
+
+    for (const row of rows) {
+      const validMessages = [];
+      validateWarlord(
+        { factionKeywordId: rosterFactionId, battleSizeId: battleSizeNamed("Strike Force").id },
+        [detachment],
+        [unitForWarlordMiniature(row.miniatureId, `${detachmentId}:${row.miniatureId}:required`)],
+        validMessages
+      );
+      assert.ok(!messageCodes(validMessages).includes("mandatory_warlord.detachment_not_selected"));
+    }
+  }
+
+  for (const row of realCatalog.detachmentGrantedWarlordMiniatures) {
+    const detachment = realCatalog.detachmentById.get(row.detachmentId);
+    const unit = unitForWarlordMiniature(row.miniatureId, `${row.detachmentId}:${row.miniatureId}:granted`);
+    const roster = {
+      factionKeywordId: unit.factionKeywordIds[0],
+      battleSizeId: battleSizeNamed("Strike Force").id,
+    };
+    const blockedMessages = [];
+    validateWarlord(roster, [], [unit], blockedMessages);
+    assert.ok(messageCodes(blockedMessages).includes("warlord.invalid_generic"));
+
+    const grantedMessages = [];
+    validateWarlord(roster, [detachment], [unit], grantedMessages);
+    assert.ok(!messageCodes(grantedMessages).includes("warlord.invalid_generic"));
+  }
+});
+
 test("detachment and composition validators cover unique, excluded, linked, and invalid composition cases", () => {
   state.catalog = realCatalog;
 
@@ -354,6 +443,176 @@ test("detachment and composition validators cover unique, excluded, linked, and 
     );
     assert.ok(!messageCodes(selectedRequiredDatasheetMessages).includes("detachment.datasheets_missing"));
   });
+});
+
+test("all live detachment unique keyword groups have valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.detachmentUniqueKeywords.length, 57);
+
+  const rowsByKeywordId = new Map();
+  for (const row of realCatalog.detachmentUniqueKeywords) {
+    if (!rowsByKeywordId.has(row.keywordId)) {
+      rowsByKeywordId.set(row.keywordId, []);
+    }
+    rowsByKeywordId.get(row.keywordId).push(row);
+  }
+  assert.equal(rowsByKeywordId.size, 27);
+
+  const representatives = [];
+  for (const [keywordId, rows] of rowsByKeywordId.entries()) {
+    assert.ok(rows.length > 1, `${keywordId} should be a shared unique detachment keyword`);
+    const detachments = rows.map((row) => realCatalog.detachmentById.get(row.detachmentId));
+    assert.ok(detachments.every(Boolean), `${keywordId} should resolve all detachments`);
+
+    representatives.push(detachments[0]);
+
+    const invalidMessages = [];
+    validateDetachmentUniqueKeywords(detachments, invalidMessages);
+    assert.ok(
+      messageCodes(invalidMessages).includes("roster.detachment_unique_keyword_error"),
+      `${keywordId} should reject detachments sharing one unique keyword`
+    );
+  }
+
+  const validMessages = [];
+  validateDetachmentUniqueKeywords(representatives, validMessages);
+  assert.ok(!messageCodes(validMessages).includes("roster.detachment_unique_keyword_error"));
+});
+
+test("all live datasheet exclusion rows have valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.detachmentExcludedDatasheets.length, 23);
+  assert.equal(realCatalog.factionExcludedDatasheets.length, 23);
+
+  const detachmentExcludedIds = new Map();
+  for (const row of realCatalog.detachmentExcludedDatasheets) {
+    if (!detachmentExcludedIds.has(row.detachmentId)) {
+      detachmentExcludedIds.set(row.detachmentId, new Set());
+    }
+    detachmentExcludedIds.get(row.detachmentId).add(row.datasheetId);
+
+    const messages = [];
+    validateDetachmentDatasheets(
+      [realCatalog.detachmentById.get(row.detachmentId)],
+      [rosterUnitFromDatasheetId(row.datasheetId, `${row.detachmentId}:${row.datasheetId}:excluded`)],
+      messages
+    );
+    assert.ok(
+      messageCodes(messages).includes("detachment.datasheet_not_allowed"),
+      `${row.detachmentId}:${row.datasheetId} should be excluded from its detachment`
+    );
+  }
+  for (const [detachmentId, excludedIds] of detachmentExcludedIds.entries()) {
+    const allowedDatasheet = realCatalog.datasheets.find((datasheet) => !excludedIds.has(datasheet.id));
+    assert.ok(allowedDatasheet, `${detachmentId} should have a non-excluded control datasheet`);
+    const messages = [];
+    validateDetachmentDatasheets(
+      [realCatalog.detachmentById.get(detachmentId)],
+      [rosterUnitFromDatasheetId(allowedDatasheet.id, `${detachmentId}:allowed`)],
+      messages
+    );
+    assert.ok(!messageCodes(messages).includes("detachment.datasheet_not_allowed"));
+  }
+
+  const factionExcludedIds = new Map();
+  for (const row of realCatalog.factionExcludedDatasheets) {
+    if (!factionExcludedIds.has(row.factionKeywordId)) {
+      factionExcludedIds.set(row.factionKeywordId, new Set());
+    }
+    factionExcludedIds.get(row.factionKeywordId).add(row.datasheetId);
+
+    const detachmentRow = realCatalog.detachmentFactionKeywords.find((item) => {
+      const detachment = realCatalog.detachmentById.get(item.detachmentId);
+      return item.factionKeywordId === row.factionKeywordId && detachment && !detachment.isCombatPatrol;
+    });
+    assert.ok(detachmentRow, `${row.factionKeywordId} should have a non-Combat Patrol detachment`);
+    const validation = validateRoster({
+      id: `${row.factionKeywordId}:${row.datasheetId}:excluded`,
+      name: "Excluded Datasheet",
+      factionKeywordId: row.factionKeywordId,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [detachmentRow.detachmentId],
+      units: [{ id: `${row.datasheetId}:unit`, datasheetId: row.datasheetId }],
+    });
+    assert.ok(
+      messageCodes(validation.messages).includes("roster.faction_datasheet_not_allowed"),
+      `${row.factionKeywordId}:${row.datasheetId} should be excluded from its roster faction`
+    );
+  }
+  for (const [factionKeywordId, excludedIds] of factionExcludedIds.entries()) {
+    const allowedDatasheet = realCatalog.datasheets.find((datasheet) => (
+      !excludedIds.has(datasheet.id)
+      && !realCatalog.publicationById.get(datasheet.publicationId)?.isCombatPatrol
+      && (realCatalog.datasheetFactionKeywordsByDatasheetId.get(datasheet.id) || [])
+        .some((row) => row.factionKeywordId === factionKeywordId)
+    ));
+    assert.ok(allowedDatasheet, `${factionKeywordId} should have a native non-excluded control datasheet`);
+    const detachmentRow = realCatalog.detachmentFactionKeywords.find((item) => {
+      const detachment = realCatalog.detachmentById.get(item.detachmentId);
+      return item.factionKeywordId === factionKeywordId && detachment && !detachment.isCombatPatrol;
+    });
+    const validation = validateRoster({
+      id: `${factionKeywordId}:${allowedDatasheet.id}:allowed`,
+      name: "Allowed Datasheet",
+      factionKeywordId,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [detachmentRow.detachmentId],
+      units: [{ id: `${allowedDatasheet.id}:unit`, datasheetId: allowedDatasheet.id }],
+    });
+    assert.ok(!messageCodes(validation.messages).includes("roster.faction_datasheet_not_allowed"));
+  }
+});
+
+test("all live Combat Patrol linked datasheet rows have exact roster coverage", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.detachmentLinkedDatasheets.length, 107);
+
+  const rowsByDetachmentId = new Map();
+  for (const row of realCatalog.detachmentLinkedDatasheets) {
+    if (!rowsByDetachmentId.has(row.detachmentId)) {
+      rowsByDetachmentId.set(row.detachmentId, []);
+    }
+    rowsByDetachmentId.get(row.detachmentId).push(row);
+  }
+  assert.equal(rowsByDetachmentId.size, 24);
+
+  for (const [detachmentId, linkedRows] of rowsByDetachmentId.entries()) {
+    const detachment = realCatalog.detachmentById.get(detachmentId);
+    assert.ok(detachment?.isCombatPatrol, `${detachmentId} should be a Combat Patrol detachment`);
+    const linkedIds = new Set(linkedRows.map((row) => row.datasheetId));
+    const exactUnits = linkedRows.flatMap((row) => (
+      Array.from({ length: row.count }, (_, index) => (
+        rosterUnitFromDatasheetId(row.datasheetId, `${detachmentId}:${row.datasheetId}:exact-${index}`)
+      ))
+    ));
+
+    const exactMessages = [];
+    validateDetachmentDatasheets([detachment], exactUnits, exactMessages);
+    assert.ok(
+      !messageCodes(exactMessages).some((code) => code.startsWith("detachment.linked_datasheet_")),
+      `${detachment.name} exact linked roster should be valid`
+    );
+
+    const missingMessages = [];
+    validateDetachmentDatasheets([detachment], exactUnits.slice(1), missingMessages);
+    assert.ok(
+      messageCodes(missingMessages).includes("detachment.linked_datasheet_count_mismatch"),
+      `${detachment.name} should reject missing linked datasheets`
+    );
+
+    const extraDatasheet = realCatalog.datasheets.find((datasheet) => !linkedIds.has(datasheet.id));
+    assert.ok(extraDatasheet, `${detachment.name} should have a non-linked control datasheet`);
+    const extraMessages = [];
+    validateDetachmentDatasheets(
+      [detachment],
+      [...exactUnits, rosterUnitFromDatasheetId(extraDatasheet.id, `${detachmentId}:extra`)],
+      extraMessages
+    );
+    assert.ok(
+      messageCodes(extraMessages).includes("detachment.linked_datasheet_not_allowed"),
+      `${detachment.name} should reject non-linked datasheets`
+    );
+  }
 });
 
 test("validateRoster reports roster-level detachment, points, Combat Patrol, native, and excluded datasheet failures", () => {
