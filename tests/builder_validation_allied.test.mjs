@@ -281,6 +281,7 @@ test("all live legacy allied restricting keyword rows have invalid and paired co
 test("all live allied faction keyword limits have valid and invalid coverage", () => {
   state.catalog = realCatalog;
   assert.equal(realCatalog.alliedFactionKeywords.length, 54);
+  assert.equal(realCatalog.alliedFactionKeywords.filter((row) => row.requiredWarlordMiniatureId).length, 0);
 
   for (const [index, row] of realCatalog.alliedFactionKeywords.entries()) {
     const roster = {
@@ -312,6 +313,67 @@ test("all live allied faction keyword limits have valid and invalid coverage", (
       `allied_faction_keyword row ${index} should reject ${row.limitCount + 1} matching units`
     );
   }
+});
+
+test("data-empty allied faction keyword required warlord limits stay covered", () => {
+  assert.equal(realCatalog.alliedFactionKeywords.filter((row) => row.requiredWarlordMiniatureId).length, 0);
+
+  const gatedRow = {
+    id: "warlord-gated-keyword-limit",
+    alliedFactionId: "ally",
+    keywordId: "limited-keyword",
+    limitCount: 1,
+    requiredWarlordMiniatureId: "required-warlord",
+    battleSizeId: "strike",
+  };
+  const catalog = {
+    factionAlliedFactionsByFactionId: new Map([["roster-faction", [{ alliedFactionId: "ally" }]]]),
+    alliedFactionParentsByAlliedFactionId: new Map([["ally", [{ factionKeywordId: "ally-parent" }]]]),
+    alliedFactionById: new Map([["ally", {}]]),
+    alliedFactionDatasheetsByAlliedFactionId: new Map([["ally", [{ datasheetId: "allowed-datasheet" }]]]),
+    alliedFactionPointsLimitsByAlliedFactionId: new Map(),
+    alliedFactionKeywordsByAlliedFactionId: new Map([["ally", [gatedRow]]]),
+    alliedFactionAllowedWarlordsByAlliedFactionId: new Map(),
+    alliedFactionRequiredDetachmentsByAlliedFactionId: new Map(),
+    alliedFactionAllegianceAbilitiesByAlliedFactionId: new Map(),
+    alliedFactionKeywordSlotlessGroupsByKeywordId: new Map(),
+    alliedFactionKeywordSlotlessDonorsByGroupId: new Map(),
+    alliedFactionKeywordSlotlessReceiversByGroupId: new Map(),
+    keywordAllyRestrictingKeywords: [],
+    keywords: [],
+    keywordById: new Map([["limited-keyword", { id: "limited-keyword", name: "Limited Keyword" }]]),
+    miniatureById: new Map([["required-warlord", { id: "required-warlord", name: "Required Warlord" }]]),
+    detachmentById: new Map(),
+    factionById: new Map([["roster-faction", { id: "roster-faction", name: "Roster Faction" }]]),
+    factionKeywordById: new Map([["ally-parent", { id: "ally-parent", name: "Ally Parent" }]]),
+    battleSizeById: new Map([["strike", { id: "strike", name: "Strike Force" }]]),
+    allegianceAbilityById: new Map(),
+    allegianceAbilityGroupById: new Map(),
+  };
+  const roster = { factionKeywordId: "roster-faction", battleSizeId: "strike" };
+  const alliedUnits = (count, warlordIndex = -1) => Array.from({ length: count }, (_, index) => ({
+    id: `ally-unit-${index}`,
+    name: `Ally Unit ${index}`,
+    allyType: "ally",
+    datasheetId: "allowed-datasheet",
+    keywordIds: ["limited-keyword"],
+    points: 0,
+    warlordMiniatureIds: index === warlordIndex ? ["required-warlord"] : [],
+  }));
+
+  withCatalog(catalog, () => {
+    const skippedMessages = [];
+    validateAlliedUnits(roster, [], alliedUnits(2), skippedMessages);
+    assert.ok(!messageCodes(skippedMessages).includes("allied_keyword_count.limit_exceeded"));
+
+    const atLimitMessages = [];
+    validateAlliedUnits(roster, [], alliedUnits(1, 0), atLimitMessages);
+    assert.ok(!messageCodes(atLimitMessages).includes("allied_keyword_count.limit_exceeded"));
+
+    const overLimitMessages = [];
+    validateAlliedUnits(roster, [], alliedUnits(2, 0), overLimitMessages);
+    assert.ok(messageCodes(overLimitMessages).includes("allied_keyword_count.limit_exceeded"));
+  });
 });
 
 test("all live mutually exclusive allied keyword buckets reject mixed active keyword groups", () => {
@@ -703,6 +765,70 @@ test("all live allied allowed warlord rows have missing and selected coverage", 
       `allied_faction_allowed_warlord_miniature row ${index} should accept its configured Warlord miniature`
     );
   }
+});
+
+test("data-empty allied faction top-level required detachment and warlord fields stay covered", () => {
+  assert.equal(realCatalog.alliedFactions.filter((alliedFaction) => alliedFaction.requiredDetachmentId).length, 0);
+  assert.equal(realCatalog.alliedFactions.filter((alliedFaction) => alliedFaction.requiredWarlordMiniatureId).length, 0);
+
+  const catalog = {
+    factionAlliedFactionsByFactionId: new Map([["roster-faction", [{ alliedFactionId: "ally" }]]]),
+    alliedFactionParentsByAlliedFactionId: new Map([["ally", [{ factionKeywordId: "ally-parent" }]]]),
+    alliedFactionById: new Map([[
+      "ally",
+      {
+        id: "ally",
+        requiredDetachmentId: "required-detachment",
+        requiredWarlordMiniatureId: "required-warlord",
+      },
+    ]]),
+    alliedFactionDatasheetsByAlliedFactionId: new Map([["ally", [{ datasheetId: "allowed-datasheet" }]]]),
+    alliedFactionPointsLimitsByAlliedFactionId: new Map(),
+    alliedFactionKeywordsByAlliedFactionId: new Map(),
+    alliedFactionAllowedWarlordsByAlliedFactionId: new Map(),
+    alliedFactionRequiredDetachmentsByAlliedFactionId: new Map(),
+    alliedFactionAllegianceAbilitiesByAlliedFactionId: new Map(),
+    alliedFactionKeywordSlotlessGroupsByKeywordId: new Map(),
+    alliedFactionKeywordSlotlessDonorsByGroupId: new Map(),
+    alliedFactionKeywordSlotlessReceiversByGroupId: new Map(),
+    keywordAllyRestrictingKeywords: [],
+    keywords: [],
+    keywordById: new Map(),
+    miniatureById: new Map([["required-warlord", { id: "required-warlord", name: "Required Warlord" }]]),
+    detachmentById: new Map([["required-detachment", { id: "required-detachment", name: "Required Detachment" }]]),
+    factionById: new Map([["roster-faction", { id: "roster-faction", name: "Roster Faction" }]]),
+    factionKeywordById: new Map([["ally-parent", { id: "ally-parent", name: "Ally Parent" }]]),
+    battleSizeById: new Map(),
+    allegianceAbilityById: new Map(),
+    allegianceAbilityGroupById: new Map(),
+  };
+  const roster = { factionKeywordId: "roster-faction", battleSizeId: "strike" };
+  const unit = {
+    id: "ally-unit",
+    name: "Ally Unit",
+    allyType: "ally",
+    datasheetId: "allowed-datasheet",
+    keywordIds: [],
+    points: 0,
+    warlordMiniatureIds: [],
+  };
+
+  withCatalog(catalog, () => {
+    const missingMessages = [];
+    validateAlliedUnits(roster, [], [unit], missingMessages);
+    assert.ok(messageCodes(missingMessages).includes("allied_unit.required_detachment_not_selected"));
+    assert.ok(messageCodes(missingMessages).includes("allied_units.required_warlord_missing"));
+
+    const selectedMessages = [];
+    validateAlliedUnits(
+      roster,
+      [{ id: "required-detachment", name: "Required Detachment" }],
+      [{ ...unit, warlordMiniatureIds: ["required-warlord"] }],
+      selectedMessages
+    );
+    assert.ok(!messageCodes(selectedMessages).includes("allied_unit.required_detachment_not_selected"));
+    assert.ok(!messageCodes(selectedMessages).includes("allied_units.required_warlord_missing"));
+  });
 });
 
 test("Agents of the Imperium allies enforce allowed warlords and slotless Retinue pairs", () => {

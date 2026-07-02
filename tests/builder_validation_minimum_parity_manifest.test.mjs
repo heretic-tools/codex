@@ -33,6 +33,7 @@ const minimumParityConceptByCode = {
   "enhancement.combat_patrol_multiple_selected": "EnhancementValidator",
   "enhancement.combat_patrol_not_allowed": "EnhancementValidator",
   "enhancement.combat_patrol_required": "EnhancementValidator",
+  "enhancement.allied_unit_not_allowed": "EnhancementValidator",
   "enhancement.epic_hero_not_allowed": "EnhancementValidator",
   "enhancement.model_does_not_have_required_keywords": "EnhancementValidator",
   "enhancement.model_does_not_have_required_wargear": "EnhancementValidator",
@@ -75,6 +76,15 @@ const minimumParityCases = [
       "LOADED_BUILDER_RULE_TABLES.length, 73",
       "static Builder data export audit has no unexpected roster tables",
       "audit.excludedTables.length, 43",
+      "static Builder data manifest lists every exported rule file with matching rows and hashes",
+      "manifest.files.length, 104",
+      "tableEntries.length, Object.keys(tableCounts).length",
+      "entry.sha256",
+      "static Builder rule table column lists stay pinned",
+      "Object.keys(BUILDER_RULE_TABLE_COLUMNS).length, 73",
+      "\"requiresAllUnitsHaveKeywordId\"",
+      "\"isCombatPatrolDefault\"",
+      "\"duplicateLimit\"",
       "battle size export keeps all roster-limit fields in the thin catalog",
       "[\"Strike Force\", 2000, 3, 4, 3]",
     ],
@@ -186,6 +196,19 @@ const minimumParityCases = [
     ],
   },
   {
+    id: "live-allied-faction-enhancement-permission-rows",
+    file: "tests/builder_validation_enhancements.test.mjs",
+    anchors: [
+      "all live allied faction enhancement permissions allow or reject allied enhancement selections",
+      "alliedFactions.length, 21",
+      "canTakeEnhancements).length, 5",
+      "canTakeEnhancements === false).length, 16",
+      "allowedRows, 5",
+      "blockedRows, 16",
+    ],
+    codes: ["enhancement.allied_unit_not_allowed"],
+  },
+  {
     id: "live-enhancement-excluded-keyword-rows",
     file: "tests/builder_validation_enhancements.test.mjs",
     anchors: [
@@ -211,6 +234,31 @@ const minimumParityCases = [
       "groups.length, 19",
       "enhancementBodyguardGroupDatasheets.length, 19",
       "enhancementBodyguardGroupKeywords.length, 0",
+    ],
+    codes: ["enhancement.attached_requirement_missing"],
+  },
+  {
+    id: "live-enhancement-bodyguard-type-rows",
+    file: "tests/builder_validation_enhancements.test.mjs",
+    anchors: [
+      "all live enhancement bodyguard groups require their configured leader or support type",
+      "groups.length, 19",
+      "bodyguardType === \"leader\").length, 19",
+      "bodyguardType === \"support\").length, 0",
+      "leaderRows, 19",
+      "supportRows, 0",
+      "validRows, 19",
+      "wrongTypeRows, 19",
+    ],
+    codes: ["enhancement.attached_requirement_missing"],
+  },
+  {
+    id: "data-empty-enhancement-bodyguard-faction-gates",
+    file: "tests/builder_validation_enhancements.test.mjs",
+    anchors: [
+      "data-empty enhancement bodyguard faction gates stay covered",
+      "enhancementBodyguardGroups.filter((group) => group.factionKeywordId).length, 0",
+      "wrongFaction: true",
     ],
     codes: ["enhancement.attached_requirement_missing"],
   },
@@ -269,6 +317,18 @@ const minimumParityCases = [
     anchors: [
       "all live allied faction keyword limits have valid and invalid coverage",
       "alliedFactionKeywords.length, 54",
+      "requiredWarlordMiniatureId).length, 0",
+    ],
+    codes: ["allied_keyword_count.limit_exceeded"],
+  },
+  {
+    id: "data-empty-allied-keyword-required-warlord-limits",
+    file: "tests/builder_validation_allied.test.mjs",
+    anchors: [
+      "data-empty allied faction keyword required warlord limits stay covered",
+      "requiredWarlordMiniatureId).length, 0",
+      "requiredWarlordMiniatureId: \"required-warlord\"",
+      "warlord-gated-keyword-limit",
     ],
     codes: ["allied_keyword_count.limit_exceeded"],
   },
@@ -346,6 +406,18 @@ const minimumParityCases = [
       "alliedFactionAllowedWarlordMiniatures.length, 28",
     ],
     codes: ["allied_units.required_warlord_missing"],
+  },
+  {
+    id: "data-empty-allied-faction-top-level-requirement-fields",
+    file: "tests/builder_validation_allied.test.mjs",
+    anchors: [
+      "data-empty allied faction top-level required detachment and warlord fields stay covered",
+      "requiredDetachmentId).length, 0",
+      "requiredWarlordMiniatureId).length, 0",
+      "requiredDetachmentId: \"required-detachment\"",
+      "requiredWarlordMiniatureId: \"required-warlord\"",
+    ],
+    codes: ["allied_unit.required_detachment_not_selected", "allied_units.required_warlord_missing"],
   },
   {
     id: "heretic-astartes-titanicus-traitoris-cap",
@@ -576,6 +648,18 @@ const minimumParityCases = [
     anchors: [
       "all live top-level keyword restriction limits have valid and invalid coverage",
       "limitedGroups.length, 15",
+      "requiresWarlordMiniatureId).length, 0",
+    ],
+    codes: ["keyword_restriction_group.limit_zero", "keyword_restriction_group.limit_exceeded"],
+  },
+  {
+    id: "data-empty-warlord-gated-keyword-restriction-groups",
+    file: "tests/builder_validation_factions.test.mjs",
+    anchors: [
+      "data-empty warlord-gated keyword restriction groups stay covered",
+      "requiresWarlordMiniatureId).length, 0",
+      "warlord-gated-keyword-restriction-limit",
+      "warlord-gated-keyword-restriction-zero",
     ],
     codes: ["keyword_restriction_group.limit_zero", "keyword_restriction_group.limit_exceeded"],
   },
@@ -676,6 +760,16 @@ const minimumParityCases = [
       "excludedDetachmentGroups.length, 61",
       "sharedKeywordGroups.length, 305",
       "keywordGroups.length, 6",
+    ],
+    codes: ["attached_unit.missing_requirements"],
+  },
+  {
+    id: "data-empty-datasheet-bodyguard-faction-gates",
+    file: "tests/builder_validation_attachments.test.mjs",
+    anchors: [
+      "data-empty datasheet bodyguard faction gates stay covered",
+      "datasheetBodyguardGroups.filter((group) => group.factionKeywordId).length, 0",
+      "faction-gated-datasheet-bodyguard",
     ],
     codes: ["attached_unit.missing_requirements"],
   },
@@ -872,7 +966,7 @@ const minimumParityCases = [
 ];
 
 test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 68);
+  assert.equal(minimumParityCases.length, 75);
   for (const parityCase of minimumParityCases) {
     const source = await readFile(join(projectRoot, parityCase.file), "utf8");
     for (const anchor of parityCase.anchors) {

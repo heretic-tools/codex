@@ -177,9 +177,46 @@ Related audits:
 - 2026-07-02: Added a static-export inventory guard for the thin Builder
   catalog. It proves all 73 Builder-loaded roster rule tables match the 102-table
   export counts in `bootstrap.tableCounts`, proves the static export audit has
-  no unexpected unexported roster tables, and proves `battle_size` keeps points,
-  detachment-points, enhancement, and duplicate-unit limits in the static
-  bootstrap payload. `npm test` now passes 118 validation tests.
+  no unexpected unexported roster tables, proves the static manifest lists every
+  exported file with matching byte counts, hashes, and table row counts, pins
+  the column lists for those 73 rule tables, and proves `battle_size` keeps
+  points, detachment-points, enhancement, and duplicate-unit limits in the
+  static bootstrap payload. `npm test` now passes 120 validation tests.
+- 2026-07-02: Added live semantic coverage for `enhancement_bodyguard_group`
+  `bodyguardType` across all 19 current rows. Every group is currently a
+  `leader` requirement, and the test proves configured leader attachments pass
+  while opposite `support` attachments fail. `npm test` now passes 121
+  validation tests.
+- 2026-07-02: Added live semantic coverage for `allied_faction`
+  `canTakeEnhancements` through enhancement validation. All 21 current allied
+  buckets now prove that the 5 enhancement-enabled buckets allow allied
+  enhancement selections and the 16 disabled buckets emit
+  `enhancement.allied_unit_not_allowed`. `npm test` now passes 122 validation
+  tests.
+- 2026-07-02: Added synthetic coverage for the currently data-empty top-level
+  `allied_faction.requiredDetachmentId` and
+  `allied_faction.requiredWarlordMiniatureId` fields. The test pins that all 21
+  current allied buckets have no top-level required detachment/Warlord fields,
+  while proving missing and selected states for both validator paths. `npm test`
+  now passes 123 validation tests.
+- 2026-07-02: Added synthetic coverage for the currently data-empty
+  `allied_faction_keyword.requiredWarlordMiniatureId` field. The test pins that
+  all 54 current allied keyword cap rows have no Warlord gate, then proves
+  over-limit rows are ignored without the required Warlord, allowed at cap with
+  that Warlord, and rejected over cap with that Warlord. `npm test` now passes
+  124 validation tests.
+- 2026-07-02: Added synthetic coverage for the currently data-empty
+  `keyword_restriction_group.requiresWarlordMiniatureId` field. The test pins
+  that all 16 current keyword restriction groups have no Warlord gate, then
+  proves both non-zero and zero-limit groups are skipped without the required
+  Warlord and enforced once that Warlord is present. `npm test` now passes 125
+  validation tests.
+- 2026-07-02: Added synthetic coverage for currently data-empty bodyguard
+  faction gates: `datasheet_bodyguard_group.factionKeywordId` and
+  `enhancement_bodyguard_group.factionKeywordId`. The tests pin that both live
+  tables currently have no faction-gated rows, then prove matching roster
+  factions satisfy the attachment/bodyguard requirement while mismatched roster
+  factions reject it. `npm test` now passes 127 validation tests.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,
@@ -317,7 +354,8 @@ Related audits:
   `allied_faction_keyword` row. The tests prove valid-at-cap and
   invalid-over-cap states for all 54 current keyword-limit rows, mixed-keyword
   rejection for all 12 current mutually exclusive battle-size buckets, and
-  slotless donor/receiver reduction for all 12 current slotless groups.
+  slotless donor/receiver reduction for all 12 current slotless groups. The
+  currently empty Warlord-gated keyword cap field path has synthetic coverage.
 - 2026-07-02: Added real-catalog coverage for every live v879
   `allied_faction_required_detachment` row. The test proves missing-detachment
   invalid and selected-detachment valid states for all 29 current rows.
@@ -418,7 +456,9 @@ Related audits:
   Asuryani/Ynnari zero-limit exception.
 - 2026-07-02: Added real-catalog coverage for every live v879 top-level
   `keyword_restriction_group` with a configured limit. The test proves valid and
-  invalid states for all 15 current top-level groups.
+  invalid states for all 15 current top-level groups. The currently empty
+  Warlord-gated restriction field path has synthetic coverage for non-zero and
+  zero-limit groups.
 - 2026-07-02: Added real-catalog coverage for every live v879
   `restriction_group_detachment_limit` row. The test proves min and max valid /
   invalid states for all 7 current detachment-linked keyword restriction rows.

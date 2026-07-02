@@ -294,7 +294,10 @@ function bodyguardFixture(group, options = {}) {
   assert.ok(enhancement, `Expected enhancement ${group.enhancementId}`);
   const datasheetRow = realCatalog.enhancementBodyguardGroupDatasheetsByGroupId.get(group.id)?.[0];
   assert.ok(datasheetRow, `Expected bodyguard datasheet row for ${group.id}`);
-  const factionKeywordId = group.factionKeywordId || factionNamed("Adeptus Astartes").id;
+  const requiredFactionKeywordId = group.factionKeywordId || factionNamed("Adeptus Astartes").id;
+  const factionKeywordId = options.wrongFaction
+    ? outsideFactionId([requiredFactionKeywordId])
+    : requiredFactionKeywordId;
   const leaderFixture = enhancementFixture(enhancement, {
     id: `${group.id}:leader`,
     factionKeywordId,
@@ -319,7 +322,7 @@ function bodyguardFixture(group, options = {}) {
   const attachments = options.attached ? [{
     id: `${group.id}:attachment`,
     members: [
-      { rosterUnitId: leaderFixture.unit.id, attachmentType: group.bodyguardType },
+      { rosterUnitId: leaderFixture.unit.id, attachmentType: options.attachmentType || group.bodyguardType },
       { rosterUnitId: bodyguard.id, attachmentType: "bodyguard" },
     ],
   }] : [];
@@ -377,8 +380,8 @@ function enhancementFlagUnit(enhancement, index = 0, options = {}) {
     id: `${enhancement.id}:${targetKind}:${index}:unit`,
     name: `${enhancement.name} flag fixture ${index}`,
     datasheetId: datasheetNamed("Captain").id,
-    allyType: "native",
-    factionKeywordIds: [factionNamed("Adeptus Astartes").id],
+    allyType: options.allyType || "native",
+    factionKeywordIds: options.factionKeywordIds || [factionNamed("Adeptus Astartes").id],
     keywordIds: targetKind === "unit" ? keywordIds : [],
     conditionalKeywordIds: targetKind === "miniature" ? keywordIds : [],
     keywordNames: [],
@@ -668,6 +671,46 @@ test("all live enhancement core flag rows have target, eligibility, limit, and r
   assert.equal(rosterExcludedRows, 9);
 });
 
+test("all live allied faction enhancement permissions allow or reject allied enhancement selections", () => {
+  state.catalog = realCatalog;
+  const alliedFactions = realCatalog.alliedFactions;
+  const unitEnhancement = realCatalog.enhancements.find((enhancement) => enhancement.enhancementType !== "miniature");
+  let allowedRows = 0;
+  let blockedRows = 0;
+
+  assert.ok(unitEnhancement, "Expected a unit-level enhancement control");
+  assert.equal(alliedFactions.length, 21);
+  assert.equal(alliedFactions.filter((alliedFaction) => alliedFaction.canTakeEnhancements).length, 5);
+  assert.equal(alliedFactions.filter((alliedFaction) => alliedFaction.canTakeEnhancements === false).length, 16);
+
+  for (const [index, alliedFaction] of alliedFactions.entries()) {
+    const codes = validateEnhancementFlagRows(
+      [unitEnhancement],
+      [enhancementFlagUnit(unitEnhancement, index, {
+        allyType: alliedFaction.id,
+        keywordNames: ["Character"],
+      })]
+    );
+
+    if (alliedFaction.canTakeEnhancements) {
+      assert.ok(
+        !codes.includes("enhancement.allied_unit_not_allowed"),
+        `${alliedFaction.id} should allow allied enhancement selections`
+      );
+      allowedRows += 1;
+    } else {
+      assert.ok(
+        codes.includes("enhancement.allied_unit_not_allowed"),
+        `${alliedFaction.id} should reject allied enhancement selections`
+      );
+      blockedRows += 1;
+    }
+  }
+
+  assert.equal(allowedRows, 5);
+  assert.equal(blockedRows, 16);
+});
+
 test("all live enhancement excluded keyword rows reject and accept target keywords", () => {
   state.catalog = realCatalog;
   const rows = realCatalog.enhancementExcludedKeywords;
@@ -737,6 +780,70 @@ test("all live enhancement bodyguard groups have missing, wrong, and attached co
       `Expected enhancement bodyguard group ${group.id} to accept configured bodyguard`
     );
   }
+});
+
+test("all live enhancement bodyguard groups require their configured leader or support type", () => {
+  state.catalog = realCatalog;
+  const groups = realCatalog.enhancementBodyguardGroups;
+  let leaderRows = 0;
+  let supportRows = 0;
+  let validRows = 0;
+  let wrongTypeRows = 0;
+
+  assert.equal(groups.length, 19);
+  assert.equal(groups.filter((group) => group.bodyguardType === "leader").length, 19);
+  assert.equal(groups.filter((group) => group.bodyguardType === "support").length, 0);
+
+  for (const group of groups) {
+    if (group.bodyguardType === "leader") {
+      leaderRows += 1;
+    } else if (group.bodyguardType === "support") {
+      supportRows += 1;
+    } else {
+      assert.fail(`Unexpected enhancement bodyguard type ${group.bodyguardType} for ${group.id}`);
+    }
+
+    const validCodes = validateEnhancementBodyguardGroup(group, {
+      attached: true,
+      attachmentType: group.bodyguardType,
+    });
+    assert.ok(
+      !validCodes.includes("enhancement.attached_requirement_missing"),
+      `Expected enhancement bodyguard group ${group.id} to accept ${group.bodyguardType}`
+    );
+    validRows += 1;
+
+    const wrongType = group.bodyguardType === "leader" ? "support" : "leader";
+    const wrongCodes = validateEnhancementBodyguardGroup(group, {
+      attached: true,
+      attachmentType: wrongType,
+    });
+    assert.ok(
+      wrongCodes.includes("enhancement.attached_requirement_missing"),
+      `Expected enhancement bodyguard group ${group.id} to reject ${wrongType}`
+    );
+    wrongTypeRows += 1;
+  }
+
+  assert.equal(leaderRows, 19);
+  assert.equal(supportRows, 0);
+  assert.equal(validRows, 19);
+  assert.equal(wrongTypeRows, 19);
+});
+
+test("data-empty enhancement bodyguard faction gates stay covered", () => {
+  assert.equal(realCatalog.enhancementBodyguardGroups.filter((group) => group.factionKeywordId).length, 0);
+
+  const group = {
+    ...realCatalog.enhancementBodyguardGroups[0],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+  };
+
+  const validCodes = validateEnhancementBodyguardGroup(group, { attached: true });
+  assert.ok(!validCodes.includes("enhancement.attached_requirement_missing"));
+
+  const blockedCodes = validateEnhancementBodyguardGroup(group, { attached: true, wrongFaction: true });
+  assert.ok(blockedCodes.includes("enhancement.attached_requirement_missing"));
 });
 
 test("all live enhancement required keyword groups have valid and missing requirement coverage", () => {

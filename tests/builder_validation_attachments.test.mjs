@@ -341,6 +341,26 @@ test("all live datasheet bodyguard detachment and shared-keyword conditions reje
   }
 });
 
+test("data-empty datasheet bodyguard faction gates stay covered", () => {
+  assert.equal(realCatalog.datasheetBodyguardGroups.filter((group) => group.factionKeywordId).length, 0);
+
+  const group = {
+    id: "faction-gated-datasheet-bodyguard",
+    datasheetId: "leader-datasheet",
+    bodyguardType: "leader",
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    excludedDetachmentId: "",
+    requiredDetachmentId: "",
+    requiresAllUnitsHaveKeywordId: "",
+  };
+
+  const validCodes = validateDatasheetBodyguardGroup(group);
+  assert.ok(!validCodes.includes("attached_unit.missing_requirements"));
+
+  const blockedCodes = validateDatasheetBodyguardGroup(group, { wrongFaction: true });
+  assert.ok(blockedCodes.includes("attached_unit.missing_requirements"));
+});
+
 test("attachment groups validate incomplete, duplicate, and invalid pairings", () => {
   const catalog = {
     datasheetBodyguardGroupsByDatasheetId: new Map([

@@ -216,6 +216,7 @@ test("all live top-level keyword restriction limits have valid and invalid cover
   const limitedGroups = realCatalog.keywordRestrictionGroups
     .filter((group) => group.limit != null);
   assert.equal(limitedGroups.length, 15);
+  assert.equal(realCatalog.keywordRestrictionGroups.filter((group) => group.requiresWarlordMiniatureId).length, 0);
 
   for (const group of limitedGroups) {
     const keywordIds = (realCatalog.keywordRestrictionGroupKeywordsByGroupId.get(group.id) || [])
@@ -275,6 +276,76 @@ test("all live top-level keyword restriction limits have valid and invalid cover
       : "keyword_restriction_group.limit_exceeded";
     assert.ok(messageCodes(invalidMessages).includes(expectedCode), `${group.id} should emit ${expectedCode}`);
   }
+});
+
+test("data-empty warlord-gated keyword restriction groups stay covered", () => {
+  assert.equal(realCatalog.keywordRestrictionGroups.filter((group) => group.requiresWarlordMiniatureId).length, 0);
+
+  const limitGroup = {
+    id: "warlord-gated-keyword-restriction-limit",
+    factionKeywordId: "roster-faction",
+    limit: 1,
+    excludedFactionKeywordId: "",
+    requiresWarlordMiniatureId: "required-warlord",
+  };
+  const zeroGroup = {
+    id: "warlord-gated-keyword-restriction-zero",
+    factionKeywordId: "roster-faction",
+    limit: 0,
+    excludedFactionKeywordId: "",
+    requiresWarlordMiniatureId: "required-warlord",
+  };
+  const catalog = {
+    factionKeywordById: new Map([
+      ["roster-faction", { id: "roster-faction", name: "Roster Faction", parentFactionKeywordId: "" }],
+    ]),
+    keywordById: new Map([
+      ["limited-keyword", { id: "limited-keyword", name: "Limited Keyword" }],
+      ["zero-keyword", { id: "zero-keyword", name: "Zero Keyword" }],
+    ]),
+    keywordRestrictionGroupsByFactionId: new Map([
+      ["roster-faction", [limitGroup, zeroGroup]],
+    ]),
+    keywordRestrictionGroups: [limitGroup, zeroGroup],
+    keywordRestrictionGroupKeywordsByGroupId: new Map([
+      [limitGroup.id, [{ keywordId: "limited-keyword" }]],
+      [zeroGroup.id, [{ keywordId: "zero-keyword" }]],
+    ]),
+    restrictionGroupDetachmentLimitsByDetachmentId: new Map(),
+  };
+  const roster = { factionKeywordId: "roster-faction" };
+  const limitedUnit = (index, warlordMiniatureIds = []) => ({
+    id: `limited-unit-${index}`,
+    name: `Limited Unit ${index}`,
+    keywordIds: ["limited-keyword"],
+    factionKeywordIds: ["roster-faction"],
+    warlordMiniatureIds,
+  });
+  const zeroUnit = (warlordMiniatureIds = []) => ({
+    id: "zero-unit",
+    name: "Zero Unit",
+    keywordIds: ["zero-keyword"],
+    factionKeywordIds: ["roster-faction"],
+    warlordMiniatureIds,
+  });
+  const validateUnits = (units) => {
+    const messages = [];
+    validateKeywordRestrictions(roster, [], units, messages);
+    return messageCodes(messages);
+  };
+
+  withCatalog(catalog, () => {
+    assert.deepEqual(validateUnits([limitedUnit(1), limitedUnit(2), zeroUnit()]), []);
+    assert.deepEqual(validateUnits([limitedUnit(1, ["required-warlord"])]), []);
+
+    const invalidCodes = validateUnits([
+      limitedUnit(1, ["required-warlord"]),
+      limitedUnit(2),
+      zeroUnit(),
+    ]);
+    assert.ok(invalidCodes.includes("keyword_restriction_group.limit_exceeded"));
+    assert.ok(invalidCodes.includes("keyword_restriction_group.limit_zero"));
+  });
 });
 
 test("detachment keyword restrictions enforce minimum and maximum roster limits", () => {
