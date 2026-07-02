@@ -73,6 +73,27 @@ const minimumParityCases = [
     codes: [],
   },
   {
+    id: "live-allegiance-rule-table-inventory",
+    file: "tests/builder_validation_allegiance.test.mjs",
+    anchors: [
+      "all live allegiance rule tables stay pinned to explicit coverage counts",
+      "allegianceAbilityGroups.length, 10",
+      "allegianceAbilities.length, 26",
+      "factionKeywordMandatoryAllegianceAbilities.length, 0",
+      "alliedFactionAllegianceAbilities.length, 0",
+    ],
+    codes: [],
+  },
+  {
+    id: "live-allegiance-ability-rows",
+    file: "tests/builder_validation_allegiance.test.mjs",
+    anchors: [
+      "all live allegiance ability rows are accepted by their configured group",
+      "allegianceAbilities.length, 26",
+    ],
+    codes: [],
+  },
+  {
     id: "heretic-astartes-daemon-allies-points",
     file: "tests/builder_validation_allied.test.mjs",
     anchors: [
@@ -351,9 +372,36 @@ const minimumParityCases = [
     ],
   },
   {
+    id: "live-mandatory-allegiance-groups",
+    file: "tests/builder_validation_allegiance.test.mjs",
+    anchors: [
+      "all live mandatory allegiance groups require one selection and reject multiples",
+      "mandatoryGroups.length, 5",
+    ],
+    codes: ["allegiance_ability.not_selected", "allegiance_ability.multiple_selected"],
+  },
+  {
+    id: "live-detachment-scoped-allegiance-groups",
+    file: "tests/builder_validation_allegiance.test.mjs",
+    anchors: [
+      "all live detachment-scoped allegiance groups require their detachment",
+      "detachmentGroups.length, 7",
+    ],
+    codes: ["allegiance_ability.required_detachment_missing"],
+  },
+  {
     id: "allegiance-daemonic-required-wargear",
     file: "tests/builder_validation_allegiance.test.mjs",
     anchors: ["Daemonic Allegiance abilities enforce required wargear"],
+    codes: ["allegiance_ability.missing_wargear_item"],
+  },
+  {
+    id: "live-required-wargear-allegiance-abilities",
+    file: "tests/builder_validation_allegiance.test.mjs",
+    anchors: [
+      "all live allegiance abilities with required wargear require and accept that wargear",
+      "abilities.length, 4",
+    ],
     codes: ["allegiance_ability.missing_wargear_item"],
   },
   {
@@ -363,6 +411,16 @@ const minimumParityCases = [
       "detachment allegiance keyword groups enforce roster min and max limits",
       "Houndpack Lance Keyword",
       "Headhunter Task Force Keywords",
+    ],
+    codes: ["allegiance_ability.group_limit_not_reached", "allegiance_ability.group_limit_exceeded"],
+  },
+  {
+    id: "live-allegiance-roster-min-max-groups",
+    file: "tests/builder_validation_allegiance.test.mjs",
+    anchors: [
+      "all live allegiance roster min and max groups have valid and invalid coverage",
+      "minGroups.length, 1",
+      "maxGroups.length, 4",
     ],
     codes: ["allegiance_ability.group_limit_not_reached", "allegiance_ability.group_limit_exceeded"],
   },
@@ -378,7 +436,7 @@ const minimumParityCases = [
 ];
 
 test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 35);
+  assert.equal(minimumParityCases.length, 41);
   for (const parityCase of minimumParityCases) {
     const source = await readFile(join(projectRoot, parityCase.file), "utf8");
     for (const anchor of parityCase.anchors) {

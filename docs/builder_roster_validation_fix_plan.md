@@ -31,6 +31,12 @@ Related audits:
 - 2026-07-01: Added golden tests for allegiance ability mandatory selection,
   single-choice enforcement, required detachment scope, required wargear, and
   roster min/max keyword groups.
+- 2026-07-02: Added live allegiance rule coverage for every current v879
+  allegiance row shape: 10 groups, 26 abilities, 5 mandatory groups, 7
+  detachment-scoped groups, 4 required-wargear abilities, 1 min-limit group,
+  and 4 max-limit groups. The inventory also pins the currently empty
+  `faction_keyword_mandatory_allegiance_ability` and
+  `allied_faction_allegiance_ability` tables.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,
@@ -248,7 +254,7 @@ Related audits:
 - 2026-07-02: Reworked limited wargear choice coverage from independent
   occurrence summing to bounded exact-cover matching. Overlapping combo rows
   such as Battle Sisters Squad `Heavy bolter + Ministorum flamer` no longer
-  self-overcount against `choiceLimit`. `npm test` now passes 83 validation
+  self-overcount against `choiceLimit`. `npm test` now passes 89 validation
   tests.
 - 2026-07-02: Added live wargear coverage for additional v879 loadout shapes:
   alternate loadout rows replacing regular sets, duplicate-allowed loadout

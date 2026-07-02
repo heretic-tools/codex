@@ -53,6 +53,75 @@ import {
   datasheetIdForEnhancementBodyguard
 } from "./builder_validation_helpers.mjs";
 
+function firstAbilityForGroup(groupId) {
+  const ability = (realCatalog.allegianceAbilitiesByGroupId.get(groupId) || [])[0];
+  assert.ok(ability, `Expected allegiance ability for group ${groupId}`);
+  return {
+    ...ability,
+    groupId: ability.allegianceAbilityGroupId,
+    groupName: realCatalog.allegianceAbilityGroupById.get(ability.allegianceAbilityGroupId)?.name,
+  };
+}
+
+function optionIdForWargearItem(wargearItemId) {
+  const option = realCatalog.wargearOptions.find((row) => row.wargearItemId === wargearItemId);
+  assert.ok(option, `Expected wargear option for item ${wargearItemId}`);
+  return option.id;
+}
+
+function detachmentForGroup(group) {
+  return group.detachmentId ? [realCatalog.detachmentById.get(group.detachmentId)] : [];
+}
+
+test("all live allegiance rule tables stay pinned to explicit coverage counts", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.allegianceAbilityGroups.length, 10);
+  assert.equal(realCatalog.allegianceAbilities.length, 26);
+  assert.equal(realCatalog.factionKeywordMandatoryAllegianceAbilities.length, 0);
+  assert.equal(realCatalog.alliedFactionAllegianceAbilities.length, 0);
+  assert.equal(realCatalog.allegianceAbilityGroups.filter((group) => group.isMandatory).length, 5);
+  assert.equal(realCatalog.allegianceAbilityGroups.filter((group) => group.detachmentId).length, 7);
+  assert.equal(realCatalog.allegianceAbilityGroups.filter((group) => group.minRosterLimit != null).length, 1);
+  assert.equal(realCatalog.allegianceAbilityGroups.filter((group) => group.maxRosterLimit != null).length, 4);
+  assert.equal(realCatalog.allegianceAbilities.filter((ability) => ability.requiresWargearItemId).length, 4);
+});
+
+test("all live allegiance ability rows are accepted by their configured group", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.allegianceAbilities.length, 26);
+
+  for (const [index, ability] of realCatalog.allegianceAbilities.entries()) {
+    const group = realCatalog.allegianceAbilityGroupById.get(ability.allegianceAbilityGroupId);
+    assert.ok(group, `Expected group ${ability.allegianceAbilityGroupId}`);
+    const unit = allegianceUnit({
+      id: `allegiance-ability-${index}`,
+      group,
+      abilities: [{
+        ...ability,
+        groupId: ability.allegianceAbilityGroupId,
+        groupName: group.name,
+      }],
+    });
+    if (ability.requiresWargearItemId) {
+      unit.wargear[optionIdForWargearItem(ability.requiresWargearItemId)] = 1;
+    }
+
+    const messages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Heretic Astartes").id },
+      detachmentForGroup(group),
+      [unit],
+      messages
+    );
+    const codes = messageCodes(messages);
+    assert.ok(!codes.includes("allegiance_ability.not_allowed"), `${ability.name} should be allowed in ${group.name}`);
+    assert.ok(!codes.includes("allegiance_ability.required_detachment_missing"), `${ability.name} should have its detachment selected`);
+    assert.ok(!codes.includes("allegiance_ability.missing_wargear_item"), `${ability.name} should have required wargear selected when needed`);
+    assert.ok(!codes.includes("allegiance_ability.not_selected"), `${ability.name} should satisfy mandatory group selection`);
+    assert.ok(!codes.includes("allegiance_ability.multiple_selected"), `${ability.name} should be a single group selection`);
+  }
+});
+
 test("Pactbound Zealots Mark of Chaos enforces mandatory single selection and detachment scope", () => {
   state.catalog = realCatalog;
   const roster = {
@@ -91,6 +160,99 @@ test("Pactbound Zealots Mark of Chaos enforces mandatory single selection and de
   assert.ok(messageCodes(detachmentMessages).includes("allegiance_ability.required_detachment_missing"));
 });
 
+test("all live mandatory allegiance groups require one selection and reject multiples", () => {
+  state.catalog = realCatalog;
+  const mandatoryGroups = realCatalog.allegianceAbilityGroups.filter((group) => group.isMandatory);
+  assert.equal(mandatoryGroups.length, 5);
+
+  for (const [index, group] of mandatoryGroups.entries()) {
+    const abilities = realCatalog.allegianceAbilitiesByGroupId.get(group.id) || [];
+    assert.ok(abilities.length >= 2, `Expected at least two abilities for mandatory group ${group.name}`);
+
+    const missingMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Heretic Astartes").id },
+      detachmentForGroup(group),
+      [allegianceUnit({ id: `mandatory-${index}-missing`, group })],
+      missingMessages
+    );
+    assert.ok(
+      messageCodes(missingMessages).includes("allegiance_ability.not_selected"),
+      `${group.name} should require a selection`
+    );
+
+    const singleMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Heretic Astartes").id },
+      detachmentForGroup(group),
+      [allegianceUnit({ id: `mandatory-${index}-single`, group, abilities: [firstAbilityForGroup(group.id)] })],
+      singleMessages
+    );
+    assert.ok(
+      !messageCodes(singleMessages).includes("allegiance_ability.not_selected"),
+      `${group.name} should be satisfied by one selection`
+    );
+
+    const multipleMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Heretic Astartes").id },
+      detachmentForGroup(group),
+      [allegianceUnit({
+        id: `mandatory-${index}-multiple`,
+        group,
+        abilities: abilities.slice(0, 2).map((ability) => ({
+          ...ability,
+          groupId: ability.allegianceAbilityGroupId,
+          groupName: group.name,
+        })),
+      })],
+      multipleMessages
+    );
+    assert.ok(
+      messageCodes(multipleMessages).includes("allegiance_ability.multiple_selected"),
+      `${group.name} should reject multiple selections`
+    );
+  }
+});
+
+test("all live detachment-scoped allegiance groups require their detachment", () => {
+  state.catalog = realCatalog;
+  const detachmentGroups = realCatalog.allegianceAbilityGroups.filter((group) => group.detachmentId);
+  assert.equal(detachmentGroups.length, 7);
+
+  for (const [index, group] of detachmentGroups.entries()) {
+    const selected = allegianceUnit({
+      id: `detachment-group-${index}`,
+      group,
+      abilities: [firstAbilityForGroup(group.id)],
+    });
+
+    const missingMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Heretic Astartes").id },
+      [],
+      [selected],
+      missingMessages
+    );
+    assert.ok(
+      messageCodes(missingMessages).includes("allegiance_ability.required_detachment_missing"),
+      `${group.name} should require ${realCatalog.detachmentById.get(group.detachmentId)?.name}`
+    );
+
+    const selectedMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Heretic Astartes").id },
+      detachmentForGroup(group),
+      [selected],
+      selectedMessages
+    );
+    assert.ok(
+      !messageCodes(selectedMessages).includes("allegiance_ability.required_detachment_missing"),
+      `${group.name} should pass when its detachment is selected`
+    );
+  }
+});
+
 test("Daemonic Allegiance abilities enforce required wargear", () => {
   state.catalog = realCatalog;
   const roster = {
@@ -107,6 +269,47 @@ test("Daemonic Allegiance abilities enforce required wargear", () => {
     messages
   );
   assert.ok(messageCodes(messages).includes("allegiance_ability.missing_wargear_item"));
+});
+
+test("all live allegiance abilities with required wargear require and accept that wargear", () => {
+  state.catalog = realCatalog;
+  const abilities = realCatalog.allegianceAbilities.filter((ability) => ability.requiresWargearItemId);
+  assert.equal(abilities.length, 4);
+
+  for (const [index, ability] of abilities.entries()) {
+    const group = realCatalog.allegianceAbilityGroupById.get(ability.allegianceAbilityGroupId);
+    const selected = {
+      ...ability,
+      groupId: ability.allegianceAbilityGroupId,
+      groupName: group.name,
+    };
+
+    const missingMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Legiones Daemonica").id },
+      [],
+      [allegianceUnit({ id: `required-wargear-${index}-missing`, group, abilities: [selected] })],
+      missingMessages
+    );
+    assert.ok(
+      messageCodes(missingMessages).includes("allegiance_ability.missing_wargear_item"),
+      `${ability.name} should require ${realCatalog.wargearItemById.get(ability.requiresWargearItemId)?.name}`
+    );
+
+    const equippedUnit = allegianceUnit({ id: `required-wargear-${index}-selected`, group, abilities: [selected] });
+    equippedUnit.wargear[optionIdForWargearItem(ability.requiresWargearItemId)] = 1;
+    const equippedMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Legiones Daemonica").id },
+      [],
+      [equippedUnit],
+      equippedMessages
+    );
+    assert.ok(
+      !messageCodes(equippedMessages).includes("allegiance_ability.missing_wargear_item"),
+      `${ability.name} should pass once the required wargear is selected`
+    );
+  }
 });
 
 test("allegiance abilities reject wrong groups and mandatory faction choices", () => {
@@ -179,6 +382,76 @@ test("allegiance abilities reject wrong groups and mandatory faction choices", (
     );
     assert.ok(!messageCodes(selectedMandatoryMessages).includes("allegiance_ability.mandatory_not_selected"));
   });
+});
+
+test("all live allegiance roster min and max groups have valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  const minGroups = realCatalog.allegianceAbilityGroups.filter((group) => group.minRosterLimit != null);
+  const maxGroups = realCatalog.allegianceAbilityGroups.filter((group) => group.maxRosterLimit != null);
+  assert.equal(minGroups.length, 1);
+  assert.equal(maxGroups.length, 4);
+
+  for (const [index, group] of minGroups.entries()) {
+    const ability = firstAbilityForGroup(group.id);
+    const belowMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Space Wolves").id },
+      detachmentForGroup(group),
+      Array.from({ length: Math.max(0, group.minRosterLimit - 1) }, (_, unitIndex) => (
+        allegianceUnit({ id: `min-${index}-below-${unitIndex}`, group, abilities: [ability] })
+      )),
+      belowMessages
+    );
+    assert.ok(
+      messageCodes(belowMessages).includes("allegiance_ability.group_limit_not_reached"),
+      `${group.name} should require at least ${group.minRosterLimit} selections`
+    );
+
+    const atMinMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Space Wolves").id },
+      detachmentForGroup(group),
+      Array.from({ length: group.minRosterLimit }, (_, unitIndex) => (
+        allegianceUnit({ id: `min-${index}-valid-${unitIndex}`, group, abilities: [ability] })
+      )),
+      atMinMessages
+    );
+    assert.ok(
+      !messageCodes(atMinMessages).includes("allegiance_ability.group_limit_not_reached"),
+      `${group.name} should pass at its minimum roster limit`
+    );
+  }
+
+  for (const [index, group] of maxGroups.entries()) {
+    const ability = firstAbilityForGroup(group.id);
+    const atMaxMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Space Wolves").id },
+      detachmentForGroup(group),
+      Array.from({ length: group.maxRosterLimit }, (_, unitIndex) => (
+        allegianceUnit({ id: `max-${index}-valid-${unitIndex}`, group, abilities: [ability] })
+      )),
+      atMaxMessages
+    );
+    assert.ok(
+      !messageCodes(atMaxMessages).includes("allegiance_ability.group_limit_exceeded"),
+      `${group.name} should pass at its maximum roster limit`
+    );
+
+    const overMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: factionNamed("Space Wolves").id },
+      detachmentForGroup(group),
+      Array.from({ length: group.maxRosterLimit + 1 }, (_, unitIndex) => (
+        allegianceUnit({ id: `max-${index}-over-${unitIndex}`, group, abilities: [ability] })
+      )),
+      overMessages
+    );
+    assert.ok(
+      messageCodes(overMessages).includes("allegiance_ability.group_limit_exceeded"),
+      `${group.name} should fail above its maximum roster limit`
+    );
+  }
 });
 
 test("detachment allegiance keyword groups enforce roster min and max limits", () => {

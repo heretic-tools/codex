@@ -99,6 +99,11 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   mandatory faction allegiance abilities inherit through `factionScope` and
   allied required allegiance abilities emit only when the required ability is
   absent.
+- Live allegiance coverage now walks all current v879 allegiance row shapes:
+  all 10 groups, all 26 abilities, all 5 mandatory groups, all 7
+  detachment-scoped groups, all 4 required-wargear abilities, the 1 min-limit
+  group, and all 4 max-limit groups. The currently empty mandatory-faction and
+  allied-required allegiance tables are pinned by inventory coverage.
 - The data-empty `detachment_required_datasheet` path has synthetic coverage for
   both missing required units and rosters that include the required datasheet.
 - A catalog inventory test guards all currently data-empty rule tables. If a
@@ -209,12 +214,14 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `InvalidWargearRequirement` for limited/all-model requirement failures.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 83 validation tests.
+  once; `npm test` passes 89 validation tests.
 - The minimum parity manifest now anchors required subcases, including Heretic
   Astartes daemon allies under/over the points cap, all 4 live legacy
   Battleline outnumbering rows, the allied rule-table inventory guard, and all
-  380 live conditional keyword requirement rows. It also carries the
-  Aeldari/Drukhari keyword restriction subcases as explicit anchors.
+  380 live conditional keyword requirement rows. It also carries live
+  allegiance inventory, mandatory, detachment, required-wargear, min/max, and
+  ability-row coverage plus the Aeldari/Drukhari keyword restriction subcases
+  as explicit anchors.
 - Live keyword restriction coverage now walks every v879 top-level
   `keyword_restriction_group` with a configured limit and proves valid plus
   invalid states for all 15 current groups.
@@ -327,13 +334,13 @@ Status values:
 
 | Official validator/error | Builder location | Status | Notes |
 | --- | --- | --- | --- |
-| `AllegianceAbilityGroupRosterLimitValidator` | `builder_allegiance_rules.js:46-60` | Covered | Checks min/max group counts. v879 has groups with limits. |
-| `MinRosterLimitForAllegianceAbilityGroup` | `builder_allegiance_rules.js:54-56` | Covered | Example: Houndpack Lance Keyword min 3. |
-| `ExceededRosterLimitForAllegianceAbilityGroup` | `builder_allegiance_rules.js:57-59` | Covered | Example: Headhunter Task Force Keywords max 3. |
-| `AllegianceAbilityValidator` | `builder_allegiance_rules.js:7-45`, `builder_model.js:143-149` | Covered | Per-unit group, mandatory group, wrong group, required detachment, required wargear. Selected ability IDs and object rows are normalized through the same current-shape path. |
-| `MissingRequiredWargearItem` | `builder_allegiance_rules.js:39-43` | Covered | v879 has 4 allegiance abilities with `requiresWargearItemId`. |
-| `MissingAllegianceAbility` | `builder_allegiance_rules.js:33-35` | Covered | v879 has 5 mandatory allegiance groups. |
-| `TooManyAllegianceAbilities` | `builder_allegiance_rules.js:36-38` | Covered | Blocks more than one selected ability in a unit group. |
+| `AllegianceAbilityGroupRosterLimitValidator` | `builder_allegiance_rules.js:46-60` | Covered | Checks min/max group counts; the 1 current min-limit group and all 4 current max-limit groups have valid and invalid coverage. |
+| `MinRosterLimitForAllegianceAbilityGroup` | `builder_allegiance_rules.js:54-56` | Covered | All current min-limit rows are covered. |
+| `ExceededRosterLimitForAllegianceAbilityGroup` | `builder_allegiance_rules.js:57-59` | Covered | All current max-limit rows are covered. |
+| `AllegianceAbilityValidator` | `builder_allegiance_rules.js:7-45`, `builder_model.js:143-149` | Covered | Per-unit group, mandatory group, wrong group, required detachment, required wargear. All 26 current abilities are accepted by their configured group; selected ability IDs and object rows are normalized through the same current-shape path. |
+| `MissingRequiredWargearItem` | `builder_allegiance_rules.js:39-43` | Covered | All 4 current abilities with `requiresWargearItemId` have missing and equipped coverage. |
+| `MissingAllegianceAbility` | `builder_allegiance_rules.js:33-35` | Covered | All 5 current mandatory allegiance groups have missing and selected coverage. |
+| `TooManyAllegianceAbilities` | `builder_allegiance_rules.js:36-38` | Covered | All 5 current mandatory groups reject multiple selected abilities. |
 | `MissingMandatoryAllegianceAbility` | `builder_allegiance_rules.js:63-84` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage proves parent-faction rows are inherited through `factionScope` and that selecting the mandatory ability satisfies the rule. |
 | `ConditionalKeywordPredicate` | `builder_model.js:193-215` | Covered | All 380 current `conditional_keyword` rows have satisfied and missing-requirement coverage, including allegiance ability, roster faction, detachment, and Warlord-miniature requirements. |
 | `AlliedFactionValidator` | `builder_allied_rules.js:141-145` | Covered | Uses `faction_keyword_allied_faction`; all 87 current rows have available coverage plus unavailable controls. |
