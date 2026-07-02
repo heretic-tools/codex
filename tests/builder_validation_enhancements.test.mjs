@@ -62,6 +62,286 @@ function countBy(rows, key) {
   return counts;
 }
 
+function outsideFactionId(requiredFactionIds) {
+  const required = new Set(requiredFactionIds);
+  const faction = realCatalog.factionKeywords.find((row) => !factionScope(row.id).some((id) => required.has(id)));
+  assert.ok(faction, `Expected a faction outside ${[...required].join(", ")}`);
+  return faction.id;
+}
+
+function outsideDatasheetId(datasheetId) {
+  const datasheet = realCatalog.datasheets.find((row) => row.id !== datasheetId);
+  assert.ok(datasheet, `Expected a datasheet outside ${datasheetId}`);
+  return datasheet.id;
+}
+
+function catalogWithOnlyEnhancementRequiredGroup(group) {
+  const keywordRows = realCatalog.enhancementRequiredKeywordGroupKeywordsByGroupId.get(group.id) || [];
+  const factionRows = realCatalog.enhancementRequiredKeywordGroupFactionsByGroupId.get(group.id) || [];
+  return {
+    ...realCatalog,
+    enhancementRequiredKeywordGroupsByEnhancementId: new Map([[group.enhancementId, [group]]]),
+    enhancementRequiredKeywordGroupKeywordsByGroupId: keywordRows.length ? new Map([[group.id, keywordRows]]) : new Map(),
+    enhancementRequiredKeywordGroupFactionsByGroupId: factionRows.length ? new Map([[group.id, factionRows]]) : new Map(),
+    enhancementExcludedKeywordsByEnhancementId: new Map(),
+    enhancementRequiredWargearItemsByEnhancementId: new Map(),
+    enhancementBodyguardGroupsByEnhancementId: new Map(),
+    enhancementBodyguardGroupDatasheetsByGroupId: new Map(),
+    enhancementBodyguardGroupKeywordsByGroupId: new Map(),
+  };
+}
+
+function enhancementRequiredGroupFixture(group, options = {}) {
+  const enhancement = realCatalog.enhancementById.get(group.enhancementId);
+  assert.ok(enhancement, `Expected enhancement ${group.enhancementId}`);
+  const detachment = realCatalog.detachmentById.get(enhancement.detachmentId);
+  assert.ok(detachment, `Expected detachment ${enhancement.detachmentId}`);
+  const keywordRows = realCatalog.enhancementRequiredKeywordGroupKeywordsByGroupId.get(group.id) || [];
+  const factionRows = realCatalog.enhancementRequiredKeywordGroupFactionsByGroupId.get(group.id) || [];
+  const requiredKeywordIds = keywordRows
+    .map((row) => row.keywordId)
+    .filter((id) => id !== options.missingKeywordId);
+  const characterKeywordId = keywordNamed("Character").id;
+  const targetKeywordIds = new Set(requiredKeywordIds);
+  if (options.missingKeywordId !== characterKeywordId) {
+    targetKeywordIds.add(characterKeywordId);
+  }
+  const requiredFactionIds = factionRows.map((row) => row.factionKeywordId);
+  const factionKeywordId = options.missingFaction
+    ? outsideFactionId(requiredFactionIds)
+    : (requiredFactionIds[0] || factionNamed("Adeptus Astartes").id);
+  const datasheetId = options.wrongDatasheet
+    ? outsideDatasheetId(group.datasheetId)
+    : (group.datasheetId || datasheetNamed("Captain").id);
+  const targetId = `${group.id}:model`;
+  const unit = {
+    id: `${group.id}:unit:${options.label || "valid"}`,
+    name: `${enhancement.name} required keyword fixture`,
+    datasheetId,
+    allyType: "native",
+    factionKeywordIds: options.missingFaction ? [] : requiredFactionIds,
+    keywordIds: enhancement.enhancementType === "miniature" && options.missingKeywordId !== characterKeywordId
+      ? [characterKeywordId]
+      : [...targetKeywordIds],
+    conditionalKeywordIds: enhancement.enhancementType === "miniature" ? [...targetKeywordIds] : [],
+    keywordNames: [],
+    isWarlord: false,
+    warlordMiniatureIds: [],
+    unitEnhancements: enhancement.enhancementType === "miniature" ? [] : [{ id: enhancement.id }],
+    miniatureEnhancements: enhancement.enhancementType === "miniature" ? [{ id: enhancement.id, targetId }] : [],
+    wargear: {},
+    miniatures: [{
+      id: targetId,
+      rosterUnitMiniatureId: targetId,
+      miniatureId: `${group.id}:synthetic-miniature`,
+      name: `${enhancement.name} target`,
+      count: 1,
+      isWarlord: false,
+      wargear: {},
+    }],
+  };
+  return {
+    roster: {
+      factionKeywordId,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      attachments: [],
+    },
+    detachment: { ...detachment, isCombatPatrol: false },
+    unit,
+  };
+}
+
+function validateEnhancementRequiredGroup(group, options = {}) {
+  const fixture = enhancementRequiredGroupFixture(group, options);
+  const messages = [];
+  withCatalog(catalogWithOnlyEnhancementRequiredGroup(group), () => {
+    validateEnhancements(fixture.roster, [fixture.detachment], [fixture.unit], messages);
+  });
+  return messageCodes(messages);
+}
+
+function catalogWithOnlyEnhancementExcludedKeyword(row) {
+  return {
+    ...realCatalog,
+    enhancementRequiredKeywordGroupsByEnhancementId: new Map(),
+    enhancementRequiredKeywordGroupKeywordsByGroupId: new Map(),
+    enhancementRequiredKeywordGroupFactionsByGroupId: new Map(),
+    enhancementExcludedKeywordsByEnhancementId: new Map([[row.enhancementId, [row]]]),
+    enhancementRequiredWargearItemsByEnhancementId: new Map(),
+    enhancementBodyguardGroupsByEnhancementId: new Map(),
+    enhancementBodyguardGroupDatasheetsByGroupId: new Map(),
+    enhancementBodyguardGroupKeywordsByGroupId: new Map(),
+  };
+}
+
+function catalogWithOnlyEnhancementRequiredWargear(row) {
+  return {
+    ...realCatalog,
+    enhancementRequiredKeywordGroupsByEnhancementId: new Map(),
+    enhancementRequiredKeywordGroupKeywordsByGroupId: new Map(),
+    enhancementRequiredKeywordGroupFactionsByGroupId: new Map(),
+    enhancementExcludedKeywordsByEnhancementId: new Map(),
+    enhancementRequiredWargearItemsByEnhancementId: new Map([[row.enhancementId, [row]]]),
+    enhancementBodyguardGroupsByEnhancementId: new Map(),
+    enhancementBodyguardGroupDatasheetsByGroupId: new Map(),
+    enhancementBodyguardGroupKeywordsByGroupId: new Map(),
+  };
+}
+
+function catalogWithOnlyEnhancementBodyguardGroup(group) {
+  const datasheetRows = realCatalog.enhancementBodyguardGroupDatasheetsByGroupId.get(group.id) || [];
+  return {
+    ...realCatalog,
+    enhancementRequiredKeywordGroupsByEnhancementId: new Map(),
+    enhancementRequiredKeywordGroupKeywordsByGroupId: new Map(),
+    enhancementRequiredKeywordGroupFactionsByGroupId: new Map(),
+    enhancementExcludedKeywordsByEnhancementId: new Map(),
+    enhancementRequiredWargearItemsByEnhancementId: new Map(),
+    enhancementBodyguardGroupsByEnhancementId: new Map([[group.enhancementId, [group]]]),
+    enhancementBodyguardGroupDatasheetsByGroupId: datasheetRows.length ? new Map([[group.id, datasheetRows]]) : new Map(),
+    enhancementBodyguardGroupKeywordsByGroupId: new Map(),
+  };
+}
+
+function enhancementFixture(enhancement, options = {}) {
+  const detachment = realCatalog.detachmentById.get(enhancement.detachmentId);
+  assert.ok(detachment, `Expected detachment ${enhancement.detachmentId}`);
+  const characterKeywordId = keywordNamed("Character").id;
+  const targetKeywordIds = new Set([characterKeywordId, ...(options.targetKeywordIds || [])]);
+  const targetId = `${options.id || enhancement.id}:model`;
+  const datasheetId = options.datasheetId || datasheetNamed("Captain").id;
+  const miniatureId = options.miniatureId || `${options.id || enhancement.id}:synthetic-miniature`;
+  const miniature = {
+    id: targetId,
+    rosterUnitMiniatureId: targetId,
+    miniatureId,
+    name: `${enhancement.name} target`,
+    count: 1,
+    isWarlord: false,
+    wargear: options.miniatureWargear || {},
+  };
+  const unit = {
+    id: `${options.id || enhancement.id}:unit:${options.label || "fixture"}`,
+    name: `${enhancement.name} fixture`,
+    datasheetId,
+    allyType: "native",
+    factionKeywordIds: options.factionKeywordIds || [],
+    keywordIds: enhancement.enhancementType === "miniature" ? [characterKeywordId] : [...targetKeywordIds],
+    conditionalKeywordIds: enhancement.enhancementType === "miniature" ? [...targetKeywordIds] : [],
+    keywordNames: [],
+    isWarlord: false,
+    warlordMiniatureIds: [],
+    unitEnhancements: enhancement.enhancementType === "miniature" ? [] : [{ id: enhancement.id }],
+    miniatureEnhancements: enhancement.enhancementType === "miniature" ? [{ id: enhancement.id, targetId }] : [],
+    wargear: options.unitWargear || {},
+    miniatures: [miniature],
+  };
+  return {
+    roster: {
+      factionKeywordId: options.factionKeywordId || factionNamed("Adeptus Astartes").id,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      attachments: options.attachments || [],
+    },
+    detachment: { ...detachment, isCombatPatrol: false },
+    unit,
+    miniature,
+  };
+}
+
+function validateEnhancementExcludedKeyword(row, options = {}) {
+  const enhancement = realCatalog.enhancementById.get(row.enhancementId);
+  assert.ok(enhancement, `Expected enhancement ${row.enhancementId}`);
+  const fixture = enhancementFixture(enhancement, {
+    id: `${row.enhancementId}:${row.keywordId}`,
+    label: options.withKeyword ? "with-excluded-keyword" : "without-excluded-keyword",
+    targetKeywordIds: options.withKeyword ? [row.keywordId] : [],
+  });
+  const messages = [];
+  withCatalog(catalogWithOnlyEnhancementExcludedKeyword(row), () => {
+    validateEnhancements(fixture.roster, [fixture.detachment], [fixture.unit], messages);
+  });
+  return messageCodes(messages);
+}
+
+function optionForWargearItem(wargearItemId) {
+  const option = realCatalog.wargearOptions.find((row) => row.wargearItemId === wargearItemId);
+  assert.ok(option, `Expected wargear option for item ${wargearItemId}`);
+  const group = realCatalog.wargearGroupById.get(option.wargearOptionGroupId);
+  assert.ok(group, `Expected wargear option group ${option.wargearOptionGroupId}`);
+  return { option, group };
+}
+
+function validateEnhancementRequiredWargear(row, options = {}) {
+  const enhancement = realCatalog.enhancementById.get(row.enhancementId);
+  assert.ok(enhancement, `Expected enhancement ${row.enhancementId}`);
+  const { option, group } = optionForWargearItem(row.wargearItemId);
+  const fixture = enhancementFixture(enhancement, {
+    id: `${row.enhancementId}:${row.wargearItemId}`,
+    label: options.equipped ? "equipped" : "missing-wargear",
+    datasheetId: group.datasheetId,
+    miniatureId: group.miniatureId,
+    miniatureWargear: options.equipped ? { [option.id]: 1 } : {},
+  });
+  const messages = [];
+  withCatalog(catalogWithOnlyEnhancementRequiredWargear(row), () => {
+    validateEnhancements(fixture.roster, [fixture.detachment], [fixture.unit], messages);
+  });
+  return messageCodes(messages);
+}
+
+function bodyguardFixture(group, options = {}) {
+  const enhancement = realCatalog.enhancementById.get(group.enhancementId);
+  assert.ok(enhancement, `Expected enhancement ${group.enhancementId}`);
+  const datasheetRow = realCatalog.enhancementBodyguardGroupDatasheetsByGroupId.get(group.id)?.[0];
+  assert.ok(datasheetRow, `Expected bodyguard datasheet row for ${group.id}`);
+  const factionKeywordId = group.factionKeywordId || factionNamed("Adeptus Astartes").id;
+  const leaderFixture = enhancementFixture(enhancement, {
+    id: `${group.id}:leader`,
+    factionKeywordId,
+  });
+  const bodyguardDatasheetId = options.wrongDatasheet
+    ? outsideDatasheetId(datasheetRow.datasheetId)
+    : datasheetRow.datasheetId;
+  const bodyguard = {
+    id: `${group.id}:bodyguard:${options.wrongDatasheet ? "wrong" : "valid"}`,
+    name: realCatalog.datasheetById.get(bodyguardDatasheetId)?.name || "Bodyguard",
+    datasheetId: bodyguardDatasheetId,
+    allyType: "native",
+    factionKeywordIds: [],
+    keywordIds: keywordIdsForDatasheet(bodyguardDatasheetId),
+    keywordNames: [],
+    warlordMiniatureIds: [],
+    unitEnhancements: [],
+    miniatureEnhancements: [],
+    wargear: {},
+    miniatures: [],
+  };
+  const attachments = options.attached ? [{
+    id: `${group.id}:attachment`,
+    members: [
+      { rosterUnitId: leaderFixture.unit.id, attachmentType: group.bodyguardType },
+      { rosterUnitId: bodyguard.id, attachmentType: "bodyguard" },
+    ],
+  }] : [];
+  return {
+    roster: {
+      ...leaderFixture.roster,
+      attachments,
+    },
+    detachment: leaderFixture.detachment,
+    units: [leaderFixture.unit, bodyguard],
+  };
+}
+
+function validateEnhancementBodyguardGroup(group, options = {}) {
+  const fixture = bodyguardFixture(group, options);
+  const messages = [];
+  withCatalog(catalogWithOnlyEnhancementBodyguardGroup(group), () => {
+    validateEnhancements(fixture.roster, [fixture.detachment], fixture.units, messages);
+  });
+  return messageCodes(messages);
+}
+
 test("all live enhancement rule tables stay pinned to explicit coverage counts", () => {
   state.catalog = realCatalog;
 
@@ -155,6 +435,127 @@ test("all live enhancement rule tables stay pinned to explicit coverage counts",
   for (const row of realCatalog.enhancementBodyguardGroupDatasheets) {
     assert.ok(bodyguardGroupIds.has(row.enhancementBodyguardGroupId), `Missing bodyguard group ${row.enhancementBodyguardGroupId}`);
     assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing bodyguard datasheet ${row.datasheetId}`);
+  }
+});
+
+test("all live enhancement excluded keyword rows reject and accept target keywords", () => {
+  state.catalog = realCatalog;
+  const rows = realCatalog.enhancementExcludedKeywords;
+
+  assert.equal(rows.length, 32);
+
+  for (const row of rows) {
+    const invalidCodes = validateEnhancementExcludedKeyword(row, { withKeyword: true });
+    assert.ok(
+      invalidCodes.includes("enhancement.model_must_not_have_excluded_keywords"),
+      `Expected enhancement ${row.enhancementId} to reject excluded keyword ${row.keywordId}`
+    );
+
+    const validCodes = validateEnhancementExcludedKeyword(row, { withKeyword: false });
+    assert.ok(
+      !validCodes.includes("enhancement.model_must_not_have_excluded_keywords"),
+      `Expected enhancement ${row.enhancementId} to accept target without excluded keyword ${row.keywordId}`
+    );
+  }
+});
+
+test("all live enhancement required wargear rows require and accept configured items", () => {
+  state.catalog = realCatalog;
+  const rows = realCatalog.enhancementRequiredWargearItems;
+
+  assert.equal(rows.length, 1);
+
+  for (const row of rows) {
+    const missingCodes = validateEnhancementRequiredWargear(row, { equipped: false });
+    assert.ok(
+      missingCodes.includes("enhancement.model_does_not_have_required_wargear"),
+      `Expected enhancement ${row.enhancementId} to require wargear ${row.wargearItemId}`
+    );
+
+    const equippedCodes = validateEnhancementRequiredWargear(row, { equipped: true });
+    assert.ok(
+      !equippedCodes.includes("enhancement.model_does_not_have_required_wargear"),
+      `Expected enhancement ${row.enhancementId} to accept wargear ${row.wargearItemId}`
+    );
+  }
+});
+
+test("all live enhancement bodyguard groups have missing, wrong, and attached coverage", () => {
+  state.catalog = realCatalog;
+  const groups = realCatalog.enhancementBodyguardGroups;
+
+  assert.equal(groups.length, 19);
+  assert.equal(realCatalog.enhancementBodyguardGroupDatasheets.length, 19);
+  assert.equal(realCatalog.enhancementBodyguardGroupKeywords.length, 0);
+
+  for (const group of groups) {
+    const missingCodes = validateEnhancementBodyguardGroup(group, { attached: false });
+    assert.ok(
+      missingCodes.includes("enhancement.attached_requirement_missing"),
+      `Expected enhancement bodyguard group ${group.id} to require attachment`
+    );
+
+    const wrongDatasheetCodes = validateEnhancementBodyguardGroup(group, { attached: true, wrongDatasheet: true });
+    assert.ok(
+      wrongDatasheetCodes.includes("enhancement.attached_requirement_missing"),
+      `Expected enhancement bodyguard group ${group.id} to reject wrong bodyguard datasheet`
+    );
+
+    const attachedCodes = validateEnhancementBodyguardGroup(group, { attached: true });
+    assert.ok(
+      !attachedCodes.includes("enhancement.attached_requirement_missing"),
+      `Expected enhancement bodyguard group ${group.id} to accept configured bodyguard`
+    );
+  }
+});
+
+test("all live enhancement required keyword groups have valid and missing requirement coverage", () => {
+  state.catalog = realCatalog;
+  const groups = realCatalog.enhancementRequiredKeywordGroups;
+  const groupsWithKeywords = groups.filter((group) => (
+    realCatalog.enhancementRequiredKeywordGroupKeywordsByGroupId.get(group.id) || []
+  ).length);
+  const groupsWithFactions = groups.filter((group) => (
+    realCatalog.enhancementRequiredKeywordGroupFactionsByGroupId.get(group.id) || []
+  ).length);
+  const groupsWithDatasheets = groups.filter((group) => group.datasheetId);
+
+  assert.equal(groups.length, 1027);
+  assert.equal(groupsWithKeywords.length, 578);
+  assert.equal(groupsWithFactions.length, 639);
+  assert.equal(groupsWithDatasheets.length, 83);
+
+  for (const group of groups) {
+    const codes = validateEnhancementRequiredGroup(group, { label: "valid" });
+    assert.ok(
+      !codes.includes("enhancement.model_does_not_have_required_keywords"),
+      `Expected enhancement required keyword group ${group.id} to be satisfied`
+    );
+  }
+
+  for (const group of groupsWithKeywords) {
+    const missingKeywordId = realCatalog.enhancementRequiredKeywordGroupKeywordsByGroupId.get(group.id)[0].keywordId;
+    const codes = validateEnhancementRequiredGroup(group, { label: "missing-keyword", missingKeywordId });
+    assert.ok(
+      codes.includes("enhancement.model_does_not_have_required_keywords"),
+      `Expected enhancement required keyword group ${group.id} to reject missing keyword ${missingKeywordId}`
+    );
+  }
+
+  for (const group of groupsWithFactions) {
+    const codes = validateEnhancementRequiredGroup(group, { label: "missing-faction", missingFaction: true });
+    assert.ok(
+      codes.includes("enhancement.model_does_not_have_required_keywords"),
+      `Expected enhancement required keyword group ${group.id} to reject missing faction keyword`
+    );
+  }
+
+  for (const group of groupsWithDatasheets) {
+    const codes = validateEnhancementRequiredGroup(group, { label: "wrong-datasheet", wrongDatasheet: true });
+    assert.ok(
+      codes.includes("enhancement.model_does_not_have_required_keywords"),
+      `Expected enhancement required keyword group ${group.id} to reject datasheet ${group.datasheetId} mismatch`
+    );
   }
 });
 

@@ -43,6 +43,18 @@ Related audits:
   `cannotBeWarlord`, required keyword group references, excluded keywords,
   required wargear, and enhancement bodyguard datasheet links. `npm test` now
   passes 90 validation tests.
+- 2026-07-02: Added live semantic coverage for all 1,027 current
+  `enhancement_required_keyword_group` rows. Each group is proven satisfiable in
+  isolation, and missing-requirement checks cover all 578 keyword groups, all
+  639 faction-keyword groups, and all 83 datasheet-scoped groups. `npm test`
+  now passes 91 validation tests.
+- 2026-07-02: Added live semantic coverage for the remaining current
+  enhancement join-rule rows: all 32 `enhancement_excluded_keyword` rows reject
+  and accept the target keyword state, the 1 `enhancement_required_wargear_item`
+  row requires and accepts the configured wargear, and all 19
+  `enhancement_bodyguard_group` rows cover missing attachment, wrong bodyguard
+  datasheet, and configured attached bodyguard. `npm test` now passes 94
+  validation tests.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,

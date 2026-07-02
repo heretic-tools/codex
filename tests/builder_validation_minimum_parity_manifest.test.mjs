@@ -28,6 +28,7 @@ const minimumParityConceptByCode = {
   "detachment.datasheet_not_allowed": "DetachmentExcludedDatasheetValidator",
   "detachment.linked_datasheet_count_mismatch": "DetachmentRequiredDatasheetValidator",
   "detachment.linked_datasheet_not_allowed": "DetachmentRequiredDatasheetValidator",
+  "enhancement.attached_requirement_missing": "EnhancementValidator",
   "enhancement.model_does_not_have_required_keywords": "EnhancementValidator",
   "enhancement.model_does_not_have_required_wargear": "EnhancementValidator",
   "enhancement.model_must_not_have_excluded_keywords": "EnhancementValidator",
@@ -104,6 +105,47 @@ const minimumParityCases = [
       "enhancementBodyguardGroups.length, 19",
     ],
     codes: [],
+  },
+  {
+    id: "live-enhancement-excluded-keyword-rows",
+    file: "tests/builder_validation_enhancements.test.mjs",
+    anchors: [
+      "all live enhancement excluded keyword rows reject and accept target keywords",
+      "rows.length, 32",
+    ],
+    codes: ["enhancement.model_must_not_have_excluded_keywords"],
+  },
+  {
+    id: "live-enhancement-required-wargear-rows",
+    file: "tests/builder_validation_enhancements.test.mjs",
+    anchors: [
+      "all live enhancement required wargear rows require and accept configured items",
+      "rows.length, 1",
+    ],
+    codes: ["enhancement.model_does_not_have_required_wargear"],
+  },
+  {
+    id: "live-enhancement-bodyguard-groups",
+    file: "tests/builder_validation_enhancements.test.mjs",
+    anchors: [
+      "all live enhancement bodyguard groups have missing, wrong, and attached coverage",
+      "groups.length, 19",
+      "enhancementBodyguardGroupDatasheets.length, 19",
+      "enhancementBodyguardGroupKeywords.length, 0",
+    ],
+    codes: ["enhancement.attached_requirement_missing"],
+  },
+  {
+    id: "live-enhancement-required-keyword-groups",
+    file: "tests/builder_validation_enhancements.test.mjs",
+    anchors: [
+      "all live enhancement required keyword groups have valid and missing requirement coverage",
+      "groups.length, 1027",
+      "groupsWithKeywords.length, 578",
+      "groupsWithFactions.length, 639",
+      "groupsWithDatasheets.length, 83",
+    ],
+    codes: ["enhancement.model_does_not_have_required_keywords"],
   },
   {
     id: "heretic-astartes-daemon-allies-points",
@@ -448,7 +490,7 @@ const minimumParityCases = [
 ];
 
 test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 42);
+  assert.equal(minimumParityCases.length, 46);
   for (const parityCase of minimumParityCases) {
     const source = await readFile(join(projectRoot, parityCase.file), "utf8");
     for (const anchor of parityCase.anchors) {
