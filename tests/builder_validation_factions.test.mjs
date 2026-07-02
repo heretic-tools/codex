@@ -348,6 +348,51 @@ test("data-empty warlord-gated keyword restriction groups stay covered", () => {
   });
 });
 
+test("data-empty keyword restriction groups without keywords stay inactive", () => {
+  const emptyKeywordGroup = {
+    id: "empty-keyword-restriction-group",
+    factionKeywordId: "roster-faction",
+    limit: 0,
+    excludedFactionKeywordId: "",
+    requiresWarlordMiniatureId: "",
+  };
+  const catalog = {
+    factionKeywordById: new Map([
+      ["roster-faction", { id: "roster-faction", name: "Roster Faction", parentFactionKeywordId: "" }],
+    ]),
+    keywordById: new Map([["restricted-keyword", { id: "restricted-keyword", name: "Restricted Keyword" }]]),
+    detachmentById: new Map([["detachment", { id: "detachment", name: "Detachment" }]]),
+    keywordRestrictionGroupsByFactionId: new Map([["roster-faction", [emptyKeywordGroup]]]),
+    keywordRestrictionGroups: [emptyKeywordGroup],
+    keywordRestrictionGroupKeywordsByGroupId: new Map(),
+    restrictionGroupDetachmentLimitsByDetachmentId: new Map([["detachment", [{
+      id: "empty-keyword-detachment-limit",
+      detachmentId: "detachment",
+      restrictionGroupId: emptyKeywordGroup.id,
+      minRosterLimit: 1,
+      maxRosterLimit: 0,
+    }]]]),
+  };
+  const messages = [];
+
+  withCatalog(catalog, () => {
+    validateKeywordRestrictions(
+      { factionKeywordId: "roster-faction" },
+      [{ id: "detachment", name: "Detachment" }],
+      [{
+        id: "restricted-unit",
+        name: "Restricted Unit",
+        keywordIds: ["restricted-keyword"],
+        factionKeywordIds: ["roster-faction"],
+        warlordMiniatureIds: [],
+      }],
+      messages
+    );
+  });
+
+  assert.ok(!messageCodes(messages).some((code) => code.startsWith("keyword_restriction_group.")));
+});
+
 test("detachment keyword restrictions enforce minimum and maximum roster limits", () => {
   state.catalog = realCatalog;
 

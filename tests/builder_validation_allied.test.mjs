@@ -172,6 +172,25 @@ test("all live allied rule tables stay pinned to explicit coverage counts", () =
   assert.equal(realCatalog.keywords.filter((keyword) => keyword.allyRestrictingKeywordId).length, 4);
 });
 
+test("allied validation ignores rosters without allied units", () => {
+  const messages = [];
+  validateAlliedUnits(
+    { factionKeywordId: factionNamed("Adeptus Astartes").id, battleSizeId: battleSizeNamed("Strike Force").id },
+    [],
+    [{
+      id: "native-captain",
+      name: "Captain",
+      allyType: "native",
+      datasheetId: datasheetNamed("Captain").id,
+      keywordIds: keywordIdsForDatasheet(datasheetNamed("Captain").id),
+      points: 0,
+      warlordMiniatureIds: [],
+    }],
+    messages
+  );
+  assert.deepEqual(messages, []);
+});
+
 test("Heretic Astartes Legiones Daemonica allies enforce points and restricting keyword caps", () => {
   state.catalog = realCatalog;
   const roster = {
@@ -485,6 +504,101 @@ test("all live allied slotless keyword groups reduce receiver keyword counts", (
       `slotless group ${index} should subtract the paired donor from receiver keyword count`
     );
   }
+});
+
+test("data-empty allied edge rows cover global restrictions, duplicate restrictions, and malformed slotless groups", () => {
+  assert.equal(realCatalog.keywordAllyRestrictingKeywords.length, 0);
+  assert.equal(realCatalog.alliedFactionKeywordSlotlessKeywordGroups.filter((group) => {
+    const donorRows = realCatalog.alliedFactionKeywordSlotlessDonorsByGroupId.get(group.id) || [];
+    const receiverRows = realCatalog.alliedFactionKeywordSlotlessReceiversByGroupId.get(group.id) || [];
+    return !donorRows.length || !receiverRows.length;
+  }).length, 0);
+
+  const catalog = {
+    factionAlliedFactionsByFactionId: new Map([["roster-faction", [{ alliedFactionId: "ally" }]]]),
+    alliedFactionParentsByAlliedFactionId: new Map([["ally", [{ factionKeywordId: "ally-parent" }]]]),
+    alliedFactionById: new Map([["ally", {}]]),
+    alliedFactionDatasheetsByAlliedFactionId: new Map([["ally", [{ datasheetId: "allowed-datasheet" }]]]),
+    alliedFactionPointsLimitsByAlliedFactionId: new Map(),
+    alliedFactionKeywordsByAlliedFactionId: new Map([["ally", [{
+      id: "slotless-limit",
+      alliedFactionId: "ally",
+      keywordId: "receiver-keyword",
+      limitCount: 0,
+      requiredWarlordMiniatureId: "",
+      battleSizeId: "strike",
+    }]]]),
+    alliedFactionAllowedWarlordsByAlliedFactionId: new Map(),
+    alliedFactionRequiredDetachmentsByAlliedFactionId: new Map(),
+    alliedFactionAllegianceAbilitiesByAlliedFactionId: new Map(),
+    alliedFactionKeywordSlotlessGroupsByKeywordId: new Map([["slotless-limit", [
+      { id: "slotless-no-donor", alliedFactionKeywordId: "slotless-limit" },
+      { id: "slotless-no-receiver", alliedFactionKeywordId: "slotless-limit" },
+    ]]]),
+    alliedFactionKeywordSlotlessDonorsByGroupId: new Map([
+      ["slotless-no-receiver", [{ keywordId: "donor-keyword" }]],
+    ]),
+    alliedFactionKeywordSlotlessReceiversByGroupId: new Map([
+      ["slotless-no-donor", [{ keywordId: "receiver-keyword" }]],
+    ]),
+    keywordAllyRestrictingKeywords: [
+      { keywordId: "restricted-keyword", restrictingKeywordId: "restricting-keyword" },
+      { keywordId: "restricted-keyword", restrictingKeywordId: "restricting-keyword" },
+    ],
+    keywords: [
+      {
+        id: "restricted-keyword",
+        name: "Restricted Keyword",
+        allyRestrictingKeywordId: "restricting-keyword",
+        allyRestrictingFactionKeywordId: "",
+      },
+      { id: "restricting-keyword", name: "Restricting Keyword" },
+    ],
+    keywordById: new Map([
+      ["receiver-keyword", { id: "receiver-keyword", name: "Receiver Keyword" }],
+      ["donor-keyword", { id: "donor-keyword", name: "Donor Keyword" }],
+      ["restricted-keyword", {
+        id: "restricted-keyword",
+        name: "Restricted Keyword",
+        allyRestrictingFactionKeywordId: "",
+      }],
+      ["restricting-keyword", { id: "restricting-keyword", name: "Restricting Keyword" }],
+    ]),
+    factionById: new Map([["roster-faction", { id: "roster-faction", name: "Roster Faction" }]]),
+    factionKeywordById: new Map([
+      ["roster-faction", { id: "roster-faction", name: "Roster Faction", parentFactionKeywordId: "" }],
+      ["ally-parent", { id: "ally-parent", name: "Ally Parent", parentFactionKeywordId: "" }],
+    ]),
+    battleSizeById: new Map([["strike", { id: "strike", name: "Strike Force" }]]),
+    detachmentById: new Map(),
+    miniatureById: new Map(),
+    allegianceAbilityById: new Map(),
+    allegianceAbilityGroupById: new Map(),
+  };
+  const messages = [];
+  withCatalog(catalog, () => {
+    validateAlliedUnits(
+      { factionKeywordId: "roster-faction", battleSizeId: "strike" },
+      [],
+      [{
+        id: "ally-unit",
+        name: "Ally Unit",
+        allyType: "ally",
+        datasheetId: "allowed-datasheet",
+        keywordIds: ["receiver-keyword", "restricted-keyword"],
+        points: 0,
+        warlordMiniatureIds: [],
+      }],
+      messages
+    );
+  });
+
+  const codes = messageCodes(messages);
+  assert.ok(codes.includes("allied_keyword_count.limit_exceeded"));
+  assert.equal(
+    codes.filter((code) => code === "allied_keyword_restricting_keyword.outnumbered_keywords").length,
+    1
+  );
 });
 
 test("Heretic Astartes Chaos Knights allies enforce keyword caps and mutual exclusion", () => {

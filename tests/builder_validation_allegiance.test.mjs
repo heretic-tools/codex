@@ -160,6 +160,28 @@ test("all live allegiance ability rows are accepted by their configured group", 
   }
 });
 
+test("data-empty missing allegiance ability groups stay cache-compatible", () => {
+  state.catalog = realCatalog;
+  const messages = [];
+  validateAllegianceAbilities(
+    { factionKeywordId: factionNamed("Space Wolves").id },
+    [],
+    [{
+      id: "cached-missing-allegiance-group-unit",
+      name: "Cached Missing Allegiance Group Unit",
+      allegianceAbilityGroupId: "missing-allegiance-group",
+      allegianceAbilities: [{
+        id: "cached-missing-allegiance-ability",
+        name: "Cached Missing Allegiance Ability",
+        groupId: "missing-allegiance-group",
+        groupName: "Missing Allegiance Group",
+      }],
+    }],
+    messages
+  );
+  assert.deepEqual(messages, []);
+});
+
 test("all live datasheet allegiance group rows drive allowed, mandatory, and detachment checks", () => {
   state.catalog = realCatalog;
   const datasheets = realCatalog.datasheets.filter((datasheet) => datasheet.allegianceAbilityGroupId);

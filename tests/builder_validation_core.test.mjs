@@ -55,6 +55,7 @@ import {
   withMiniatureEnhancement,
   datasheetIdForEnhancementBodyguard
 } from "./builder_validation_helpers.mjs";
+import { unitHasWargearItem } from "../HereticBuilder/static/builder_validation_core.js";
 
 test("validateRoster emits stable codes for real catalog messages", () => {
   state.catalog = realCatalog;
@@ -73,6 +74,39 @@ test("validateRoster emits stable codes for real catalog messages", () => {
     "roster.detachment_not_selected",
     "roster.empty",
   ]);
+});
+
+test("core wargear item matcher rejects missing options, wrong items, and wrong model targets", () => {
+  state.catalog = realCatalog;
+  const datasheet = datasheetNamed("Termagants");
+  const miniature = miniatureNamedForDatasheet("Termagants", "Termagant");
+  const fleshborerOptionId = optionIdForMiniatureItem(datasheet.id, miniature.id, "Fleshborer");
+  const fleshborerOption = realCatalog.wargearOptionById.get(fleshborerOptionId);
+  assert.ok(fleshborerOption, "Expected Termagant Fleshborer option");
+
+  const unit = {
+    id: "core-wargear-matcher",
+    datasheetId: datasheet.id,
+    wargear: {
+      "missing-option": 1,
+    },
+    miniatures: [{
+      id: "core-wargear-matcher-miniature",
+      rosterUnitMiniatureId: "core-wargear-matcher-miniature",
+      miniatureId: miniature.id,
+      count: 1,
+      wargear: {
+        [fleshborerOptionId]: 1,
+      },
+    }],
+  };
+
+  assert.equal(unitHasWargearItem(unit, fleshborerOption.wargearItemId), true);
+  assert.equal(unitHasWargearItem(unit, "not-a-wargear-item"), false);
+  assert.equal(unitHasWargearItem(unit, fleshborerOption.wargearItemId, {
+    rosterUnitMiniatureId: "wrong-target",
+    miniatureId: "wrong-miniature",
+  }), false);
 });
 
 test("factionScope walks the full faction keyword table, including hidden parents", () => {

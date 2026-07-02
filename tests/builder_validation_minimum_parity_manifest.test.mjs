@@ -1,11 +1,16 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { validationConceptForCode } from "./builder_validation_concepts.mjs";
 
-const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const currentFile = fileURLToPath(import.meta.url);
+const projectRoot = dirname(dirname(currentFile));
+const shouldRegisterTests = process.argv.some((arg) => resolve(arg) === currentFile);
 
 const minimumParityConceptByCode = {
   "allegiance_ability.group_limit_exceeded": "AllegianceAbilityGroupRosterLimitValidator",
@@ -91,6 +96,73 @@ const minimumParityCases = [
     codes: [],
   },
   {
+    id: "local-official-wh40k-db-roster-rule-table-fingerprints",
+    file: "tests/builder_validation_catalog_inventory.test.mjs",
+    anchors: [
+      "local official WH 40K app DB matches Builder DB for loaded roster rule tables",
+      "OFFICIAL_WH40K_APP_DB_PATH",
+      "sqliteTableFingerprint",
+      "officialFingerprint",
+      "builderFingerprint",
+    ],
+    codes: [],
+  },
+  {
+    id: "saved-wh40k-roster-aggregate-comparison-tool",
+    file: "HereticBuilder/tools/compare_wh40k_saved_rosters.mjs",
+    anchors: [
+      "Read-only comparison of saved WH 40K app roster aggregate validation state",
+      "roster_validation_state.validationState as officialState",
+      "validateRoster(roster)",
+      "builderCodes",
+    ],
+    codes: [],
+  },
+  {
+    id: "official-validation-storage-aggregate-only",
+    file: "tests/builder_validation_catalog_inventory.test.mjs",
+    anchors: [
+      "local official WH 40K app DB stores only aggregate roster validation state",
+      "roster_validation_state",
+      "validationStateColumns",
+      "%diagnostic%",
+    ],
+    codes: [],
+  },
+  {
+    id: "saved-wh40k-roster-aggregate-comparison-guard",
+    file: "tests/builder_validation_catalog_inventory.test.mjs",
+    anchors: [
+      "local saved WH 40K app rosters match Builder aggregate validation state",
+      "compare_wh40k_saved_rosters.mjs",
+      "comparison.match !== true",
+      "builderCodes",
+    ],
+    codes: [],
+  },
+  {
+    id: "official-validation-localization-key-map",
+    file: "tests/builder_validation_coverage.test.mjs",
+    anchors: [
+      "official WH app validation localization keys map to Builder codes",
+      "local official WH app validation localization keys stay mapped",
+      "OFFICIAL_VALIDATION_KEY_TO_CODE",
+      "OFFICIAL_DATASOURCE_VALIDATION_KEY_PATTERN",
+    ],
+    codes: [],
+  },
+  {
+    id: "thin-client-catalog-path-and-fetch-failure",
+    file: "tests/builder_validation_catalog_inventory.test.mjs",
+    anchors: [
+      "thin client catalog loading keeps path and fetch failure behavior explicit",
+      "relative/path",
+      "//cdn.example/builder-data/bootstrap.json",
+      "\\/builder-data\\/(bootstrap|tables\\/[^/]+)\\.json: 503",
+    ],
+    codes: [],
+  },
+  {
     id: "live-allied-rule-table-inventory",
     file: "tests/builder_validation_allied.test.mjs",
     anchors: [
@@ -98,6 +170,16 @@ const minimumParityCases = [
       "alliedFactionParentFactionKeywords.length, 25",
       "keywordAllyRestrictingKeywords.length, 0",
       "allyRestrictingKeywordId).length, 4",
+    ],
+    codes: [],
+  },
+  {
+    id: "native-roster-has-no-allied-diagnostics",
+    file: "tests/builder_validation_allied.test.mjs",
+    anchors: [
+      "allied validation ignores rosters without allied units",
+      "native-captain",
+      "assert.deepEqual(messages, [])",
     ],
     codes: [],
   },
@@ -111,6 +193,17 @@ const minimumParityCases = [
       "requiredRosterFactionKeywordId: 32",
       "requiredDetachmentId: 77",
       "requiredWarlordMiniatureId: 2",
+    ],
+    codes: [],
+  },
+  {
+    id: "core-required-wargear-item-matcher-edges",
+    file: "tests/builder_validation_core.test.mjs",
+    anchors: [
+      "core wargear item matcher rejects missing options, wrong items, and wrong model targets",
+      "missing-option",
+      "not-a-wargear-item",
+      "wrong-target",
     ],
     codes: [],
   },
@@ -132,6 +225,17 @@ const minimumParityCases = [
     anchors: [
       "all live allegiance ability rows are accepted by their configured group",
       "allegianceAbilities.length, 26",
+    ],
+    codes: [],
+  },
+  {
+    id: "data-empty-missing-allegiance-group-cache-compat",
+    file: "tests/builder_validation_allegiance.test.mjs",
+    anchors: [
+      "data-empty missing allegiance ability groups stay cache-compatible",
+      "cached-missing-allegiance-group-unit",
+      "missing-allegiance-group",
+      "assert.deepEqual(messages, [])",
     ],
     codes: [],
   },
@@ -349,6 +453,21 @@ const minimumParityCases = [
       "alliedFactionKeywordSlotlessKeywordGroups.length, 12",
     ],
     codes: ["allied_keyword_count.limit_exceeded"],
+  },
+  {
+    id: "data-empty-allied-edge-rows",
+    file: "tests/builder_validation_allied.test.mjs",
+    anchors: [
+      "data-empty allied edge rows cover global restrictions, duplicate restrictions, and malformed slotless groups",
+      "keywordAllyRestrictingKeywords.length, 0",
+      "slotless-no-donor",
+      "slotless-no-receiver",
+      "allyRestrictingFactionKeywordId: \"\"",
+    ],
+    codes: [
+      "allied_keyword_count.limit_exceeded",
+      "allied_keyword_restricting_keyword.outnumbered_keywords",
+    ],
   },
   {
     id: "heretic-astartes-daemon-outnumbering",
@@ -571,6 +690,18 @@ const minimumParityCases = [
     ],
   },
   {
+    id: "data-empty-model-helper-cache-routing",
+    file: "tests/builder_validation_roster_restrictions.test.mjs",
+    anchors: [
+      "data-empty model helper edge rows keep cached roster data routable",
+      "test-equivalent-specific-default",
+      "test-fallback-detachment-default",
+      "Allied: Allied",
+      "1-2 model",
+    ],
+    codes: [],
+  },
+  {
     id: "live-datasheet-duplicate-limit-and-max-model-rows",
     file: "tests/builder_validation_roster_restrictions.test.mjs",
     anchors: [
@@ -662,6 +793,16 @@ const minimumParityCases = [
       "warlord-gated-keyword-restriction-zero",
     ],
     codes: ["keyword_restriction_group.limit_zero", "keyword_restriction_group.limit_exceeded"],
+  },
+  {
+    id: "data-empty-keywordless-restriction-groups",
+    file: "tests/builder_validation_factions.test.mjs",
+    anchors: [
+      "data-empty keyword restriction groups without keywords stay inactive",
+      "empty-keyword-restriction-group",
+      "empty-keyword-detachment-limit",
+    ],
+    codes: [],
   },
   {
     id: "enhancement-roster-limit",
@@ -781,12 +922,34 @@ const minimumParityCases = [
       "cthonian-twin-concussion-gauntlet-limit-valid",
       "cthonian-twin-concussion-gauntlet-over-limit-invalid",
       "officialConcept",
+      "manifest.setupCount, 26",
+      "T’au Empire / Advanced Acquisition Cadre / Pathfinder Team",
+      "Orks / More Dakka! / Tankbustas",
+      "manual WH app wargear UI setup doc tracks every manifest setup",
+      "wargear manifest export CLI emits JSON and markdown formats",
     ],
     codes: [
       "wargear_loadout.invalid_miniature_wargear_loadout",
       "wargear_loadout.invalid_wargear_requirement",
       "wargear_loadout.zero_count_model_wargear",
     ],
+  },
+  {
+    id: "wargear-high-risk-app-parity-json-export",
+    file: "HereticBuilder/tools/export_wargear_parity_manifest.mjs",
+    anchors: [
+      "wargearParityManifest",
+      "JSON.stringify",
+      "--format",
+      "markdownOutput",
+      "unitWargearSummary",
+      "WH app UI setups",
+      "WH app state",
+      "--check-results",
+      "checkResults",
+      "resultSummaryStatus",
+    ],
+    codes: [],
   },
   {
     id: "live-wargear-rule-table-inventory",
@@ -892,6 +1055,29 @@ const minimumParityCases = [
     codes: ["wargear_loadout.invalid_wargear_requirement"],
   },
   {
+    id: "data-empty-wargear-loadout-math-edges",
+    file: "tests/builder_validation_wargear.test.mjs",
+    anchors: [
+      "data-empty wargear loadout math edge rows stay covered",
+      "test-zero-limit-loadout-set",
+      "test-empty-regular-loadout-set",
+      "test-over-limit-loadout-set",
+      "name:exact duplicate bridge",
+    ],
+    codes: [],
+  },
+  {
+    id: "data-empty-wargear-requirement-edge-rows",
+    file: "tests/builder_validation_wargear.test.mjs",
+    anchors: [
+      "data-empty wargear requirement edge rows stay covered",
+      "duplicate-vector",
+      "test-empty-all-model-set",
+      "wargear_loadout.invalid_wargear_requirement",
+    ],
+    codes: ["wargear_loadout.invalid_wargear_requirement"],
+  },
+  {
     id: "allegiance-pactbound-mark-of-chaos",
     file: "tests/builder_validation_allegiance.test.mjs",
     anchors: ["Pactbound Zealots Mark of Chaos"],
@@ -965,23 +1151,278 @@ const minimumParityCases = [
   },
 ];
 
-test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 75);
-  for (const parityCase of minimumParityCases) {
-    const source = await readFile(join(projectRoot, parityCase.file), "utf8");
-    for (const anchor of parityCase.anchors) {
-      assert.ok(source.includes(anchor), `${parityCase.id} missing anchor ${anchor}`);
-    }
-    for (const code of parityCase.codes) {
-      assert.ok(source.includes(code), `${parityCase.id} missing validation code ${code}`);
-      assert.ok(minimumParityConceptByCode[code], `${parityCase.id} missing expected concept for ${code}`);
-      assert.equal(
-        validationConceptForCode(code),
-        minimumParityConceptByCode[code],
-        `${parityCase.id} concept mismatch for ${code}`,
-      );
+const manualMinimumParityCaseIds = [
+  "heretic-astartes-daemon-allies-points",
+  "heretic-astartes-daemon-outnumbering",
+  "heretic-astartes-chaos-knights-cap",
+  "heretic-astartes-cult-legion-detachment",
+  "heretic-astartes-titanicus-traitoris-cap",
+  "adeptus-astartes-detachment-dp-overrides",
+  "adeptus-astartes-successor-epic-hero-conflict",
+  "ynnari-devoted-of-ynnead-warlord",
+  "asuryani-ynnari-keyword-restrictions",
+  "drukhari-harlequin-character-limits",
+  "enhancement-roster-limit",
+  "enhancement-required-keyword-excluded-keyword-wargear",
+  "enhancement-disciple-of-khorne-warlord-target",
+  "attachment-valid-invalid-and-must-attach",
+  "allegiance-pactbound-mark-of-chaos",
+  "allegiance-daemonic-required-wargear",
+  "allegiance-roster-min-max-groups",
+];
+
+function execNodeWithoutParentCoverage(args) {
+  const childEnv = { ...process.env };
+  const childCoverageDir = childEnv.NODE_V8_COVERAGE
+    ? mkdtempSync(join(tmpdir(), "heretic-builder-child-coverage-"))
+    : null;
+  if (childCoverageDir) {
+    childEnv.NODE_V8_COVERAGE = childCoverageDir;
+  }
+  try {
+    return execFileSync(process.execPath, args, {
+      encoding: "utf8",
+      env: childEnv,
+      maxBuffer: 128 * 1024 * 1024,
+    });
+  } finally {
+    if (childCoverageDir) {
+      rmSync(childCoverageDir, { recursive: true, force: true });
     }
   }
-});
+}
 
-export { minimumParityCases, minimumParityConceptByCode };
+if (shouldRegisterTests) {
+  test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
+    assert.equal(minimumParityCases.length, 90);
+    const caseIds = new Set(minimumParityCases.map((parityCase) => parityCase.id));
+    assert.equal(manualMinimumParityCaseIds.length, 17);
+    for (const manualCaseId of manualMinimumParityCaseIds) {
+      assert.ok(caseIds.has(manualCaseId), `manual pending allowlist has unknown case ${manualCaseId}`);
+    }
+    for (const parityCase of minimumParityCases) {
+      const source = await readFile(join(projectRoot, parityCase.file), "utf8");
+      for (const anchor of parityCase.anchors) {
+        assert.ok(source.includes(anchor), `${parityCase.id} missing anchor ${anchor}`);
+      }
+      for (const code of parityCase.codes) {
+        assert.ok(source.includes(code), `${parityCase.id} missing validation code ${code}`);
+        assert.ok(minimumParityConceptByCode[code], `${parityCase.id} missing expected concept for ${code}`);
+        assert.equal(
+          validationConceptForCode(code),
+          minimumParityConceptByCode[code],
+          `${parityCase.id} concept mismatch for ${code}`,
+        );
+      }
+    }
+  });
+
+  test("manual WH app wargear checklist tracks executable parity cases", async () => {
+    const wargearParitySource = await readFile(
+      join(projectRoot, "tests/builder_validation_wargear_parity_cases.test.mjs"),
+      "utf8",
+    );
+    const checklist = await readFile(join(projectRoot, "docs/wh40k_app_manual_parity_checklist.md"), "utf8");
+    const caseIds = [...wargearParitySource.matchAll(/id: "([^"]+)"/g)].map((match) => match[1]);
+
+    assert.equal(caseIds.length, 25);
+    for (const caseId of caseIds) {
+      assert.ok(checklist.includes(`\`${caseId}\``), `manual WH app checklist missing ${caseId}`);
+    }
+  });
+
+  test("manual WH app checklist tracks every minimum parity group", async () => {
+    const checklist = await readFile(join(projectRoot, "docs/wh40k_app_manual_parity_checklist.md"), "utf8");
+    assert.ok(checklist.includes("## Minimum manifest parity groups"));
+
+    for (const parityCase of minimumParityCases) {
+      assert.ok(checklist.includes(`\`${parityCase.id}\``), `manual WH app checklist missing ${parityCase.id}`);
+    }
+
+    const exportTool = join(projectRoot, "HereticBuilder", "tools", "export_minimum_parity_manifest.mjs");
+    const passPackTool = join(projectRoot, "HereticBuilder", "tools", "export_manual_wh40k_pass_pack.mjs");
+    const jsonManifest = JSON.parse(execNodeWithoutParentCoverage([exportTool, "--json"]));
+    assert.equal(jsonManifest.caseCount, 90);
+    assert.equal(jsonManifest.cases[0].id, "builder-rule-table-export-counts");
+
+    const markdown = execNodeWithoutParentCoverage([exportTool, "--format", "markdown"]);
+    assert.ok(markdown.startsWith("# WH 40K app minimum parity manifest"));
+    assert.ok(markdown.includes("| Case id | Test file | Codes | Concepts | WH app method | WH app result | Parity |"));
+    assert.ok(markdown.includes("| `live-allied-rule-table-inventory` | tests/builder_validation_allied.test.mjs | none | none | Pending | Pending | Pending |"));
+
+    const manualSummary = JSON.parse(execNodeWithoutParentCoverage([
+      exportTool,
+      "--check-results",
+      join(projectRoot, "docs/wh40k_app_manual_parity_checklist.md"),
+      "--allow-manual-pending-only",
+    ]));
+    assert.equal(manualSummary.status, "pending");
+    assert.equal(manualSummary.expectedRows, 90);
+    assert.equal(manualSummary.parsedRows, 90);
+    assert.equal(manualSummary.missingRows.length, 0);
+    assert.equal(manualSummary.pendingRows.length, 17);
+    assert.equal(manualSummary.disallowedPendingRows.length, 0);
+
+    const resultsDir = mkdtempSync(join(tmpdir(), "heretic-builder-minimum-results-"));
+    try {
+      const pendingResultsPath = join(resultsDir, "pending.md");
+      writeFileSync(pendingResultsPath, markdown);
+      const pendingSummary = JSON.parse(execNodeWithoutParentCoverage([
+        exportTool,
+        "--check-results",
+        pendingResultsPath,
+        "--allow-pending",
+      ]));
+      assert.equal(pendingSummary.status, "pending");
+      assert.equal(pendingSummary.pendingRows.length, 90);
+      assert.equal(pendingSummary.disallowedPendingRows.length, 0);
+
+      assert.throws(
+        () => execNodeWithoutParentCoverage([
+          exportTool,
+          "--check-results",
+          pendingResultsPath,
+          "--allow-manual-pending-only",
+        ]),
+        (error) => {
+          const strictPendingSummary = JSON.parse(error.stdout);
+          assert.equal(strictPendingSummary.status, "mismatch");
+          assert.equal(strictPendingSummary.pendingRows.length, 90);
+          assert.equal(strictPendingSummary.disallowedPendingRows.length, 73);
+          return true;
+        }
+      );
+
+      const filledMarkdown = markdown.split("\n").map((line) => {
+        if (!line.startsWith("| `")) {
+          return line;
+        }
+        return line.replace(
+          " | Pending | Pending | Pending |",
+          " | official app manual pass | agrees with Builder | match |",
+        );
+      }).join("\n");
+      const filledResultsPath = join(resultsDir, "filled.md");
+      writeFileSync(filledResultsPath, filledMarkdown);
+      const matchSummary = JSON.parse(execNodeWithoutParentCoverage([
+        exportTool,
+        "--check-results",
+        filledResultsPath,
+      ]));
+      assert.equal(matchSummary.status, "match");
+      assert.equal(matchSummary.pendingRows.length, 0);
+
+      const mismatchResultsPath = join(resultsDir, "mismatch.md");
+      writeFileSync(
+        mismatchResultsPath,
+        filledMarkdown.replace(" | official app manual pass | agrees with Builder | match |", " | official app manual pass | agrees with Builder | typo |")
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([exportTool, "--check-results", mismatchResultsPath]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.invalidParityRows.length, 1);
+          return true;
+        }
+      );
+
+      const passPackJson = JSON.parse(execNodeWithoutParentCoverage([passPackTool, "--json"]));
+      assert.equal(passPackJson.minimumManualCaseCount, 17);
+      assert.equal(passPackJson.wargearCaseCount, 25);
+      assert.equal(passPackJson.wargearSetupCount, 26);
+      assert.equal(passPackJson.minimumRows[0].id, "heretic-astartes-daemon-allies-points");
+      assert.equal(passPackJson.wargearRows.at(-1).caseId, "invalid-unit-loadout");
+      const generatedPassPack = execNodeWithoutParentCoverage([passPackTool, "--format", "markdown"]).trim();
+      const passPackPath = join(projectRoot, "docs", "wh40k_app_manual_pass_pack.md");
+      const checkedInPassPack = await readFile(passPackPath, "utf8");
+      assert.equal(checkedInPassPack.trim(), generatedPassPack);
+
+      assert.throws(
+        () => execNodeWithoutParentCoverage([passPackTool, "--check-results", passPackPath]),
+        (error) => {
+          const incompleteSummary = JSON.parse(error.stdout);
+          assert.equal(incompleteSummary.status, "incomplete");
+          assert.equal(incompleteSummary.minimum.pendingRows.length, 17);
+          assert.equal(incompleteSummary.wargear.pendingRows.length, 26);
+          return true;
+        }
+      );
+
+      const passPackSummary = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--check-results",
+        passPackPath,
+        "--allow-pending",
+      ]));
+      assert.equal(passPackSummary.status, "pending");
+      assert.equal(passPackSummary.minimum.expectedRows, 17);
+      assert.equal(passPackSummary.minimum.parsedRows, 17);
+      assert.equal(passPackSummary.minimum.pendingRows.length, 17);
+      assert.equal(passPackSummary.wargear.expectedRows, 26);
+      assert.equal(passPackSummary.wargear.parsedRows, 26);
+      assert.equal(passPackSummary.wargear.pendingRows.length, 26);
+
+      let inWargearSection = false;
+      const filledPassPack = generatedPassPack.split("\n").map((line) => {
+        if (line.startsWith("## Wargear UI Cases")) {
+          inWargearSection = true;
+          return line;
+        }
+        if (line.startsWith("## Completion Rule")) {
+          inWargearSection = false;
+          return line;
+        }
+        if (!line.startsWith("| ")) {
+          return line;
+        }
+        if (inWargearSection && line.includes(" | Pending | Pending | Pending |")) {
+          const expectedState = line.includes(" | invalid | ") ? "invalid" : "valid";
+          return line.replace(
+            " | Pending | Pending | Pending |",
+            ` | ${expectedState} | manual app diagnostic | match |`,
+          );
+        }
+        if (!inWargearSection && line.includes(" | Pending | Pending |")) {
+          return line.replace(
+            " | Pending | Pending |",
+            " | official app agrees | match |",
+          );
+        }
+        return line;
+      }).join("\n");
+      const filledPassPackPath = join(resultsDir, "filled-pass-pack.md");
+      writeFileSync(filledPassPackPath, filledPassPack);
+      const filledPassPackSummary = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--check-results",
+        filledPassPackPath,
+      ]));
+      assert.equal(filledPassPackSummary.status, "match");
+      assert.equal(filledPassPackSummary.minimum.pendingRows.length, 0);
+      assert.equal(filledPassPackSummary.wargear.pendingRows.length, 0);
+
+      const passPackMismatchPath = join(resultsDir, "mismatch-pass-pack.md");
+      writeFileSync(
+        passPackMismatchPath,
+        filledPassPack.replace(
+          " | valid | manual app diagnostic | match |",
+          " | invalid | manual app diagnostic | mismatch |",
+        ),
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([passPackTool, "--check-results", passPackMismatchPath]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.wargear.stateMismatches.length, 1);
+          return true;
+        }
+      );
+    } finally {
+      rmSync(resultsDir, { recursive: true, force: true });
+    }
+  });
+}
+
+export { minimumParityCases, minimumParityConceptByCode, manualMinimumParityCaseIds };

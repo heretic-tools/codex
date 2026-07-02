@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   state,
+  availableDetachments,
   validateWargearLoadouts,
   realCatalog,
   messageCodes,
@@ -13,6 +19,10 @@ import {
   setMiniatureWargear,
 } from "./builder_validation_helpers.mjs";
 import { validationConceptForCode, validationConceptKnown } from "./builder_validation_concepts.mjs";
+
+const currentFile = fileURLToPath(import.meta.url);
+const projectRoot = dirname(dirname(currentFile));
+const shouldRegisterTests = process.argv.some((arg) => resolve(arg) === currentFile);
 
 const invalidWargearCodes = [
   "wargear_loadout.invalid_miniature_wargear_loadout",
@@ -367,13 +377,219 @@ const wargearParityCases = [
   },
 ];
 
-test("minimum WH app wargear parity cases stay executable", () => {
-  assert.equal(wargearParityCases.length, 25);
-  assert.ok(wargearParityCases.every((parityCase) => parityCase.id && validationConceptKnown(parityCase.officialConcept)));
-  runWargearCases(wargearParityCases);
-});
+function wargearOptionSummary(optionId, count) {
+  const option = realCatalog.wargearOptionById.get(optionId) || {};
+  const item = realCatalog.wargearItemById.get(option.wargearItemId) || {};
+  return {
+    optionId,
+    wargearItemId: option.wargearItemId || "",
+    name: item.name || optionId,
+    count: Number(count || 0),
+  };
+}
+
+function wargearSummary(counts) {
+  return Object.entries(counts || {})
+    .filter(([, count]) => Number(count || 0) > 0)
+    .map(([optionId, count]) => wargearOptionSummary(optionId, count))
+    .sort((left, right) => (
+      String(left.name).localeCompare(String(right.name))
+      || String(left.optionId).localeCompare(String(right.optionId))
+    ));
+}
+
+function manifestUnit(unit) {
+  return {
+    id: unit.id,
+    name: unit.name,
+    datasheetId: unit.datasheetId,
+    modelCount: unit.modelCount,
+    unitWargear: wargearSummary(unit.wargear),
+    miniatures: (unit.miniatures || []).map((miniature) => ({
+      rosterUnitMiniatureId: miniature.rosterUnitMiniatureId || miniature.id || "",
+      miniatureId: miniature.miniatureId,
+      name: miniature.name,
+      count: Number(miniature.count || 0),
+      wargear: wargearSummary(miniature.wargear),
+    })),
+  };
+}
+
+function uiSetupForUnit(unit) {
+  const faction = (realCatalog.datasheetFactionKeywordsByDatasheetId.get(unit.datasheetId) || [])
+    .map((row) => realCatalog.factionKeywordById.get(row.factionKeywordId))
+    .filter((row) => row && !row.excludedFromArmyBuilder)
+    .sort((left, right) => (
+      String(left.name || "").localeCompare(String(right.name || ""))
+    ))[0] || null;
+  const detachment = faction ? availableDetachments(faction.id)[0] : null;
+  return {
+    comparisonScope: "wargear-only",
+    datasheetId: unit.datasheetId,
+    datasheetName: unit.name,
+    rosterFactionId: faction?.id || "",
+    rosterFactionName: faction?.name || "",
+    battleSizeName: "Strike Force",
+    detachmentId: detachment?.id || "",
+    detachmentName: detachment?.name || "",
+    note: "Compare only wargear-related diagnostics; satisfy or ignore unrelated roster-level Warlord/detachment errors.",
+  };
+}
+
+function wargearParityManifest() {
+  state.catalog = realCatalog;
+  const cases = wargearParityCases.map((parityCase) => {
+    const expectedCodes = parityCase.expectedCodes || [];
+    const forbiddenCodes = parityCase.forbiddenCodes || [];
+    const units = parityCase.units();
+    return {
+      id: parityCase.id,
+      comparisonScope: "wargear-only",
+      expectedState: expectedCodes.length ? "invalid" : "valid",
+      officialConcept: parityCase.officialConcept,
+      expectedCodes,
+      forbiddenCodes,
+      uiSetups: units.map(uiSetupForUnit),
+      units: units.map(manifestUnit),
+    };
+  });
+  return {
+    dataVersion: realCatalog.bootstrap?.dataVersion || "",
+    caseCount: wargearParityCases.length,
+    setupCount: cases.reduce((total, parityCase) => total + parityCase.uiSetups.length, 0),
+    cases,
+  };
+}
+
+function execNodeWithoutParentCoverage(args) {
+  const childEnv = { ...process.env };
+  const childCoverageDir = childEnv.NODE_V8_COVERAGE
+    ? mkdtempSync(join(tmpdir(), "heretic-builder-child-coverage-"))
+    : null;
+  if (childCoverageDir) {
+    childEnv.NODE_V8_COVERAGE = childCoverageDir;
+  }
+  try {
+    return execFileSync(process.execPath, args, {
+      encoding: "utf8",
+      env: childEnv,
+      maxBuffer: 128 * 1024 * 1024,
+    });
+  } finally {
+    if (childCoverageDir) {
+      rmSync(childCoverageDir, { recursive: true, force: true });
+    }
+  }
+}
+
+if (shouldRegisterTests) {
+  test("minimum WH app wargear parity cases stay executable", () => {
+    assert.equal(wargearParityCases.length, 25);
+    assert.ok(wargearParityCases.every((parityCase) => parityCase.id && validationConceptKnown(parityCase.officialConcept)));
+    runWargearCases(wargearParityCases);
+  });
+
+  test("minimum WH app wargear parity manifest carries UI setup hints", () => {
+    const manifest = wargearParityManifest();
+    assert.equal(manifest.caseCount, 25);
+    assert.equal(manifest.setupCount, 26);
+    assert.ok(manifest.cases.every((parityCase) => parityCase.comparisonScope === "wargear-only"));
+    assert.ok(manifest.cases.every((parityCase) => parityCase.uiSetups.length === parityCase.units.length));
+    const setupLabels = manifest.cases.flatMap((parityCase) => (
+      parityCase.uiSetups.map((setup) => (
+        `${parityCase.id}: ${setup.rosterFactionName} / ${setup.detachmentName} / ${setup.datasheetName}`
+      ))
+    ));
+    assert.ok(setupLabels.includes("limited-default-component-default-loadouts-valid: T’au Empire / Advanced Acquisition Cadre / Pathfinder Team"));
+    assert.ok(setupLabels.includes("limited-default-component-default-loadouts-valid: Orks / More Dakka! / Tankbustas"));
+    assert.deepEqual(
+      manifest.cases.flatMap((parityCase) => parityCase.uiSetups)
+        .filter((setup) => !setup.rosterFactionName || !setup.detachmentName),
+      []
+    );
+  });
+
+  test("manual WH app wargear UI setup doc tracks every manifest setup", () => {
+    const manifest = wargearParityManifest();
+    const setupDoc = readFileSync(join(projectRoot, "docs", "wh40k_app_wargear_ui_setups.md"), "utf8");
+
+    assert.equal(manifest.setupCount, 26);
+    for (const parityCase of manifest.cases) {
+      for (const setup of parityCase.uiSetups) {
+        const row = `| \`${parityCase.id}\` | ${setup.rosterFactionName} | ${setup.detachmentName} | ${setup.datasheetName} |`;
+        assert.ok(setupDoc.includes(row), `${parityCase.id} missing setup row ${row}`);
+      }
+    }
+  });
+
+  test("wargear manifest export CLI emits JSON and markdown formats", () => {
+    const exportTool = join(projectRoot, "HereticBuilder", "tools", "export_wargear_parity_manifest.mjs");
+    const jsonManifest = JSON.parse(execNodeWithoutParentCoverage([exportTool, "--json"]));
+    assert.equal(jsonManifest.caseCount, 25);
+    assert.equal(jsonManifest.setupCount, 26);
+    assert.equal(jsonManifest.cases[0].id, "duplicate-name-cthonian-beserks-default-valid");
+
+    const markdown = execNodeWithoutParentCoverage([exportTool, "--format", "markdown"]);
+    assert.ok(markdown.startsWith("# WH 40K app wargear parity setups"));
+    assert.ok(markdown.includes("WH app UI setups: 26"));
+    assert.ok(markdown.includes("| Case id | Expected | Codes | Roster faction | Detachment | Unit | Wargear setup | WH app state | WH app diagnostic | Parity |"));
+    assert.ok(markdown.includes("| `invalid-unit-loadout` | invalid | wargear_loadout.invalid_unit_wargear_loadout | T’au Empire | Advanced Acquisition Cadre | Breacher Team |"));
+    assert.ok(markdown.includes("| Pending | Pending | Pending |"));
+
+    const resultsDir = mkdtempSync(join(tmpdir(), "heretic-builder-wargear-results-"));
+    try {
+      const pendingResultsPath = join(resultsDir, "pending.md");
+      writeFileSync(pendingResultsPath, markdown);
+      const pendingSummary = JSON.parse(execNodeWithoutParentCoverage([
+        exportTool,
+        "--check-results",
+        pendingResultsPath,
+        "--allow-pending",
+      ]));
+      assert.equal(pendingSummary.status, "pending");
+      assert.equal(pendingSummary.parsedRows, 26);
+      assert.equal(pendingSummary.pendingRows.length, 26);
+
+      const filledMarkdown = markdown.split("\n").map((line) => {
+        if (!line.startsWith("| `")) {
+          return line;
+        }
+        const expectedState = line.includes(" | invalid | ") ? "invalid" : "valid";
+        return line.replace(" | Pending | Pending | Pending |", ` | ${expectedState} | manual app diagnostic | match |`);
+      }).join("\n");
+      const filledResultsPath = join(resultsDir, "filled.md");
+      writeFileSync(filledResultsPath, filledMarkdown);
+      const matchSummary = JSON.parse(execNodeWithoutParentCoverage([
+        exportTool,
+        "--check-results",
+        filledResultsPath,
+      ]));
+      assert.equal(matchSummary.status, "match");
+      assert.equal(matchSummary.parsedRows, 26);
+      assert.equal(matchSummary.pendingRows.length, 0);
+
+      const mismatchResultsPath = join(resultsDir, "mismatch.md");
+      writeFileSync(
+        mismatchResultsPath,
+        filledMarkdown.replace(" | valid | manual app diagnostic | match |", " | invalid | manual app diagnostic | mismatch |")
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([exportTool, "--check-results", mismatchResultsPath]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.stateMismatches.length, 1);
+          return true;
+        }
+      );
+    } finally {
+      rmSync(resultsDir, { recursive: true, force: true });
+    }
+  });
+}
 
 export {
   runWargearCases,
+  wargearParityManifest,
   wargearParityCases,
 };

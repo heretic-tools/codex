@@ -1,12 +1,20 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { realCatalog } from "./builder_validation_helpers.mjs";
+import { loadCatalog } from "../HereticBuilder/static/builder_catalog.js";
+import { siteHref } from "../HereticBuilder/static/builder_state.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const OFFICIAL_WH40K_APP_DB_PATH =
+  "/Users/losikov/Library/Containers/com.gamesworkshop.w40k/Data/Library/Application Support/db.sqlite";
+const BUILDER_SQLITE_DB_PATH = join(projectRoot, "data", "heretic_db.sqlite");
 
 const LOADED_BUILDER_RULE_TABLES = [
   ["battle_size", "battleSizes"],
@@ -176,6 +184,75 @@ function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
 }
 
+function sqlite3Available() {
+  try {
+    execFileSync("sqlite3", ["-version"], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function quoteSqlIdentifier(identifier) {
+  return `"${identifier.replaceAll("\"", "\"\"")}"`;
+}
+
+function sqliteScalar(dbPath, sql) {
+  return execFileSync("sqlite3", [dbPath, sql], { encoding: "utf8" }).trim();
+}
+
+function sqliteRows(dbPath, sql) {
+  const output = execFileSync("sqlite3", ["-json", dbPath, sql], {
+    encoding: "utf8",
+    maxBuffer: 128 * 1024 * 1024,
+  }).trim();
+  return output ? JSON.parse(output) : [];
+}
+
+function sqliteTableFingerprint(dbPath, tableName, columns) {
+  const selectedColumns = columns.map(quoteSqlIdentifier);
+  const sql = [
+    `select ${selectedColumns.join(",")}`,
+    `from ${quoteSqlIdentifier(tableName)}`,
+    `order by ${selectedColumns.join(",")}`,
+  ].join(" ");
+  const rowsJson = execFileSync("sqlite3", ["-json", dbPath, sql], {
+    encoding: "utf8",
+    maxBuffer: 128 * 1024 * 1024,
+  });
+
+  return sha256(rowsJson);
+}
+
+const localOfficialDbComparisonAvailable =
+  existsSync(OFFICIAL_WH40K_APP_DB_PATH) &&
+  existsSync(BUILDER_SQLITE_DB_PATH) &&
+  sqlite3Available();
+
+test("thin client catalog loading keeps path and fetch failure behavior explicit", async () => {
+  assert.equal(siteHref(""), "");
+  assert.equal(siteHref("relative/path"), "relative/path");
+  assert.equal(siteHref("//cdn.example/builder-data/bootstrap.json"), "//cdn.example/builder-data/bootstrap.json");
+  assert.equal(siteHref("/builder-data/bootstrap.json"), "/builder-data/bootstrap.json");
+
+  const previousFetch = global.fetch;
+  global.fetch = async () => ({
+    ok: false,
+    status: 503,
+    json: async () => {
+      throw new Error("unexpected json read");
+    },
+  });
+  try {
+    await assert.rejects(
+      loadCatalog(),
+      /\/builder-data\/(bootstrap|tables\/[^/]+)\.json: 503/
+    );
+  } finally {
+    global.fetch = previousFetch;
+  }
+});
+
 test("data-empty rule tables stay explicit until live fixture coverage is added", () => {
   const liveTables = DATA_EMPTY_RULE_TABLES
     .map(([tableName, catalogKey]) => [tableName, realCatalog[catalogKey]?.length ?? 0])
@@ -207,6 +284,132 @@ test("loaded Builder rule tables match exported table counts", () => {
 
   assert.deepEqual(mismatches, []);
 });
+
+test(
+  "local official WH 40K app DB matches Builder DB for loaded roster rule tables",
+  {
+    skip: !localOfficialDbComparisonAvailable &&
+      "official WH 40K app DB or sqlite3 CLI is not available on this machine",
+  },
+  () => {
+    const mismatches = LOADED_BUILDER_RULE_TABLES
+      .map(([tableName]) => {
+        const columns = BUILDER_RULE_TABLE_COLUMNS[tableName];
+        assert.ok(columns, `${tableName} should have pinned column coverage`);
+
+        const countSql = `select count(*) from ${quoteSqlIdentifier(tableName)}`;
+        const officialCount = Number(sqliteScalar(OFFICIAL_WH40K_APP_DB_PATH, countSql));
+        const builderCount = Number(sqliteScalar(BUILDER_SQLITE_DB_PATH, countSql));
+        const officialFingerprint = sqliteTableFingerprint(OFFICIAL_WH40K_APP_DB_PATH, tableName, columns);
+        const builderFingerprint = sqliteTableFingerprint(BUILDER_SQLITE_DB_PATH, tableName, columns);
+
+        return {
+          tableName,
+          officialCount,
+          builderCount,
+          officialFingerprint,
+          builderFingerprint,
+        };
+      })
+      .filter((entry) => (
+        entry.officialCount !== entry.builderCount ||
+        entry.officialFingerprint !== entry.builderFingerprint
+      ));
+
+    assert.deepEqual(mismatches, []);
+  }
+);
+
+test(
+  "local official WH 40K app DB stores only aggregate roster validation state",
+  {
+    skip: !localOfficialDbComparisonAvailable &&
+      "official WH 40K app DB or sqlite3 CLI is not available on this machine",
+  },
+  () => {
+    const validationStorageTables = sqliteRows(OFFICIAL_WH40K_APP_DB_PATH, `
+      select name, type
+      from sqlite_master
+      where type = 'table'
+        and (
+          lower(name) like '%valid%'
+          or lower(name) like '%error%'
+          or lower(name) like '%message%'
+          or lower(name) like '%diagnostic%'
+          or lower(name) like '%warning%'
+        )
+      order by name
+    `);
+    assert.deepEqual(validationStorageTables, [{
+      name: "roster_validation_state",
+      type: "table",
+    }]);
+
+    const validationStateColumns = sqliteRows(
+      OFFICIAL_WH40K_APP_DB_PATH,
+      "pragma table_info(roster_validation_state)"
+    ).map((column) => ({
+      name: column.name,
+      type: column.type,
+      notnull: Number(column.notnull),
+      primaryKey: Number(column.pk),
+    }));
+
+    assert.deepEqual(validationStateColumns, [
+      { name: "id", type: "TEXT", notnull: 1, primaryKey: 0 },
+      { name: "rosterId", type: "TEXT", notnull: 1, primaryKey: 1 },
+      { name: "validationState", type: "TEXT", notnull: 0, primaryKey: 0 },
+    ]);
+  }
+);
+
+test(
+  "local saved WH 40K app rosters match Builder aggregate validation state",
+  {
+    skip: !localOfficialDbComparisonAvailable &&
+      "official WH 40K app DB or sqlite3 CLI is not available on this machine",
+  },
+  () => {
+    const childEnv = { ...process.env };
+    const childCoverageDir = childEnv.NODE_V8_COVERAGE
+      ? mkdtempSync(join(tmpdir(), "heretic-builder-child-coverage-"))
+      : null;
+    if (childCoverageDir) {
+      childEnv.NODE_V8_COVERAGE = childCoverageDir;
+    }
+    let output;
+    try {
+      output = execFileSync(process.execPath, [
+        join(projectRoot, "HereticBuilder", "tools", "compare_wh40k_saved_rosters.mjs"),
+        OFFICIAL_WH40K_APP_DB_PATH,
+        "--json",
+      ], {
+        encoding: "utf8",
+        env: childEnv,
+        maxBuffer: 128 * 1024 * 1024,
+      });
+    } finally {
+      if (childCoverageDir) {
+        rmSync(childCoverageDir, { recursive: true, force: true });
+      }
+    }
+    const comparisons = JSON.parse(output);
+
+    assert.ok(comparisons.length > 0, "Expected at least one saved WH app roster to compare");
+    assert.deepEqual(
+      comparisons
+        .filter((comparison) => comparison.match !== true)
+        .map((comparison) => ({
+          rosterId: comparison.rosterId,
+          name: comparison.name,
+          officialState: comparison.officialState,
+          builderState: comparison.builderState,
+          builderCodes: comparison.builderCodes,
+        })),
+      []
+    );
+  }
+);
 
 test("static Builder data export audit has no unexpected roster tables", async () => {
   const response = await fetch("/builder-data/audit.json");

@@ -1,11 +1,28 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { validationConceptForCode } from "./builder_validation_concepts.mjs";
+import {
+  OFFICIAL_VALIDATION_KEY_TO_CODE,
+  validationConceptForCode,
+} from "./builder_validation_concepts.mjs";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const OFFICIAL_DATASOURCE_STRINGS_PATH =
+  "/Applications/WH 40K.app/Wrapper/w40.app/Datasource_BattleForgeDatasource.bundle/en.lproj/Localizable.strings";
+const OFFICIAL_UI_STRINGS_PATH =
+  "/Applications/WH 40K.app/Wrapper/w40.app/UI_BattleForgeUI.bundle/en.lproj/Localizable.strings";
+
+const OFFICIAL_DATASOURCE_VALIDATION_KEY_PATTERN =
+  /^(allegiance_ability|allied_|attach_|attached_|conditional_keyword|detachment_|enhancement|invalid_warlord|keyword_restriction|mandatory_warlord|max_model|roster_|successor|unit_composition|wargear_loadout|warlord_validator)/;
+
+function plistKeys(path) {
+  const output = execFileSync("plutil", ["-convert", "json", "-o", "-", path], { encoding: "utf8" });
+  return Object.keys(JSON.parse(output));
+}
 
 test("every Builder validation code is covered by a focused validation test", async () => {
   const staticDir = join(projectRoot, "HereticBuilder", "static");
@@ -54,3 +71,31 @@ test("wargear validation codes preserve official loadout and requirement concept
   assert.equal(validationConceptForCode("wargear_loadout.invalid_unit_wargear_loadout"), "InvalidWargearLoadout");
   assert.equal(validationConceptForCode("wargear_loadout.invalid_wargear_requirement"), "InvalidWargearRequirement");
 });
+
+test("official WH app validation localization keys map to Builder codes", () => {
+  assert.equal(Object.keys(OFFICIAL_VALIDATION_KEY_TO_CODE).length, 56);
+
+  const unmappedCodes = Object.entries(OFFICIAL_VALIDATION_KEY_TO_CODE)
+    .filter(([, code]) => !validationConceptForCode(code))
+    .map(([key, code]) => `${key} -> ${code}`)
+    .sort();
+
+  assert.deepEqual(unmappedCodes, []);
+});
+
+test(
+  "local official WH app validation localization keys stay mapped",
+  {
+    skip: !(existsSync(OFFICIAL_DATASOURCE_STRINGS_PATH) && existsSync(OFFICIAL_UI_STRINGS_PATH)) &&
+      "official WH 40K app localization bundles are not available on this machine",
+  },
+  () => {
+    const datasourceKeys = plistKeys(OFFICIAL_DATASOURCE_STRINGS_PATH)
+      .filter((key) => OFFICIAL_DATASOURCE_VALIDATION_KEY_PATTERN.test(key));
+    const uiKeys = plistKeys(OFFICIAL_UI_STRINGS_PATH)
+      .filter((key) => key === "invalid_warlord_generic");
+    const officialKeys = [...new Set([...datasourceKeys, ...uiKeys])].sort();
+
+    assert.deepEqual(officialKeys, Object.keys(OFFICIAL_VALIDATION_KEY_TO_CODE).sort());
+  }
+);

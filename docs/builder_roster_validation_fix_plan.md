@@ -217,6 +217,47 @@ Related audits:
   tables currently have no faction-gated rows, then prove matching roster
   factions satisfy the attachment/bodyguard requirement while mismatched roster
   factions reject it. `npm test` now passes 127 validation tests.
+- 2026-07-02: Added synthetic coverage for allied edge data shapes that are
+  currently absent from v879: globally-scoped new-table restricting keyword
+  rows, duplicate restricting rows, and malformed slotless keyword groups
+  missing either donor or receiver keywords. The test proves global restrictions
+  still apply, duplicates emit one diagnostic, and malformed slotless groups do
+  not subtract from keyword caps. `npm test` now passes 128 validation tests.
+- 2026-07-02: Added explicit coverage for the allied validator no-op path when
+  a roster contains no allied units. The focused coverage run now shows
+  `builder_allied_rules.js` at 100% line coverage. `npm test` now passes 129
+  validation tests.
+- 2026-07-02: Added synthetic coverage for keyword restriction groups that have
+  no linked keyword rows. The test proves such groups stay inactive even when
+  they carry a top-level zero limit and detachment min/max rows. `npm test` now
+  passes 130 validation tests.
+- 2026-07-02: Added synthetic wargear/loadout edge coverage for exact
+  context-specific canonical aliases, zero-limit regular loadout sets,
+  empty regular loadout sets, over-limit regular choice sets, limited wargear
+  sets with no exported limit rows, duplicate limited choice vectors, partial
+  multi-item limited choices, skipped oversized limited vectors, null-safe
+  miniature target matching, and all-model choice rows with no item rows.
+  `npm test` now passes 132 validation tests.
+- 2026-07-02: Added synthetic model-helper/cache-routing coverage for
+  mixed-shape selected allegiance abilities, detachment/disposition badge
+  fallbacks, allied composition faction scope fallbacks, allied source labels,
+  native/allied datasheet availability with missing compositions and detachment
+  exclusions, composition label fallbacks, saved-composition replacement by more
+  specific equivalents, fallback default composition replacement, zero-model
+  saved composition summaries, and roster point totals. `npm test` now passes
+  133 validation tests.
+- 2026-07-02: Added core required-wargear matcher edge coverage for missing
+  selected option rows, selected options that point at the wrong wargear item,
+  and selected model wargear targeted at a different miniature. `npm test` now
+  passes 134 validation tests.
+- 2026-07-02: Added thin-client catalog infrastructure coverage for `siteHref`
+  pass-through paths and explicit `loadCatalog` failure behavior when a cached
+  Builder data fetch returns a non-OK response. `npm test` now passes 135
+  validation tests.
+- 2026-07-02: Added cache-compat coverage for saved allegiance selections whose
+  old ability group is no longer present in the current catalog. The validator
+  now has an explicit regression test proving it skips the missing group without
+  false diagnostics. `npm test` now passes 146 validation tests.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,
@@ -443,10 +484,81 @@ Related audits:
   all-model base choices.
 - 2026-07-02: Added an executable WH app wargear parity manifest with 25
   high-risk Builder cases and expected validation codes/concepts. The manifest
-  is test-only and gives the future WH app comparison a concrete checklist.
+  is test-only. `docs/wh40k_app_manual_parity_checklist.md` now mirrors every
+  executable wargear case for official app UI comparison, and a manifest test
+  fails if a case is missing from the checklist. The manifest also pins 26 WH
+  app UI setups for those 25 cases so multi-faction cases cannot collapse into a
+  single unbuildable official-app roster setup. `docs/wh40k_app_wargear_ui_setups.md`
+  mirrors those setup rows and is checked against the manifest.
 - 2026-07-02: Added an executable minimum WH app parity manifest that maps the
   non-wargear required audit groups to focused Builder test files, anchors, and
-  expected validation codes/concepts.
+  expected validation codes/concepts. The manual WH app checklist now has a
+  tracked row for all 90 minimum parity groups, guarded by a manifest test.
+- 2026-07-02: Added an optional local official WH 40K app DB fingerprint guard.
+  When the installed app DB is present, the test compares all 73 loaded
+  roster-rule tables in `/Users/losikov/Library/Containers/com.gamesworkshop.w40k/Data/Library/Application Support/db.sqlite`
+  against `data/heretic_db.sqlite` by row count and ordered row hash; it skips
+  cleanly on machines without the official app DB or `sqlite3`.
+- 2026-07-02: Added
+  `HereticBuilder/tools/compare_wh40k_saved_rosters.mjs`, a read-only local
+  script that converts saved WH app `roster_*` rows into Builder roster shape
+  and compares aggregate `valid`/`invalid` state. The current local `CSM` saved
+  roster matches: official `invalid`, Builder `invalid`, Builder code
+  `warlord.not_selected`. A local optional test now runs this script when the
+  official WH app DB is present and fails on any saved-roster aggregate mismatch.
+- 2026-07-02: Added an optional official DB schema guard proving that local WH
+  app validation storage is aggregate-only in v879: the only validation-like
+  table is `roster_validation_state`, with `id`, `rosterId`, and
+  `validationState` columns.
+- 2026-07-02: Added a test-only official validation localization key map. It
+  pins 56 roster-validation keys from the installed WH app localization bundles
+  to Builder validation codes and fails locally if a future app bundle exposes a
+  new unmapped validation key.
+- 2026-07-02: Added `HereticBuilder/tools/export_wargear_parity_manifest.mjs`.
+  It exports the executable 25-case wargear parity checklist as JSON, including
+  `comparisonScope: "wargear-only"`, expected Builder state/codes,
+  official-like concept, `setupCount`, per-unit UI setup hints, units,
+  miniatures, and selected wargear option/item IDs, names, and counts.
+  Multi-unit wargear cases can split into several WH app UI setups when the
+  units belong to different factions; v879 currently exports 26 setups for 25
+  cases. The tool also supports `--format markdown` for a human-readable WH app
+  result table with expected state, Builder codes, selected wargear grouped by
+  model, and pending WH app result columns. It also supports `--check-results`
+  for filled markdown worksheets, returning `pending`, `match`, `incomplete`,
+  or `mismatch` and failing on missing, duplicate, unexpected, state-mismatched,
+  or parity-mismatched rows. A CLI guard verifies JSON export, markdown export,
+  pending-result, match-result, and mismatch-result modes.
+- 2026-07-02: Added `HereticBuilder/tools/export_minimum_parity_manifest.mjs`.
+  It reuses the executable 90-case minimum parity manifest and exports JSON or a
+  markdown WH app result worksheet. Its `--check-results` mode validates the
+  `## Minimum manifest parity groups` section of the manual checklist, catching
+  missing, duplicate, unexpected, pending, and invalid-parity rows. The existing
+  minimum manifest test now verifies JSON export, markdown export, current
+  checklist parsing, pending-result, match-result, and mismatch-result modes.
+- 2026-07-02: Converted the manual checklist's machine-verifiable minimum
+  evidence rows from `Pending` to guard-backed `match`. The minimum checklist
+  now has 73 of 90 rows matched by local DB/bundle/export guards or focused
+  evidence tests, with 17 manual UI/golden-case rows still pending. The 25
+  wargear UI parity rows remain pending until the generated WH app worksheet is
+  filled from the official app UI.
+- 2026-07-02: Tightened the minimum checklist checker with
+  `--allow-manual-pending-only`. This keeps the 17 manual WH app UI/golden-case
+  rows allowed during the in-progress pass, but fails if any guard-backed
+  evidence row accidentally returns to `Pending`.
+- 2026-07-02: Filled the `WH app method` column for all 17 remaining manual
+  minimum parity rows. They still intentionally have pending result/parity
+  fields, but each row now names the official app scenario to recreate and the
+  Builder fixture state to compare.
+- 2026-07-02: Added `HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs`
+  and the generated `docs/wh40k_app_manual_pass_pack.md`. The pack contains only
+  the 17 manual minimum UI/golden cases and the 26 wargear UI setups, so the
+  remaining official app pass can be worked without scanning the full audit.
+  The minimum manifest test now verifies the checked-in pack matches the
+  generator output.
+- 2026-07-02: Added `--check-results` to the manual pass-pack exporter. The
+  focused pack now validates both its minimum-case and wargear-setup sections,
+  reports `incomplete` unless pending rows are explicitly allowed, and fails on
+  missing, duplicate, unexpected, state-mismatched, or parity-mismatched rows.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
