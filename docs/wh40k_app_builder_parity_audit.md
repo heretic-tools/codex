@@ -82,6 +82,11 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   conditional keywords from the unit summary, covering Character-granting
   allegiance abilities such as Headhunter Task Force vehicle Characters and
   roster-faction-scoped chapter keywords such as Dark Angels `Deathwing`.
+- Conditional keyword predicate coverage now walks every live v879
+  `conditional_keyword` row. All 380 rows are proven true when requirements are
+  satisfied and false when each configured requirement is missing, covering 270
+  allegiance-ability rows, 32 roster-faction rows, 77 detachment rows, and 2
+  Warlord-miniature rows.
 - Unit-level enhancement coverage now explicitly includes
   `enhancementType = upgrade`. Sharp Eyes (Upgrade) proves upgrade required
   datasheet/faction groups, upgrade points, and the per-enhancement duplicate
@@ -204,12 +209,12 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `InvalidWargearRequirement` for limited/all-model requirement failures.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 82 validation tests.
+  once; `npm test` passes 83 validation tests.
 - The minimum parity manifest now anchors required subcases, including Heretic
   Astartes daemon allies under/over the points cap, all 4 live legacy
-  Battleline outnumbering rows, and the allied rule-table inventory guard. It
-  also carries the Aeldari/Drukhari keyword restriction subcases as explicit
-  anchors.
+  Battleline outnumbering rows, the allied rule-table inventory guard, and all
+  380 live conditional keyword requirement rows. It also carries the
+  Aeldari/Drukhari keyword restriction subcases as explicit anchors.
 - Live keyword restriction coverage now walks every v879 top-level
   `keyword_restriction_group` with a configured limit and proves valid plus
   invalid states for all 15 current groups.
@@ -330,6 +335,7 @@ Status values:
 | `MissingAllegianceAbility` | `builder_allegiance_rules.js:33-35` | Covered | v879 has 5 mandatory allegiance groups. |
 | `TooManyAllegianceAbilities` | `builder_allegiance_rules.js:36-38` | Covered | Blocks more than one selected ability in a unit group. |
 | `MissingMandatoryAllegianceAbility` | `builder_allegiance_rules.js:63-84` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage proves parent-faction rows are inherited through `factionScope` and that selecting the mandatory ability satisfies the rule. |
+| `ConditionalKeywordPredicate` | `builder_model.js:193-215` | Covered | All 380 current `conditional_keyword` rows have satisfied and missing-requirement coverage, including allegiance ability, roster faction, detachment, and Warlord-miniature requirements. |
 | `AlliedFactionValidator` | `builder_allied_rules.js:141-145` | Covered | Uses `faction_keyword_allied_faction`; all 87 current rows have available coverage plus unavailable controls. |
 | `AlliedFactionNotAvailable` | `builder_allied_rules.js:141-145` | Covered | Semantics present across every current live ally bucket. |
 | `AlliedFactionDatasheetValidator` | `builder_allied_rules.js:170-176` | Covered | Uses `allied_faction_datasheet`; all 320 current rows have allowed coverage plus disallowed controls. |

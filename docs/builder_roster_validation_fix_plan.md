@@ -81,6 +81,11 @@ Related audits:
   A Headhunter Task Force Vindicator is still an invalid Warlord without the
   selected `Character` allegiance ability, and becomes eligible once that
   conditional keyword is active.
+- 2026-07-02: Added real-catalog predicate coverage for every live v879
+  `conditional_keyword` row. The test proves all 380 current rows apply when
+  their requirements are satisfied and fail when each configured requirement is
+  missing, covering the 270 allegiance-ability rows, 32 roster-faction rows, 77
+  detachment rows, and 2 Warlord-miniature rows.
 - 2026-07-02: Added live coverage for `enhancementType = upgrade`. Sharp Eyes
   (Upgrade) is validated as a unit-level upgrade with its own required
   datasheet/faction group, contributes points, and enforces its per-enhancement
@@ -243,7 +248,7 @@ Related audits:
 - 2026-07-02: Reworked limited wargear choice coverage from independent
   occurrence summing to bounded exact-cover matching. Overlapping combo rows
   such as Battle Sisters Squad `Heavy bolter + Ministorum flamer` no longer
-  self-overcount against `choiceLimit`. `npm test` now passes 82 validation
+  self-overcount against `choiceLimit`. `npm test` now passes 83 validation
   tests.
 - 2026-07-02: Added live wargear coverage for additional v879 loadout shapes:
   alternate loadout rows replacing regular sets, duplicate-allowed loadout

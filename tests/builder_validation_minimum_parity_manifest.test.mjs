@@ -60,6 +60,19 @@ const minimumParityCases = [
     codes: [],
   },
   {
+    id: "live-conditional-keyword-requirements",
+    file: "tests/builder_validation_core.test.mjs",
+    anchors: [
+      "all live conditional keyword rows have satisfied and missing requirement coverage",
+      "conditionalKeywords.length, 380",
+      "requiredAllegianceAbilityId: 270",
+      "requiredRosterFactionKeywordId: 32",
+      "requiredDetachmentId: 77",
+      "requiredWarlordMiniatureId: 2",
+    ],
+    codes: [],
+  },
+  {
     id: "heretic-astartes-daemon-allies-points",
     file: "tests/builder_validation_allied.test.mjs",
     anchors: [
@@ -365,7 +378,7 @@ const minimumParityCases = [
 ];
 
 test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 34);
+  assert.equal(minimumParityCases.length, 35);
   for (const parityCase of minimumParityCases) {
     const source = await readFile(join(projectRoot, parityCase.file), "utf8");
     for (const anchor of parityCase.anchors) {

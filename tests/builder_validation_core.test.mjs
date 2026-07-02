@@ -5,6 +5,7 @@ import {
   costForDetachment,
   defaultMiniatures,
   defaultWargear,
+  conditionalKeywordApplies,
   factionScope,
   enhancementPoints,
   unitSummary,
@@ -130,6 +131,141 @@ test("conditional keywords match required roster faction through parent scope", 
     });
     assert.ok(summary.keywordIds.includes("conditional-keyword"));
     assert.ok(summary.conditionalKeywordIds.includes("conditional-keyword"));
+  });
+});
+
+function factionOutsideScope(requiredFactionKeywordId) {
+  const faction = realCatalog.factionKeywords.find((item) => !factionScope(item.id).includes(requiredFactionKeywordId));
+  assert.ok(faction, `Expected faction outside scope ${requiredFactionKeywordId}`);
+  return faction.id;
+}
+
+function satisfiedConditionalKeywordContext(row) {
+  return {
+    roster: {
+      factionKeywordId: row.requiredRosterFactionKeywordId || realCatalog.factionKeywords[0].id,
+      detachmentIds: row.requiredDetachmentId ? [row.requiredDetachmentId] : [],
+    },
+    detachmentIds: new Set(row.requiredDetachmentId ? [row.requiredDetachmentId] : []),
+    allegianceAbilityIds: new Set(row.requiredAllegianceAbilityId ? [row.requiredAllegianceAbilityId] : []),
+    warlordMiniatureIds: new Set(row.requiredWarlordMiniatureId ? [row.requiredWarlordMiniatureId] : []),
+  };
+}
+
+test("all live conditional keyword rows have satisfied and missing requirement coverage", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.conditionalKeywords.length, 380);
+
+  const requirementCounts = {
+    requiredAllegianceAbilityId: 0,
+    requiredRosterFactionKeywordId: 0,
+    requiredDetachmentId: 0,
+    requiredWarlordMiniatureId: 0,
+  };
+  const shapeCounts = new Map();
+  for (const row of realCatalog.conditionalKeywords) {
+    for (const key of Object.keys(requirementCounts)) {
+      if (row[key]) {
+        requirementCounts[key] += 1;
+      }
+    }
+    const shape = Object.keys(requirementCounts).filter((key) => row[key]).sort().join("+");
+    shapeCounts.set(shape, (shapeCounts.get(shape) || 0) + 1);
+
+    assert.ok(realCatalog.datasheetById.get(row.datasheetId), `Expected datasheet ${row.datasheetId}`);
+    assert.ok(realCatalog.keywordById.get(row.keywordId), `Expected keyword ${row.keywordId}`);
+    if (row.requiredAllegianceAbilityId) {
+      assert.ok(realCatalog.allegianceAbilityById.get(row.requiredAllegianceAbilityId));
+    }
+    if (row.requiredRosterFactionKeywordId) {
+      assert.ok(realCatalog.factionKeywordById.get(row.requiredRosterFactionKeywordId));
+    }
+    if (row.requiredDetachmentId) {
+      assert.ok(realCatalog.detachmentById.get(row.requiredDetachmentId));
+    }
+    if (row.requiredWarlordMiniatureId) {
+      assert.ok(realCatalog.miniatureById.get(row.requiredWarlordMiniatureId));
+    }
+
+    const satisfied = satisfiedConditionalKeywordContext(row);
+    assert.equal(
+      conditionalKeywordApplies(
+        row,
+        satisfied.roster,
+        satisfied.detachmentIds,
+        satisfied.allegianceAbilityIds,
+        satisfied.warlordMiniatureIds
+      ),
+      true,
+      `conditional_keyword ${row.id} should apply when all requirements are satisfied`
+    );
+
+    if (row.requiredAllegianceAbilityId) {
+      assert.equal(
+        conditionalKeywordApplies(
+          row,
+          satisfied.roster,
+          satisfied.detachmentIds,
+          new Set(),
+          satisfied.warlordMiniatureIds
+        ),
+        false,
+        `conditional_keyword ${row.id} should require its allegiance ability`
+      );
+    }
+    if (row.requiredRosterFactionKeywordId) {
+      assert.equal(
+        conditionalKeywordApplies(
+          row,
+          { ...satisfied.roster, factionKeywordId: factionOutsideScope(row.requiredRosterFactionKeywordId) },
+          satisfied.detachmentIds,
+          satisfied.allegianceAbilityIds,
+          satisfied.warlordMiniatureIds
+        ),
+        false,
+        `conditional_keyword ${row.id} should require its roster faction scope`
+      );
+    }
+    if (row.requiredDetachmentId) {
+      assert.equal(
+        conditionalKeywordApplies(
+          row,
+          { ...satisfied.roster, detachmentIds: [] },
+          new Set(),
+          satisfied.allegianceAbilityIds,
+          satisfied.warlordMiniatureIds
+        ),
+        false,
+        `conditional_keyword ${row.id} should require its detachment`
+      );
+    }
+    if (row.requiredWarlordMiniatureId) {
+      assert.equal(
+        conditionalKeywordApplies(
+          row,
+          satisfied.roster,
+          satisfied.detachmentIds,
+          satisfied.allegianceAbilityIds,
+          new Set()
+        ),
+        false,
+        `conditional_keyword ${row.id} should require its Warlord miniature`
+      );
+    }
+  }
+
+  assert.deepEqual(requirementCounts, {
+    requiredAllegianceAbilityId: 270,
+    requiredRosterFactionKeywordId: 32,
+    requiredDetachmentId: 77,
+    requiredWarlordMiniatureId: 2,
+  });
+  assert.deepEqual(Object.fromEntries([...shapeCounts.entries()].sort()), {
+    requiredAllegianceAbilityId: 270,
+    requiredDetachmentId: 76,
+    "requiredDetachmentId+requiredWarlordMiniatureId": 1,
+    requiredRosterFactionKeywordId: 32,
+    requiredWarlordMiniatureId: 1,
   });
 });
 
