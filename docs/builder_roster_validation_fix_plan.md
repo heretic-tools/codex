@@ -68,6 +68,118 @@ Related audits:
   rows. The guard also checks referential integrity across datasheets,
   miniatures, option groups, choices, items, limits, and aliases. `npm test`
   now passes 98 validation tests.
+- 2026-07-02: Added live semantic coverage for all 2,445 current regular
+  `loadout_choice_set` rows, all 5,374 `loadout_choice` rows, and all 8,325
+  regular choice item rows. Each isolated set generates valid loadouts, every
+  choice is represented by at least one generated loadout, generated loadouts
+  validate for one model and partition across two models, and impossible
+  loadouts are rejected. `npm test` now passes 99 validation tests.
+- 2026-07-02: Added live semantic coverage for all 343 current
+  `limited_wargear_choice_set` rows, all 569 `limited_wargear_choice` rows, all
+  676 limited choice item rows, and all 492 `wargear_limit` rows. The test
+  proves every non-empty live choice is accepted when enabled by its configured
+  limit, every currently disabled Tactical Squad limited choice is rejected, and
+  every live limit row accepts valid selections while rejecting over-limit
+  selections. `npm test` now passes 100 validation tests.
+- 2026-07-02: Added live semantic coverage for all 28 current
+  `all_model_wargear_choice_set` rows, all 63 `all_model_wargear_choice` rows,
+  and all 69 all-model choice item rows. The test proves every base choice can
+  cover all models, substitute choices with bases are accepted only alongside
+  an active base, the standalone Eliminator Sergeant substitute set remains
+  accepted, and every live set rejects underfilled or mixed-base selections
+  where those invalid states apply. `npm test` now passes 101 validation tests.
+- 2026-07-02: Added live semantic coverage for all 1,300 current
+  `base_miniature_loadout` rows and all 3,132
+  `base_miniature_loadout_wargear_option` rows through the public
+  `defaultMiniatures` path. The test proves all 3,115 scoped base option rows
+  are applied with model-count multiplication, and pins the 17 current foreign
+  option rows across 8 loadouts as non-leaking source-data rows rather than
+  silently letting another datasheet's option id enter a roster. `npm test` now
+  passes 102 validation tests.
+- 2026-07-02: Added live semantic coverage for all 3,025 current
+  `wargear_group` rows and all 6,322 `wargear_option` rows. Defaults now prove
+  the 21 unit-scoped options and 6,301 model-scoped options stay in their
+  scopes, including 3,695 positive default selections. Scope validation now
+  proves all options are valid in their configured target scope, rejected in the
+  opposite scope, and the 83 paid options sum to the expected selected wargear
+  points. `npm test` now passes 104 validation tests.
+- 2026-07-02: Added live semantic coverage for all 1,516 current
+  `unit_composition` rows, all 2,258 `unit_composition_miniature` rows, all 51
+  required-faction rows, and all 8 required-detachment rows. Each isolated
+  composition is available when its requirements are satisfied, unavailable when
+  each configured requirement is missing, and produces the expected miniature
+  shape through `defaultMiniatures`. `npm test` now passes 105 validation tests.
+- 2026-07-02: Expanded `datasheet_points_step` coverage from the representative
+  Eradicator fixture to all 334 current live rows. The test proves all 95
+  `stepAt = 2`, 234 `stepAt = 3`, and 5 `stepAt = 4` rows add no points before
+  the configured duplicate position and add the configured `stepPoints` at and
+  after that position. `npm test` now passes 106 validation tests.
+- 2026-07-02: Added live semantic coverage for all 457 current
+  `detachment_faction_keyword` rows, all 4 `detachment_faction_point_cost`
+  overrides, and all 290 `detachment_force_disposition` rows. The test proves
+  configured faction/detachment pairs avoid `roster.detachment_not_allowed`,
+  control factions reject each detachment, non-Combat Patrol detachments appear
+  in `availableDetachments`, Combat Patrol detachments stay hidden from the
+  standard Builder list, point overrides/base costs apply, and disposition names
+  resolve. `npm test` now passes 107 validation tests.
+- 2026-07-02: Added live semantic coverage for all 1,256 current
+  `datasheet_faction_keyword` rows. The test proves native datasheets validate
+  for their faction, unavailable control factions reject every row as
+  `roster.unit_not_native`, non-Combat Patrol native datasheets appear in
+  `availableDatasheets`, Combat Patrol datasheets stay hidden and emit
+  `roster.combat_patrol_datasheet`, 115 parent-faction rows defer to child
+  factions, and the 1 direct excluded row emits
+  `roster.faction_datasheet_not_allowed`. `npm test` now passes 108 validation
+  tests.
+- 2026-07-02: Added live semantic coverage for all 3 current `battle_size`
+  rows. Incursion, Strike Force, and Onslaught now each prove the configured
+  points limit, detachment points limit, duplicate unit limit, and enhancement
+  limit emit the expected roster/enhancement diagnostics. `npm test` now passes
+  109 validation tests.
+- 2026-07-02: Added live semantic coverage for all current Warlord-related
+  miniature flags: 17 `isSupremeCommander` rows, 27 `cannotBeWarlord` rows, 8
+  `canBeNonCharacterWarlord` rows, and the 1 detachment-granted Warlord row.
+  The test proves Supreme Commanders must be selected when present,
+  cannot-be-Warlord models reject by default, Deathleaper's Vanguard Onslaught
+  grant overrides that rejection, and Titan non-Character Warlords remain valid.
+  `npm test` now passes 110 validation tests.
+- 2026-07-02: Added live semantic coverage for duplicate-unit and max-model
+  roster limits across every current non-Combat Patrol datasheet. The test
+  proves all 151 Epic Hero datasheets enforce a 1-copy cap, all 97 Battleline /
+  Dedicated Transport datasheets enforce the 6-copy cap, all 787 remaining
+  datasheets enforce the Strike Force 3-copy cap, and all 8 `maxModelCount`
+  datasheets accept their cap while rejecting one extra model. `npm test` now
+  passes 111 validation tests.
+- 2026-07-02: Added live semantic coverage for all 92 current datasheets with
+  `allegianceAbilityGroupId`. Each row is summarized through `unitSummary`, so
+  the test proves the datasheet's configured allegiance group allows its own
+  abilities, rejects abilities from other groups, enforces all 48 mandatory
+  datasheet/group rows, enforces all 87 detachment-scoped datasheet/group rows,
+  and carries the 1 required-wargear datasheet/group row. `npm test` now passes
+  112 validation tests.
+- 2026-07-02: Added live semantic coverage for all 24 current Combat Patrol
+  enhancement defaults and their 24 configured alternatives. Every Combat
+  Patrol detachment now proves the default enhancement is required, duplicate
+  default selections are rejected, and the non-default enhancement is rejected
+  by the Combat Patrol validator. `npm test` now passes 113 validation tests.
+- 2026-07-02: Added live semantic coverage for all 957 current enhancement core
+  flag rows. The sweep proves target-type validation for every enhancement, Epic
+  Hero allow/block flags across 8 allowed and 949 blocked rows, non-Character
+  allow/block flags across 78 allowed and 879 blocked rows, per-enhancement
+  selection limits for all 886 limit-1 and 71 limit-3 rows, and roster
+  enhancement-limit inclusion for 948 included and 9 excluded rows. `npm test`
+  now passes 114 validation tests.
+- 2026-07-02: Added live semantic coverage for `datasheet_bodyguard_group`
+  `bodyguardType` across all 1,266 current rows. Every group now proves its
+  configured `leader` or `support` member type is accepted and the opposite type
+  is rejected, pinning all 1,056 leader rows and 210 support rows. `npm test`
+  now passes 115 validation tests.
+- 2026-07-02: Added a static-export inventory guard for the thin Builder
+  catalog. It proves all 73 Builder-loaded roster rule tables match the 102-table
+  export counts in `bootstrap.tableCounts`, proves the static export audit has
+  no unexpected unexported roster tables, and proves `battle_size` keeps points,
+  detachment-points, enhancement, and duplicate-unit limits in the static
+  bootstrap payload. `npm test` now passes 118 validation tests.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,

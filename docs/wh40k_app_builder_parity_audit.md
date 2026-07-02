@@ -81,7 +81,9 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   gates, 61 excluded detachment gates, and 305 shared-keyword gates. Every live
   group is proven valid with a configured bodyguard and invalid with a wrong
   datasheet or missing bodyguard keyword, with separate missing-condition
-  coverage for detachment and shared-keyword gates.
+  coverage for detachment and shared-keyword gates. The suite also proves every
+  live `bodyguardType` row accepts its configured `leader` or `support` member
+  type and rejects the opposite type.
 - Enhancement golden coverage now includes roster/per-unit/duplicate limits,
   required detachment, required keyword/faction groups, excluded keywords,
   required wargear, attached bodyguard requirements, and attached-unit
@@ -94,6 +96,12 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   639 faction-keyword rows, 32 excluded-keyword rows, 1 required-wargear row,
   19 bodyguard groups, 19 bodyguard datasheet rows, and both currently empty
   enhancement keyword point / bodyguard keyword tables.
+- Live enhancement core-flag coverage now walks all 957 current enhancements.
+  The suite proves target-type validation for every enhancement, Epic Hero
+  allow/block flags across 8 allowed and 949 blocked rows, non-Character
+  allow/block flags across 78 allowed and 879 blocked rows, per-enhancement
+  limits for all 886 limit-1 and 71 limit-3 rows, and roster enhancement-limit
+  inclusion for 948 included and 9 excluded rows.
 - Live enhancement required-keyword coverage now walks all 1,027 current
   `enhancement_required_keyword_group` rows. Each group is proven satisfiable in
   isolation, and missing-requirement checks cover all 578 groups with keyword
@@ -106,6 +114,11 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   valid target keyword states, required-wargear rows cover missing and equipped
   states, and bodyguard rows cover missing attachment, wrong bodyguard
   datasheet, and configured attached bodyguard.
+- Live Combat Patrol enhancement coverage now walks all 24 current Combat
+  Patrol default enhancements and their 24 configured alternatives. Every
+  Combat Patrol detachment proves the default enhancement is required, duplicate
+  default selections are rejected, and the non-default enhancement is rejected
+  by the Combat Patrol validator.
 - Conditional keyword predicate coverage now walks every live v879
   `conditional_keyword` row. All 380 rows are proven true when requirements are
   satisfied and false when each configured requirement is missing, covering 270
@@ -128,6 +141,12 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   detachment-scoped groups, all 4 required-wargear abilities, the 1 min-limit
   group, and all 4 max-limit groups. The currently empty mandatory-faction and
   allied-required allegiance tables are pinned by inventory coverage.
+- Live datasheet allegiance coverage now walks all 92 current datasheets with
+  `allegianceAbilityGroupId` through `unitSummary`. Configured group abilities
+  are accepted, wrong-group abilities are rejected, all 48 mandatory
+  datasheet/group rows require a selection, all 87 detachment-scoped
+  datasheet/group rows require their detachment, and the 1 required-wargear
+  datasheet/group row carries the required wargear for valid coverage.
 - The data-empty `detachment_required_datasheet` path has synthetic coverage for
   both missing required units and rosters that include the required datasheet.
 - A catalog inventory test guards all currently data-empty rule tables. If a
@@ -212,6 +231,38 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   choices, 69 all-model choice item rows, and the 4 precomputed canonical alias
   rows. The guard also checks referential integrity across datasheets,
   miniatures, option groups, choices, items, limits, and aliases.
+- Live regular-loadout semantic coverage now walks all 2,445 current
+  `loadout_choice_set` rows, all 5,374 `loadout_choice` rows, and all 8,325
+  regular choice item rows. Each isolated set generates valid loadouts, every
+  choice is represented by at least one generated loadout, generated loadouts
+  validate for one model and partition across two models, and impossible
+  loadouts are rejected.
+- Live wargear group/option semantic coverage now walks all 3,025 current
+  `wargear_group` rows and all 6,322 `wargear_option` rows. The tests prove the
+  21 unit-scoped options and 6,301 model-scoped options stay in their configured
+  default scopes, all options are valid in their configured selection scope and
+  rejected in the opposite scope, and the 83 paid options sum to the expected
+  selected wargear points.
+- Live base-loadout semantic coverage now walks all 1,300 current
+  `base_miniature_loadout` rows and all 3,132
+  `base_miniature_loadout_wargear_option` rows through the public
+  `defaultMiniatures` path. All 3,115 scoped base option rows are applied with
+  model-count multiplication, and the 17 current foreign option rows across 8
+  loadouts are pinned as non-leaking source-data rows rather than silently
+  letting another datasheet's option id enter a roster.
+- Live limited-wargear semantic coverage now walks all 343 current
+  `limited_wargear_choice_set` rows, all 569 `limited_wargear_choice` rows, all
+  676 limited choice item rows, and all 492 `wargear_limit` rows. Every
+  non-empty live choice is accepted when enabled by its configured limit, every
+  currently disabled Tactical Squad limited choice is rejected, and every live
+  limit row accepts valid selections while rejecting over-limit selections.
+- Live all-model wargear semantic coverage now walks all 28 current
+  `all_model_wargear_choice_set` rows, all 63 `all_model_wargear_choice` rows,
+  and all 69 all-model choice item rows. Every base choice can cover all
+  models, substitute choices with bases are accepted only alongside an active
+  base, the standalone Eliminator Sergeant substitute set remains accepted, and
+  every live set rejects underfilled or mixed-base selections where those
+  invalid states apply.
 - Limited wargear validation is option-aware: base/default components embedded
   in upgrade choices do not spend optional limited caps, while default-only
   limited choices still count against `choiceLimit` and `duplicateLimit`.
@@ -235,6 +286,45 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `detachment_mandatory_warlord_miniature` and
   `detachment_granted_warlord_miniature` row, proving invalid and valid states
   for all 3 current rows.
+- Live Warlord miniature-flag coverage now walks all 17
+  `isSupremeCommander` miniatures, all 27 `cannotBeWarlord` miniatures, all 8
+  `canBeNonCharacterWarlord` miniatures, and the 1 detachment-granted Warlord
+  row. Supreme Commanders are proven mandatory when present, cannot-be-Warlord
+  models reject by default, Deathleaper's Vanguard Onslaught grant overrides
+  that rejection, and Titan non-Character Warlords remain valid.
+- Live detachment availability/cost/disposition coverage now walks all 457
+  `detachment_faction_keyword` rows, all 4 `detachment_faction_point_cost`
+  overrides, and all 290 `detachment_force_disposition` rows. Configured
+  faction/detachment pairs are proven valid, unavailable control factions are
+  proven invalid, non-Combat Patrol detachments are listed, Combat Patrol
+  detachments stay hidden from the standard Builder list, detachment point
+  overrides/base costs apply, and disposition names resolve.
+- Live datasheet faction availability coverage now walks all 1,256 current
+  `datasheet_faction_keyword` rows. Native datasheets validate for their
+  faction, unavailable control factions reject every row as non-native,
+  non-Combat Patrol native datasheets are listed, Combat Patrol datasheets stay
+  hidden and emit the Combat Patrol roster diagnostic, 115 parent-faction rows
+  defer to their child faction, and the 1 direct excluded row emits the
+  faction-excluded diagnostic.
+- Live battle-size coverage now walks all 3 current `battle_size` rows.
+  Incursion, Strike Force, and Onslaught each prove their configured points
+  limit, detachment points limit, duplicate unit limit, and enhancement limit.
+- Live duplicate-unit and max-model coverage now walks every current
+  non-Combat Patrol datasheet. The suite proves all 151 Epic Hero datasheets
+  enforce a 1-copy cap, all 97 Battleline / Dedicated Transport datasheets
+  enforce the 6-copy cap, all 787 remaining datasheets enforce the Strike Force
+  3-copy cap, and all 8 `maxModelCount` datasheets accept their cap while
+  rejecting one extra model.
+- Live unit-composition coverage now walks all 1,516 current
+  `unit_composition` rows, all 2,258 `unit_composition_miniature` rows, all 51
+  required-faction rows, and all 8 required-detachment rows. Each isolated
+  composition is available when its configured requirements are satisfied,
+  unavailable when each requirement is missing, and produces the expected model
+  shape through `defaultMiniatures`.
+- Live datasheet points-step coverage now walks all 334 current
+  `datasheet_points_step` rows, proving the 95 `stepAt = 2`, 234 `stepAt = 3`,
+  and 5 `stepAt = 4` rows add no points before the configured duplicate
+  position and add the configured `stepPoints` at and after that position.
 - Duplicate-unit coverage now includes conditional Battleline. Houndpack Lance
   War Dog Brigands use the Battleline duplicate cap of 6 rather than the
   standard Strike Force cap of 3.
@@ -246,17 +336,27 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `InvalidWargearRequirement` for limited/all-model requirement failures.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 98 validation tests.
+  once; `npm test` passes 118 validation tests.
 - The minimum parity manifest now anchors required subcases, including Heretic
   Astartes daemon allies under/over the points cap, all 4 live legacy
   Battleline outnumbering rows, the allied rule-table inventory guard, and all
-  380 live conditional keyword requirement rows. It also carries live
-  allegiance inventory, mandatory, detachment, required-wargear, min/max,
-  ability-row coverage, the enhancement rule-table inventory guard, all live
+  380 live conditional keyword requirement rows. It also carries the Builder
+  static-export count guard, live
+  allegiance inventory, datasheet allegiance group rows, mandatory, detachment,
+  required-wargear, min/max, ability-row coverage, the enhancement rule-table
+  inventory guard, all live enhancement core-flag rows, all live Combat Patrol
+  enhancement defaults, all live
   enhancement required keyword groups, all live enhancement excluded-keyword /
   required-wargear / bodyguard groups, all live datasheet bodyguard groups, the
-  live wargear rule-table inventory guard, plus the Aeldari/Drukhari keyword
-  restriction subcases as explicit anchors.
+  live datasheet bodyguard type rows, live Warlord miniature flag rows, live detachment
+  availability/cost/disposition rows, all live datasheet-faction native
+  availability rows, all live battle-size roster limits, all live datasheet
+  duplicate-limit / max-model rows, live unit-composition rows, all live
+  datasheet points steps, the live wargear rule-table inventory guard, all live
+  regular loadout choice sets, all live wargear option defaults/scope/points,
+  all live base miniature loadout rows, all live limited wargear choices and
+  limits, all live all-model wargear choice sets, plus the
+  Aeldari/Drukhari keyword restriction subcases as explicit anchors.
 - Live keyword restriction coverage now walks every v879 top-level
   `keyword_restriction_group` with a configured limit and proves valid plus
   invalid states for all 15 current groups.
@@ -419,7 +519,7 @@ Status values:
 | `MandatoryWarlordNotNotPresentInRoster` | `builder_warlord_rules.js:42-53` | Covered, data-empty for faction | Detachment mandatory uses selected warlord list; all 2 current detachment mandatory rows are covered, and synthetic coverage guards parent-faction mandatory warlord rows. |
 | `MandatoryWarlordNotSelected` | `builder_warlord_rules.js:48-50`, `73-79` | Covered | Semantics present. |
 | `SupremeCommanderNotSelected` | `builder_warlord_rules.js:63-68` | Covered | v879 has 17 supreme commander miniatures. |
-| `MaxModelCountValidator` | `builder_restriction_rules.js:26-36` | Covered | Uses datasheet max model count and composition availability. |
+| `MaxModelCountValidator` | `builder_restriction_rules.js:26-36` | Covered | Uses datasheet max model count and composition availability; all 8 current non-Combat Patrol `maxModelCount` datasheets have valid-at-cap and invalid-over-cap coverage. |
 | `TooManyModels` | `builder_restriction_rules.js:28-30` | Covered | Semantics present. |
 | `RosterAttachedUnitValidator` | `builder_attachment_rules.js:49-94` | Covered | Group validity, leader/support matching, duplicate membership, explicit must-attach, and incomplete bodyguard-only groups are covered. No standalone must-attach catalog flag exists in v879. |
 | `AttachedUnitLeaderOrSupportMissingRequirements` | `builder_attachment_rules.js:82-85` | Covered | Uses datasheet bodyguard groups. |
@@ -435,7 +535,7 @@ Status values:
 | `RosterUnitLimitValidator` | `builder_roster_validation.js:66-95` | Covered | Duplicate limit, Epic Hero limit, successor conflict. |
 | `RosterHasTooManyOfEpicHero` | `builder_validation_core.js:24-31`, `builder_roster_validation.js:88-93` | Covered | Epic Hero duplicate limit = 1. |
 | `RosterHasEpicHeroAndSuccessorChapter` | `builder_restriction_rules.js:39-78` | Covered | Compares non-root faction scope IDs, so Pedro Kantor conflicts with Imperial Fists Epic Heroes but not unrelated Adeptus Astartes root-share Epic Heroes such as Ultramarines. |
-| `RosterHasTooManyOfUnit` | `builder_roster_validation.js:88-93` | Covered | Battleline/Dedicated Transport limit 6, else battle-size duplicate limit. Live coverage includes conditional Battleline from Houndpack Lance War Dog Brigands. |
+| `RosterHasTooManyOfUnit` | `builder_roster_validation.js:88-93` | Covered | Battleline/Dedicated Transport limit 6, else battle-size duplicate limit. Live coverage checks all 151 current Epic Hero datasheets, all 97 Battleline / Dedicated Transport datasheets, all 787 remaining non-Combat Patrol datasheets, plus conditional Battleline from Houndpack Lance War Dog Brigands. |
 | `UnitCompositionValidator` | `builder_model.js:386-459`, `builder_restriction_rules.js:26-36` | Covered | Required faction/detachment composition rows; default composition selection now prefers matching detachment-specific rows, then faction-specific rows, before generic rows. Same-shape generic/specific duplicates normalize to the more specific available composition, and the unit edit UI exposes the available current-roster compositions. |
 | `InvalidUnitComposition` | `builder_restriction_rules.js:31-35` | Covered | Semantics present. |
 | `WargearLoadoutValidator` | `builder_wargear_rules.js:256-282`, `builder_loadout_math.js:81-220` | Partial | Engine now uses canonical item-ID keys with explicit duplicate-name aliases and test-only official concept mapping, but exact valid/invalid parity still needs WH app fixture comparison. |
@@ -708,8 +808,10 @@ parity issue:
   names do not break duplicate-limit or generic warlord checks today.
 - Hidden parent factions: no visible child faction in v879 points to a hidden
   parent faction.
-- Data export coverage: roster-relevant catalog tables are exported; missing
-  behavior is not because the tables are absent from `CATALOG_TABLES`.
+- Data export coverage: roster-relevant catalog tables are exported; the test
+  suite now proves all 73 Builder-loaded roster rule tables match the 102-table
+  static export counts, the static export audit has no unexpected unexported
+  roster tables, and `battle_size` keeps all roster-limit fields.
 
 ## Minimum golden parity suite
 
@@ -722,7 +824,7 @@ minimum groups below to focused Builder test files, anchors, and expected codes;
 25-case wargear checklist. Both manifests require their codes/categories to
 resolve through the test-only official-like concept map. The minimum manifest
 also anchors the required subcases inside those focused tests, instead of only
-checking broad test titles. It now contains 50 required parity cases.
+checking broad test titles. It now contains 68 required parity cases.
 The remaining parity work is to create the same roster cases in WH 40K app and
 Builder, then compare valid/invalid state and error categories.
 

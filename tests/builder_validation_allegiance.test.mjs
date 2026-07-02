@@ -6,6 +6,7 @@ import {
   defaultMiniatures,
   defaultWargear,
   factionScope,
+  unitSummary,
   validateAllegianceAbilities,
   validateAlliedUnits,
   validateAttachedUnits,
@@ -73,6 +74,43 @@ function detachmentForGroup(group) {
   return group.detachmentId ? [realCatalog.detachmentById.get(group.detachmentId)] : [];
 }
 
+function rosterFactionIdForDatasheet(datasheetId) {
+  const row = realCatalog.datasheetFactionKeywordsByDatasheetId.get(datasheetId)?.[0];
+  assert.ok(row, `Expected datasheet ${datasheetId} to have a faction keyword`);
+  return row.factionKeywordId;
+}
+
+function selectedAbility(ability) {
+  const group = realCatalog.allegianceAbilityGroupById.get(ability.allegianceAbilityGroupId);
+  return {
+    ...ability,
+    groupId: ability.allegianceAbilityGroupId,
+    groupName: group?.name,
+  };
+}
+
+function summarizedAllegianceUnit(datasheet, ability = null) {
+  const rawUnit = {
+    id: `${datasheet.id}:${ability?.id || "no-ability"}`,
+    datasheetId: datasheet.id,
+    allegianceAbilities: ability ? [selectedAbility(ability)] : [],
+    wargear: {},
+  };
+  if (ability?.requiresWargearItemId) {
+    rawUnit.wargear[optionIdForWargearItem(ability.requiresWargearItemId)] = 1;
+  }
+  const roster = {
+    factionKeywordId: rosterFactionIdForDatasheet(datasheet.id),
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [rawUnit],
+  };
+  return {
+    roster,
+    unit: unitSummary(roster, rawUnit),
+  };
+}
+
 test("all live allegiance rule tables stay pinned to explicit coverage counts", () => {
   state.catalog = realCatalog;
   assert.equal(realCatalog.allegianceAbilityGroups.length, 10);
@@ -120,6 +158,81 @@ test("all live allegiance ability rows are accepted by their configured group", 
     assert.ok(!codes.includes("allegiance_ability.not_selected"), `${ability.name} should satisfy mandatory group selection`);
     assert.ok(!codes.includes("allegiance_ability.multiple_selected"), `${ability.name} should be a single group selection`);
   }
+});
+
+test("all live datasheet allegiance group rows drive allowed, mandatory, and detachment checks", () => {
+  state.catalog = realCatalog;
+  const datasheets = realCatalog.datasheets.filter((datasheet) => datasheet.allegianceAbilityGroupId);
+  let validRows = 0;
+  let wrongGroupRows = 0;
+  let mandatoryRows = 0;
+  let detachmentRows = 0;
+  let requiredWargearRows = 0;
+
+  assert.equal(datasheets.length, 92);
+  assert.equal(new Set(datasheets.map((datasheet) => datasheet.allegianceAbilityGroupId)).size, 10);
+  assert.equal(datasheets.filter((datasheet) => realCatalog.allegianceAbilityGroupById.get(datasheet.allegianceAbilityGroupId)?.isMandatory).length, 48);
+  assert.equal(datasheets.filter((datasheet) => realCatalog.allegianceAbilityGroupById.get(datasheet.allegianceAbilityGroupId)?.detachmentId).length, 87);
+  assert.equal(datasheets.filter((datasheet) => (
+    realCatalog.allegianceAbilitiesByGroupId.get(datasheet.allegianceAbilityGroupId) || []
+  ).some((ability) => ability.requiresWargearItemId)).length, 1);
+
+  for (const datasheet of datasheets) {
+    const group = realCatalog.allegianceAbilityGroupById.get(datasheet.allegianceAbilityGroupId);
+    assert.ok(group, `Expected allegiance group ${datasheet.allegianceAbilityGroupId}`);
+    const ability = firstAbilityForGroup(group.id);
+    const { roster, unit } = summarizedAllegianceUnit(datasheet, ability);
+    assert.equal(unit.allegianceAbilityGroupId, group.id, `${datasheet.name} should summarize with its datasheet allegiance group`);
+
+    const validMessages = [];
+    validateAllegianceAbilities(roster, detachmentForGroup(group), [unit], validMessages);
+    assert.ok(!messageCodes(validMessages).includes("allegiance_ability.not_allowed"), `${datasheet.name} should allow ${ability.name}`);
+    assert.ok(!messageCodes(validMessages).includes("allegiance_ability.not_selected"), `${datasheet.name} should satisfy mandatory selection`);
+    assert.ok(!messageCodes(validMessages).includes("allegiance_ability.required_detachment_missing"), `${datasheet.name} should have its detachment selected`);
+    assert.ok(!messageCodes(validMessages).includes("allegiance_ability.missing_wargear_item"), `${datasheet.name} should carry required wargear when needed`);
+    validRows += 1;
+    if (ability.requiresWargearItemId) {
+      requiredWargearRows += 1;
+    }
+
+    const wrongAbility = realCatalog.allegianceAbilities.find((item) => item.allegianceAbilityGroupId !== group.id);
+    assert.ok(wrongAbility, `Expected wrong allegiance ability control for ${datasheet.name}`);
+    const wrong = summarizedAllegianceUnit(datasheet, wrongAbility);
+    const wrongMessages = [];
+    validateAllegianceAbilities(wrong.roster, detachmentForGroup(group), [wrong.unit], wrongMessages);
+    assert.ok(
+      messageCodes(wrongMessages).includes("allegiance_ability.not_allowed"),
+      `${datasheet.name} should reject allegiance abilities from another group`
+    );
+    wrongGroupRows += 1;
+
+    if (group.isMandatory) {
+      const missing = summarizedAllegianceUnit(datasheet);
+      const missingMessages = [];
+      validateAllegianceAbilities(missing.roster, detachmentForGroup(group), [missing.unit], missingMessages);
+      assert.ok(
+        messageCodes(missingMessages).includes("allegiance_ability.not_selected"),
+        `${datasheet.name} should require one ${group.name} selection`
+      );
+      mandatoryRows += 1;
+    }
+
+    if (group.detachmentId) {
+      const detachmentMessages = [];
+      validateAllegianceAbilities(roster, [], [unit], detachmentMessages);
+      assert.ok(
+        messageCodes(detachmentMessages).includes("allegiance_ability.required_detachment_missing"),
+        `${datasheet.name} should require ${realCatalog.detachmentById.get(group.detachmentId)?.name}`
+      );
+      detachmentRows += 1;
+    }
+  }
+
+  assert.equal(validRows, 92);
+  assert.equal(wrongGroupRows, 92);
+  assert.equal(mandatoryRows, 48);
+  assert.equal(detachmentRows, 87);
+  assert.equal(requiredWargearRows, 1);
 });
 
 test("Pactbound Zealots Mark of Chaos enforces mandatory single selection and detachment scope", () => {

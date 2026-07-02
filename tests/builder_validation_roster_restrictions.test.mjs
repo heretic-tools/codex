@@ -3,10 +3,18 @@ import test from "node:test";
 import {
   state,
   availableCompositions,
+  availableDatasheets,
+  availableDetachments,
   costForDetachment,
+  datasheetFactionIds,
+  datasheetIsCombatPatrol,
+  datasheetIsNativeToFaction,
   defaultMiniatures,
   defaultWargear,
+  detachmentDispositionName,
+  factionExcludesDatasheet,
   factionScope,
+  unitSummary,
   validateAllegianceAbilities,
   validateAlliedUnits,
   validateAttachedUnits,
@@ -53,6 +61,116 @@ import {
   withMiniatureEnhancement,
   datasheetIdForEnhancementBodyguard
 } from "./builder_validation_helpers.mjs";
+
+function compositionMiniatureRows(composition) {
+  return realCatalog.compositionMiniaturesByCompositionId.get(composition.id) || [];
+}
+
+function compositionRequiredFactionRows(composition) {
+  return realCatalog.requiredFactionKeywordsByCompositionId.get(composition.id) || [];
+}
+
+function compositionRequiredDetachmentRows(composition) {
+  return realCatalog.requiredDetachmentsByCompositionId.get(composition.id) || [];
+}
+
+function catalogWithOnlyComposition(composition) {
+  return {
+    ...realCatalog,
+    compositionById: new Map([[composition.id, composition]]),
+    compositionsByDatasheetId: new Map([[composition.datasheetId, [composition]]]),
+    compositionMiniaturesByCompositionId: new Map([[composition.id, compositionMiniatureRows(composition)]]),
+    requiredFactionKeywordsByCompositionId: new Map([[composition.id, compositionRequiredFactionRows(composition)]]),
+    requiredDetachmentsByCompositionId: new Map([[composition.id, compositionRequiredDetachmentRows(composition)]]),
+  };
+}
+
+function availableCompositionIds(composition, factionKeywordIds, detachmentIds) {
+  let ids = [];
+  withCatalog(catalogWithOnlyComposition(composition), () => {
+    ids = availableCompositions(composition.datasheetId, factionKeywordIds, detachmentIds)
+      .map((row) => row.id);
+  });
+  return ids;
+}
+
+function defaultMiniaturesForComposition(composition) {
+  let miniatures = [];
+  withCatalog(catalogWithOnlyComposition(composition), () => {
+    miniatures = defaultMiniatures(composition.datasheetId, composition.id);
+  });
+  return miniatures;
+}
+
+function catalogWithOnlyDatasheetPointsStep(row) {
+  return {
+    ...realCatalog,
+    datasheetPointsSteps: [row],
+    datasheetPointsStepsByDatasheetId: new Map([[row.datasheetId, [row]]]),
+  };
+}
+
+function unitSummariesForPointsStep(row) {
+  const units = Array.from({ length: Number(row.stepAt || 0) + 1 }, (_, index) => ({
+    id: `${row.datasheetId}:step:${index + 1}`,
+    datasheetId: row.datasheetId,
+  }));
+  const roster = {
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units,
+  };
+  let summaries = [];
+  withCatalog(catalogWithOnlyDatasheetPointsStep(row), () => {
+    summaries = units.map((unit) => unitSummary(roster, unit));
+  });
+  return summaries;
+}
+
+function rosterFactionIdForDatasheet(datasheetId) {
+  const row = realCatalog.datasheetFactionKeywordsByDatasheetId.get(datasheetId)?.[0];
+  assert.ok(row, `Expected datasheet ${datasheetId} to have a faction keyword`);
+  return row.factionKeywordId;
+}
+
+function datasheetKeywordNameSet(datasheetId) {
+  return new Set(keywordIdsForDatasheet(datasheetId)
+    .map((keywordId) => realCatalog.keywordById.get(keywordId)?.name)
+    .filter(Boolean));
+}
+
+function warlordUnitForMiniature(miniatureId, id, options = {}) {
+  const miniature = realCatalog.miniatureById.get(miniatureId);
+  assert.ok(miniature, `Expected miniature ${miniatureId}`);
+  const datasheet = realCatalog.datasheetById.get(miniature.datasheetId);
+  assert.ok(datasheet, `Expected datasheet for ${miniature.name}`);
+  const rosterUnitMiniatureId = `${id}:${miniatureId}`;
+  const isWarlord = Boolean(options.isWarlord);
+  return {
+    id,
+    name: datasheet.name,
+    datasheetId: datasheet.id,
+    allyType: "native",
+    factionKeywordIds: (realCatalog.datasheetFactionKeywordsByDatasheetId.get(datasheet.id) || [])
+      .map((row) => row.factionKeywordId),
+    keywordIds: keywordIdsForDatasheet(datasheet.id),
+    keywordNames: [],
+    warlordMiniatureIds: isWarlord ? [miniatureId] : [],
+    unitEnhancements: [],
+    miniatureEnhancements: [],
+    allegianceAbilities: [],
+    miniatures: [{
+      ...miniature,
+      id: rosterUnitMiniatureId,
+      rosterUnitMiniatureId,
+      miniatureId,
+      count: options.count ?? 1,
+      isWarlord,
+      wargear: {},
+    }],
+  };
+}
 
 test("generic warlord validation covers missing, multiple, invalid, and Supreme Commander cases", () => {
   state.catalog = realCatalog;
@@ -164,6 +282,109 @@ test("generic warlord validation covers missing, multiple, invalid, and Supreme 
     battleSizeId: battleSizeNamed("Strike Force").id,
   }, [detachmentNamed("Vanguard Onslaught")], [deathleaperWarlord], deathleaperWithGrantMessages);
   assert.ok(!messageCodes(deathleaperWithGrantMessages).includes("warlord.invalid_generic"));
+});
+
+test("all live warlord miniature flags have valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  const supremeCommanders = realCatalog.miniatures.filter((miniature) => miniature.isSupremeCommander);
+  const cannotBeWarlords = realCatalog.miniatures.filter((miniature) => miniature.cannotBeWarlord);
+  const nonCharacterWarlords = realCatalog.miniatures.filter((miniature) => miniature.canBeNonCharacterWarlord);
+  let supremeInvalidRows = 0;
+  let supremeValidRows = 0;
+  let cannotRows = 0;
+  let grantedRows = 0;
+  let nonCharacterRows = 0;
+
+  assert.equal(supremeCommanders.length, 17);
+  assert.equal(cannotBeWarlords.length, 27);
+  assert.equal(nonCharacterWarlords.length, 8);
+  assert.equal(realCatalog.detachmentGrantedWarlordMiniatures.length, 1);
+  assert.ok(supremeCommanders.every((miniature) => keywordIdsForDatasheet(miniature.datasheetId)
+    .some((keywordId) => realCatalog.keywordById.get(keywordId)?.name === "Character")));
+  assert.ok(nonCharacterWarlords.every((miniature) => !keywordIdsForDatasheet(miniature.datasheetId)
+    .some((keywordId) => realCatalog.keywordById.get(keywordId)?.name === "Character")));
+
+  for (const miniature of supremeCommanders) {
+    const roster = {
+      factionKeywordId: rosterFactionIdForDatasheet(miniature.datasheetId),
+      battleSizeId: battleSizeNamed("Strike Force").id,
+    };
+    const wrongWarlordMessages = [];
+    validateWarlord(roster, [], [
+      warlordUnitForMiniature(miniature.id, `${miniature.id}:supreme-present`, { isWarlord: false }),
+      enhancementTargetUnit({
+        id: `${miniature.id}:captain-warlord`,
+        datasheetName: "Captain",
+        miniatureName: "Captain",
+        factionNames: ["Adeptus Astartes"],
+        isWarlord: true,
+      }),
+    ], wrongWarlordMessages);
+    assert.ok(
+      messageCodes(wrongWarlordMessages).includes("mandatory_warlord.supreme_commander_not_selected"),
+      `${miniature.name} should require a Supreme Commander Warlord`
+    );
+    supremeInvalidRows += 1;
+
+    const selectedMessages = [];
+    validateWarlord(roster, [], [
+      warlordUnitForMiniature(miniature.id, `${miniature.id}:supreme-selected`, { isWarlord: true }),
+    ], selectedMessages);
+    assert.ok(!messageCodes(selectedMessages).includes("mandatory_warlord.supreme_commander_not_selected"));
+    assert.ok(!messageCodes(selectedMessages).includes("warlord.invalid_generic"));
+    supremeValidRows += 1;
+  }
+
+  for (const miniature of cannotBeWarlords) {
+    const roster = {
+      factionKeywordId: rosterFactionIdForDatasheet(miniature.datasheetId),
+      battleSizeId: battleSizeNamed("Strike Force").id,
+    };
+    const invalidMessages = [];
+    validateWarlord(roster, [], [
+      warlordUnitForMiniature(miniature.id, `${miniature.id}:cannot`, { isWarlord: true }),
+    ], invalidMessages);
+    assert.ok(
+      messageCodes(invalidMessages).includes("warlord.invalid_generic"),
+      `${miniature.name} should not be a Warlord by default`
+    );
+    cannotRows += 1;
+
+    for (const row of realCatalog.detachmentGrantedWarlordsByMiniatureId.get(miniature.id) || []) {
+      const detachment = realCatalog.detachmentById.get(row.detachmentId);
+      const grantedMessages = [];
+      validateWarlord(roster, [detachment], [
+        warlordUnitForMiniature(miniature.id, `${miniature.id}:granted`, { isWarlord: true }),
+      ], grantedMessages);
+      assert.ok(
+        !messageCodes(grantedMessages).includes("warlord.invalid_generic"),
+        `${detachment?.name} should grant ${miniature.name} Warlord eligibility`
+      );
+      grantedRows += 1;
+    }
+  }
+
+  for (const miniature of nonCharacterWarlords) {
+    const roster = {
+      factionKeywordId: rosterFactionIdForDatasheet(miniature.datasheetId),
+      battleSizeId: battleSizeNamed("Strike Force").id,
+    };
+    const validMessages = [];
+    validateWarlord(roster, [], [
+      warlordUnitForMiniature(miniature.id, `${miniature.id}:non-character`, { isWarlord: true }),
+    ], validMessages);
+    assert.ok(
+      !messageCodes(validMessages).includes("warlord.invalid_generic"),
+      `${miniature.name} should be Warlord eligible without Character`
+    );
+    nonCharacterRows += 1;
+  }
+
+  assert.equal(supremeInvalidRows, 17);
+  assert.equal(supremeValidRows, 17);
+  assert.equal(cannotRows, 27);
+  assert.equal(grantedRows, 1);
+  assert.equal(nonCharacterRows, 8);
 });
 
 test("faction mandatory warlord validation covers missing required model and wrong selection", () => {
@@ -342,6 +563,596 @@ test("all live detachment warlord rows have valid and invalid coverage", () => {
     validateWarlord(roster, [detachment], [unit], grantedMessages);
     assert.ok(!messageCodes(grantedMessages).includes("warlord.invalid_generic"));
   }
+});
+
+test("all live detachment faction, cost, and disposition rows are applied", () => {
+  state.catalog = realCatalog;
+  const rows = realCatalog.detachmentFactionKeywords;
+  const allFactionIds = [...new Set(rows.map((row) => row.factionKeywordId))];
+  let allowedRows = 0;
+  let unavailableControlRows = 0;
+  let listedRows = 0;
+  let combatPatrolHiddenRows = 0;
+  let overrideRows = 0;
+  let baseCostRows = 0;
+  const dispositionCounts = {};
+
+  assert.equal(realCatalog.detachments.length, 290);
+  assert.equal(rows.length, 457);
+  assert.equal(realCatalog.detachmentFactionPointCosts.length, 4);
+  assert.equal(realCatalog.detachmentForceDispositions.length, 290);
+  assert.equal(realCatalog.forceDispositions.length, 5);
+  assert.equal(rows.filter((row) => realCatalog.detachmentById.get(row.detachmentId)?.isCombatPatrol).length, 24);
+  assert.equal(rows.filter((row) => !realCatalog.detachmentById.get(row.detachmentId)?.isCombatPatrol).length, 433);
+
+  for (const row of rows) {
+    const detachment = realCatalog.detachmentById.get(row.detachmentId);
+    assert.ok(detachment, `Missing detachment ${row.detachmentId}`);
+    assert.ok(realCatalog.factionKeywordById.has(row.factionKeywordId), `Missing detachment faction ${row.factionKeywordId}`);
+
+    const valid = validateRoster({
+      id: `${row.detachmentId}:${row.factionKeywordId}:allowed`,
+      name: "Allowed Detachment",
+      factionKeywordId: row.factionKeywordId,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [row.detachmentId],
+      units: [],
+    });
+    assert.ok(
+      !messageCodes(valid.messages).includes("roster.detachment_not_allowed"),
+      `${detachment.name} should be allowed for ${realCatalog.factionKeywordById.get(row.factionKeywordId)?.name}`
+    );
+    assert.equal(valid.points.detachmentPoints, costForDetachment(row.detachmentId, row.factionKeywordId));
+    allowedRows += 1;
+
+    const controlFactionId = allFactionIds.find((factionId) => (
+      factionId !== row.factionKeywordId
+      && !rows.some((candidate) => (
+        candidate.detachmentId === row.detachmentId && candidate.factionKeywordId === factionId
+      ))
+    ));
+    assert.ok(controlFactionId, `Expected unavailable control faction for ${detachment.name}`);
+    const invalid = validateRoster({
+      id: `${row.detachmentId}:${controlFactionId}:unavailable`,
+      name: "Unavailable Detachment",
+      factionKeywordId: controlFactionId,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [row.detachmentId],
+      units: [],
+    });
+    assert.ok(
+      messageCodes(invalid.messages).includes("roster.detachment_not_allowed"),
+      `${detachment.name} should reject control faction ${realCatalog.factionKeywordById.get(controlFactionId)?.name}`
+    );
+    unavailableControlRows += 1;
+
+    const listedIds = availableDetachments(row.factionKeywordId).map((item) => item.id);
+    if (detachment.isCombatPatrol) {
+      assert.ok(!listedIds.includes(row.detachmentId), `${detachment.name} should stay hidden from standard Builder detachment list`);
+      combatPatrolHiddenRows += 1;
+    } else {
+      assert.ok(listedIds.includes(row.detachmentId), `${detachment.name} should be listed for its configured faction`);
+      listedRows += 1;
+    }
+
+    const override = realCatalog.detachmentFactionPointCosts.find((item) => (
+      item.detachmentId === row.detachmentId && item.factionKeywordId === row.factionKeywordId
+    ));
+    if (override) {
+      assert.equal(costForDetachment(row.detachmentId, row.factionKeywordId), override.detachmentPointsCost);
+      overrideRows += 1;
+    } else {
+      assert.equal(costForDetachment(row.detachmentId, row.factionKeywordId), detachment.detachmentPointsCost);
+      baseCostRows += 1;
+    }
+  }
+
+  for (const link of realCatalog.detachmentForceDispositions) {
+    const detachment = realCatalog.detachmentById.get(link.detachmentId);
+    const disposition = realCatalog.forceDispositionById.get(link.forceDispositionId);
+    assert.ok(detachment, `Missing disposition detachment ${link.detachmentId}`);
+    assert.ok(disposition, `Missing force disposition ${link.forceDispositionId}`);
+    assert.equal(detachmentDispositionName(detachment), disposition.name);
+    dispositionCounts[disposition.name] = (dispositionCounts[disposition.name] || 0) + 1;
+  }
+
+  assert.equal(allowedRows, 457);
+  assert.equal(unavailableControlRows, 457);
+  assert.equal(listedRows, 433);
+  assert.equal(combatPatrolHiddenRows, 24);
+  assert.equal(overrideRows, 4);
+  assert.equal(baseCostRows, 453);
+  assert.deepEqual(dispositionCounts, {
+    Disruption: 54,
+    "Priority Assets": 60,
+    "Purge the Foe": 78,
+    Reconnaissance: 35,
+    "Take and Hold": 63,
+  });
+});
+
+test("all live datasheet faction rows drive native validation and availability", () => {
+  state.catalog = realCatalog;
+  const rows = realCatalog.datasheetFactionKeywords;
+  const allFactionIds = [...new Set(rows.map((row) => row.factionKeywordId))];
+  const listedDatasheetsByFactionId = new Map();
+  let nativeRows = 0;
+  let descendantBlockedRows = 0;
+  let excludedRows = 0;
+  let combatPatrolRows = 0;
+  let listedRows = 0;
+  let nativeNonCombatListedRows = 0;
+  let unavailableControlRows = 0;
+  let unavailableControlRejectedRows = 0;
+
+  const listedDatasheetIds = (factionKeywordId) => {
+    if (!listedDatasheetsByFactionId.has(factionKeywordId)) {
+      listedDatasheetsByFactionId.set(
+        factionKeywordId,
+        new Set(availableDatasheets({
+          factionKeywordId,
+          battleSizeId: battleSizeNamed("Strike Force").id,
+          detachmentIds: [],
+          units: [],
+        }).map((datasheet) => datasheet.id))
+      );
+    }
+    return listedDatasheetsByFactionId.get(factionKeywordId);
+  };
+
+  assert.equal(rows.length, 1256);
+  assert.equal(realCatalog.datasheets.length, 1142);
+  assert.equal(new Set(rows.map((row) => row.datasheetId)).size, 1141);
+  assert.equal(new Set(rows.map((row) => row.factionKeywordId)).size, 42);
+  assert.equal(realCatalog.factionExcludedDatasheets.length, 23);
+
+  for (const row of rows) {
+    const datasheet = realCatalog.datasheetById.get(row.datasheetId);
+    const faction = realCatalog.factionKeywordById.get(row.factionKeywordId);
+    assert.ok(datasheet, `Missing datasheet ${row.datasheetId}`);
+    assert.ok(faction, `Missing datasheet faction ${row.factionKeywordId}`);
+    assert.ok(
+      datasheetFactionIds(row.datasheetId).includes(row.factionKeywordId),
+      `${datasheet.name} should expose ${faction.name} through datasheetFactionIds`
+    );
+
+    const isCombatPatrol = datasheetIsCombatPatrol(datasheet);
+    const isNative = datasheetIsNativeToFaction(row.factionKeywordId, row.datasheetId);
+    const isExcluded = factionExcludesDatasheet(row.factionKeywordId, row.datasheetId);
+    const listedIds = listedDatasheetIds(row.factionKeywordId);
+    const validation = validateRoster({
+      id: `${row.factionKeywordId}:${row.datasheetId}:native-row`,
+      name: "Datasheet Faction Row",
+      factionKeywordId: row.factionKeywordId,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [],
+      units: [rosterUnitFromDatasheetId(row.datasheetId, `${row.datasheetId}:native-row`)],
+    });
+    const codes = messageCodes(validation.messages);
+
+    if (isCombatPatrol) {
+      combatPatrolRows += 1;
+      assert.ok(codes.includes("roster.combat_patrol_datasheet"), `${datasheet.name} should be rejected as Combat Patrol`);
+      assert.ok(!listedIds.has(row.datasheetId), `${datasheet.name} should stay hidden from standard unit selection`);
+    }
+    if (isNative) {
+      nativeRows += 1;
+      assert.ok(!codes.includes("roster.unit_not_native"), `${datasheet.name} should be native to ${faction.name}`);
+      assert.ok(!codes.includes("roster.faction_datasheet_not_allowed"), `${datasheet.name} should not be faction-excluded from ${faction.name}`);
+      if (!isCombatPatrol) {
+        assert.ok(listedIds.has(row.datasheetId), `${datasheet.name} should be listed for ${faction.name}`);
+        listedRows += 1;
+        nativeNonCombatListedRows += 1;
+      }
+    } else if (isExcluded) {
+      excludedRows += 1;
+      assert.ok(codes.includes("roster.faction_datasheet_not_allowed"), `${datasheet.name} should be excluded from ${faction.name}`);
+      assert.ok(!listedIds.has(row.datasheetId), `${datasheet.name} should not be listed for excluded faction ${faction.name}`);
+    } else {
+      descendantBlockedRows += 1;
+      assert.ok(codes.includes("roster.unit_not_native"), `${datasheet.name} should defer to its child faction instead of ${faction.name}`);
+      assert.ok(!listedIds.has(row.datasheetId), `${datasheet.name} should not be listed for parent faction ${faction.name}`);
+    }
+
+    const controlFactionId = allFactionIds.find((factionKeywordId) => (
+      factionKeywordId !== row.factionKeywordId
+      && !datasheetIsNativeToFaction(factionKeywordId, row.datasheetId)
+      && !factionExcludesDatasheet(factionKeywordId, row.datasheetId)
+    ));
+    assert.ok(controlFactionId, `Expected non-native control faction for ${datasheet.name}`);
+    const controlValidation = validateRoster({
+      id: `${controlFactionId}:${row.datasheetId}:non-native-control`,
+      name: "Non Native Control",
+      factionKeywordId: controlFactionId,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [],
+      units: [rosterUnitFromDatasheetId(row.datasheetId, `${row.datasheetId}:non-native-control`)],
+    });
+    assert.ok(
+      messageCodes(controlValidation.messages).includes("roster.unit_not_native"),
+      `${datasheet.name} should reject control faction ${realCatalog.factionKeywordById.get(controlFactionId)?.name}`
+    );
+    unavailableControlRows += 1;
+    if (!listedDatasheetIds(controlFactionId).has(row.datasheetId)) {
+      unavailableControlRejectedRows += 1;
+    }
+  }
+
+  assert.equal(nativeRows, 1140);
+  assert.equal(descendantBlockedRows, 115);
+  assert.equal(excludedRows, 1);
+  assert.equal(combatPatrolRows, 122);
+  assert.equal(listedRows, 1034);
+  assert.equal(nativeNonCombatListedRows, 1034);
+  assert.equal(unavailableControlRows, 1256);
+  assert.equal(unavailableControlRejectedRows, 1256);
+});
+
+test("all live battle sizes drive roster points, detachment points, duplicate, and enhancement limits", () => {
+  state.catalog = realCatalog;
+  const battleSizes = realCatalog.battleSizes;
+  const hereticFaction = factionNamed("Heretic Astartes");
+  const hereticDetachmentRows = realCatalog.detachmentFactionKeywords
+    .filter((row) => row.factionKeywordId === hereticFaction.id)
+    .filter((row) => !realCatalog.detachmentById.get(row.detachmentId)?.isCombatPatrol)
+    .sort((left, right) => (
+      costForDetachment(right.detachmentId, hereticFaction.id) - costForDetachment(left.detachmentId, hereticFaction.id)
+      || String(realCatalog.detachmentById.get(left.detachmentId)?.name || "")
+        .localeCompare(String(realCatalog.detachmentById.get(right.detachmentId)?.name || ""))
+    ));
+  const enhancementNames = [
+    "Throne Mechanicum of Skulls",
+    "Blade of Celerity",
+    "Putrid Carapace",
+    "Warp-borne Stalker",
+    "Mirror of Fates",
+  ];
+
+  assert.equal(battleSizes.length, 3);
+  assert.deepEqual(
+    battleSizes.map((size) => [
+      size.name,
+      size.pointsLimit,
+      size.detachmentPointsLimit,
+      size.duplicateUnitLimit,
+      size.enhancementLimit,
+    ]),
+    [
+      ["Incursion", 1000, 2, 2, 2],
+      ["Strike Force", 2000, 3, 3, 4],
+      ["Onslaught", 3000, 3, 3, 4],
+    ]
+  );
+
+  for (const size of battleSizes) {
+    const overPointsValidation = validateRoster({
+      id: `${size.id}:over-points`,
+      name: `${size.name} Over Points`,
+      factionKeywordId: hereticFaction.id,
+      battleSizeId: size.id,
+      detachmentIds: [detachmentNamed("Pactbound Zealots").id],
+      units: [rosterUnitRef("Chaos Warlord Titan", `${size.id}:chaos-warlord-titan`)],
+    });
+    assert.ok(
+      overPointsValidation.points.total > size.pointsLimit,
+      `${size.name} fixture should exceed its points limit`
+    );
+    assert.ok(messageCodes(overPointsValidation.messages).includes("roster.points_limit_exceeded"));
+
+    const overDetachmentIds = [];
+    let detachmentPoints = 0;
+    for (const row of hereticDetachmentRows) {
+      overDetachmentIds.push(row.detachmentId);
+      detachmentPoints += costForDetachment(row.detachmentId, hereticFaction.id);
+      if (detachmentPoints > size.detachmentPointsLimit) {
+        break;
+      }
+    }
+    assert.ok(detachmentPoints > size.detachmentPointsLimit, `${size.name} should have an over-DP fixture`);
+    const overDetachmentValidation = validateRoster({
+      id: `${size.id}:over-detachment-points`,
+      name: `${size.name} Over Detachment Points`,
+      factionKeywordId: hereticFaction.id,
+      battleSizeId: size.id,
+      detachmentIds: overDetachmentIds,
+      units: [],
+    });
+    assert.ok(messageCodes(overDetachmentValidation.messages).includes("roster.detachment_points_limit_exceeded"));
+
+    const duplicateValidation = validateRoster({
+      id: `${size.id}:captain-duplicates`,
+      name: `${size.name} Captain Duplicates`,
+      factionKeywordId: factionNamed("Adeptus Astartes").id,
+      battleSizeId: size.id,
+      detachmentIds: [detachmentNamed("Gladius Task Force").id],
+      units: Array.from({ length: size.duplicateUnitLimit + 1 }, (_, index) => enhancementTargetUnit({
+        id: `${size.id}:captain-${index}`,
+        datasheetName: "Captain",
+        miniatureName: "Captain",
+        factionNames: ["Adeptus Astartes"],
+        isWarlord: index === 0,
+      })),
+    });
+    assert.ok(messageCodes(duplicateValidation.messages).includes("roster.unit_limit_exceeded"));
+
+    const enhancementMessages = [];
+    validateEnhancements(
+      {
+        factionKeywordId: factionNamed("Chaos Knights").id,
+        battleSizeId: size.id,
+      },
+      [detachmentNamed("Lords of Dread")],
+      enhancementNames.slice(0, size.enhancementLimit + 1).map((name, index) => withMiniatureEnhancement(
+        enhancementTargetUnit({
+          id: `${size.id}:knight-${index}`,
+          datasheetName: "Knight Desecrator",
+          miniatureName: "Knight Desecrator",
+          factionNames: ["Chaos Knights"],
+        }),
+        enhancementNamed(name, "Lords of Dread")
+      )),
+      enhancementMessages
+    );
+    assert.ok(messageCodes(enhancementMessages).includes("enhancement.roster_has_too_many_enhancements"));
+  }
+});
+
+test("all live datasheet duplicate-limit and max-model rows have valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  const standardDatasheets = [];
+  const epicHeroDatasheets = [];
+  const sixLimitDatasheets = [];
+  const battlelineDatasheets = [];
+  const dedicatedTransportDatasheets = [];
+  const maxModelDatasheets = realCatalog.datasheets
+    .filter((datasheet) => !datasheetIsCombatPatrol(datasheet))
+    .filter((datasheet) => Number(datasheet.maxModelCount || 0) > 0);
+  let validDuplicateRows = 0;
+  let invalidDuplicateRows = 0;
+  let validMaxModelRows = 0;
+  let invalidMaxModelRows = 0;
+
+  for (const datasheet of realCatalog.datasheets.filter((item) => !datasheetIsCombatPatrol(item))) {
+    const keywords = datasheetKeywordNameSet(datasheet.id);
+    if (keywords.has("Epic Hero")) {
+      epicHeroDatasheets.push(datasheet);
+    } else if (keywords.has("Battleline") || keywords.has("Dedicated Transport")) {
+      sixLimitDatasheets.push(datasheet);
+      if (keywords.has("Battleline")) {
+        battlelineDatasheets.push(datasheet);
+      }
+      if (keywords.has("Dedicated Transport")) {
+        dedicatedTransportDatasheets.push(datasheet);
+      }
+    } else {
+      standardDatasheets.push(datasheet);
+    }
+  }
+
+  assert.equal(realCatalog.datasheets.filter((datasheet) => !datasheetIsCombatPatrol(datasheet)).length, 1035);
+  assert.equal(epicHeroDatasheets.length, 151);
+  assert.equal(battlelineDatasheets.length, 61);
+  assert.equal(dedicatedTransportDatasheets.length, 36);
+  assert.equal(sixLimitDatasheets.length, 97);
+  assert.equal(standardDatasheets.length, 787);
+  assert.equal(maxModelDatasheets.length, 8);
+  assert.deepEqual(
+    maxModelDatasheets.map((datasheet) => [datasheet.name, datasheet.maxModelCount]),
+    [
+      ["Fortis Kill Team", 10],
+      ["Paladin Squad", 10],
+      ["Victrix Honour Guard", 6],
+      ["Indomitor Kill Team", 10],
+      ["Spectrus Kill Team", 10],
+      ["Brotherhood Terminator Squad", 10],
+      ["Talonstrike Kill Team", 10],
+      ["Corsair Voidscarred", 10],
+    ]
+  );
+
+  const duplicateValidation = (datasheet, count) => validateRoster({
+    id: `${datasheet.id}:duplicates:${count}`,
+    name: `${datasheet.name} Duplicates ${count}`,
+    factionKeywordId: rosterFactionIdForDatasheet(datasheet.id),
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: Array.from({ length: count }, (_, index) => ({
+      id: `${datasheet.id}:duplicate:${index}`,
+      datasheetId: datasheet.id,
+    })),
+  });
+  const assertDuplicateLimit = (datasheet, validCount, invalidCount) => {
+    const valid = duplicateValidation(datasheet, validCount);
+    assert.ok(
+      !messageCodes(valid.messages).includes("roster.unit_limit_exceeded"),
+      `${datasheet.name} should allow ${validCount} copies`
+    );
+    validDuplicateRows += 1;
+
+    const invalid = duplicateValidation(datasheet, invalidCount);
+    assert.ok(
+      messageCodes(invalid.messages).includes("roster.unit_limit_exceeded"),
+      `${datasheet.name} should reject ${invalidCount} copies`
+    );
+    invalidDuplicateRows += 1;
+  };
+
+  for (const datasheet of epicHeroDatasheets) {
+    assertDuplicateLimit(datasheet, 1, 2);
+  }
+  for (const datasheet of sixLimitDatasheets) {
+    assertDuplicateLimit(datasheet, 6, 7);
+  }
+  for (const datasheet of standardDatasheets) {
+    assertDuplicateLimit(datasheet, 3, 4);
+  }
+
+  for (const datasheet of maxModelDatasheets) {
+    const miniature = realCatalog.miniaturesByDatasheetId.get(datasheet.id)?.[0];
+    assert.ok(miniature, `${datasheet.name} should have a miniature for max model coverage`);
+    const rosterForCount = (count) => validateRoster({
+      id: `${datasheet.id}:models:${count}`,
+      name: `${datasheet.name} Models ${count}`,
+      factionKeywordId: rosterFactionIdForDatasheet(datasheet.id),
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [],
+      units: [{
+        id: `${datasheet.id}:unit:${count}`,
+        datasheetId: datasheet.id,
+        miniatures: [{
+          id: `${datasheet.id}:${miniature.id}:${count}`,
+          rosterUnitMiniatureId: `${datasheet.id}:${miniature.id}:${count}`,
+          miniatureId: miniature.id,
+          count,
+          wargear: {},
+        }],
+      }],
+    });
+
+    const valid = rosterForCount(datasheet.maxModelCount);
+    assert.ok(
+      !messageCodes(valid.messages).includes("unit.max_model_count_too_many_models"),
+      `${datasheet.name} should allow ${datasheet.maxModelCount} models`
+    );
+    validMaxModelRows += 1;
+
+    const invalid = rosterForCount(datasheet.maxModelCount + 1);
+    assert.ok(
+      messageCodes(invalid.messages).includes("unit.max_model_count_too_many_models"),
+      `${datasheet.name} should reject ${datasheet.maxModelCount + 1} models`
+    );
+    invalidMaxModelRows += 1;
+  }
+
+  assert.equal(validDuplicateRows, 1035);
+  assert.equal(invalidDuplicateRows, 1035);
+  assert.equal(validMaxModelRows, 8);
+  assert.equal(invalidMaxModelRows, 8);
+});
+
+test("all live unit composition rows have available, unavailable, and miniature-shape coverage", () => {
+  state.catalog = realCatalog;
+  const compositions = realCatalog.unitCompositions;
+  const miniatureRows = realCatalog.unitCompositionMiniatures;
+  const requiredFactionRows = realCatalog.compositionRequiredFactionKeywords;
+  const requiredDetachmentRows = realCatalog.compositionRequiredDetachments;
+  let availableRows = 0;
+  let factionUnavailableRows = 0;
+  let detachmentUnavailableRows = 0;
+  let defaultRows = 0;
+  let generatedMiniatureRows = 0;
+  let minCountTotal = 0;
+  let maxCountTotal = 0;
+
+  assert.equal(compositions.length, 1516);
+  assert.equal(miniatureRows.length, 2258);
+  assert.equal(requiredFactionRows.length, 51);
+  assert.equal(requiredDetachmentRows.length, 8);
+  assert.equal(compositions.filter((composition) => composition.isDefault).length, 1195);
+  assert.equal(compositions.filter((composition) => !composition.isDefault).length, 321);
+
+  for (const composition of compositions) {
+    const rows = compositionMiniatureRows(composition);
+    const factionRows = compositionRequiredFactionRows(composition);
+    const detachmentRows = compositionRequiredDetachmentRows(composition);
+    const factionIds = factionRows.length ? factionScope(factionRows[0].factionKeywordId) : [];
+    const detachmentIds = detachmentRows.length ? [detachmentRows[0].detachmentId] : [];
+
+    assert.ok(rows.length, `Expected composition ${composition.id} to have miniature rows`);
+    assert.ok(realCatalog.datasheetById.has(composition.datasheetId), `Missing composition datasheet ${composition.datasheetId}`);
+    assert.ok(
+      availableCompositionIds(composition, factionIds, detachmentIds).includes(composition.id),
+      `Expected composition ${composition.id} to be available when requirements are satisfied`
+    );
+    availableRows += 1;
+
+    if (composition.isDefault) {
+      defaultRows += 1;
+    }
+    if (factionRows.length) {
+      assert.ok(
+        !availableCompositionIds(composition, [], detachmentIds).includes(composition.id),
+        `Expected faction-scoped composition ${composition.id} to be unavailable without its faction`
+      );
+      factionUnavailableRows += factionRows.length;
+    }
+    if (detachmentRows.length) {
+      assert.ok(
+        !availableCompositionIds(composition, factionIds, []).includes(composition.id),
+        `Expected detachment-scoped composition ${composition.id} to be unavailable without its detachment`
+      );
+      detachmentUnavailableRows += detachmentRows.length;
+    }
+
+    const generatedMiniatures = defaultMiniaturesForComposition(composition);
+    const generatedByMiniatureId = new Map(generatedMiniatures.map((miniature) => [miniature.miniatureId, miniature]));
+    assert.equal(generatedMiniatures.length, rows.length, `Miniature row count mismatch for composition ${composition.id}`);
+
+    for (const row of rows) {
+      const miniature = realCatalog.miniatureById.get(row.miniatureId);
+      assert.ok(miniature, `Missing composition miniature ${row.miniatureId}`);
+      assert.equal(miniature.datasheetId, composition.datasheetId, `Composition miniature ${row.miniatureId} is outside datasheet ${composition.datasheetId}`);
+      assert.ok(Number(row.min || 0) <= Number(row.max || 0), `Composition ${composition.id} has min above max`);
+      assert.equal(
+        generatedByMiniatureId.get(row.miniatureId)?.count,
+        Number(row.min || 0),
+        `Expected defaultMiniatures to use min count for ${composition.id}/${row.miniatureId}`
+      );
+      generatedMiniatureRows += 1;
+      minCountTotal += Number(row.min || 0);
+      maxCountTotal += Number(row.max || 0);
+    }
+  }
+
+  assert.equal(availableRows, 1516);
+  assert.equal(factionUnavailableRows, 51);
+  assert.equal(detachmentUnavailableRows, 8);
+  assert.equal(defaultRows, 1195);
+  assert.equal(generatedMiniatureRows, 2258);
+  assert.equal(minCountTotal, 4933);
+  assert.equal(maxCountTotal, 5759);
+});
+
+test("all live datasheet points steps apply from the configured duplicate position", () => {
+  state.catalog = realCatalog;
+  const rows = realCatalog.datasheetPointsSteps;
+  let beforeThresholdRows = 0;
+  let appliedThresholdRows = 0;
+  let appliedStepPointsTotal = 0;
+
+  assert.equal(rows.length, 334);
+  assert.equal(rows.filter((row) => Number(row.stepAt || 0) === 2).length, 95);
+  assert.equal(rows.filter((row) => Number(row.stepAt || 0) === 3).length, 234);
+  assert.equal(rows.filter((row) => Number(row.stepAt || 0) === 4).length, 5);
+  assert.equal(new Set(rows.map((row) => row.datasheetId)).size, 334);
+
+  for (const row of rows) {
+    assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing points-step datasheet ${row.datasheetId}`);
+    assert.ok(Number(row.stepAt || 0) > 1, `Expected duplicate stepAt above first copy for ${row.datasheetId}`);
+    assert.ok(Number(row.stepPoints || 0) > 0, `Expected positive step points for ${row.datasheetId}`);
+
+    const summaries = unitSummariesForPointsStep(row);
+    assert.equal(summaries.length, Number(row.stepAt || 0) + 1);
+    for (const [index, summary] of summaries.entries()) {
+      const position = index + 1;
+      if (position < Number(row.stepAt || 0)) {
+        assert.equal(summary.datasheetPointsStep, 0, `Expected no step points before ${row.stepAt} for ${row.datasheetId}`);
+        beforeThresholdRows += 1;
+      } else {
+        assert.equal(
+          summary.datasheetPointsStep,
+          Number(row.stepPoints || 0),
+          `Expected step points at duplicate position ${position} for ${row.datasheetId}`
+        );
+        appliedThresholdRows += 1;
+        appliedStepPointsTotal += summary.datasheetPointsStep;
+      }
+    }
+  }
+
+  assert.equal(beforeThresholdRows, 578);
+  assert.equal(appliedThresholdRows, 668);
+  assert.equal(appliedStepPointsTotal, 10790);
 });
 
 test("detachment and composition validators cover unique, excluded, linked, and invalid composition cases", () => {

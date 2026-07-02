@@ -53,6 +53,13 @@ import {
   withMiniatureEnhancement,
   datasheetIdForEnhancementBodyguard
 } from "./builder_validation_helpers.mjs";
+import {
+  addCounts,
+  loadoutChoiceSets,
+  validLoadoutsFromChoiceSets,
+  wargearLoadoutMatchesChoiceSets,
+} from "../HereticBuilder/static/builder_loadout_math.js";
+import { wargearPoints } from "../HereticBuilder/static/builder_model.js";
 
 function addNameAliasContext(contexts, { source, datasheetId, miniatureId, wargearItemId }) {
   const key = canonicalWargearKey(wargearItemId, { datasheetId, miniatureId });
@@ -144,6 +151,479 @@ function countBy(rows, key) {
 function miniatureBelongsToDatasheet(datasheetId, miniatureId) {
   return (realCatalog.miniaturesByDatasheetId.get(datasheetId) || [])
     .some((miniature) => miniature.id === miniatureId);
+}
+
+function catalogWithOnlyLoadoutChoiceSet(set) {
+  const choices = realCatalog.loadoutChoicesBySetId.get(set.id) || [];
+  return {
+    ...realCatalog,
+    loadoutChoiceSetsByDatasheetId: new Map([[set.datasheetId, [set]]]),
+    loadoutChoicesBySetId: new Map([[set.id, choices]]),
+    loadoutChoiceItemsByChoiceId: new Map(choices.map((choice) => [
+      choice.id,
+      realCatalog.loadoutChoiceItemsByChoiceId.get(choice.id) || [],
+    ])),
+  };
+}
+
+function choiceIsRepresented(choice, loadouts) {
+  const entries = Object.entries(choice || {});
+  return loadouts.some((loadout) => entries.every(([key, count]) => (loadout[key] || 0) >= count));
+}
+
+function invalidCountsForLoadout(loadout) {
+  return {
+    ...loadout,
+    "id:not-a-live-loadout-choice": 1,
+  };
+}
+
+function limitedSetForChoice(choice) {
+  const row = realCatalog.limitedWargearChoiceSets.find((set) => set.id === choice.limitedWargearChoiceSetId);
+  assert.ok(row, `Expected limited wargear choice set ${choice.limitedWargearChoiceSetId}`);
+  return row;
+}
+
+function limitedSetForLimit(limit) {
+  const row = realCatalog.limitedWargearChoiceSets.find((set) => set.id === limit.limitedWargearChoiceSetId);
+  assert.ok(row, `Expected limited wargear limit set ${limit.limitedWargearChoiceSetId}`);
+  return row;
+}
+
+function limitedChoiceRows(choice) {
+  return realCatalog.limitedWargearChoiceItemsByChoiceId.get(choice.id) || [];
+}
+
+function firstNonEmptyLimitedChoice(set) {
+  const choice = (realCatalog.limitedWargearChoicesBySetId.get(set.id) || [])
+    .find((row) => limitedChoiceRows(row).length);
+  assert.ok(choice, `Expected non-empty limited choice for set ${set.id}`);
+  return choice;
+}
+
+function selectionRowsForChoice(choice, repeats) {
+  const counts = new Map();
+  for (const row of limitedChoiceRows(choice)) {
+    counts.set(row.wargearItemId, (counts.get(row.wargearItemId) || 0) + Number(row.count || 0) * repeats);
+  }
+  return [...counts.entries()]
+    .filter(([, count]) => count > 0)
+    .map(([wargearItemId, count]) => ({ wargearItemId, count }));
+}
+
+function syntheticOptionId(set, wargearItemId) {
+  return `test-limited-option:${set.id}:${wargearItemId}`;
+}
+
+function syntheticWargearRowsForChoices(set, choices) {
+  const itemIds = new Set();
+  for (const choice of choices) {
+    for (const row of limitedChoiceRows(choice)) {
+      itemIds.add(row.wargearItemId);
+    }
+  }
+  const group = {
+    id: `test-limited-group:${set.id}`,
+    datasheetId: set.datasheetId,
+    miniatureId: set.miniatureId || null,
+    isStaticWargear: false,
+  };
+  const options = [...itemIds].map((wargearItemId) => ({
+    id: syntheticOptionId(set, wargearItemId),
+    wargearOptionGroupId: group.id,
+    wargearItemId,
+    defaultValue: 0,
+    inputType: "stepper",
+    points: 0,
+  }));
+  return { group, options };
+}
+
+function syntheticRegularLoadoutRows(set, selectionRows) {
+  const loadoutSet = {
+    id: `test-regular-loadout:${set.id}`,
+    datasheetId: set.datasheetId,
+    miniatureId: set.miniatureId || null,
+    limit: 1,
+    allowDuplicates: false,
+    alternate: false,
+  };
+  const emptyChoice = {
+    id: `${loadoutSet.id}:empty`,
+    loadoutChoiceSetId: loadoutSet.id,
+  };
+  const selectedChoice = {
+    id: `${loadoutSet.id}:selected`,
+    loadoutChoiceSetId: loadoutSet.id,
+  };
+  const choices = selectionRows.length ? [emptyChoice, selectedChoice] : [emptyChoice];
+  const items = selectionRows.map((row) => ({
+    id: `${selectedChoice.id}:${row.wargearItemId}`,
+    loadoutChoiceId: selectedChoice.id,
+    wargearItemId: row.wargearItemId,
+    count: row.count,
+  }));
+  return { loadoutSet, choices, items, selectedChoiceId: selectedChoice.id };
+}
+
+function catalogWithLimitedWargearScenario(set, limit, choice, selectionRows) {
+  const choices = [choice];
+  const { group, options } = syntheticWargearRowsForChoices(set, choices);
+  const regular = syntheticRegularLoadoutRows(set, selectionRows);
+  return {
+    ...realCatalog,
+    loadoutChoiceSetsByDatasheetId: new Map([[set.datasheetId, [regular.loadoutSet]]]),
+    loadoutChoicesBySetId: new Map([[regular.loadoutSet.id, regular.choices]]),
+    loadoutChoiceItemsByChoiceId: new Map([
+      [regular.choices[0].id, []],
+      ...(selectionRows.length ? [[regular.selectedChoiceId, regular.items]] : []),
+    ]),
+    limitedWargearChoiceSetsByDatasheetId: new Map([[set.datasheetId, [set]]]),
+    limitedWargearChoicesBySetId: new Map([[set.id, choices]]),
+    limitedWargearChoiceItemsByChoiceId: new Map([[choice.id, limitedChoiceRows(choice)]]),
+    wargearLimitsByLimitedSetId: new Map([[set.id, [limit]]]),
+    allModelWargearChoiceSetsByDatasheetId: new Map(),
+    allModelWargearChoicesBySetId: new Map(),
+    allModelWargearChoiceItemsByChoiceId: new Map(),
+    wargearGroups: [group],
+    wargearOptions: options,
+    wargearGroupById: new Map([[group.id, group]]),
+    wargearOptionById: new Map(options.map((option) => [option.id, option])),
+    wargearGroupsByDatasheetId: new Map([[set.datasheetId, [group]]]),
+    wargearOptionsByGroupId: new Map([[group.id, options]]),
+  };
+}
+
+function selectedOptionCountsForLimitedScenario(set, selectionRows) {
+  return Object.fromEntries(selectionRows.map((row) => [
+    syntheticOptionId(set, row.wargearItemId),
+    row.count,
+  ]));
+}
+
+function unitForLimitedWargearScenario(set, limit, selectionRows) {
+  const datasheet = realCatalog.datasheetById.get(set.datasheetId);
+  const miniature = set.miniatureId
+    ? realCatalog.miniatureById.get(set.miniatureId)
+    : (realCatalog.miniaturesByDatasheetId.get(set.datasheetId) || [])[0];
+  assert.ok(datasheet, `Expected datasheet ${set.datasheetId}`);
+  assert.ok(miniature, `Expected target miniature for limited set ${set.id}`);
+
+  const modelCount = Math.max(1, Number(limit.modelCount || 0));
+  const selectedOptions = selectedOptionCountsForLimitedScenario(set, selectionRows);
+  return {
+    id: `test-limited-unit:${set.id}:${limit.id || limit.modelCount || "zero"}`,
+    name: datasheet.name,
+    datasheetId: set.datasheetId,
+    modelCount,
+    wargear: set.miniatureId ? {} : selectedOptions,
+    miniatures: [{
+      ...miniature,
+      id: `test-limited-miniature:${set.id}:${miniature.id}`,
+      rosterUnitMiniatureId: `test-limited-miniature:${set.id}:${miniature.id}`,
+      miniatureId: miniature.id,
+      name: miniature.name || "Model",
+      count: modelCount,
+      wargear: set.miniatureId ? selectedOptions : {},
+    }],
+  };
+}
+
+function validateLimitedWargearScenario(set, limit, choice, repeats) {
+  const selectionRows = selectionRowsForChoice(choice, repeats);
+  const catalog = catalogWithLimitedWargearScenario(set, limit, choice, selectionRows);
+  const unit = unitForLimitedWargearScenario(set, limit, selectionRows);
+  const messages = [];
+  withCatalog(catalog, () => validateWargearLoadouts([unit], messages));
+  return messageCodes(messages);
+}
+
+function allModelChoiceRows(choice) {
+  return realCatalog.allModelWargearChoiceItemsByChoiceId.get(choice.id) || [];
+}
+
+function allModelChoicesForSet(set) {
+  return realCatalog.allModelWargearChoicesBySetId.get(set.id) || [];
+}
+
+function allModelSelectionRows(choiceRepeats) {
+  const counts = new Map();
+  for (const [choice, repeats] of choiceRepeats) {
+    for (const row of allModelChoiceRows(choice)) {
+      counts.set(row.wargearItemId, (counts.get(row.wargearItemId) || 0) + Number(row.count || 0) * repeats);
+    }
+  }
+  return [...counts.entries()]
+    .filter(([, count]) => count > 0)
+    .map(([wargearItemId, count]) => ({ wargearItemId, count }));
+}
+
+function syntheticAllModelOptionId(set, wargearItemId) {
+  return `test-all-model-option:${set.id}:${wargearItemId}`;
+}
+
+function syntheticWargearRowsForAllModelChoices(set, choices) {
+  const itemIds = new Set();
+  for (const choice of choices) {
+    for (const row of allModelChoiceRows(choice)) {
+      itemIds.add(row.wargearItemId);
+    }
+  }
+  const group = {
+    id: `test-all-model-group:${set.id}`,
+    datasheetId: set.datasheetId,
+    miniatureId: set.miniatureId || null,
+    isStaticWargear: false,
+  };
+  const options = [...itemIds].map((wargearItemId) => ({
+    id: syntheticAllModelOptionId(set, wargearItemId),
+    wargearOptionGroupId: group.id,
+    wargearItemId,
+    defaultValue: 0,
+    inputType: "stepper",
+    points: 0,
+  }));
+  return { group, options };
+}
+
+function catalogWithAllModelWargearScenario(set, selectionRows) {
+  const choices = allModelChoicesForSet(set);
+  const { group, options } = syntheticWargearRowsForAllModelChoices(set, choices);
+  const regular = syntheticRegularLoadoutRows(set, selectionRows);
+  return {
+    ...realCatalog,
+    loadoutChoiceSetsByDatasheetId: new Map([[set.datasheetId, [regular.loadoutSet]]]),
+    loadoutChoicesBySetId: new Map([[regular.loadoutSet.id, regular.choices]]),
+    loadoutChoiceItemsByChoiceId: new Map([
+      [regular.choices[0].id, []],
+      ...(selectionRows.length ? [[regular.selectedChoiceId, regular.items]] : []),
+    ]),
+    limitedWargearChoiceSetsByDatasheetId: new Map(),
+    limitedWargearChoicesBySetId: new Map(),
+    limitedWargearChoiceItemsByChoiceId: new Map(),
+    wargearLimitsByLimitedSetId: new Map(),
+    allModelWargearChoiceSetsByDatasheetId: new Map([[set.datasheetId, [set]]]),
+    allModelWargearChoicesBySetId: new Map([[set.id, choices]]),
+    allModelWargearChoiceItemsByChoiceId: new Map(choices.map((choice) => [
+      choice.id,
+      allModelChoiceRows(choice),
+    ])),
+    wargearGroups: [group],
+    wargearOptions: options,
+    wargearGroupById: new Map([[group.id, group]]),
+    wargearOptionById: new Map(options.map((option) => [option.id, option])),
+    wargearGroupsByDatasheetId: new Map([[set.datasheetId, [group]]]),
+    wargearOptionsByGroupId: new Map([[group.id, options]]),
+  };
+}
+
+function selectedOptionCountsForAllModelScenario(set, selectionRows) {
+  return Object.fromEntries(selectionRows.map((row) => [
+    syntheticAllModelOptionId(set, row.wargearItemId),
+    row.count,
+  ]));
+}
+
+function unitForAllModelWargearScenario(set, modelCount, selectionRows) {
+  const datasheet = realCatalog.datasheetById.get(set.datasheetId);
+  const miniature = set.miniatureId
+    ? realCatalog.miniatureById.get(set.miniatureId)
+    : (realCatalog.miniaturesByDatasheetId.get(set.datasheetId) || [])[0];
+  assert.ok(datasheet, `Expected datasheet ${set.datasheetId}`);
+  assert.ok(miniature, `Expected target miniature for all-model set ${set.id}`);
+
+  const selectedOptions = selectedOptionCountsForAllModelScenario(set, selectionRows);
+  return {
+    id: `test-all-model-unit:${set.id}:${modelCount}`,
+    name: datasheet.name,
+    datasheetId: set.datasheetId,
+    modelCount,
+    wargear: set.miniatureId ? {} : selectedOptions,
+    miniatures: [{
+      ...miniature,
+      id: `test-all-model-miniature:${set.id}:${miniature.id}`,
+      rosterUnitMiniatureId: `test-all-model-miniature:${set.id}:${miniature.id}`,
+      miniatureId: miniature.id,
+      name: miniature.name || "Model",
+      count: modelCount,
+      wargear: set.miniatureId ? selectedOptions : {},
+    }],
+  };
+}
+
+function validateAllModelWargearScenario(set, choiceRepeats, modelCount) {
+  const selectionRows = allModelSelectionRows(choiceRepeats);
+  const catalog = catalogWithAllModelWargearScenario(set, selectionRows);
+  const unit = unitForAllModelWargearScenario(set, modelCount, selectionRows);
+  const messages = [];
+  withCatalog(catalog, () => validateWargearLoadouts([unit], messages));
+  return messageCodes(messages);
+}
+
+function baseLoadoutRows(loadout) {
+  return realCatalog.baseMiniatureLoadoutWargearOptionsByLoadoutId.get(loadout.id) || [];
+}
+
+function optionMatchesBaseLoadoutScope(loadout, optionId) {
+  const option = realCatalog.wargearOptionById.get(optionId);
+  const group = option ? realCatalog.wargearGroupById.get(option.wargearOptionGroupId) : null;
+  return group?.datasheetId === loadout.datasheetId && group?.miniatureId === loadout.miniatureId;
+}
+
+function directBaseLoadoutRows(loadout) {
+  return baseLoadoutRows(loadout)
+    .filter((row) => optionMatchesBaseLoadoutScope(loadout, row.wargearOptionId));
+}
+
+function foreignBaseLoadoutRows(loadout) {
+  return baseLoadoutRows(loadout)
+    .filter((row) => !optionMatchesBaseLoadoutScope(loadout, row.wargearOptionId));
+}
+
+function catalogWithOnlyBaseLoadout(loadout) {
+  const composition = {
+    id: `test-base-composition:${loadout.id}`,
+    datasheetId: loadout.datasheetId,
+    isDefault: true,
+  };
+  return {
+    ...realCatalog,
+    compositionById: new Map([
+      ...realCatalog.compositionById,
+      [composition.id, composition],
+    ]),
+    compositionMiniaturesByCompositionId: new Map([
+      [composition.id, [{
+        unitCompositionId: composition.id,
+        miniatureId: loadout.miniatureId,
+        min: 2,
+      }]],
+    ]),
+    baseMiniatureLoadoutsByMiniatureId: new Map([[loadout.miniatureId, [loadout]]]),
+    baseMiniatureLoadoutsByDatasheetId: new Map([[loadout.datasheetId, [loadout]]]),
+    baseMiniatureLoadoutWargearOptionsByLoadoutId: new Map([[loadout.id, baseLoadoutRows(loadout)]]),
+    loadoutChoiceSetsByDatasheetId: new Map(),
+    loadoutChoicesBySetId: new Map(),
+    loadoutChoiceItemsByChoiceId: new Map(),
+  };
+}
+
+function defaultMiniaturesForBaseLoadout(loadout) {
+  const catalog = catalogWithOnlyBaseLoadout(loadout);
+  let miniatures = [];
+  withCatalog(catalog, () => {
+    miniatures = defaultMiniatures(loadout.datasheetId, `test-base-composition:${loadout.id}`);
+  });
+  assert.equal(miniatures.length, 1, `Expected one synthetic miniature for base loadout ${loadout.id}`);
+  return miniatures[0];
+}
+
+function wargearGroupForOption(option) {
+  const group = realCatalog.wargearGroupById.get(option.wargearOptionGroupId);
+  assert.ok(group, `Expected wargear group ${option.wargearOptionGroupId}`);
+  return group;
+}
+
+function datasheetMiniatureForGroup(group) {
+  const miniature = group.miniatureId
+    ? realCatalog.miniatureById.get(group.miniatureId)
+    : (realCatalog.miniaturesByDatasheetId.get(group.datasheetId) || [])[0];
+  assert.ok(miniature, `Expected miniature target for wargear group ${group.id}`);
+  return miniature;
+}
+
+function catalogWithRawDefaultMiniature(datasheetId, miniatureId) {
+  const composition = {
+    id: `test-default-options:${datasheetId}:${miniatureId}`,
+    datasheetId,
+    isDefault: true,
+  };
+  return {
+    ...realCatalog,
+    compositionById: new Map([
+      ...realCatalog.compositionById,
+      [composition.id, composition],
+    ]),
+    compositionMiniaturesByCompositionId: new Map([
+      [composition.id, [{
+        unitCompositionId: composition.id,
+        miniatureId,
+        min: 1,
+      }]],
+    ]),
+    baseMiniatureLoadoutsByMiniatureId: new Map(),
+    baseMiniatureLoadoutsByDatasheetId: new Map(),
+    baseMiniatureLoadoutWargearOptionsByLoadoutId: new Map(),
+    loadoutChoiceSetsByDatasheetId: new Map(),
+    loadoutChoicesBySetId: new Map(),
+    loadoutChoiceItemsByChoiceId: new Map(),
+  };
+}
+
+function rawDefaultMiniatureWargear(datasheetId, miniatureId) {
+  const catalog = catalogWithRawDefaultMiniature(datasheetId, miniatureId);
+  let miniatures = [];
+  withCatalog(catalog, () => {
+    miniatures = defaultMiniatures(datasheetId, `test-default-options:${datasheetId}:${miniatureId}`);
+  });
+  assert.equal(miniatures.length, 1, `Expected one synthetic miniature for ${datasheetId}/${miniatureId}`);
+  return miniatures[0].wargear || {};
+}
+
+function catalogWithOnlyWargearOption(option) {
+  const group = wargearGroupForOption(option);
+  return {
+    ...realCatalog,
+    wargearGroups: [group],
+    wargearOptions: [option],
+    wargearGroupById: new Map([[group.id, group]]),
+    wargearOptionById: new Map([[option.id, option]]),
+    wargearGroupsByDatasheetId: new Map([[group.datasheetId, [group]]]),
+    wargearOptionsByGroupId: new Map([[group.id, [option]]]),
+    loadoutChoiceSetsByDatasheetId: new Map(),
+    loadoutChoicesBySetId: new Map(),
+    loadoutChoiceItemsByChoiceId: new Map(),
+    limitedWargearChoiceSetsByDatasheetId: new Map(),
+    limitedWargearChoicesBySetId: new Map(),
+    limitedWargearChoiceItemsByChoiceId: new Map(),
+    wargearLimitsByLimitedSetId: new Map(),
+    allModelWargearChoiceSetsByDatasheetId: new Map(),
+    allModelWargearChoicesBySetId: new Map(),
+    allModelWargearChoiceItemsByChoiceId: new Map(),
+  };
+}
+
+function unitForWargearOptionScope(option, selectAsUnitWargear) {
+  const group = wargearGroupForOption(option);
+  const miniature = datasheetMiniatureForGroup(group);
+  return {
+    id: `test-option-scope:${option.id}:${selectAsUnitWargear ? "unit" : "miniature"}`,
+    name: realCatalog.datasheetById.get(group.datasheetId)?.name || "Unit",
+    datasheetId: group.datasheetId,
+    modelCount: 1,
+    wargear: selectAsUnitWargear ? { [option.id]: 2 } : {},
+    miniatures: [{
+      ...miniature,
+      id: `test-option-scope-miniature:${option.id}:${miniature.id}`,
+      rosterUnitMiniatureId: `test-option-scope-miniature:${option.id}:${miniature.id}`,
+      miniatureId: miniature.id,
+      name: miniature.name || "Model",
+      count: 1,
+      wargear: selectAsUnitWargear ? {} : { [option.id]: 2 },
+    }],
+  };
+}
+
+function validateWargearOptionScope(option, selectAsUnitWargear) {
+  const catalog = catalogWithOnlyWargearOption(option);
+  const unit = unitForWargearOptionScope(option, selectAsUnitWargear);
+  const messages = [];
+  let points = 0;
+  withCatalog(catalog, () => {
+    validateWargearLoadouts([unit], messages);
+    points = wargearPoints(unit);
+  });
+  return { codes: messageCodes(messages), points };
 }
 
 test("all live wargear rule tables stay pinned to explicit coverage counts", () => {
@@ -289,6 +769,419 @@ test("all live wargear rule tables stay pinned to explicit coverage counts", () 
     assert.ok(realCatalog.wargearItemById.has(row.wargearItemId), `Missing wargear alias item ${row.wargearItemId}`);
     assert.ok(String(row.key || "").startsWith("name:"), `Unexpected wargear alias key ${row.key}`);
   }
+});
+
+test("all live wargear options generate scoped default selections", () => {
+  state.catalog = realCatalog;
+  const unitGroups = realCatalog.wargearGroups.filter((group) => !group.miniatureId);
+  const miniatureGroups = realCatalog.wargearGroups.filter((group) => group.miniatureId);
+  const unitOptions = realCatalog.wargearOptions.filter((option) => !wargearGroupForOption(option).miniatureId);
+  const miniatureOptions = realCatalog.wargearOptions.filter((option) => wargearGroupForOption(option).miniatureId);
+  let unitDefaultRows = 0;
+  let unitZeroDefaultRows = 0;
+  let miniatureDefaultRows = 0;
+  let miniatureZeroDefaultRows = 0;
+  let unitDefaultTotal = 0;
+  let miniatureDefaultTotal = 0;
+  const unitDatasheetIds = new Set(unitGroups.map((group) => group.datasheetId));
+  const miniaturePairs = new Map();
+
+  assert.equal(unitGroups.length, 19);
+  assert.equal(miniatureGroups.length, 3006);
+  assert.equal(unitOptions.length, 21);
+  assert.equal(miniatureOptions.length, 6301);
+  assert.equal(unitOptions.filter((option) => Number(option.defaultValue || 0) > 0).length, 5);
+  assert.equal(miniatureOptions.filter((option) => Number(option.defaultValue || 0) > 0).length, 3690);
+  assert.equal(unitOptions.filter((option) => Number(option.defaultValue || 0) === 0).length, 16);
+  assert.equal(miniatureOptions.filter((option) => Number(option.defaultValue || 0) === 0).length, 2611);
+
+  for (const datasheetId of unitDatasheetIds) {
+    const selected = defaultWargear(datasheetId);
+    for (const group of unitGroups.filter((row) => row.datasheetId === datasheetId)) {
+      for (const option of realCatalog.wargearOptionsByGroupId.get(group.id) || []) {
+        const defaultValue = Number(option.defaultValue || 0);
+        if (defaultValue > 0) {
+          assert.equal(
+            selected[option.id],
+            defaultValue,
+            `Expected unit default option ${option.id} to be selected`
+          );
+          unitDefaultRows += 1;
+          unitDefaultTotal += defaultValue;
+        } else {
+          assert.ok(!(option.id in selected), `Expected zero unit default option ${option.id} to stay unselected`);
+          unitZeroDefaultRows += 1;
+        }
+      }
+    }
+  }
+
+  for (const group of miniatureGroups) {
+    const key = `${group.datasheetId}|${group.miniatureId}`;
+    if (!miniaturePairs.has(key)) {
+      miniaturePairs.set(key, { datasheetId: group.datasheetId, miniatureId: group.miniatureId, groups: [] });
+    }
+    miniaturePairs.get(key).groups.push(group);
+  }
+
+  for (const pair of miniaturePairs.values()) {
+    const selected = rawDefaultMiniatureWargear(pair.datasheetId, pair.miniatureId);
+    for (const group of pair.groups) {
+      for (const option of realCatalog.wargearOptionsByGroupId.get(group.id) || []) {
+        const defaultValue = Number(option.defaultValue || 0);
+        if (defaultValue > 0) {
+          assert.equal(
+            selected[option.id],
+            defaultValue,
+            `Expected miniature default option ${option.id} to be selected`
+          );
+          miniatureDefaultRows += 1;
+          miniatureDefaultTotal += defaultValue;
+        } else {
+          assert.ok(!(option.id in selected), `Expected zero miniature default option ${option.id} to stay unselected`);
+          miniatureZeroDefaultRows += 1;
+        }
+      }
+    }
+  }
+
+  assert.equal(unitDatasheetIds.size, 18);
+  assert.equal(miniaturePairs.size, 1560);
+  assert.equal(unitDefaultRows, 5);
+  assert.equal(unitZeroDefaultRows, 16);
+  assert.equal(miniatureDefaultRows, 3690);
+  assert.equal(miniatureZeroDefaultRows, 2611);
+  assert.equal(unitDefaultTotal, 5);
+  assert.equal(miniatureDefaultTotal, 6821);
+});
+
+test("all live wargear options validate target scope and selected points", () => {
+  state.catalog = realCatalog;
+  let validUnitScopeRows = 0;
+  let validMiniatureScopeRows = 0;
+  let invalidUnitScopeRows = 0;
+  let invalidMiniatureScopeRows = 0;
+  let paidOptionRows = 0;
+  let selectedPointsTotal = 0;
+
+  assert.equal(realCatalog.wargearOptions.length, 6322);
+  assert.equal(realCatalog.wargearOptions.filter((option) => Number(option.points || 0) > 0).length, 83);
+
+  for (const option of realCatalog.wargearOptions) {
+    const group = wargearGroupForOption(option);
+    const correct = validateWargearOptionScope(option, !group.miniatureId);
+    assert.ok(
+      !correct.codes.includes("wargear_loadout.invalid_unit_wargear"),
+      `Expected option ${option.id} not to be invalid as unit wargear in its valid scope`
+    );
+    assert.ok(
+      !correct.codes.includes("wargear_loadout.invalid_model_wargear"),
+      `Expected option ${option.id} not to be invalid as model wargear in its valid scope`
+    );
+    assert.equal(correct.points, Number(option.points || 0) * 2);
+    selectedPointsTotal += correct.points;
+    if (Number(option.points || 0) > 0) {
+      paidOptionRows += 1;
+    }
+
+    if (group.miniatureId) {
+      validMiniatureScopeRows += 1;
+      const wrong = validateWargearOptionScope(option, true);
+      assert.ok(
+        wrong.codes.includes("wargear_loadout.invalid_unit_wargear"),
+        `Expected miniature option ${option.id} to be invalid as unit wargear`
+      );
+      invalidUnitScopeRows += 1;
+    } else {
+      validUnitScopeRows += 1;
+      const wrong = validateWargearOptionScope(option, false);
+      assert.ok(
+        wrong.codes.includes("wargear_loadout.invalid_model_wargear"),
+        `Expected unit option ${option.id} to be invalid as model wargear`
+      );
+      invalidMiniatureScopeRows += 1;
+    }
+  }
+
+  assert.equal(validUnitScopeRows, 21);
+  assert.equal(validMiniatureScopeRows, 6301);
+  assert.equal(invalidUnitScopeRows, 6301);
+  assert.equal(invalidMiniatureScopeRows, 21);
+  assert.equal(paidOptionRows, 83);
+  assert.equal(selectedPointsTotal, 1492);
+});
+
+test("all live base miniature loadout rows generate scoped default wargear", () => {
+  state.catalog = realCatalog;
+  const loadouts = realCatalog.baseMiniatureLoadouts;
+  const rows = realCatalog.baseMiniatureLoadoutWargearOptions;
+  let emptyLoadouts = 0;
+  let directRows = 0;
+  let foreignRows = 0;
+  let foreignLoadouts = 0;
+
+  assert.equal(loadouts.length, 1300);
+  assert.equal(rows.length, 3132);
+  assert.equal(loadouts.filter((loadout) => loadout.miniatureId).length, 1300);
+  assert.equal(loadouts.filter((loadout) => !loadout.miniatureId).length, 0);
+  assert.equal(rows.filter((row) => Number(row.count || 0) <= 0).length, 0);
+
+  for (const loadout of loadouts) {
+    const miniature = defaultMiniaturesForBaseLoadout(loadout);
+    const direct = directBaseLoadoutRows(loadout);
+    const foreign = foreignBaseLoadoutRows(loadout);
+
+    if (!baseLoadoutRows(loadout).length) {
+      emptyLoadouts += 1;
+    }
+    if (foreign.length) {
+      foreignLoadouts += 1;
+    }
+
+    assert.equal(miniature.miniatureId, loadout.miniatureId);
+    assert.equal(miniature.count, 2);
+
+    for (const row of direct) {
+      assert.equal(
+        miniature.wargear[row.wargearOptionId],
+        Number(row.count || 0) * 2,
+        `Expected base loadout ${loadout.id} to apply scoped option ${row.wargearOptionId}`
+      );
+      directRows += 1;
+    }
+
+    for (const row of foreign) {
+      assert.ok(
+        !(row.wargearOptionId in (miniature.wargear || {})),
+        `Expected base loadout ${loadout.id} not to leak foreign option ${row.wargearOptionId}`
+      );
+      foreignRows += 1;
+    }
+  }
+
+  assert.equal(emptyLoadouts, 2);
+  assert.equal(directRows, 3115);
+  assert.equal(foreignRows, 17);
+  assert.equal(foreignLoadouts, 8);
+});
+
+test("all live regular loadout choice sets generate valid and invalid coverage", () => {
+  state.catalog = realCatalog;
+  const sets = realCatalog.loadoutChoiceSets;
+  const emptyChoices = realCatalog.loadoutChoices.filter((choice) => (
+    !(realCatalog.loadoutChoiceItemsByChoiceId.get(choice.id) || []).length
+  ));
+  let generatedLoadoutCount = 0;
+
+  assert.equal(sets.length, 2445);
+  assert.equal(realCatalog.loadoutChoices.length, 5374);
+  assert.equal(realCatalog.loadoutChoiceWargearItems.length, 8325);
+  assert.equal(emptyChoices.length, 338);
+  assert.equal(sets.filter((set) => set.allowDuplicates).length, 46);
+  assert.equal(sets.filter((set) => set.alternate).length, 5);
+
+  for (const row of sets) {
+    const sourceChoices = realCatalog.loadoutChoicesBySetId.get(row.id) || [];
+    withCatalog(catalogWithOnlyLoadoutChoiceSet(row), () => {
+      const normalized = loadoutChoiceSets(row.datasheetId, row.miniatureId || null)
+        .find((set) => set.id === row.id);
+      assert.ok(normalized, `Expected normalized loadout set ${row.id}`);
+      assert.equal(normalized.choices.length, sourceChoices.length, `Choice count mismatch for loadout set ${row.id}`);
+
+      const validLoadouts = validLoadoutsFromChoiceSets([normalized]);
+      generatedLoadoutCount += validLoadouts.length;
+      assert.ok(validLoadouts.length, `Expected valid loadouts for set ${row.id}`);
+
+      for (const choice of normalized.choices) {
+        assert.ok(
+          choiceIsRepresented(choice, validLoadouts),
+          `Expected choice in set ${row.id} to be represented by at least one generated loadout`
+        );
+      }
+
+      const validLoadout = validLoadouts[0];
+      assert.ok(
+        wargearLoadoutMatchesChoiceSets(row.datasheetId, row.miniatureId || null, validLoadout, 1),
+        `Expected generated loadout for set ${row.id} to validate for one model`
+      );
+      assert.ok(
+        wargearLoadoutMatchesChoiceSets(row.datasheetId, row.miniatureId || null, addCounts(validLoadout, validLoadout), 2),
+        `Expected generated loadout for set ${row.id} to partition across two models`
+      );
+      assert.ok(
+        !wargearLoadoutMatchesChoiceSets(row.datasheetId, row.miniatureId || null, invalidCountsForLoadout(validLoadout), 1),
+        `Expected impossible loadout for set ${row.id} to be rejected`
+      );
+    });
+  }
+
+  assert.equal(generatedLoadoutCount, 6209);
+});
+
+test("all live limited wargear choices and limits accept valid selections and reject over-limit selections", () => {
+  state.catalog = realCatalog;
+  const sets = realCatalog.limitedWargearChoiceSets;
+  const choices = realCatalog.limitedWargearChoices;
+  const limits = realCatalog.wargearLimits;
+  const choicesWithItems = choices.filter((choice) => limitedChoiceRows(choice).length);
+  const emptyChoices = choices.filter((choice) => !limitedChoiceRows(choice).length);
+  let acceptedChoiceRows = 0;
+  let disabledChoiceRows = 0;
+  let validLimitRows = 0;
+  let invalidLimitRows = 0;
+
+  assert.equal(sets.length, 343);
+  assert.equal(choices.length, 569);
+  assert.equal(realCatalog.limitedWargearChoiceWargearItems.length, 676);
+  assert.equal(limits.length, 492);
+  assert.equal(choicesWithItems.length, 567);
+  assert.equal(emptyChoices.length, 2);
+  assert.equal(sets.filter((set) => set.miniatureId).length, 263);
+  assert.equal(sets.filter((set) => !set.miniatureId).length, 80);
+  assert.equal(limits.filter((limit) => Number(limit.choiceLimit || 0) === 0).length, 3);
+  assert.equal(limits.filter((limit) => limit.duplicateLimit != null).length, 17);
+
+  for (const choice of choicesWithItems) {
+    const set = limitedSetForChoice(choice);
+    const setLimits = [...(realCatalog.wargearLimitsByLimitedSetId.get(set.id) || [])]
+      .sort((left, right) => Number(left.modelCount || 0) - Number(right.modelCount || 0));
+    const acceptingLimit = setLimits.find((limit) => Number(limit.choiceLimit || 0) > 0);
+    const limit = acceptingLimit || setLimits[0];
+    assert.ok(limit, `Expected wargear limit for limited set ${set.id}`);
+
+    const codes = validateLimitedWargearScenario(set, limit, choice, 1);
+    if (acceptingLimit) {
+      assert.deepEqual(codes, [], `Expected limited choice ${choice.id} to be accepted`);
+      acceptedChoiceRows += 1;
+    } else {
+      assert.deepEqual(
+        codes,
+        ["wargear_loadout.invalid_wargear_requirement"],
+        `Expected disabled limited choice ${choice.id} to be rejected`
+      );
+      disabledChoiceRows += 1;
+    }
+  }
+
+  for (const limit of limits) {
+    const set = limitedSetForLimit(limit);
+    const choice = firstNonEmptyLimitedChoice(set);
+    const choiceLimit = Number(limit.choiceLimit || 0);
+    const duplicateLimit = limit.duplicateLimit == null
+      ? choiceLimit
+      : Math.min(choiceLimit, Number(limit.duplicateLimit || 0));
+    const validRepeats = choiceLimit > 0 ? 1 : 0;
+    const invalidRepeats = duplicateLimit + 1;
+
+    assert.deepEqual(
+      validateLimitedWargearScenario(set, limit, choice, validRepeats),
+      [],
+      `Expected limited rule ${set.id}/${limit.modelCount} to accept valid selections`
+    );
+    validLimitRows += 1;
+
+    assert.deepEqual(
+      validateLimitedWargearScenario(set, limit, choice, invalidRepeats),
+      ["wargear_loadout.invalid_wargear_requirement"],
+      `Expected limited rule ${set.id}/${limit.modelCount} to reject over-limit selections`
+    );
+    invalidLimitRows += 1;
+  }
+
+  assert.equal(acceptedChoiceRows, 541);
+  assert.equal(disabledChoiceRows, 26);
+  assert.equal(validLimitRows, 492);
+  assert.equal(invalidLimitRows, 492);
+});
+
+test("all live all-model wargear choices and sets accept complete selections and reject incomplete selections", () => {
+  state.catalog = realCatalog;
+  const sets = realCatalog.allModelWargearChoiceSets;
+  const choices = realCatalog.allModelWargearChoices;
+  const baseChoices = choices.filter((choice) => !choice.substitute);
+  const substituteChoices = choices.filter((choice) => choice.substitute);
+  let acceptedBaseRows = 0;
+  let acceptedSubstituteRows = 0;
+  let acceptedStandaloneSubstituteRows = 0;
+  let underfilledSetRows = 0;
+  let baseConflictSetRows = 0;
+  let missingBaseSubstituteRows = 0;
+
+  assert.equal(sets.length, 28);
+  assert.equal(choices.length, 63);
+  assert.equal(realCatalog.allModelWargearChoiceWargearItems.length, 69);
+  assert.equal(baseChoices.length, 44);
+  assert.equal(substituteChoices.length, 19);
+  assert.equal(sets.filter((set) => set.miniatureId).length, 19);
+  assert.equal(sets.filter((set) => !set.miniatureId).length, 9);
+  assert.equal(sets.filter((set) => allModelChoicesForSet(set).some((choice) => !choice.substitute)).length, 27);
+  assert.equal(sets.filter((set) => allModelChoicesForSet(set).filter((choice) => !choice.substitute).length >= 2).length, 16);
+  assert.equal(sets.filter((set) => allModelChoicesForSet(set).every((choice) => choice.substitute)).length, 1);
+
+  for (const set of sets) {
+    const setChoices = allModelChoicesForSet(set);
+    const setBaseChoices = setChoices.filter((choice) => !choice.substitute);
+    const setSubstituteChoices = setChoices.filter((choice) => choice.substitute);
+
+    for (const choice of setBaseChoices) {
+      assert.deepEqual(
+        validateAllModelWargearScenario(set, [[choice, 2]], 2),
+        [],
+        `Expected all-model base choice ${choice.id} to cover two models`
+      );
+      acceptedBaseRows += 1;
+    }
+
+    if (setBaseChoices.length) {
+      assert.deepEqual(
+        validateAllModelWargearScenario(set, [[setBaseChoices[0], 1]], 2),
+        ["wargear_loadout.invalid_wargear_requirement"],
+        `Expected all-model set ${set.id} to reject underfilled base selections`
+      );
+      underfilledSetRows += 1;
+    }
+
+    if (setBaseChoices.length >= 2) {
+      assert.deepEqual(
+        validateAllModelWargearScenario(set, [[setBaseChoices[0], 1], [setBaseChoices[1], 1]], 2),
+        ["wargear_loadout.invalid_wargear_requirement"],
+        `Expected all-model set ${set.id} to reject mixed base selections`
+      );
+      baseConflictSetRows += 1;
+    }
+
+    for (const choice of setSubstituteChoices) {
+      if (setBaseChoices.length) {
+        assert.deepEqual(
+          validateAllModelWargearScenario(set, [[setBaseChoices[0], 1], [choice, 1]], 2),
+          [],
+          `Expected all-model substitute choice ${choice.id} to be accepted with an active base`
+        );
+        acceptedSubstituteRows += 1;
+
+        assert.deepEqual(
+          validateAllModelWargearScenario(set, [[choice, 1]], 1),
+          ["wargear_loadout.invalid_wargear_requirement"],
+          `Expected all-model substitute choice ${choice.id} to require an active base`
+        );
+        missingBaseSubstituteRows += 1;
+      } else {
+        assert.deepEqual(
+          validateAllModelWargearScenario(set, [[choice, 1]], 1),
+          [],
+          `Expected standalone all-model substitute choice ${choice.id} to remain accepted`
+        );
+        acceptedStandaloneSubstituteRows += 1;
+      }
+    }
+  }
+
+  assert.equal(acceptedBaseRows, 44);
+  assert.equal(acceptedSubstituteRows, 16);
+  assert.equal(acceptedStandaloneSubstituteRows, 3);
+  assert.equal(underfilledSetRows, 27);
+  assert.equal(baseConflictSetRows, 16);
+  assert.equal(missingBaseSubstituteRows, 16);
 });
 
 test("canonical wargear keys use item IDs except confirmed same-context duplicate bridges", () => {

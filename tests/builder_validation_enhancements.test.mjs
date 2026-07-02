@@ -342,6 +342,85 @@ function validateEnhancementBodyguardGroup(group, options = {}) {
   return messageCodes(messages);
 }
 
+const ENHANCEMENT_FLAG_SIZE_ID = "enhancement-flag-size";
+
+function catalogWithOnlyEnhancementFlags(enhancements, enhancementLimit = 9999) {
+  return {
+    ...realCatalog,
+    enhancements,
+    enhancementById: new Map(enhancements.map((enhancement) => [enhancement.id, enhancement])),
+    battleSizeById: new Map([
+      ...realCatalog.battleSizeById.entries(),
+      [ENHANCEMENT_FLAG_SIZE_ID, { id: ENHANCEMENT_FLAG_SIZE_ID, name: "Enhancement Flag Size", enhancementLimit }],
+    ]),
+    enhancementRequiredKeywordGroupsByEnhancementId: new Map(),
+    enhancementRequiredKeywordGroupKeywordsByGroupId: new Map(),
+    enhancementRequiredKeywordGroupFactionsByGroupId: new Map(),
+    enhancementExcludedKeywordsByEnhancementId: new Map(),
+    enhancementRequiredWargearItemsByEnhancementId: new Map(),
+    enhancementBodyguardGroupsByEnhancementId: new Map(),
+    enhancementBodyguardGroupDatasheetsByGroupId: new Map(),
+    enhancementBodyguardGroupKeywordsByGroupId: new Map(),
+  };
+}
+
+function correctTargetKindForEnhancement(enhancement) {
+  return enhancement.enhancementType === "miniature" ? "miniature" : "unit";
+}
+
+function enhancementFlagUnit(enhancement, index = 0, options = {}) {
+  const targetKind = options.targetKind || correctTargetKindForEnhancement(enhancement);
+  const keywordIds = (options.keywordNames || [])
+    .map((name) => keywordNamed(name).id);
+  const targetId = `${enhancement.id}:${targetKind}:${index}:model`;
+  return {
+    id: `${enhancement.id}:${targetKind}:${index}:unit`,
+    name: `${enhancement.name} flag fixture ${index}`,
+    datasheetId: datasheetNamed("Captain").id,
+    allyType: "native",
+    factionKeywordIds: [factionNamed("Adeptus Astartes").id],
+    keywordIds: targetKind === "unit" ? keywordIds : [],
+    conditionalKeywordIds: targetKind === "miniature" ? keywordIds : [],
+    keywordNames: [],
+    isWarlord: false,
+    warlordMiniatureIds: [],
+    unitEnhancements: targetKind === "unit" ? [{ id: enhancement.id }] : [],
+    miniatureEnhancements: targetKind === "miniature" ? [{ id: enhancement.id, targetId }] : [],
+    wargear: {},
+    miniatures: [{
+      id: targetId,
+      rosterUnitMiniatureId: targetId,
+      miniatureId: `${enhancement.id}:${targetKind}:${index}:miniature`,
+      name: `${enhancement.name} model ${index}`,
+      count: 1,
+      isWarlord: false,
+      wargear: {},
+    }],
+  };
+}
+
+function validateEnhancementFlagRows(enhancements, units, enhancementLimit = 9999) {
+  const messages = [];
+  const detachments = enhancements.map((enhancement) => {
+    const detachment = realCatalog.detachmentById.get(enhancement.detachmentId);
+    assert.ok(detachment, `Expected detachment ${enhancement.detachmentId}`);
+    return { ...detachment, isCombatPatrol: false };
+  });
+  withCatalog(catalogWithOnlyEnhancementFlags(enhancements, enhancementLimit), () => {
+    validateEnhancements(
+      {
+        factionKeywordId: factionNamed("Adeptus Astartes").id,
+        battleSizeId: ENHANCEMENT_FLAG_SIZE_ID,
+        attachments: [],
+      },
+      detachments,
+      units,
+      messages
+    );
+  });
+  return messageCodes(messages);
+}
+
 test("all live enhancement rule tables stay pinned to explicit coverage counts", () => {
   state.catalog = realCatalog;
 
@@ -436,6 +515,157 @@ test("all live enhancement rule tables stay pinned to explicit coverage counts",
     assert.ok(bodyguardGroupIds.has(row.enhancementBodyguardGroupId), `Missing bodyguard group ${row.enhancementBodyguardGroupId}`);
     assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing bodyguard datasheet ${row.datasheetId}`);
   }
+});
+
+test("all live enhancement core flag rows have target, eligibility, limit, and roster-limit coverage", () => {
+  state.catalog = realCatalog;
+  const enhancements = realCatalog.enhancements;
+  let targetTypeInvalidRows = 0;
+  let epicAllowedRows = 0;
+  let epicBlockedRows = 0;
+  let nonCharacterAllowedRows = 0;
+  let nonCharacterBlockedRows = 0;
+  let validLimitRows = 0;
+  let invalidLimitRows = 0;
+  let rosterIncludedRows = 0;
+  let rosterExcludedRows = 0;
+  let limitOneRows = 0;
+  let limitThreeRows = 0;
+
+  assert.equal(enhancements.length, 957);
+  assert.equal(enhancements.filter((enhancement) => enhancement.enhancementType === "miniature").length, 880);
+  assert.equal(enhancements.filter((enhancement) => enhancement.enhancementType !== "miniature").length, 77);
+  assert.equal(enhancements.filter((enhancement) => enhancement.limit === 1).length, 886);
+  assert.equal(enhancements.filter((enhancement) => enhancement.limit === 3).length, 71);
+  assert.equal(enhancements.filter((enhancement) => enhancement.isIncludedInEnhancementLimit).length, 948);
+  assert.equal(enhancements.filter((enhancement) => !enhancement.isIncludedInEnhancementLimit).length, 9);
+  assert.equal(enhancements.filter((enhancement) => enhancement.isEquipableByEpicHero).length, 8);
+  assert.equal(enhancements.filter((enhancement) => !enhancement.isEquipableByEpicHero).length, 949);
+  assert.equal(enhancements.filter((enhancement) => enhancement.isEquipableByNonCharacterUnit).length, 78);
+  assert.equal(enhancements.filter((enhancement) => !enhancement.isEquipableByNonCharacterUnit).length, 879);
+
+  const firstIncludedEnhancement = (current) => {
+    const enhancement = enhancements.find((candidate) => (
+      candidate.id !== current.id && candidate.isIncludedInEnhancementLimit
+    ));
+    assert.ok(enhancement, `Expected included enhancement control for ${current.name}`);
+    return enhancement;
+  };
+
+  for (const enhancement of enhancements) {
+    const wrongTargetKind = enhancement.enhancementType === "miniature" ? "unit" : "miniature";
+    const targetTypeCodes = validateEnhancementFlagRows(
+      [enhancement],
+      [enhancementFlagUnit(enhancement, 0, {
+        targetKind: wrongTargetKind,
+        keywordNames: ["Character"],
+      })]
+    );
+    assert.ok(
+      targetTypeCodes.includes("enhancement.target_type_invalid"),
+      `${enhancement.name} should reject ${wrongTargetKind} target kind`
+    );
+    targetTypeInvalidRows += 1;
+
+    const epicCodes = validateEnhancementFlagRows(
+      [enhancement],
+      [enhancementFlagUnit(enhancement, 0, { keywordNames: ["Character", "Epic Hero"] })]
+    );
+    if (enhancement.isEquipableByEpicHero) {
+      assert.ok(
+        !epicCodes.includes("enhancement.epic_hero_not_allowed"),
+        `${enhancement.name} should allow Epic Hero targets`
+      );
+      epicAllowedRows += 1;
+    } else {
+      assert.ok(
+        epicCodes.includes("enhancement.epic_hero_not_allowed"),
+        `${enhancement.name} should reject Epic Hero targets`
+      );
+      epicBlockedRows += 1;
+    }
+
+    const nonCharacterCodes = validateEnhancementFlagRows(
+      [enhancement],
+      [enhancementFlagUnit(enhancement, 0, { keywordNames: [] })]
+    );
+    if (enhancement.isEquipableByNonCharacterUnit) {
+      assert.ok(
+        !nonCharacterCodes.includes("enhancement.unit_does_not_have_required_keywords"),
+        `${enhancement.name} should allow non-Character targets`
+      );
+      nonCharacterAllowedRows += 1;
+    } else {
+      assert.ok(
+        nonCharacterCodes.includes("enhancement.unit_does_not_have_required_keywords"),
+        `${enhancement.name} should reject non-Character targets`
+      );
+      nonCharacterBlockedRows += 1;
+    }
+
+    const limit = Number(enhancement.limit || 0);
+    assert.ok(limit > 0, `${enhancement.name} should have a configured selection limit`);
+    if (limit === 1) {
+      limitOneRows += 1;
+    } else if (limit === 3) {
+      limitThreeRows += 1;
+    }
+
+    const validLimitCodes = validateEnhancementFlagRows(
+      [enhancement],
+      Array.from({ length: limit }, (_, index) => enhancementFlagUnit(enhancement, index, { keywordNames: ["Character"] }))
+    );
+    assert.ok(
+      !validLimitCodes.includes("enhancement.models_have_same_enhancements"),
+      `${enhancement.name} should allow its configured limit of ${limit}`
+    );
+    validLimitRows += 1;
+
+    const invalidLimitCodes = validateEnhancementFlagRows(
+      [enhancement],
+      Array.from({ length: limit + 1 }, (_, index) => enhancementFlagUnit(enhancement, index, { keywordNames: ["Character"] }))
+    );
+    assert.ok(
+      invalidLimitCodes.includes("enhancement.models_have_same_enhancements"),
+      `${enhancement.name} should reject ${limit + 1} selections`
+    );
+    invalidLimitRows += 1;
+
+    const filler = firstIncludedEnhancement(enhancement);
+    const rosterLimitCodes = validateEnhancementFlagRows(
+      [enhancement, filler],
+      [
+        enhancementFlagUnit(enhancement, 0, { keywordNames: ["Character"] }),
+        enhancementFlagUnit(filler, 1, { keywordNames: ["Character"] }),
+      ],
+      1
+    );
+    if (enhancement.isIncludedInEnhancementLimit) {
+      assert.ok(
+        rosterLimitCodes.includes("enhancement.roster_has_too_many_enhancements"),
+        `${enhancement.name} should count toward the roster enhancement limit`
+      );
+      rosterIncludedRows += 1;
+    } else {
+      assert.ok(
+        !rosterLimitCodes.includes("enhancement.roster_has_too_many_enhancements"),
+        `${enhancement.name} should not count toward the roster enhancement limit`
+      );
+      rosterExcludedRows += 1;
+    }
+  }
+
+  assert.equal(targetTypeInvalidRows, 957);
+  assert.equal(epicAllowedRows, 8);
+  assert.equal(epicBlockedRows, 949);
+  assert.equal(nonCharacterAllowedRows, 78);
+  assert.equal(nonCharacterBlockedRows, 879);
+  assert.equal(limitOneRows, 886);
+  assert.equal(limitThreeRows, 71);
+  assert.equal(validLimitRows, 957);
+  assert.equal(invalidLimitRows, 957);
+  assert.equal(rosterIncludedRows, 948);
+  assert.equal(rosterExcludedRows, 9);
 });
 
 test("all live enhancement excluded keyword rows reject and accept target keywords", () => {
@@ -864,6 +1094,86 @@ test("Combat Patrol enhancements enforce the configured default and reject alter
     ),
   ], alternateMessages);
   assert.ok(messageCodes(alternateMessages).includes("enhancement.combat_patrol_not_allowed"));
+});
+
+test("all live Combat Patrol enhancement defaults require exactly one default and reject alternatives", () => {
+  state.catalog = realCatalog;
+  const combatPatrolDetachments = realCatalog.detachments.filter((detachment) => detachment.isCombatPatrol);
+  let requiredRows = 0;
+  let duplicateRows = 0;
+  let alternateRows = 0;
+
+  assert.equal(combatPatrolDetachments.length, 24);
+  assert.equal(realCatalog.enhancements.filter((enhancement) => (
+    realCatalog.detachmentById.get(enhancement.detachmentId)?.isCombatPatrol
+  )).length, 48);
+  assert.equal(realCatalog.enhancements.filter((enhancement) => enhancement.isCombatPatrolDefault).length, 24);
+
+  for (const detachment of combatPatrolDetachments) {
+    const enhancements = realCatalog.enhancements.filter((enhancement) => enhancement.detachmentId === detachment.id);
+    const defaults = enhancements.filter((enhancement) => enhancement.isCombatPatrolDefault);
+    const alternatives = enhancements.filter((enhancement) => !enhancement.isCombatPatrolDefault);
+    assert.equal(defaults.length, 1, `${detachment.name} should have exactly one Combat Patrol default enhancement`);
+    assert.equal(alternatives.length, 1, `${detachment.name} should have exactly one Combat Patrol alternate enhancement`);
+    const [defaultEnhancement] = defaults;
+    const [alternateEnhancement] = alternatives;
+    assert.equal(defaultEnhancement.enhancementType, "miniature");
+    assert.equal(alternateEnhancement.enhancementType, "miniature");
+
+    const roster = {
+      factionKeywordId: realCatalog.detachmentFactionKeywords.find((row) => row.detachmentId === detachment.id)?.factionKeywordId,
+      battleSizeId: battleSizeNamed("Incursion").id,
+    };
+    assert.ok(roster.factionKeywordId, `${detachment.name} should have a roster faction`);
+
+    const requiredMessages = [];
+    validateEnhancements(roster, [detachment], [], requiredMessages);
+    assert.ok(
+      messageCodes(requiredMessages).includes("enhancement.combat_patrol_required"),
+      `${detachment.name} should require ${defaultEnhancement.name}`
+    );
+    requiredRows += 1;
+
+    const duplicateMessages = [];
+    validateEnhancements(roster, [detachment], [0, 1].map((index) => (
+      withMiniatureEnhancement(
+        enhancementTargetUnit({
+          id: `${detachment.id}:default:${index}`,
+          datasheetName: "Captain",
+          miniatureName: "Captain",
+          factionNames: ["Adeptus Astartes"],
+        }),
+        defaultEnhancement
+      )
+    )), duplicateMessages);
+    assert.ok(
+      messageCodes(duplicateMessages).includes("enhancement.combat_patrol_multiple_selected"),
+      `${detachment.name} should reject duplicate ${defaultEnhancement.name}`
+    );
+    duplicateRows += 1;
+
+    const alternateMessages = [];
+    validateEnhancements(roster, [detachment], [
+      withMiniatureEnhancement(
+        enhancementTargetUnit({
+          id: `${detachment.id}:alternate`,
+          datasheetName: "Captain",
+          miniatureName: "Captain",
+          factionNames: ["Adeptus Astartes"],
+        }),
+        alternateEnhancement
+      ),
+    ], alternateMessages);
+    assert.ok(
+      messageCodes(alternateMessages).includes("enhancement.combat_patrol_not_allowed"),
+      `${detachment.name} should reject alternate ${alternateEnhancement.name}`
+    );
+    alternateRows += 1;
+  }
+
+  assert.equal(requiredRows, 24);
+  assert.equal(duplicateRows, 24);
+  assert.equal(alternateRows, 24);
 });
 
 test("enhancements validate target type, zero models, allied units, excluded models, Epic Heroes, and non-Characters", () => {

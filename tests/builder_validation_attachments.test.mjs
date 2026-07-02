@@ -143,12 +143,12 @@ function attachmentFixtureForGroup(group, options = {}) {
       attachments: options.withoutBodyguard ? [{
         id: `${group.id}:attachment-without-bodyguard`,
         members: [
-          { rosterUnitId: attached.id, attachmentType: group.bodyguardType },
+          { rosterUnitId: attached.id, attachmentType: options.attachmentType || group.bodyguardType },
         ],
       }] : [{
         id: `${group.id}:attachment`,
         members: [
-          { rosterUnitId: attached.id, attachmentType: group.bodyguardType },
+          { rosterUnitId: attached.id, attachmentType: options.attachmentType || group.bodyguardType },
           { rosterUnitId: bodyguard.id, attachmentType: "bodyguard" },
         ],
       }],
@@ -219,6 +219,49 @@ test("all live datasheet bodyguard rule tables stay pinned to explicit coverage 
     assert.ok(groupIds.has(row.datasheetBodyguardGroupId), `Missing bodyguard group ${row.datasheetBodyguardGroupId}`);
     assert.ok(realCatalog.keywordById.has(row.keywordId), `Missing bodyguard keyword ${row.keywordId}`);
   }
+});
+
+test("all live datasheet bodyguard groups require their configured leader or support type", () => {
+  state.catalog = realCatalog;
+  const groups = realCatalog.datasheetBodyguardGroups;
+  let leaderRows = 0;
+  let supportRows = 0;
+  let validRows = 0;
+  let wrongTypeRows = 0;
+
+  assert.equal(groups.length, 1266);
+  assert.equal(groups.filter((group) => group.bodyguardType === "leader").length, 1056);
+  assert.equal(groups.filter((group) => group.bodyguardType === "support").length, 210);
+
+  for (const group of groups) {
+    if (group.bodyguardType === "leader") {
+      leaderRows += 1;
+    } else if (group.bodyguardType === "support") {
+      supportRows += 1;
+    } else {
+      assert.fail(`Unexpected bodyguard type ${group.bodyguardType}`);
+    }
+
+    const validCodes = validateDatasheetBodyguardGroup(group, { attachmentType: group.bodyguardType });
+    assert.ok(
+      !validCodes.includes("attached_unit.missing_requirements"),
+      `Expected datasheet bodyguard group ${group.id} to accept ${group.bodyguardType} member`
+    );
+    validRows += 1;
+
+    const wrongType = group.bodyguardType === "leader" ? "support" : "leader";
+    const wrongCodes = validateDatasheetBodyguardGroup(group, { attachmentType: wrongType });
+    assert.ok(
+      wrongCodes.includes("attached_unit.missing_requirements"),
+      `Expected datasheet bodyguard group ${group.id} to reject ${wrongType} member`
+    );
+    wrongTypeRows += 1;
+  }
+
+  assert.equal(leaderRows, 1056);
+  assert.equal(supportRows, 210);
+  assert.equal(validRows, 1266);
+  assert.equal(wrongTypeRows, 1266);
 });
 
 test("all live datasheet bodyguard groups accept configured bodyguards and reject invalid bodyguards", () => {
