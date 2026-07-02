@@ -37,6 +37,12 @@ Related audits:
   and 4 max-limit groups. The inventory also pins the currently empty
   `faction_keyword_mandatory_allegiance_ability` and
   `allied_faction_allegiance_ability` tables.
+- 2026-07-02: Added a live enhancement rule-table inventory guard. It pins all
+  current v879 enhancement table counts, the `miniature` / `unit` / `upgrade`
+  type split, combat-patrol defaults, Epic Hero / non-Character flags,
+  `cannotBeWarlord`, required keyword group references, excluded keywords,
+  required wargear, and enhancement bodyguard datasheet links. `npm test` now
+  passes 90 validation tests.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,

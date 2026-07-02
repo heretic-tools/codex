@@ -54,6 +54,110 @@ import {
   datasheetIdForEnhancementBodyguard
 } from "./builder_validation_helpers.mjs";
 
+function countBy(rows, key) {
+  const counts = {};
+  for (const row of rows) {
+    counts[String(row[key])] = (counts[String(row[key])] || 0) + 1;
+  }
+  return counts;
+}
+
+test("all live enhancement rule tables stay pinned to explicit coverage counts", () => {
+  state.catalog = realCatalog;
+
+  assert.equal(realCatalog.enhancements.length, 957);
+  assert.equal(realCatalog.enhancementKeywordPointsCosts.length, 0);
+  assert.equal(realCatalog.enhancementExcludedKeywords.length, 32);
+  assert.equal(realCatalog.enhancementRequiredWargearItems.length, 1);
+  assert.equal(realCatalog.enhancementRequiredKeywordGroups.length, 1027);
+  assert.equal(realCatalog.enhancementRequiredKeywordGroupKeywords.length, 670);
+  assert.equal(realCatalog.enhancementRequiredKeywordGroupFactionKeywords.length, 639);
+  assert.equal(realCatalog.enhancementBodyguardGroups.length, 19);
+  assert.equal(realCatalog.enhancementBodyguardGroupDatasheets.length, 19);
+  assert.equal(realCatalog.enhancementBodyguardGroupKeywords.length, 0);
+
+  assert.deepEqual(countBy(realCatalog.enhancements, "enhancementType"), {
+    miniature: 880,
+    unit: 6,
+    upgrade: 71,
+  });
+  assert.deepEqual(countBy(realCatalog.enhancements, "isIncludedInEnhancementLimit"), {
+    false: 9,
+    true: 948,
+  });
+  assert.deepEqual(countBy(realCatalog.enhancements, "isEquipableByEpicHero"), {
+    false: 949,
+    true: 8,
+  });
+  assert.deepEqual(countBy(realCatalog.enhancements, "isEquipableByNonCharacterUnit"), {
+    false: 879,
+    true: 78,
+  });
+  assert.deepEqual(countBy(realCatalog.enhancements, "isCombatPatrolDefault"), {
+    false: 933,
+    true: 24,
+  });
+  assert.deepEqual(countBy(realCatalog.enhancements, "cannotBeWarlord"), {
+    false: 956,
+    true: 1,
+  });
+
+  const requiredKeywordGroupIds = new Set(realCatalog.enhancementRequiredKeywordGroups.map((row) => row.id));
+  const bodyguardGroupIds = new Set(realCatalog.enhancementBodyguardGroups.map((row) => row.id));
+  const referencedKeywordGroupIds = new Set([
+    ...realCatalog.enhancementRequiredKeywordGroupKeywords.map((row) => row.enhancementRequiredKeywordGroupId),
+    ...realCatalog.enhancementRequiredKeywordGroupFactionKeywords.map((row) => row.enhancementRequiredKeywordGroupId),
+  ]);
+
+  assert.equal(realCatalog.enhancements.filter((row) => row.basePointsCost != null).length, 909);
+  assert.equal(new Set(realCatalog.enhancements.map((row) => row.detachmentId)).size, 290);
+  assert.equal(new Set(realCatalog.enhancements.filter((row) => row.isCombatPatrolDefault).map((row) => row.detachmentId)).size, 24);
+  assert.equal(new Set(realCatalog.enhancementRequiredKeywordGroupKeywords.map((row) => row.enhancementRequiredKeywordGroupId)).size, 578);
+  assert.equal(new Set(realCatalog.enhancementRequiredKeywordGroupFactionKeywords.map((row) => row.enhancementRequiredKeywordGroupId)).size, 639);
+  assert.equal([...referencedKeywordGroupIds].filter((id) => {
+    const hasKeyword = realCatalog.enhancementRequiredKeywordGroupKeywords.some((row) => row.enhancementRequiredKeywordGroupId === id);
+    const hasFaction = realCatalog.enhancementRequiredKeywordGroupFactionKeywords.some((row) => row.enhancementRequiredKeywordGroupId === id);
+    return hasKeyword && hasFaction;
+  }).length, 190);
+  assert.equal(realCatalog.enhancementRequiredKeywordGroups.filter((row) => row.datasheetId).length, 83);
+
+  for (const row of realCatalog.enhancements) {
+    assert.ok(realCatalog.detachmentById.has(row.detachmentId), `Missing detachment for enhancement ${row.id}`);
+  }
+  for (const row of realCatalog.enhancementExcludedKeywords) {
+    assert.ok(realCatalog.enhancementById.has(row.enhancementId), `Missing enhancement for excluded keyword ${row.enhancementId}`);
+    assert.ok(realCatalog.keywordById.has(row.keywordId), `Missing excluded keyword ${row.keywordId}`);
+  }
+  for (const row of realCatalog.enhancementRequiredWargearItems) {
+    assert.ok(realCatalog.enhancementById.has(row.enhancementId), `Missing enhancement for required wargear ${row.enhancementId}`);
+    assert.ok(realCatalog.wargearItemById.has(row.wargearItemId), `Missing required wargear item ${row.wargearItemId}`);
+  }
+  for (const row of realCatalog.enhancementRequiredKeywordGroups) {
+    assert.ok(realCatalog.enhancementById.has(row.enhancementId), `Missing enhancement for required keyword group ${row.id}`);
+    if (row.datasheetId) {
+      assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing required keyword group datasheet ${row.datasheetId}`);
+    }
+  }
+  for (const row of realCatalog.enhancementRequiredKeywordGroupKeywords) {
+    assert.ok(requiredKeywordGroupIds.has(row.enhancementRequiredKeywordGroupId), `Missing required keyword group ${row.enhancementRequiredKeywordGroupId}`);
+    assert.ok(realCatalog.keywordById.has(row.keywordId), `Missing required keyword ${row.keywordId}`);
+  }
+  for (const row of realCatalog.enhancementRequiredKeywordGroupFactionKeywords) {
+    assert.ok(requiredKeywordGroupIds.has(row.enhancementRequiredKeywordGroupId), `Missing required keyword group ${row.enhancementRequiredKeywordGroupId}`);
+    assert.ok(realCatalog.factionKeywordById.has(row.factionKeywordId), `Missing required faction keyword ${row.factionKeywordId}`);
+  }
+  for (const row of realCatalog.enhancementBodyguardGroups) {
+    assert.ok(realCatalog.enhancementById.has(row.enhancementId), `Missing enhancement for bodyguard group ${row.id}`);
+    if (row.factionKeywordId) {
+      assert.ok(realCatalog.factionKeywordById.has(row.factionKeywordId), `Missing bodyguard faction keyword ${row.factionKeywordId}`);
+    }
+  }
+  for (const row of realCatalog.enhancementBodyguardGroupDatasheets) {
+    assert.ok(bodyguardGroupIds.has(row.enhancementBodyguardGroupId), `Missing bodyguard group ${row.enhancementBodyguardGroupId}`);
+    assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing bodyguard datasheet ${row.datasheetId}`);
+  }
+});
+
 test("enhancement roster, duplicate, and per-unit limits use official battle-size caps", () => {
   state.catalog = realCatalog;
   const roster = {

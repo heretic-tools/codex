@@ -94,6 +94,18 @@ const minimumParityCases = [
     codes: [],
   },
   {
+    id: "live-enhancement-rule-table-inventory",
+    file: "tests/builder_validation_enhancements.test.mjs",
+    anchors: [
+      "all live enhancement rule tables stay pinned to explicit coverage counts",
+      "enhancements.length, 957",
+      "enhancementRequiredKeywordGroups.length, 1027",
+      "enhancementExcludedKeywords.length, 32",
+      "enhancementBodyguardGroups.length, 19",
+    ],
+    codes: [],
+  },
+  {
     id: "heretic-astartes-daemon-allies-points",
     file: "tests/builder_validation_allied.test.mjs",
     anchors: [
@@ -436,7 +448,7 @@ const minimumParityCases = [
 ];
 
 test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 41);
+  assert.equal(minimumParityCases.length, 42);
   for (const parityCase of minimumParityCases) {
     const source = await readFile(join(projectRoot, parityCase.file), "utf8");
     for (const anchor of parityCase.anchors) {

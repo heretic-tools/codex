@@ -82,6 +82,11 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   conditional keywords from the unit summary, covering Character-granting
   allegiance abilities such as Headhunter Task Force vehicle Characters and
   roster-faction-scoped chapter keywords such as Dark Angels `Deathwing`.
+- Live enhancement inventory coverage pins all current v879 enhancement rule
+  tables: 957 enhancements, 1,027 required keyword groups, 670 keyword rows,
+  639 faction-keyword rows, 32 excluded-keyword rows, 1 required-wargear row,
+  19 bodyguard groups, 19 bodyguard datasheet rows, and both currently empty
+  enhancement keyword point / bodyguard keyword tables.
 - Conditional keyword predicate coverage now walks every live v879
   `conditional_keyword` row. All 380 rows are proven true when requirements are
   satisfied and false when each configured requirement is missing, covering 270
@@ -214,14 +219,14 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `InvalidWargearRequirement` for limited/all-model requirement failures.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 89 validation tests.
+  once; `npm test` passes 90 validation tests.
 - The minimum parity manifest now anchors required subcases, including Heretic
   Astartes daemon allies under/over the points cap, all 4 live legacy
   Battleline outnumbering rows, the allied rule-table inventory guard, and all
   380 live conditional keyword requirement rows. It also carries live
-  allegiance inventory, mandatory, detachment, required-wargear, min/max, and
-  ability-row coverage plus the Aeldari/Drukhari keyword restriction subcases
-  as explicit anchors.
+  allegiance inventory, mandatory, detachment, required-wargear, min/max,
+  ability-row coverage, and the enhancement rule-table inventory guard plus the
+  Aeldari/Drukhari keyword restriction subcases as explicit anchors.
 - Live keyword restriction coverage now walks every v879 top-level
   `keyword_restriction_group` with a configured limit and proves valid plus
   invalid states for all 15 current groups.
@@ -687,7 +692,8 @@ minimum groups below to focused Builder test files, anchors, and expected codes;
 25-case wargear checklist. Both manifests require their codes/categories to
 resolve through the test-only official-like concept map. The minimum manifest
 also anchors the required subcases inside those focused tests, instead of only
-checking broad test titles.
+checking broad test titles. It now contains 42 required non-wargear parity
+cases.
 The remaining parity work is to create the same roster cases in WH 40K app and
 Builder, then compare valid/invalid state and error categories.
 
