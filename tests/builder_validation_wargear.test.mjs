@@ -133,6 +133,164 @@ function auditedNameAliasContexts() {
     .sort((left, right) => left.key.localeCompare(right.key));
 }
 
+function countBy(rows, key) {
+  const counts = {};
+  for (const row of rows) {
+    counts[String(row[key])] = (counts[String(row[key])] || 0) + 1;
+  }
+  return counts;
+}
+
+function miniatureBelongsToDatasheet(datasheetId, miniatureId) {
+  return (realCatalog.miniaturesByDatasheetId.get(datasheetId) || [])
+    .some((miniature) => miniature.id === miniatureId);
+}
+
+test("all live wargear rule tables stay pinned to explicit coverage counts", () => {
+  state.catalog = realCatalog;
+
+  assert.equal(realCatalog.wargearItems.length, 3516);
+  assert.equal(realCatalog.wargearGroups.length, 3025);
+  assert.equal(realCatalog.wargearOptions.length, 6322);
+  assert.equal(realCatalog.baseMiniatureLoadouts.length, 1300);
+  assert.equal(realCatalog.baseMiniatureLoadoutWargearOptions.length, 3132);
+  assert.equal(realCatalog.loadoutChoiceSets.length, 2445);
+  assert.equal(realCatalog.loadoutChoices.length, 5374);
+  assert.equal(realCatalog.loadoutChoiceWargearItems.length, 8325);
+  assert.equal(realCatalog.limitedWargearChoiceSets.length, 343);
+  assert.equal(realCatalog.limitedWargearChoices.length, 569);
+  assert.equal(realCatalog.limitedWargearChoiceWargearItems.length, 676);
+  assert.equal(realCatalog.wargearLimits.length, 492);
+  assert.equal(realCatalog.allModelWargearChoiceSets.length, 28);
+  assert.equal(realCatalog.allModelWargearChoices.length, 63);
+  assert.equal(realCatalog.allModelWargearChoiceWargearItems.length, 69);
+  assert.equal(realCatalog.wargearAliases.length, 4);
+
+  assert.equal(realCatalog.wargearGroups.filter((row) => row.miniatureId).length, 3006);
+  assert.equal(realCatalog.wargearGroups.filter((row) => !row.miniatureId).length, 19);
+  assert.equal(realCatalog.loadoutChoiceSets.filter((row) => row.miniatureId).length, 2426);
+  assert.equal(realCatalog.loadoutChoiceSets.filter((row) => !row.miniatureId).length, 19);
+  assert.equal(realCatalog.limitedWargearChoiceSets.filter((row) => row.miniatureId).length, 263);
+  assert.equal(realCatalog.limitedWargearChoiceSets.filter((row) => !row.miniatureId).length, 80);
+  assert.equal(realCatalog.allModelWargearChoiceSets.filter((row) => row.miniatureId).length, 19);
+  assert.equal(realCatalog.allModelWargearChoiceSets.filter((row) => !row.miniatureId).length, 9);
+
+  assert.deepEqual(countBy(realCatalog.loadoutChoiceSets, "allowDuplicates"), {
+    false: 2399,
+    true: 46,
+  });
+  assert.deepEqual(countBy(realCatalog.loadoutChoiceSets, "alternate"), {
+    false: 2440,
+    true: 5,
+  });
+  assert.deepEqual(countBy(realCatalog.loadoutChoiceSets, "limit"), {
+    1: 2392,
+    2: 45,
+    3: 4,
+    4: 2,
+    6: 2,
+  });
+  assert.deepEqual(countBy(realCatalog.limitedWargearChoiceSets, "mandatory"), {
+    false: 343,
+  });
+  assert.deepEqual(countBy(realCatalog.allModelWargearChoices, "substitute"), {
+    false: 44,
+    true: 19,
+  });
+  assert.deepEqual(countBy(realCatalog.wargearOptions, "inputType"), {
+    checkbox: 4406,
+    stepper: 1916,
+  });
+  assert.deepEqual(countBy(realCatalog.wargearGroups, "isStaticWargear"), {
+    false: 3025,
+  });
+  assert.equal(realCatalog.wargearLimits.filter((row) => row.duplicateLimit == null).length, 475);
+  assert.equal(realCatalog.wargearLimits.filter((row) => row.duplicateLimit != null).length, 17);
+  assert.equal(realCatalog.wargearLimits.filter((row) => row.choiceLimit == null).length, 0);
+
+  const baseLoadoutIds = new Set(realCatalog.baseMiniatureLoadouts.map((row) => row.id));
+  const loadoutSetIds = new Set(realCatalog.loadoutChoiceSets.map((row) => row.id));
+  const loadoutChoiceIds = new Set(realCatalog.loadoutChoices.map((row) => row.id));
+  const limitedSetIds = new Set(realCatalog.limitedWargearChoiceSets.map((row) => row.id));
+  const limitedChoiceIds = new Set(realCatalog.limitedWargearChoices.map((row) => row.id));
+  const allModelSetIds = new Set(realCatalog.allModelWargearChoiceSets.map((row) => row.id));
+  const allModelChoiceIds = new Set(realCatalog.allModelWargearChoices.map((row) => row.id));
+
+  for (const row of realCatalog.wargearGroups) {
+    assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing wargear group datasheet ${row.datasheetId}`);
+    if (row.miniatureId) {
+      assert.ok(realCatalog.miniatureById.has(row.miniatureId), `Missing wargear group miniature ${row.miniatureId}`);
+      assert.ok(miniatureBelongsToDatasheet(row.datasheetId, row.miniatureId), `Wargear group miniature ${row.miniatureId} is outside datasheet ${row.datasheetId}`);
+    }
+  }
+  for (const row of realCatalog.wargearOptions) {
+    assert.ok(realCatalog.wargearGroupById.has(row.wargearOptionGroupId), `Missing wargear option group ${row.wargearOptionGroupId}`);
+    assert.ok(realCatalog.wargearItemById.has(row.wargearItemId), `Missing wargear option item ${row.wargearItemId}`);
+  }
+  for (const row of realCatalog.baseMiniatureLoadouts) {
+    assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing base loadout datasheet ${row.datasheetId}`);
+    assert.ok(realCatalog.miniatureById.has(row.miniatureId), `Missing base loadout miniature ${row.miniatureId}`);
+    assert.ok(miniatureBelongsToDatasheet(row.datasheetId, row.miniatureId), `Base loadout miniature ${row.miniatureId} is outside datasheet ${row.datasheetId}`);
+  }
+  for (const row of realCatalog.baseMiniatureLoadoutWargearOptions) {
+    assert.ok(baseLoadoutIds.has(row.baseMiniatureLoadoutId), `Missing base loadout ${row.baseMiniatureLoadoutId}`);
+    assert.ok(realCatalog.wargearOptionById.has(row.wargearOptionId), `Missing base loadout option ${row.wargearOptionId}`);
+  }
+  for (const row of realCatalog.loadoutChoiceSets) {
+    assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing loadout set datasheet ${row.datasheetId}`);
+    if (row.miniatureId) {
+      assert.ok(realCatalog.miniatureById.has(row.miniatureId), `Missing loadout set miniature ${row.miniatureId}`);
+      assert.ok(miniatureBelongsToDatasheet(row.datasheetId, row.miniatureId), `Loadout set miniature ${row.miniatureId} is outside datasheet ${row.datasheetId}`);
+    }
+  }
+  for (const row of realCatalog.loadoutChoices) {
+    assert.ok(loadoutSetIds.has(row.loadoutChoiceSetId), `Missing loadout choice set ${row.loadoutChoiceSetId}`);
+  }
+  for (const row of realCatalog.loadoutChoiceWargearItems) {
+    assert.ok(loadoutChoiceIds.has(row.loadoutChoiceId), `Missing loadout choice ${row.loadoutChoiceId}`);
+    assert.ok(realCatalog.wargearItemById.has(row.wargearItemId), `Missing loadout choice item ${row.wargearItemId}`);
+  }
+  for (const row of realCatalog.limitedWargearChoiceSets) {
+    assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing limited set datasheet ${row.datasheetId}`);
+    if (row.miniatureId) {
+      assert.ok(realCatalog.miniatureById.has(row.miniatureId), `Missing limited set miniature ${row.miniatureId}`);
+      assert.ok(miniatureBelongsToDatasheet(row.datasheetId, row.miniatureId), `Limited set miniature ${row.miniatureId} is outside datasheet ${row.datasheetId}`);
+    }
+  }
+  for (const row of realCatalog.limitedWargearChoices) {
+    assert.ok(limitedSetIds.has(row.limitedWargearChoiceSetId), `Missing limited choice set ${row.limitedWargearChoiceSetId}`);
+  }
+  for (const row of realCatalog.limitedWargearChoiceWargearItems) {
+    assert.ok(limitedChoiceIds.has(row.limitedWargearChoiceId), `Missing limited choice ${row.limitedWargearChoiceId}`);
+    assert.ok(realCatalog.wargearItemById.has(row.wargearItemId), `Missing limited choice item ${row.wargearItemId}`);
+  }
+  for (const row of realCatalog.wargearLimits) {
+    assert.ok(limitedSetIds.has(row.limitedWargearChoiceSetId), `Missing wargear limit set ${row.limitedWargearChoiceSetId}`);
+  }
+  for (const row of realCatalog.allModelWargearChoiceSets) {
+    assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing all-model set datasheet ${row.datasheetId}`);
+    if (row.miniatureId) {
+      assert.ok(realCatalog.miniatureById.has(row.miniatureId), `Missing all-model set miniature ${row.miniatureId}`);
+      assert.ok(miniatureBelongsToDatasheet(row.datasheetId, row.miniatureId), `All-model set miniature ${row.miniatureId} is outside datasheet ${row.datasheetId}`);
+    }
+  }
+  for (const row of realCatalog.allModelWargearChoices) {
+    assert.ok(allModelSetIds.has(row.allModelWargearChoiceSetId), `Missing all-model choice set ${row.allModelWargearChoiceSetId}`);
+  }
+  for (const row of realCatalog.allModelWargearChoiceWargearItems) {
+    assert.ok(allModelChoiceIds.has(row.allModelWargearChoiceId), `Missing all-model choice ${row.allModelWargearChoiceId}`);
+    assert.ok(realCatalog.wargearItemById.has(row.wargearItemId), `Missing all-model choice item ${row.wargearItemId}`);
+  }
+  for (const row of realCatalog.wargearAliases) {
+    assert.ok(realCatalog.datasheetById.has(row.datasheetId), `Missing wargear alias datasheet ${row.datasheetId}`);
+    if (row.miniatureId) {
+      assert.ok(realCatalog.miniatureById.has(row.miniatureId), `Missing wargear alias miniature ${row.miniatureId}`);
+    }
+    assert.ok(realCatalog.wargearItemById.has(row.wargearItemId), `Missing wargear alias item ${row.wargearItemId}`);
+    assert.ok(String(row.key || "").startsWith("name:"), `Unexpected wargear alias key ${row.key}`);
+  }
+});
+
 test("canonical wargear keys use item IDs except confirmed same-context duplicate bridges", () => {
   state.catalog = realCatalog;
 

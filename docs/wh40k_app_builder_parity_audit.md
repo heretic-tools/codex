@@ -204,6 +204,14 @@ Implementation updates, 2026-07-01 to 2026-07-02:
 - Wargear matching now uses `canonicalWargearKey`: normal rows use item-ID keys,
   while confirmed same-context duplicate-name bridges use explicit `name:`
   aliases.
+- Live wargear inventory coverage pins the current v879 table surface: 3,516
+  wargear items, 3,025 option groups, 6,322 options, 1,300 base loadouts, 3,132
+  base loadout option rows, 2,445 regular loadout sets, 5,374 regular choices,
+  8,325 regular choice item rows, 343 limited sets, 569 limited choices, 676
+  limited choice item rows, 492 wargear limits, 28 all-model sets, 63 all-model
+  choices, 69 all-model choice item rows, and the 4 precomputed canonical alias
+  rows. The guard also checks referential integrity across datasheets,
+  miniatures, option groups, choices, items, limits, and aliases.
 - Limited wargear validation is option-aware: base/default components embedded
   in upgrade choices do not spend optional limited caps, while default-only
   limited choices still count against `choiceLimit` and `duplicateLimit`.
@@ -238,7 +246,7 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `InvalidWargearRequirement` for limited/all-model requirement failures.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 97 validation tests.
+  once; `npm test` passes 98 validation tests.
 - The minimum parity manifest now anchors required subcases, including Heretic
   Astartes daemon allies under/over the points cap, all 4 live legacy
   Battleline outnumbering rows, the allied rule-table inventory guard, and all
@@ -246,8 +254,9 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   allegiance inventory, mandatory, detachment, required-wargear, min/max,
   ability-row coverage, the enhancement rule-table inventory guard, all live
   enhancement required keyword groups, all live enhancement excluded-keyword /
-  required-wargear / bodyguard groups, all live datasheet bodyguard groups, plus
-  the Aeldari/Drukhari keyword restriction subcases as explicit anchors.
+  required-wargear / bodyguard groups, all live datasheet bodyguard groups, the
+  live wargear rule-table inventory guard, plus the Aeldari/Drukhari keyword
+  restriction subcases as explicit anchors.
 - Live keyword restriction coverage now walks every v879 top-level
   `keyword_restriction_group` with a configured limit and proves valid plus
   invalid states for all 15 current groups.
@@ -713,8 +722,7 @@ minimum groups below to focused Builder test files, anchors, and expected codes;
 25-case wargear checklist. Both manifests require their codes/categories to
 resolve through the test-only official-like concept map. The minimum manifest
 also anchors the required subcases inside those focused tests, instead of only
-checking broad test titles. It now contains 49 required non-wargear parity
-cases.
+checking broad test titles. It now contains 50 required parity cases.
 The remaining parity work is to create the same roster cases in WH 40K app and
 Builder, then compare valid/invalid state and error categories.
 

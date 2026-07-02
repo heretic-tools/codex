@@ -448,6 +448,19 @@ const minimumParityCases = [
     ],
   },
   {
+    id: "live-wargear-rule-table-inventory",
+    file: "tests/builder_validation_wargear.test.mjs",
+    anchors: [
+      "all live wargear rule tables stay pinned to explicit coverage counts",
+      "wargearItems.length, 3516",
+      "loadoutChoiceSets.length, 2445",
+      "loadoutChoices.length, 5374",
+      "limitedWargearChoiceSets.length, 343",
+      "allModelWargearChoiceSets.length, 28",
+    ],
+    codes: [],
+  },
+  {
     id: "allegiance-pactbound-mark-of-chaos",
     file: "tests/builder_validation_allegiance.test.mjs",
     anchors: ["Pactbound Zealots Mark of Chaos"],
@@ -522,7 +535,7 @@ const minimumParityCases = [
 ];
 
 test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 49);
+  assert.equal(minimumParityCases.length, 50);
   for (const parityCase of minimumParityCases) {
     const source = await readFile(join(projectRoot, parityCase.file), "utf8");
     for (const anchor of parityCase.anchors) {

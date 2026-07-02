@@ -61,6 +61,13 @@ Related audits:
   detachment gates, 61 excluded detachment gates, and 305 shared-keyword gates,
   then prove configured bodyguards pass and invalid bodyguards fail for every
   live group. `npm test` now passes 97 validation tests.
+- 2026-07-02: Added a live wargear rule-table inventory guard. It pins all
+  current v879 wargear/loadout table counts and shape splits, including 3,516
+  wargear items, 6,322 options, 2,445 regular loadout sets, 343 limited sets,
+  492 wargear limits, 28 all-model sets, and the 4 precomputed canonical alias
+  rows. The guard also checks referential integrity across datasheets,
+  miniatures, option groups, choices, items, limits, and aliases. `npm test`
+  now passes 98 validation tests.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,
