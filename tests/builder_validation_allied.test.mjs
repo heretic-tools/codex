@@ -67,11 +67,29 @@ function firstRosterFactionWithoutAlliedFaction(alliedFactionId) {
   return faction.id;
 }
 
+function alliedFactionForRestrictingKeyword(keyword) {
+  const parent = realCatalog.alliedFactionParentFactionKeywords.find((row) => (
+    factionScope(row.factionKeywordId).includes(keyword.allyRestrictingFactionKeywordId)
+  ));
+  assert.ok(parent, `Expected allied faction parent for restricting keyword ${keyword.name}`);
+  return parent.alliedFactionId;
+}
+
 function firstDatasheetForAlliedFaction(alliedFactionId) {
   const row = (realCatalog.alliedFactionDatasheetsByAlliedFactionId.get(alliedFactionId) || [])[0];
   assert.ok(row, `Expected datasheet for allied faction ${alliedFactionId}`);
   const datasheet = realCatalog.datasheetById.get(row.datasheetId);
   assert.ok(datasheet, `Expected datasheet ${row.datasheetId}`);
+  return datasheet;
+}
+
+function firstDatasheetOutsideAlliedFaction(alliedFactionId) {
+  const allowedIds = new Set(
+    (realCatalog.alliedFactionDatasheetsByAlliedFactionId.get(alliedFactionId) || [])
+      .map((row) => row.datasheetId)
+  );
+  const datasheet = realCatalog.datasheets.find((candidate) => !allowedIds.has(candidate.id));
+  assert.ok(datasheet, `Expected datasheet outside allied faction ${alliedFactionId}`);
   return datasheet;
 }
 
@@ -81,6 +99,19 @@ function datasheetForAlliedKeywordIds(alliedFactionId, keywordIds) {
     .filter(Boolean)
     .find((item) => keywordIds.every((keywordId) => keywordIdsForDatasheet(item.id).includes(keywordId)));
   assert.ok(datasheet, `Expected allied datasheet for ${alliedFactionId} with keywords ${keywordIds.join(", ")}`);
+  return datasheet;
+}
+
+function datasheetForAlliedKeywordPresence(alliedFactionId, requiredKeywordId, forbiddenKeywordId = "") {
+  const datasheet = (realCatalog.alliedFactionDatasheetsByAlliedFactionId.get(alliedFactionId) || [])
+    .map((row) => realCatalog.datasheetById.get(row.datasheetId))
+    .filter(Boolean)
+    .find((item) => {
+      const keywordIds = keywordIdsForDatasheet(item.id);
+      return keywordIds.includes(requiredKeywordId)
+        && (!forbiddenKeywordId || !keywordIds.includes(forbiddenKeywordId));
+    });
+  assert.ok(datasheet, `Expected allied datasheet for ${alliedFactionId} with keyword ${requiredKeywordId}`);
   return datasheet;
 }
 
@@ -122,6 +153,24 @@ function alliedKeywordUnits(row, count, idPrefix) {
       : [],
   }));
 }
+
+test("all live allied rule tables stay pinned to explicit coverage counts", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.alliedFactions.length, 21);
+  assert.equal(realCatalog.factionKeywordAlliedFactions.length, 87);
+  assert.equal(realCatalog.alliedFactionParentFactionKeywords.length, 25);
+  assert.equal(realCatalog.alliedFactionDatasheets.length, 320);
+  assert.equal(realCatalog.alliedFactionPointsLimits.length, 39);
+  assert.equal(realCatalog.alliedFactionKeywords.length, 54);
+  assert.equal(realCatalog.alliedFactionAllowedWarlordMiniatures.length, 28);
+  assert.equal(realCatalog.alliedFactionRequiredDetachments.length, 29);
+  assert.equal(realCatalog.alliedFactionAllegianceAbilities.length, 0);
+  assert.equal(realCatalog.alliedFactionKeywordSlotlessKeywordGroups.length, 12);
+  assert.equal(realCatalog.alliedFactionKeywordSlotlessDonorKeywords.length, 18);
+  assert.equal(realCatalog.alliedFactionKeywordSlotlessReceiverKeywords.length, 12);
+  assert.equal(realCatalog.keywordAllyRestrictingKeywords.length, 0);
+  assert.equal(realCatalog.keywords.filter((keyword) => keyword.allyRestrictingKeywordId).length, 4);
+});
 
 test("Heretic Astartes Legiones Daemonica allies enforce points and restricting keyword caps", () => {
   state.catalog = realCatalog;
@@ -167,6 +216,64 @@ test("Heretic Astartes Legiones Daemonica allies enforce points and restricting 
     assert.ok(
       !messageCodes(pairedMessages).includes("allied_keyword_restricting_keyword.outnumbered_keywords"),
       `${parityCase.id} should pass once matching Battleline allies are not outnumbered`
+    );
+  }
+});
+
+test("all live legacy allied restricting keyword rows have invalid and paired coverage", () => {
+  state.catalog = realCatalog;
+  const legacyRestrictingKeywords = realCatalog.keywords
+    .filter((keyword) => keyword.allyRestrictingKeywordId);
+  assert.equal(legacyRestrictingKeywords.length, 4);
+
+  for (const [index, keyword] of legacyRestrictingKeywords.entries()) {
+    const alliedFactionId = alliedFactionForRestrictingKeyword(keyword);
+    const restrictedOnlyDatasheet = datasheetForAlliedKeywordPresence(
+      alliedFactionId,
+      keyword.id,
+      keyword.allyRestrictingKeywordId
+    );
+    const restrictingDatasheet = datasheetForAlliedKeywordIds(
+      alliedFactionId,
+      [keyword.id, keyword.allyRestrictingKeywordId]
+    );
+    const roster = {
+      factionKeywordId: firstRosterFactionForAlliedFaction(alliedFactionId),
+      battleSizeId: battleSizeNamed("Strike Force").id,
+    };
+
+    const invalidMessages = [];
+    validateAlliedUnits(roster, [], [
+      catalogAlliedUnit({
+        id: `legacy-restricting-keyword-${index}-invalid`,
+        alliedFactionId,
+        datasheet: restrictedOnlyDatasheet,
+        points: 0,
+      }),
+    ], invalidMessages);
+    assert.ok(
+      messageCodes(invalidMessages).includes("allied_keyword_restricting_keyword.outnumbered_keywords"),
+      `${keyword.name} should require enough matching restricting-keyword allies`
+    );
+
+    const pairedMessages = [];
+    validateAlliedUnits(roster, [], [
+      catalogAlliedUnit({
+        id: `legacy-restricting-keyword-${index}-restricted`,
+        alliedFactionId,
+        datasheet: restrictedOnlyDatasheet,
+        points: 0,
+      }),
+      catalogAlliedUnit({
+        id: `legacy-restricting-keyword-${index}-restricting`,
+        alliedFactionId,
+        datasheet: restrictingDatasheet,
+        points: 0,
+      }),
+    ], pairedMessages);
+    assert.ok(
+      !messageCodes(pairedMessages).includes("allied_keyword_restricting_keyword.outnumbered_keywords"),
+      `${keyword.name} should pass once a matching restricting-keyword ally is present`
     );
   }
 });
@@ -511,6 +618,49 @@ test("all live faction allied faction rows have available and unavailable covera
     assert.ok(
       messageCodes(unavailableMessages).includes("allied_faction.not_available"),
       `faction_keyword_allied_faction row ${index} should still reject a faction without that ally bucket`
+    );
+  }
+});
+
+test("all live allied faction datasheet rows have allowed and disallowed coverage", () => {
+  state.catalog = realCatalog;
+  assert.equal(realCatalog.alliedFactionDatasheets.length, 320);
+
+  for (const [index, row] of realCatalog.alliedFactionDatasheets.entries()) {
+    const roster = {
+      factionKeywordId: firstRosterFactionForAlliedFaction(row.alliedFactionId),
+      battleSizeId: battleSizeNamed("Strike Force").id,
+    };
+    const datasheet = realCatalog.datasheetById.get(row.datasheetId);
+    assert.ok(datasheet, `Expected datasheet ${row.datasheetId}`);
+
+    const allowedMessages = [];
+    validateAlliedUnits(roster, [], [
+      catalogAlliedUnit({
+        id: `allied-datasheet-${index}-allowed`,
+        alliedFactionId: row.alliedFactionId,
+        datasheet,
+        points: 0,
+      }),
+    ], allowedMessages);
+    assert.ok(
+      !messageCodes(allowedMessages).includes("allied_faction.datasheet_not_allowed"),
+      `allied_faction_datasheet row ${index} should allow ${datasheet.name}`
+    );
+
+    const disallowedDatasheet = firstDatasheetOutsideAlliedFaction(row.alliedFactionId);
+    const disallowedMessages = [];
+    validateAlliedUnits(roster, [], [
+      catalogAlliedUnit({
+        id: `allied-datasheet-${index}-disallowed`,
+        alliedFactionId: row.alliedFactionId,
+        datasheet: disallowedDatasheet,
+        points: 0,
+      }),
+    ], disallowedMessages);
+    assert.ok(
+      messageCodes(disallowedMessages).includes("allied_faction.datasheet_not_allowed"),
+      `allied_faction_datasheet row ${index} should reject ${disallowedDatasheet.name}`
     );
   }
 });

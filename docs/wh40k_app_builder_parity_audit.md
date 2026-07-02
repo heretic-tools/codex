@@ -144,6 +144,9 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `faction_keyword_allied_faction` row and proves all 87 current
   roster-faction/ally-bucket pairs are available, with unavailable control
   rosters for each ally bucket.
+- Allied datasheet coverage now walks every live v879 `allied_faction_datasheet`
+  row and proves all 320 current ally-bucket/datasheet pairs are allowed, with
+  disallowed control datasheets for each row's ally bucket.
 - Allied keyword-limit coverage now walks every live v879
   `allied_faction_keyword` row and proves valid-at-cap plus invalid-over-cap
   states for all 54 current rows. It also covers all 12 current mutually
@@ -155,6 +158,13 @@ Implementation updates, 2026-07-01 to 2026-07-02:
 - Allied allowed-warlord coverage now walks every live v879
   `allied_faction_allowed_warlord_miniature` row and proves missing-Warlord
   invalid plus selected configured Warlord valid states for all 28 current rows.
+- Allied rule-table inventory coverage now pins every current v879 allied table
+  count, including the 25 allied parent rows, the empty
+  `keyword_ally_restricting_keyword` new table, and the 4 legacy
+  `keyword.allyRestrictingKeywordId` rows.
+- Allied restricting-keyword coverage now walks every live v879 legacy
+  restricting keyword row and proves invalid plus paired-valid states for all 4
+  Khorne/Nurgle/Slaanesh/Tzeentch Battleline outnumbering rules.
 - Keyword restriction groups are now loaded through `factionScope`, so
   parent-scoped restriction rows are inherited by child roster factions.
 - Wargear matching now uses `canonicalWargearKey`: normal rows use item-ID keys,
@@ -194,11 +204,12 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   `InvalidWargearRequirement` for limited/all-model requirement failures.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 79 validation tests.
+  once; `npm test` passes 82 validation tests.
 - The minimum parity manifest now anchors required subcases, including Heretic
-  Astartes daemon allies under/over the points cap and Khorne, Nurgle, Slaanesh,
-  and Tzeentch Battleline outnumbering invalid/valid pairs. It also carries the
-  Aeldari/Drukhari keyword restriction subcases as explicit anchors.
+  Astartes daemon allies under/over the points cap, all 4 live legacy
+  Battleline outnumbering rows, and the allied rule-table inventory guard. It
+  also carries the Aeldari/Drukhari keyword restriction subcases as explicit
+  anchors.
 - Live keyword restriction coverage now walks every v879 top-level
   `keyword_restriction_group` with a configured limit and proves valid plus
   invalid states for all 15 current groups.
@@ -321,6 +332,8 @@ Status values:
 | `MissingMandatoryAllegianceAbility` | `builder_allegiance_rules.js:63-84` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage proves parent-faction rows are inherited through `factionScope` and that selecting the mandatory ability satisfies the rule. |
 | `AlliedFactionValidator` | `builder_allied_rules.js:141-145` | Covered | Uses `faction_keyword_allied_faction`; all 87 current rows have available coverage plus unavailable controls. |
 | `AlliedFactionNotAvailable` | `builder_allied_rules.js:141-145` | Covered | Semantics present across every current live ally bucket. |
+| `AlliedFactionDatasheetValidator` | `builder_allied_rules.js:170-176` | Covered | Uses `allied_faction_datasheet`; all 320 current rows have allowed coverage plus disallowed controls. |
+| `AlliedFactionDatasheetNotAllowed` | `builder_allied_rules.js:172-176` | Covered | Semantics present across every current live ally-bucket/datasheet row. |
 | `AlliedFactionDetachmentValidator` | `builder_allied_rules.js:162-168` | Covered | Uses required detachment from `allied_faction` plus join table; all 29 current `allied_faction_required_detachment` rows have missing and selected coverage. |
 | `InvalidDetachmentError` | `builder_allied_rules.js:162-168` | Covered | Message is custom; semantics are covered across every current live required-detachment row. |
 | `AlliedKeywordCountValidator` | `builder_allied_rules.js:47-70` | Covered | Includes battle-size and warlord-gated keyword limits; all 54 current `allied_faction_keyword` rows have valid-at-cap and invalid-over-cap coverage. |
@@ -350,8 +363,8 @@ Status values:
 | `AttachedModelHasTooManyEnhancements` | `builder_attachment_rules.js:132-147` | Covered | Attached unit group enhancement count > 1. |
 | `FactionKeywordExcludedDatasheetValidator` | `builder_model.js:356-360`, `builder_roster_validation.js:78-86` | Covered | Uses faction scope; all 23 current rows have invalid/control-valid coverage through `validateRoster`. |
 | `FactionDatasheetNotAllowed` | `builder_roster_validation.js:78-86` | Covered | Semantics present. |
-| `KeywordAllyRestrictingKeywordValidator` | `builder_allied_rules.js:92-130` | Covered | Legacy rows and synthetic new-table scoping are covered, including child allied parents inheriting parent restrictions. v879 new table remains empty. |
-| `RestrictingKeywordError` | `builder_allied_rules.js:108-123` | Covered | Count logic and faction-scoped new-table behavior are covered. |
+| `KeywordAllyRestrictingKeywordValidator` | `builder_allied_rules.js:92-130` | Covered | All 4 current legacy `keyword.allyRestrictingKeywordId` rows have invalid and paired-valid coverage. Synthetic new-table scoping is covered, including child allied parents inheriting parent restrictions. v879 `keyword_ally_restricting_keyword` remains empty and pinned by inventory coverage. |
+| `RestrictingKeywordError` | `builder_allied_rules.js:108-123` | Covered | Count logic is covered across every current legacy row, plus faction-scoped new-table behavior. |
 | `KeywordRestrictionGroupValidator` | `builder_restriction_rules.js:110-184` | Covered | Faction rows now load through `factionScope`; every current top-level limited group and every current detachment-linked min/max row has valid/invalid coverage. |
 | `KeywordRestrictionGroupError` | `builder_restriction_rules.js:141-180` | Covered | Limit, zero-limit, detachment min/max messages are custom. |
 | `MandatoryWarlordValidator` | `builder_warlord_rules.js:38-82` | Covered | Faction mandatory rows are empty in v879 but lookup walks child-to-parent `factionScope`; detachment mandatory rows live. |

@@ -156,6 +156,10 @@ Related audits:
   allowed roster-faction/ally-bucket pairs avoids `allied_faction.not_available`
   and each ally bucket still rejects a control roster faction without that row.
 - 2026-07-02: Added real-catalog coverage for every live v879
+  `allied_faction_datasheet` row. The test proves all 320 current allowed
+  ally-bucket/datasheet pairs avoid `allied_faction.datasheet_not_allowed` and
+  each row's ally bucket still rejects a control datasheet outside that bucket.
+- 2026-07-02: Added real-catalog coverage for every live v879
   `allied_faction_keyword` row. The tests prove valid-at-cap and
   invalid-over-cap states for all 54 current keyword-limit rows, mixed-keyword
   rejection for all 12 current mutually exclusive battle-size buckets, and
@@ -167,6 +171,13 @@ Related audits:
   `allied_faction_allowed_warlord_miniature` row. The test proves
   missing-Warlord invalid and each configured Warlord miniature valid for all 28
   current rows.
+- 2026-07-02: Added an allied rule-table inventory guard pinning every current
+  v879 allied table count, including the 25 parent rows, the 0-row
+  `keyword_ally_restricting_keyword` new table, and the 4 legacy
+  `keyword.allyRestrictingKeywordId` rows.
+- 2026-07-02: Added real-catalog coverage for every live v879 legacy allied
+  restricting keyword row. The test proves invalid and paired-valid states for
+  all 4 Khorne/Nurgle/Slaanesh/Tzeentch Battleline outnumbering rules.
 - 2026-07-01: Expanded allied golden coverage for all four Heretic Astartes
   cult-legion parent factions, Titanicus Traitoris titan caps, Agents of the
   Imperium allowed-warlord requirements, and slotless Retinue donor/receiver
@@ -232,7 +243,7 @@ Related audits:
 - 2026-07-02: Reworked limited wargear choice coverage from independent
   occurrence summing to bounded exact-cover matching. Overlapping combo rows
   such as Battle Sisters Squad `Heavy bolter + Ministorum flamer` no longer
-  self-overcount against `choiceLimit`. `npm test` now passes 79 validation
+  self-overcount against `choiceLimit`. `npm test` now passes 82 validation
   tests.
 - 2026-07-02: Added live wargear coverage for additional v879 loadout shapes:
   alternate loadout rows replacing regular sets, duplicate-allowed loadout

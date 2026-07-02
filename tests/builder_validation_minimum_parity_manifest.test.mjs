@@ -14,6 +14,7 @@ const minimumParityConceptByCode = {
   "allegiance_ability.multiple_selected": "AllegianceAbilityValidator",
   "allegiance_ability.not_selected": "AllegianceAbilityValidator",
   "allegiance_ability.required_detachment_missing": "AllegianceAbilityValidator",
+  "allied_faction.datasheet_not_allowed": "AlliedFactionDatasheetValidator",
   "allied_faction.not_available": "AlliedFactionValidator",
   "allied_keyword_count.invalid_mutually_exclusive_keywords": "InvalidMutuallyExclusiveKeywords",
   "allied_keyword_count.limit_exceeded": "AlliedKeywordCountValidator",
@@ -48,6 +49,17 @@ const minimumParityConceptByCode = {
 
 const minimumParityCases = [
   {
+    id: "live-allied-rule-table-inventory",
+    file: "tests/builder_validation_allied.test.mjs",
+    anchors: [
+      "all live allied rule tables stay pinned to explicit coverage counts",
+      "alliedFactionParentFactionKeywords.length, 25",
+      "keywordAllyRestrictingKeywords.length, 0",
+      "allyRestrictingKeywordId).length, 4",
+    ],
+    codes: [],
+  },
+  {
     id: "heretic-astartes-daemon-allies-points",
     file: "tests/builder_validation_allied.test.mjs",
     anchors: [
@@ -74,6 +86,15 @@ const minimumParityCases = [
       "factionKeywordAlliedFactions.length, 87",
     ],
     codes: ["allied_faction.not_available"],
+  },
+  {
+    id: "live-allied-faction-datasheet-rows",
+    file: "tests/builder_validation_allied.test.mjs",
+    anchors: [
+      "all live allied faction datasheet rows have allowed and disallowed coverage",
+      "alliedFactionDatasheets.length, 320",
+    ],
+    codes: ["allied_faction.datasheet_not_allowed"],
   },
   {
     id: "live-allied-keyword-limits",
@@ -111,6 +132,15 @@ const minimumParityCases = [
       "nurgle-daemon-outnumbering",
       "slaanesh-daemon-outnumbering",
       "tzeentch-daemon-outnumbering",
+    ],
+    codes: ["allied_keyword_restricting_keyword.outnumbered_keywords"],
+  },
+  {
+    id: "live-legacy-allied-restricting-keyword-rows",
+    file: "tests/builder_validation_allied.test.mjs",
+    anchors: [
+      "all live legacy allied restricting keyword rows have invalid and paired coverage",
+      "legacyRestrictingKeywords.length, 4",
     ],
     codes: ["allied_keyword_restricting_keyword.outnumbered_keywords"],
   },
@@ -335,7 +365,7 @@ const minimumParityCases = [
 ];
 
 test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 31);
+  assert.equal(minimumParityCases.length, 34);
   for (const parityCase of minimumParityCases) {
     const source = await readFile(join(projectRoot, parityCase.file), "utf8");
     for (const anchor of parityCase.anchors) {
