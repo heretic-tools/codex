@@ -37,6 +37,7 @@ const {
   defaultMiniatures,
   defaultWargear,
   factionScope,
+  enhancementPoints,
   unitSummary,
 } = await import("../HereticBuilder/static/builder_model.js");
 const { validateAllegianceAbilities } = await import("../HereticBuilder/static/builder_allegiance_rules.js");
@@ -135,7 +136,6 @@ function rosterUnitFromDatasheetId(datasheetId, id) {
     unitEnhancements: [],
     miniatureEnhancements: [],
     wargear: {},
-    unitWargear: {},
     miniatures: miniature ? [{
       ...miniature,
       id: `${id}:${miniature.id}`,
@@ -277,7 +277,6 @@ function allegianceUnit({ id, group, abilities = [] }) {
     allegianceAbilityGroupId: group.id,
     allegianceAbilities: abilities,
     wargear: {},
-    unitWargear: {},
     miniatures: [],
   };
 }
@@ -305,7 +304,6 @@ function defaultWargearUnit(datasheetName) {
     datasheetId: datasheet.id,
     modelCount: miniatures.reduce((total, miniature) => total + (miniature.count || 0), 0),
     wargear: defaultWargear(datasheet.id, composition.id),
-    unitWargear: {},
     miniatures,
   };
 }
@@ -355,7 +353,6 @@ function enhancementTargetUnit({ id, datasheetName, miniatureName, factionNames 
     unitEnhancements: [],
     miniatureEnhancements: [],
     wargear: {},
-    unitWargear: {},
     miniatures: [{
       ...miniature,
       id: rosterUnitMiniatureId,
@@ -397,6 +394,7 @@ export {
   defaultMiniatures,
   defaultWargear,
   factionScope,
+  enhancementPoints,
   unitSummary,
   validateAllegianceAbilities,
   validateAlliedUnits,

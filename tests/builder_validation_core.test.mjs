@@ -6,6 +6,7 @@ import {
   defaultMiniatures,
   defaultWargear,
   factionScope,
+  enhancementPoints,
   unitSummary,
   validateAllegianceAbilities,
   validateAlliedUnits,
@@ -129,5 +130,68 @@ test("conditional keywords match required roster faction through parent scope", 
     });
     assert.ok(summary.keywordIds.includes("conditional-keyword"));
     assert.ok(summary.conditionalKeywordIds.includes("conditional-keyword"));
+  });
+});
+
+test("enhancement keyword point overrides use active keywords and display order", () => {
+  const composition = { id: "composition", datasheetId: "datasheet", points: 100, isDefault: true, displayOrder: 1 };
+  const enhancement = {
+    id: "enhancement",
+    name: "Keyword Cost Enhancement",
+    basePointsCost: 20,
+  };
+  const catalog = {
+    datasheetById: new Map([["datasheet", { id: "datasheet", name: "Datasheet", maxModelCount: 1 }]]),
+    compositionById: new Map([[composition.id, composition]]),
+    compositionsByDatasheetId: new Map([["datasheet", [composition]]]),
+    compositionMiniaturesByCompositionId: new Map([[composition.id, [{ miniatureId: "miniature", min: 1, max: 1 }]]]),
+    requiredFactionKeywordsByCompositionId: new Map(),
+    requiredDetachmentsByCompositionId: new Map(),
+    miniatureById: new Map([["miniature", { id: "miniature", name: "Miniature" }]]),
+    miniatureKeywordsByMiniatureId: new Map([[
+      "miniature",
+      [{ keywordId: "late-keyword" }, { keywordId: "early-keyword" }],
+    ]]),
+    miniaturesByDatasheetId: new Map([["datasheet", [{ id: "miniature", datasheetId: "datasheet", name: "Miniature" }]]]),
+    conditionalKeywordsByDatasheetId: new Map(),
+    keywordById: new Map([
+      ["late-keyword", { id: "late-keyword", name: "Late" }],
+      ["early-keyword", { id: "early-keyword", name: "Early" }],
+    ]),
+    factionKeywordById: new Map([["faction", { id: "faction", parentFactionKeywordId: "" }]]),
+    alliedFactionParentsByAlliedFactionId: new Map(),
+    allegianceAbilityById: new Map(),
+    enhancementById: new Map([[enhancement.id, enhancement]]),
+    enhancementKeywordPointsCostsByEnhancementId: new Map([[
+      enhancement.id,
+      [
+        { enhancementId: enhancement.id, keywordId: "late-keyword", pointsCost: 5, displayOrder: 2 },
+        { enhancementId: enhancement.id, keywordId: "early-keyword", pointsCost: 15, displayOrder: 1 },
+      ],
+    ]]),
+    datasheetPointsStepsByDatasheetId: new Map(),
+    wargearOptionById: new Map(),
+    datasheetFactionKeywordsByDatasheetId: new Map(),
+  };
+
+  withCatalog(catalog, () => {
+    assert.equal(enhancementPoints(enhancement.id, ["late-keyword"]), 5);
+    assert.equal(enhancementPoints(enhancement.id, ["late-keyword", "early-keyword"]), 15);
+    assert.equal(enhancementPoints(enhancement.id, ["missing-keyword"]), 20);
+
+    const unit = {
+      id: "unit",
+      datasheetId: "datasheet",
+      unitEnhancements: [enhancement.id],
+      miniatures: [{ miniatureId: "miniature", count: 1 }],
+    };
+    const summary = unitSummary({
+      factionKeywordId: "faction",
+      detachmentIds: [],
+      units: [unit],
+    }, unit);
+
+    assert.equal(summary.unitEnhancements[0].points, 15);
+    assert.equal(summary.points, 115);
   });
 });

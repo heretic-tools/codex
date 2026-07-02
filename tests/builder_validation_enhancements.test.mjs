@@ -228,6 +228,48 @@ test("model enhancements use conditional keywords selected through allegiance ab
   assert.ok(!codes.includes("enhancement.unit_does_not_have_required_keywords"));
 });
 
+test("model enhancements use conditional keywords selected through roster faction scope", () => {
+  state.catalog = realCatalog;
+  const detachment = detachmentNamed("Inner Circle Task Force");
+  const enhancement = enhancementNamed("Champion of the Deathwing", "Inner Circle Task Force");
+  const baseUnit = withMiniatureEnhancement(
+    enhancementTargetUnit({
+      id: "terminator-captain-deathwing",
+      datasheetName: "Captain in Terminator Armour",
+      miniatureName: "Captain in Terminator Armour",
+      factionNames: ["Adeptus Astartes"],
+    }),
+    enhancement
+  );
+  const genericRoster = {
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [detachment.id],
+  };
+  const darkAngelsRoster = {
+    ...genericRoster,
+    factionKeywordId: factionNamed("Dark Angels").id,
+  };
+
+  const genericMessages = [];
+  validateEnhancements(
+    genericRoster,
+    [detachment],
+    [unitSummary(genericRoster, baseUnit)],
+    genericMessages
+  );
+  assert.ok(messageCodes(genericMessages).includes("enhancement.model_does_not_have_required_keywords"));
+
+  const darkAngelsMessages = [];
+  validateEnhancements(
+    darkAngelsRoster,
+    [detachment],
+    [unitSummary(darkAngelsRoster, baseUnit)],
+    darkAngelsMessages
+  );
+  assert.ok(!messageCodes(darkAngelsMessages).includes("enhancement.model_does_not_have_required_keywords"));
+});
+
 test("upgrade enhancements are unit-level options with their own required groups", () => {
   state.catalog = realCatalog;
   const detachment = detachmentNamed("Abhuman Auxiliaries");

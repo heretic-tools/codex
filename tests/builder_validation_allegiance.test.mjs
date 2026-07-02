@@ -169,6 +169,15 @@ test("allegiance abilities reject wrong groups and mandatory faction choices", (
       mandatoryMessages
     );
     assert.ok(messageCodes(mandatoryMessages).includes("allegiance_ability.mandatory_not_selected"));
+
+    const selectedMandatoryMessages = [];
+    validateAllegianceAbilities(
+      { factionKeywordId: "child-faction" },
+      [],
+      [allegianceUnit({ id: "mandatory-selected", group, abilities: [mandatory] })],
+      selectedMandatoryMessages
+    );
+    assert.ok(!messageCodes(selectedMandatoryMessages).includes("allegiance_ability.mandatory_not_selected"));
   });
 });
 

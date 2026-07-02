@@ -302,6 +302,123 @@ test("all-model substitutes are anchored to their own substitute family", () => 
   assert.ok(messageCodes(messages).includes("wargear_loadout.invalid_wargear_requirement"));
 });
 
+test("alternate loadout choices replace regular loadout sets", () => {
+  state.catalog = realCatalog;
+  const validUnit = defaultWargearUnit("Chaos Terminator Squad");
+  const validChampion = miniatureInUnit(validUnit, "Terminator Champion");
+  setMiniatureWargear(validUnit, validChampion, {
+    "Paired accursed weapons": 1,
+  });
+
+  const validMessages = [];
+  validateWargearLoadouts([validUnit], validMessages);
+  assert.ok(!messageCodes(validMessages).includes("wargear_loadout.invalid_miniature_wargear_loadout"));
+  assert.ok(!messageCodes(validMessages).includes("wargear_loadout.invalid_wargear_requirement"));
+
+  const invalidUnit = defaultWargearUnit("Chaos Terminator Squad");
+  const invalidChampion = miniatureInUnit(invalidUnit, "Terminator Champion");
+  setMiniatureWargear(invalidUnit, invalidChampion, {
+    "Combi-bolter": 1,
+    "Paired accursed weapons": 1,
+  });
+
+  const invalidMessages = [];
+  validateWargearLoadouts([invalidUnit], invalidMessages);
+  assert.ok(messageCodes(invalidMessages).includes("wargear_loadout.invalid_miniature_wargear_loadout"));
+});
+
+test("duplicate-allowed loadout sets can repeat one option up to the set limit", () => {
+  state.catalog = realCatalog;
+  const validUnit = defaultWargearUnit("Deff Dread");
+  const validDread = miniatureInUnit(validUnit, "Deff Dread");
+  setMiniatureWargear(validUnit, validDread, {
+    "Stompy feet": 1,
+    "Dread klaw": 4,
+  });
+
+  const validMessages = [];
+  validateWargearLoadouts([validUnit], validMessages);
+  assert.ok(!messageCodes(validMessages).includes("wargear_loadout.invalid_miniature_wargear_loadout"));
+
+  const invalidUnit = defaultWargearUnit("Deff Dread");
+  const invalidDread = miniatureInUnit(invalidUnit, "Deff Dread");
+  setMiniatureWargear(invalidUnit, invalidDread, {
+    "Stompy feet": 1,
+    "Dread klaw": 5,
+  });
+
+  const invalidMessages = [];
+  validateWargearLoadouts([invalidUnit], invalidMessages);
+  assert.ok(messageCodes(invalidMessages).includes("wargear_loadout.invalid_miniature_wargear_loadout"));
+});
+
+test("unit-scoped limited wargear counts selections across model rows", () => {
+  state.catalog = realCatalog;
+  const validUnit = defaultWargearUnit("Intercessor Squad");
+  const validIntercessors = miniatureInUnit(validUnit, "Intercessor");
+  setMiniatureWargear(validUnit, validIntercessors, {
+    "Bolt pistol": 4,
+    "Bolt rifle": 4,
+    "Close combat weapon": 4,
+    "Astartes grenade launcher": 1,
+  });
+
+  const validMessages = [];
+  validateWargearLoadouts([validUnit], validMessages);
+  assert.ok(!messageCodes(validMessages).includes("wargear_loadout.invalid_wargear_requirement"));
+  assert.ok(!messageCodes(validMessages).includes("wargear_loadout.invalid_miniature_wargear_loadout"));
+
+  const invalidUnit = defaultWargearUnit("Intercessor Squad");
+  const invalidIntercessors = miniatureInUnit(invalidUnit, "Intercessor");
+  setMiniatureWargear(invalidUnit, invalidIntercessors, {
+    "Bolt pistol": 4,
+    "Bolt rifle": 4,
+    "Close combat weapon": 4,
+    "Astartes grenade launcher": 2,
+  });
+
+  const invalidMessages = [];
+  validateWargearLoadouts([invalidUnit], invalidMessages);
+  assert.ok(messageCodes(invalidMessages).includes("wargear_loadout.invalid_wargear_requirement"));
+  assert.ok(!messageCodes(invalidMessages).includes("wargear_loadout.invalid_miniature_wargear_loadout"));
+});
+
+test("unit-scoped all-model choices reject mixed base selections across model rows", () => {
+  state.catalog = realCatalog;
+  const validUnit = defaultWargearUnit("Inceptor Squad");
+  const validSergeant = miniatureInUnit(validUnit, "Inceptor Sergeant");
+  const validInceptors = miniatureInUnit(validUnit, "Inceptor");
+  setMiniatureWargear(validUnit, validSergeant, {
+    "Close combat weapon": 1,
+    "Plasma exterminators": 1,
+  });
+  setMiniatureWargear(validUnit, validInceptors, {
+    "Close combat weapon": 2,
+    "Plasma exterminators": 2,
+  });
+
+  const validMessages = [];
+  validateWargearLoadouts([validUnit], validMessages);
+  assert.ok(!messageCodes(validMessages).includes("wargear_loadout.invalid_wargear_requirement"));
+  assert.ok(!messageCodes(validMessages).includes("wargear_loadout.invalid_miniature_wargear_loadout"));
+
+  const invalidUnit = defaultWargearUnit("Inceptor Squad");
+  const invalidSergeant = miniatureInUnit(invalidUnit, "Inceptor Sergeant");
+  const invalidInceptors = miniatureInUnit(invalidUnit, "Inceptor");
+  setMiniatureWargear(invalidUnit, invalidSergeant, {
+    "Close combat weapon": 1,
+    "Assault bolters": 1,
+  });
+  setMiniatureWargear(invalidUnit, invalidInceptors, {
+    "Close combat weapon": 2,
+    "Plasma exterminators": 2,
+  });
+
+  const invalidMessages = [];
+  validateWargearLoadouts([invalidUnit], invalidMessages);
+  assert.ok(messageCodes(invalidMessages).includes("wargear_loadout.invalid_wargear_requirement"));
+});
+
 test("Termagant limited wargear thresholds scale with model count", () => {
   state.catalog = realCatalog;
   const tenTermagants = defaultWargearUnit("Termagants");
@@ -475,7 +592,6 @@ test("default catalog wargear loadouts do not self-validate as invalid", () => {
       datasheetId: datasheet.id,
       modelCount: miniatures.reduce((total, miniature) => total + (miniature.count || 0), 0),
       wargear: defaultWargear(datasheet.id, composition.id),
-      unitWargear: {},
       miniatures,
     };
     const messages = [];

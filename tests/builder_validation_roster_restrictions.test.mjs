@@ -103,6 +103,29 @@ test("generic warlord validation covers missing, multiple, invalid, and Supreme 
   ], invalidMessages);
   assert.ok(messageCodes(invalidMessages).includes("warlord.invalid_generic"));
 
+  const headhunterGroup = allegianceGroup("Headhunter Task Force Keywords", "Headhunter Task Force", ["Character"]);
+  const headhunterCharacter = allegianceAbility(headhunterGroup.id, "Character");
+  const vindicatorWithoutCharacter = enhancementTargetUnit({
+    id: "vindicator-without-character",
+    datasheetName: "Vindicator",
+    miniatureName: "Vindicator",
+    factionNames: ["Adeptus Astartes"],
+    isWarlord: true,
+  });
+  const conditionalCharacterMissingMessages = [];
+  validateWarlord(roster, [detachmentNamed("Headhunter Task Force")], [vindicatorWithoutCharacter], conditionalCharacterMissingMessages);
+  assert.ok(messageCodes(conditionalCharacterMissingMessages).includes("warlord.invalid_generic"));
+
+  const vindicatorWithCharacter = {
+    ...vindicatorWithoutCharacter,
+    id: "vindicator-with-character",
+    allegianceAbilityGroupId: headhunterGroup.id,
+    allegianceAbilities: [headhunterCharacter],
+  };
+  const conditionalCharacterMessages = [];
+  validateWarlord(roster, [detachmentNamed("Headhunter Task Force")], [vindicatorWithCharacter], conditionalCharacterMessages);
+  assert.ok(!messageCodes(conditionalCharacterMessages).includes("warlord.invalid_generic"));
+
   const supremeCommanderMessages = [];
   validateWarlord(roster, [], [
     enhancementTargetUnit({
@@ -322,6 +345,14 @@ test("detachment and composition validators cover unique, excluded, linked, and 
       requiredDatasheetMessages
     );
     assert.ok(messageCodes(requiredDatasheetMessages).includes("detachment.datasheets_missing"));
+
+    const selectedRequiredDatasheetMessages = [];
+    validateDetachmentDatasheets(
+      [{ id: "required-detachment", name: "Required Detachment", isCombatPatrol: false }],
+      [{ id: "required-unit", name: "Required Datasheet", datasheetId: "required-datasheet" }],
+      selectedRequiredDatasheetMessages
+    );
+    assert.ok(!messageCodes(selectedRequiredDatasheetMessages).includes("detachment.datasheets_missing"));
   });
 });
 

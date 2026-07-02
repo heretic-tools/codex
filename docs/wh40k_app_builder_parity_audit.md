@@ -79,20 +79,31 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   required wargear, attached bodyguard requirements, and attached-unit
   enhancement limits. Model-targeted enhancement checks now include active
   conditional keywords from the unit summary, covering Character-granting
-  allegiance abilities such as Headhunter Task Force vehicle Characters.
+  allegiance abilities such as Headhunter Task Force vehicle Characters and
+  roster-faction-scoped chapter keywords such as Dark Angels `Deathwing`.
 - Unit-level enhancement coverage now explicitly includes
   `enhancementType = upgrade`. Sharp Eyes (Upgrade) proves upgrade required
   datasheet/faction groups, upgrade points, and the per-enhancement duplicate
   limit of 3 are enforced independently from the Strike Force roster
   enhancement limit of 4.
+- The data-empty `enhancement_keyword_points_cost` path has synthetic coverage:
+  active keyword matching, `displayOrder` precedence, base-cost fallback, and
+  unit-summary point totals are all asserted.
+- Data-empty allegiance requirement paths are covered in both directions:
+  mandatory faction allegiance abilities inherit through `factionScope` and
+  allied required allegiance abilities emit only when the required ability is
+  absent.
+- The data-empty `detachment_required_datasheet` path has synthetic coverage for
+  both missing required units and rosters that include the required datasheet.
 - Old-roster runtime fallbacks for `attachedUnits`, `allegianceAbilityIds`,
-  `enhancementIds`, and nested miniature enhancement arrays were removed. The
-  static Builder now validates only the current new-app roster shape.
+  `unitWargear`, `enhancementIds`, and nested miniature enhancement arrays were
+  removed. The static Builder now validates only the current new-app roster
+  shape.
 - Warlord and top-level roster coverage now includes missing/multiple/invalid
   warlord cases, Supreme Commander enforcement, detachment unique keyword
   collisions by keyword ID, detachment excluded datasheets, Combat Patrol
-  linked datasheet constraints, unit composition diagnostics, and duplicate
-  datasheet limits including Epic Heroes.
+  linked datasheet constraints, conditional Character Warlord eligibility, unit
+  composition diagnostics, and duplicate datasheet limits including Epic Heroes.
 - Default composition selection now prefers matching detachment-specific rows,
   then faction-specific rows, before generic rows. Saved generic default
   composition IDs are also normalized to the more specific current default, and
@@ -140,7 +151,7 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   not ship this map.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 56 validation tests.
+  once; `npm test` passes 62 validation tests.
 
 ## Evidence baseline
 
@@ -223,7 +234,7 @@ and `data/heretic_db.sqlite`.
 | `wargear_option` | 6322 |
 | `wargear_option_group` | 3025 |
 
-Current v879 empty rule tables that still need code paths:
+Current v879 empty rule tables with maintained Builder code paths:
 
 - `faction_keyword_mandatory_allegiance_ability`: 0
 - `allied_faction_allegiance_ability`: 0
@@ -250,7 +261,7 @@ Status values:
 | `MissingRequiredWargearItem` | `builder_allegiance_rules.js:39-43` | Covered | v879 has 4 allegiance abilities with `requiresWargearItemId`. |
 | `MissingAllegianceAbility` | `builder_allegiance_rules.js:33-35` | Covered | v879 has 5 mandatory allegiance groups. |
 | `TooManyAllegianceAbilities` | `builder_allegiance_rules.js:36-38` | Covered | Blocks more than one selected ability in a unit group. |
-| `MissingMandatoryAllegianceAbility` | `builder_allegiance_rules.js:63-84` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage proves parent-faction rows are inherited through `factionScope`. |
+| `MissingMandatoryAllegianceAbility` | `builder_allegiance_rules.js:63-84` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage proves parent-faction rows are inherited through `factionScope` and that selecting the mandatory ability satisfies the rule. |
 | `AlliedFactionDetachmentValidator` | `builder_allied_rules.js:162-168` | Covered | Uses required detachment from `allied_faction` plus join table. |
 | `InvalidDetachmentError` | `builder_allied_rules.js:162-168` | Covered | Message is custom, semantics present. |
 | `AlliedKeywordCountValidator` | `builder_allied_rules.js:47-70` | Covered | Includes battle-size and warlord-gated keyword limits. |
@@ -259,17 +270,17 @@ Status values:
 | `AlliedKeywordCountLimitExceeded` | `builder_allied_rules.js:61-64` | Covered | Counts ally units with configured keyword, with slotless reduction. |
 | `AlliedPointsValidator` | `builder_allied_rules.js:178-184` | Covered | Per battle-size allied points caps. |
 | `AlliedPointsLimitExceeded` | `builder_allied_rules.js:180-184` | Covered | Semantics present. |
-| `AlliedUnitsRequiredAllegianceValidator` | `builder_allied_rules.js:72-81` | Covered, data-empty | Table has 0 rows in v879. |
-| `RequiredAllegianceAbilityMissing` | `builder_allied_rules.js:72-81` | Covered, data-empty | Code path exists. |
+| `AlliedUnitsRequiredAllegianceValidator` | `builder_allied_rules.js:72-81` | Covered, data-empty | Table has 0 rows in v879; synthetic coverage checks missing and selected required ability states. |
+| `RequiredAllegianceAbilityMissing` | `builder_allied_rules.js:72-81` | Covered, data-empty | Synthetic coverage emits only when the required ability is absent. |
 | `AlliedUnitsRequiredWarlordValidator` | `builder_allied_rules.js:148-160` | Covered | Handles required warlord and allowed warlord list. |
 | `RequiredWarlordMissing` | `builder_allied_rules.js:148-160` | Covered | Semantics present. |
 | `DetachmentExcludedDatasheetValidator` | `builder_restriction_rules.js:70-76` | Covered | Uses `detachment_excluded_datasheet`. |
 | `DetachmentDatasheetNotAllowed` | `builder_restriction_rules.js:70-76` | Covered | Semantics present. |
 | `DetachmentPointsLimitValidator` | `builder_roster_validation.js:32-50` | Covered | Uses battle-size DP limit and detachment point override. |
 | `DetachmentPointsBattleSizeLimitExceeded` | `builder_roster_validation.js:47-50` | Covered | Semantics present. |
-| `DetachmentRequiredDatasheetValidator` | `builder_restriction_rules.js:78-107` | Covered, data-empty | `detachment_required_datasheet` is empty in v879 and guarded by a synthetic test; Combat Patrol linked datasheets are live and covered separately. |
-| `DetachmentDatasheetsMissing` | `builder_restriction_rules.js:78-99` | Covered, data-empty | Required table empty; linked Combat Patrol path live. |
-| `EnhancementValidator` | `builder_enhancement_rules.js:78-163` | Covered | Broad code coverage includes limits, target type, `unit` and `upgrade` enhancement types, Combat Patrol defaults, allied-unit rejection, Epic Hero rejection, excluded models, required keywords/wargear, bodyguard requirements, conditional Character keywords on model targets, and `cannotBeWarlord` target scope. |
+| `DetachmentRequiredDatasheetValidator` | `builder_restriction_rules.js:78-107` | Covered, data-empty | `detachment_required_datasheet` is empty in v879; synthetic coverage checks missing and selected required datasheet states. Combat Patrol linked datasheets are live and covered separately. |
+| `DetachmentDatasheetsMissing` | `builder_restriction_rules.js:78-99` | Covered, data-empty | Synthetic coverage emits only when the required datasheet is absent. |
+| `EnhancementValidator` | `builder_enhancement_rules.js:78-163`, `builder_model.js:264-270` | Covered | Broad code coverage includes limits, target type, `unit` and `upgrade` enhancement types, Combat Patrol defaults, allied-unit rejection, Epic Hero rejection, excluded models, required keywords/wargear, bodyguard requirements, conditional Character and roster-faction keywords on model targets, keyword-specific point overrides, and `cannotBeWarlord` target scope. |
 | `ModelsHaveSameEnhancements` | `builder_enhancement_rules.js:106-117` | Covered | Per-enhancement limit. |
 | `RosterHasTooManyEnhancements` | `builder_enhancement_rules.js:101-105` | Covered | Battle-size enhancement limit. |
 | `UnitHasTooManyEnhancements` | `builder_enhancement_rules.js:82-99` | Covered | More than one selected enhancement on a unit. |
@@ -316,7 +327,7 @@ Status values:
 | `InvalidWarlordDueToEnhancements` | `builder_enhancement_rules.js:158-160` | Covered | Miniature enhancements check the enhanced model against the selected warlord miniature; unit-level enhancements still apply at unit scope. |
 | `MissingWarlord` | `builder_warlord_rules.js:52-56` | Covered | Semantics present. |
 | `TooManyWarlords` | `builder_warlord_rules.js:58-60` | Covered | Semantics present. |
-| `InvalidWarlordDueToKeywords` | `builder_warlord_rules.js:12-32` | Covered | Conditional Character keyword handled. |
+| `InvalidWarlordDueToKeywords` | `builder_warlord_rules.js:12-32` | Covered | Live coverage verifies Headhunter Task Force Vindicator is invalid as Warlord until its conditional `Character` allegiance ability is selected. |
 
 ## Confirmed or high-risk discrepancies
 
@@ -349,6 +360,10 @@ Builder code:
   fleshborers/spinefists/devourers still do not create false positives, while
   independent slots such as Einhyr Hearthguard guns and melee weapons cannot
   satisfy one another.
+- Alternate loadout sets are treated as replacing regular loadout sets, and
+  duplicate-allowed loadout sets can repeat the same choice up to the set limit.
+- Unit-scoped limited and all-model rules are validated across selected wargear
+  from all model rows in the unit.
 - `builder_model.js` uses the same key layer when repairing default miniature
   loadouts and skips default wargear for zero-count optional miniatures.
 
@@ -381,6 +396,9 @@ Implemented guard rails:
   total unit model-count thresholds plus duplicate caps, Battle Sisters Squad
   overlapping limited combo rows, Pathfinder/Tankbustas limited choices that
   include base wargear, Hyperadapted Raveners default-only limited caps,
+  Chaos Terminator alternate paired-weapon loadouts, Deff Dread
+  duplicate-allowed weapon repetition, Intercessor Squad unit-scoped grenade
+  launcher caps, Inceptor Squad unit-scoped all-model base consistency,
   zero-count model wargear, invalid unit/model scope, invalid unit and model
   loadouts, and a full default-catalog sweep proving generated default wargear
   no longer self-validates as invalid.

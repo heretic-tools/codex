@@ -272,6 +272,24 @@ test("allied units reject unavailable ally buckets, disallowed datasheets, and r
       missingAbilityMessages
     );
     assert.ok(messageCodes(missingAbilityMessages).includes("allied_unit.required_allegiance_ability_missing"));
+
+    const selectedAbilityMessages = [];
+    validateAlliedUnits(
+      { factionKeywordId: "roster-faction", battleSizeId: "strike" },
+      [],
+      [{
+        id: "ally-unit",
+        name: "Ally Unit",
+        allyType: "ally",
+        datasheetId: "allowed-datasheet",
+        keywordIds: [],
+        points: 10,
+        warlordMiniatureIds: [],
+        allegianceAbilities: [requiredAbility],
+      }],
+      selectedAbilityMessages
+    );
+    assert.ok(!messageCodes(selectedAbilityMessages).includes("allied_unit.required_allegiance_ability_missing"));
   });
 });
 

@@ -74,15 +74,25 @@ Related audits:
   keywords from the unit summary when checking the target model. Live coverage
   verifies a Headhunter Task Force Vindicator that selects the `Character`
   allegiance ability can take a Character-only enhancement without a false
-  missing-keyword error.
+  missing-keyword error, and a Dark Angels Captain in Terminator Armour can
+  use the roster-faction-scoped `Deathwing` keyword for Inner Circle Task Force
+  enhancements.
+- 2026-07-02: Added live Warlord coverage for conditional `Character` keywords.
+  A Headhunter Task Force Vindicator is still an invalid Warlord without the
+  selected `Character` allegiance ability, and becomes eligible once that
+  conditional keyword is active.
 - 2026-07-02: Added live coverage for `enhancementType = upgrade`. Sharp Eyes
   (Upgrade) is validated as a unit-level upgrade with its own required
   datasheet/faction group, contributes points, and enforces its per-enhancement
   limit of 3 separately from the Strike Force roster enhancement limit of 4.
+- 2026-07-02: Added synthetic coverage for the data-empty
+  `enhancement_keyword_points_cost` table. Keyword-specific enhancement point
+  overrides now have a regression test for active keyword matching, display
+  order precedence, base-cost fallback, and unit-summary point totals.
 - 2026-07-02: Removed old-roster runtime fallbacks for `attachedUnits`,
-  `allegianceAbilityIds`, `enhancementIds`, and nested miniature enhancement
-  arrays. The new Builder data shape is now the only shape accepted by the
-  static client.
+  `allegianceAbilityIds`, `unitWargear`, `enhancementIds`, and nested miniature
+  enhancement arrays. The new Builder data shape is now the only shape accepted
+  by the static client.
 - 2026-07-02: Conditional keywords that require a roster faction now compare the
   required faction through `factionScope`, so parent-faction requirements apply
   to child rosters. v879 live rows are Dark Angels scoped; synthetic coverage
@@ -113,12 +123,13 @@ Related audits:
   unavailable/disallowed allies, required allied allegiance abilities,
   wrong-group/mandatory allegiance choices, Combat Patrol enhancements,
   enhancement target type and target eligibility failures, top-level roster
-  illegal datasheets, detachment required datasheets, detachment keyword
-  min/max restrictions, faction mandatory warlords, and invalid wargear scope
-  and loadout paths.
+  illegal datasheets, detachment required datasheets including missing and
+  satisfied states, detachment keyword min/max restrictions, faction mandatory
+  warlords, and invalid wargear scope and loadout paths.
 - 2026-07-02: Mandatory faction allegiance abilities now read inherited
   parent-faction rows through `factionScope`, with synthetic coverage for a
-  child roster inheriting a parent mandatory ability. v879 has no live rows in
+  child roster inheriting a parent mandatory ability and for the required
+  ability satisfying that rule. v879 has no live rows in
   `faction_keyword_mandatory_allegiance_ability`.
 - 2026-07-01: Audited all current `validationMessage(...)` and
   `validationWarning(...)` codes in Builder validators against the split
@@ -166,8 +177,12 @@ Related audits:
 - 2026-07-02: Reworked limited wargear choice coverage from independent
   occurrence summing to bounded exact-cover matching. Overlapping combo rows
   such as Battle Sisters Squad `Heavy bolter + Ministorum flamer` no longer
-  self-overcount against `choiceLimit`. `npm test` now passes 56 validation
+  self-overcount against `choiceLimit`. `npm test` now passes 62 validation
   tests.
+- 2026-07-02: Added live wargear coverage for additional v879 loadout shapes:
+  alternate loadout rows replacing regular sets, duplicate-allowed loadout
+  choices, unit-scoped limited wargear caps across model rows, and unit-scoped
+  all-model base choices.
 - 2026-07-01: Split the oversized validation test file into focused suites by
   rule family plus a shared catalog/helper module.
 
