@@ -401,6 +401,38 @@ const minimumParityCases = [
     codes: ["attached_unit.must_be_attached", "attached_unit.incomplete", "attached_unit.missing_requirements"],
   },
   {
+    id: "live-datasheet-bodyguard-rule-table-inventory",
+    file: "tests/builder_validation_attachments.test.mjs",
+    anchors: [
+      "all live datasheet bodyguard rule tables stay pinned to explicit coverage counts",
+      "groups.length, 1266",
+      "datasheetBodyguardGroupDatasheets.length, 1260",
+      "datasheetBodyguardGroupKeywords.length, 14",
+    ],
+    codes: [],
+  },
+  {
+    id: "live-datasheet-bodyguard-groups",
+    file: "tests/builder_validation_attachments.test.mjs",
+    anchors: [
+      "all live datasheet bodyguard groups accept configured bodyguards and reject invalid bodyguards",
+      "groups.length, 1266",
+    ],
+    codes: ["attached_unit.missing_requirements"],
+  },
+  {
+    id: "live-datasheet-bodyguard-detachment-keyword-conditions",
+    file: "tests/builder_validation_attachments.test.mjs",
+    anchors: [
+      "all live datasheet bodyguard detachment and shared-keyword conditions reject missing states",
+      "requiredDetachmentGroups.length, 305",
+      "excludedDetachmentGroups.length, 61",
+      "sharedKeywordGroups.length, 305",
+      "keywordGroups.length, 6",
+    ],
+    codes: ["attached_unit.missing_requirements"],
+  },
+  {
     id: "wargear-high-risk-app-parity-manifest",
     file: "tests/builder_validation_wargear_parity_cases.test.mjs",
     anchors: [
@@ -490,7 +522,7 @@ const minimumParityCases = [
 ];
 
 test("minimum WH app parity suite is mapped to focused Builder tests", async () => {
-  assert.equal(minimumParityCases.length, 46);
+  assert.equal(minimumParityCases.length, 49);
   for (const parityCase of minimumParityCases) {
     const source = await readFile(join(projectRoot, parityCase.file), "utf8");
     for (const anchor of parityCase.anchors) {

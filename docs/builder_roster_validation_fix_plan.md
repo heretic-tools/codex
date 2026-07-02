@@ -55,6 +55,12 @@ Related audits:
   `enhancement_bodyguard_group` rows cover missing attachment, wrong bodyguard
   datasheet, and configured attached bodyguard. `npm test` now passes 94
   validation tests.
+- 2026-07-02: Added live datasheet attachment/bodyguard coverage for all 1,266
+  current `datasheet_bodyguard_group` rows. The tests pin the 1,260 datasheet
+  rows, 14 keyword rows, 1,056 leader groups, 210 support groups, 305 required
+  detachment gates, 61 excluded detachment gates, and 305 shared-keyword gates,
+  then prove configured bodyguards pass and invalid bodyguards fail for every
+  live group. `npm test` now passes 97 validation tests.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,
