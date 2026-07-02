@@ -1,5 +1,5 @@
 import { state } from "./builder_state.js";
-import { idsFromRows, setIntersects } from "./builder_model.js";
+import { idsFromRows, selectedMiniatureEnhancements, selectedUnitEnhancements, setIntersects } from "./builder_model.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
 function attachedGroups(roster) {
@@ -141,10 +141,10 @@ function validateAttachedUnitEnhancementLimits(roster, units, messages) {
     const enhancementIds = new Set();
     for (const member of group.members || []) {
       const unit = units.find((item) => item.id === member.rosterUnitId);
-      for (const enhancement of unit?.unitEnhancements || []) {
+      for (const enhancement of unit ? selectedUnitEnhancements(unit) : []) {
         enhancementIds.add(enhancement.id);
       }
-      for (const enhancement of unit?.miniatureEnhancements || []) {
+      for (const enhancement of unit ? selectedMiniatureEnhancements(unit) : []) {
         enhancementIds.add(enhancement.id);
       }
     }

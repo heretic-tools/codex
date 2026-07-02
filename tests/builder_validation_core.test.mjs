@@ -182,7 +182,7 @@ test("enhancement keyword point overrides use active keywords and display order"
     const unit = {
       id: "unit",
       datasheetId: "datasheet",
-      unitEnhancements: [enhancement.id],
+      unitEnhancements: [{ id: enhancement.id }],
       miniatures: [{ miniatureId: "miniature", count: 1 }],
     };
     const summary = unitSummary({
@@ -193,5 +193,16 @@ test("enhancement keyword point overrides use active keywords and display order"
 
     assert.equal(summary.unitEnhancements[0].points, 15);
     assert.equal(summary.points, 115);
+
+    const oldShapeUnit = {
+      ...unit,
+      unitEnhancements: [enhancement.id],
+    };
+    const oldShapeSummary = unitSummary({
+      factionKeywordId: "faction",
+      detachmentIds: [],
+      units: [oldShapeUnit],
+    }, oldShapeUnit);
+    assert.deepEqual(oldShapeSummary.unitEnhancements, []);
   });
 });

@@ -1,5 +1,5 @@
 import { state } from "./builder_state.js";
-import { factionScope, idsFromRows, namesForIds, unique } from "./builder_model.js";
+import { factionScope, idsFromRows, namesForIds, selectedAllegianceAbilities, unique } from "./builder_model.js";
 import { rosterSummary } from "./builder_validation_core.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
@@ -80,7 +80,7 @@ function validateAlliedKeywordLimits(roster, alliedFactionId, label, units, warl
 
 function validateAlliedRequiredAllegianceAbilities(alliedFactionId, label, units, messages) {
   for (const row of state.catalog.alliedFactionAllegianceAbilitiesByAlliedFactionId.get(alliedFactionId) || []) {
-    const selectedIds = new Set(units.flatMap((unit) => (unit.allegianceAbilities || []).map((ability) => ability.id)));
+    const selectedIds = new Set(units.flatMap((unit) => selectedAllegianceAbilities(unit).map((ability) => ability.id)));
     if (!selectedIds.has(row.allegianceAbilityId)) {
       const ability = state.catalog.allegianceAbilityById.get(row.allegianceAbilityId);
       const group = ability ? state.catalog.allegianceAbilityGroupById.get(ability.allegianceAbilityGroupId) : null;

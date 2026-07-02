@@ -1,5 +1,5 @@
 import { state } from "./builder_state.js";
-import { factionScope } from "./builder_model.js";
+import { factionScope, selectedAllegianceAbilities } from "./builder_model.js";
 import { rosterSummary, unitHasWargearItem } from "./builder_validation_core.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
@@ -8,7 +8,7 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
   const groupCounts = new Map();
   for (const unit of units) {
     const groupId = unit.allegianceAbilityGroupId;
-    const selectedAbilities = unit.allegianceAbilities || [];
+    const selectedAbilities = selectedAllegianceAbilities(unit);
     if (!groupId) {
       for (const ability of selectedAbilities) {
         messages.push(validationMessage("allegiance_ability.not_allowed", `${unit.name} cannot select ${ability.name} from ${ability.groupName}.`));
@@ -75,7 +75,7 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
     const ability = state.catalog.allegianceAbilityById.get(row.allegianceAbilityId);
     const groupId = ability?.allegianceAbilityGroupId;
     for (const unit of units) {
-      const selectedIds = new Set((unit.allegianceAbilities || []).map((item) => item.id));
+      const selectedIds = new Set(selectedAllegianceAbilities(unit).map((item) => item.id));
       if (!selectedIds.size || groupId !== unit.allegianceAbilityGroupId) {
         continue;
       }

@@ -120,7 +120,7 @@ test("generic warlord validation covers missing, multiple, invalid, and Supreme 
     ...vindicatorWithoutCharacter,
     id: "vindicator-with-character",
     allegianceAbilityGroupId: headhunterGroup.id,
-    allegianceAbilities: [headhunterCharacter],
+    allegianceAbilities: [headhunterCharacter.id],
   };
   const conditionalCharacterMessages = [];
   validateWarlord(roster, [detachmentNamed("Headhunter Task Force")], [vindicatorWithCharacter], conditionalCharacterMessages);

@@ -1,5 +1,5 @@
 import { state } from "./builder_state.js";
-import { conditionalKeywordApplies, factionScope, lowerName, miniatureKeywordIds, namesForIds } from "./builder_model.js";
+import { conditionalKeywordApplies, factionScope, lowerName, miniatureKeywordIds, namesForIds, selectedAllegianceAbilities } from "./builder_model.js";
 import { keywordNameInIds } from "./builder_validation_core.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
@@ -26,7 +26,7 @@ function canBeWarlord(miniature, unit, roster, detachmentIds, warlordIds) {
     "Character",
     roster,
     detachmentIds,
-    (unit.allegianceAbilities || []).map((item) => item.id),
+    selectedAllegianceAbilities(unit).map((item) => item.id),
     warlordIds
   );
   return keywordNameInIds(miniatureKeywordIds(miniature.miniatureId), "Character") || conditionalCharacter;

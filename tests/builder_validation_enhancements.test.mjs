@@ -113,8 +113,8 @@ test("enhancement roster, duplicate, and per-unit limits use official battle-siz
     factionNames: ["Chaos Knights"],
   });
   overloadedUnit.miniatureEnhancements = [
-    { ...enhancementNamed("Throne Mechanicum of Skulls", "Lords of Dread"), targetId: overloadedUnit.miniatures[0].rosterUnitMiniatureId },
-    { ...enhancementNamed("Blade of Celerity", "Lords of Dread"), targetId: overloadedUnit.miniatures[0].rosterUnitMiniatureId },
+    { id: enhancementNamed("Throne Mechanicum of Skulls", "Lords of Dread").id, targetId: overloadedUnit.miniatures[0].rosterUnitMiniatureId },
+    { id: enhancementNamed("Blade of Celerity", "Lords of Dread").id, targetId: overloadedUnit.miniatures[0].rosterUnitMiniatureId },
   ];
   validateEnhancements(roster, [lordsOfDread], [overloadedUnit], unitLimitMessages);
   assert.ok(messageCodes(unitLimitMessages).includes("enhancement.unit_has_too_many_enhancements"));
@@ -531,14 +531,7 @@ test("enhancement attached bodyguard requirements are validated against attachme
   }, [khorneDaemonkin], [leader, bodyguard], attachedMessages);
   assert.ok(!messageCodes(attachedMessages).includes("enhancement.attached_requirement_missing"));
 
-  const extraEnhancement = {
-    id: "attached-extra-enhancement",
-    name: "Attached Extra Enhancement",
-    enhancementType: "unit",
-    isIncludedInEnhancementLimit: false,
-    isEquipableByEpicHero: true,
-    isEquipableByNonCharacterUnit: true,
-  };
+  const extraEnhancement = enhancementNamed("Sharp Eyes (Upgrade)", "Abhuman Auxiliaries");
   const attachedLimitMessages = [];
   validateEnhancements({
     ...roster,
@@ -551,7 +544,7 @@ test("enhancement attached bodyguard requirements are validated against attachme
     }],
   }, [khorneDaemonkin], [
     leader,
-    { ...bodyguard, unitEnhancements: [extraEnhancement] },
+    { ...bodyguard, unitEnhancements: [{ id: extraEnhancement.id }] },
   ], attachedLimitMessages);
   assert.ok(messageCodes(attachedLimitMessages).includes("enhancement.attached_unit_too_many_enhancements"));
 });

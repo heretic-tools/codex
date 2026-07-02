@@ -109,10 +109,14 @@ function namesForIds(map, ids, fallback = "item") {
   return (ids || []).map((id) => map.get(id)?.name || fallback);
 }
 
-function normalizeSelectedRows(values, byIdMap) {
+function normalizeSelectedRows(values, byIdMap, options = {}) {
+  const allowStringIds = Boolean(options.allowStringIds);
   return (values || [])
     .map((value) => {
       if (typeof value === "string") {
+        if (!allowStringIds) {
+          return null;
+        }
         return byIdMap.get(value) || null;
       }
       if (!value || typeof value !== "object") {
@@ -141,7 +145,7 @@ function compositionFactionIds(roster, allyType = "native") {
 }
 
 function selectedAllegianceAbilities(unit) {
-  return normalizeSelectedRows(unit.allegianceAbilities, state.catalog.allegianceAbilityById)
+  return normalizeSelectedRows(unit.allegianceAbilities, state.catalog.allegianceAbilityById, { allowStringIds: true })
     .map((ability) => ({
       ...ability,
       groupId: ability.groupId || ability.allegianceAbilityGroupId,
@@ -823,6 +827,9 @@ export {
   namesForIds,
   rosterPoints,
   rosterUnitSummaries,
+  selectedAllegianceAbilities,
+  selectedMiniatureEnhancements,
+  selectedUnitEnhancements,
   selectedWargearEntries,
   setIntersects,
   unitSummary,

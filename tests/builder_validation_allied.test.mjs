@@ -285,7 +285,7 @@ test("allied units reject unavailable ally buckets, disallowed datasheets, and r
         keywordIds: [],
         points: 10,
         warlordMiniatureIds: [],
-        allegianceAbilities: [requiredAbility],
+        allegianceAbilities: [requiredAbility.id],
       }],
       selectedAbilityMessages
     );

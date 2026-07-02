@@ -95,6 +95,21 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   absent.
 - The data-empty `detachment_required_datasheet` path has synthetic coverage for
   both missing required units and rosters that include the required datasheet.
+- A catalog inventory test guards all currently data-empty rule tables. If a
+  future data version adds live rows, the test fails until live roster fixtures
+  and this audit are updated.
+- Allegiance validators now share the same current-shape selection normalizer as
+  unit summaries. Compact selected ability IDs and object rows are equivalent
+  for unit allegiance checks, allied required allegiance checks, and conditional
+  Warlord keywords.
+- Enhancement validators now share the same current-shape selection normalizers
+  as unit summaries. Compact `{id}` and `{id,targetId}` rows are equivalent to
+  object rows for unit, miniature, and attached-unit enhancement rules.
+- Enhancement selection UI also reads through the shared normalizers, but writes
+  only compact `{id}` and `{id,targetId}` rows back to local cache. Full catalog
+  enhancement objects are not persisted by the client.
+- Bare string enhancement rows are no longer treated as selected enhancements.
+  The current new-app shape is object rows only for unit/model enhancements.
 - Old-roster runtime fallbacks for `attachedUnits`, `allegianceAbilityIds`,
   `unitWargear`, `enhancementIds`, and nested miniature enhancement arrays were
   removed. The static Builder now validates only the current new-app roster
@@ -149,9 +164,12 @@ Implementation updates, 2026-07-01 to 2026-07-02:
 - Test coverage now includes a dev-only concept map from Builder validation
   codes to official-like validator/error names. The static Builder runtime does
   not ship this map.
+- The dev-only concept map now preserves the official wargear split:
+  `InvalidWargearLoadout` for unit/model loadout mismatches and
+  `InvalidWargearRequirement` for limited/all-model requirement failures.
 - The split `tests/builder_validation_*.test.mjs` suite now asserts every
   current `validationMessage(...)` and `validationWarning(...)` code at least
-  once; `npm test` passes 62 validation tests.
+  once; `npm test` passes 64 validation tests.
 
 ## Evidence baseline
 
@@ -242,6 +260,10 @@ Current v879 empty rule tables with maintained Builder code paths:
 - `enhancement_keyword_points_cost`: 0
 - `keyword_ally_restricting_keyword`: 0
 
+`tests/builder_validation_catalog_inventory.test.mjs` asserts these rows remain
+empty for data version 879. When any count becomes non-zero, add live roster
+fixtures before updating this inventory.
+
 ## Official validator matrix
 
 Status values:
@@ -257,7 +279,7 @@ Status values:
 | `AllegianceAbilityGroupRosterLimitValidator` | `builder_allegiance_rules.js:46-60` | Covered | Checks min/max group counts. v879 has groups with limits. |
 | `MinRosterLimitForAllegianceAbilityGroup` | `builder_allegiance_rules.js:54-56` | Covered | Example: Houndpack Lance Keyword min 3. |
 | `ExceededRosterLimitForAllegianceAbilityGroup` | `builder_allegiance_rules.js:57-59` | Covered | Example: Headhunter Task Force Keywords max 3. |
-| `AllegianceAbilityValidator` | `builder_allegiance_rules.js:7-45` | Covered | Per-unit group, mandatory group, wrong group, required detachment, required wargear. |
+| `AllegianceAbilityValidator` | `builder_allegiance_rules.js:7-45`, `builder_model.js:143-149` | Covered | Per-unit group, mandatory group, wrong group, required detachment, required wargear. Selected ability IDs and object rows are normalized through the same current-shape path. |
 | `MissingRequiredWargearItem` | `builder_allegiance_rules.js:39-43` | Covered | v879 has 4 allegiance abilities with `requiresWargearItemId`. |
 | `MissingAllegianceAbility` | `builder_allegiance_rules.js:33-35` | Covered | v879 has 5 mandatory allegiance groups. |
 | `TooManyAllegianceAbilities` | `builder_allegiance_rules.js:36-38` | Covered | Blocks more than one selected ability in a unit group. |
@@ -280,7 +302,7 @@ Status values:
 | `DetachmentPointsBattleSizeLimitExceeded` | `builder_roster_validation.js:47-50` | Covered | Semantics present. |
 | `DetachmentRequiredDatasheetValidator` | `builder_restriction_rules.js:78-107` | Covered, data-empty | `detachment_required_datasheet` is empty in v879; synthetic coverage checks missing and selected required datasheet states. Combat Patrol linked datasheets are live and covered separately. |
 | `DetachmentDatasheetsMissing` | `builder_restriction_rules.js:78-99` | Covered, data-empty | Synthetic coverage emits only when the required datasheet is absent. |
-| `EnhancementValidator` | `builder_enhancement_rules.js:78-163`, `builder_model.js:264-270` | Covered | Broad code coverage includes limits, target type, `unit` and `upgrade` enhancement types, Combat Patrol defaults, allied-unit rejection, Epic Hero rejection, excluded models, required keywords/wargear, bodyguard requirements, conditional Character and roster-faction keywords on model targets, keyword-specific point overrides, and `cannotBeWarlord` target scope. |
+| `EnhancementValidator` | `builder_enhancement_rules.js:78-163`, `builder_model.js:152-159`, `builder_model.js:264-270` | Covered | Broad code coverage includes limits, target type, `unit` and `upgrade` enhancement types, Combat Patrol defaults, allied-unit rejection, Epic Hero rejection, excluded models, required keywords/wargear, bodyguard requirements, conditional Character and roster-faction keywords on model targets, keyword-specific point overrides, current-shape compact enhancement rows, and `cannotBeWarlord` target scope. |
 | `ModelsHaveSameEnhancements` | `builder_enhancement_rules.js:106-117` | Covered | Per-enhancement limit. |
 | `RosterHasTooManyEnhancements` | `builder_enhancement_rules.js:101-105` | Covered | Battle-size enhancement limit. |
 | `UnitHasTooManyEnhancements` | `builder_enhancement_rules.js:82-99` | Covered | More than one selected enhancement on a unit. |
@@ -318,10 +340,10 @@ Status values:
 | `RosterHasTooManyOfUnit` | `builder_roster_validation.js:88-93` | Covered | Battleline/Dedicated Transport limit 6, else battle-size duplicate limit. Live coverage includes conditional Battleline from Houndpack Lance War Dog Brigands. |
 | `UnitCompositionValidator` | `builder_model.js:386-459`, `builder_restriction_rules.js:26-36` | Covered | Required faction/detachment composition rows; default composition selection now prefers matching detachment-specific rows, then faction-specific rows, before generic rows. Same-shape generic/specific duplicates normalize to the more specific available composition, and the unit edit UI exposes the available current-roster compositions. |
 | `InvalidUnitComposition` | `builder_restriction_rules.js:31-35` | Covered | Semantics present. |
-| `WargearLoadoutValidator` | `builder_wargear_rules.js:256-282`, `builder_loadout_math.js:81-220` | Partial | Engine now uses canonical item-ID keys with explicit duplicate-name aliases, but exact official diagnostics still need WH app fixture comparison. |
+| `WargearLoadoutValidator` | `builder_wargear_rules.js:256-282`, `builder_loadout_math.js:81-220` | Partial | Engine now uses canonical item-ID keys with explicit duplicate-name aliases and test-only official concept mapping, but exact valid/invalid parity still needs WH app fixture comparison. |
 | `LoadoutKey` | `builder_loadout_math.js:3-29`, `36-37` | Partial | Builder has a canonical key layer, but it is not proven identical to official `LoadoutKey`. |
-| `InvalidWargearLoadout` | `builder_wargear_rules.js:231-278` | Partial | Miniature/unit loadout failures covered with canonical keys. Exact diagnostic category parity still needs WH app comparison. |
-| `InvalidWargearRequirement` | `builder_wargear_rules.js:90-245` | Partial | Limited thresholds use total unit model count, option-aware base/upgrade filtering, default-only choices, and duplicate caps. All-model substitutions are grouped by datasheet/miniature context, but exact official diagnostics still need WH app comparison. |
+| `InvalidWargearLoadout` | `builder_wargear_rules.js:231-278`, `tests/builder_validation_concepts.mjs:66-69` | Partial | Miniature/unit loadout failures are covered with canonical keys and mapped to the official error concept. Exact WH app valid/invalid fixture parity still needs comparison. |
+| `InvalidWargearRequirement` | `builder_wargear_rules.js:90-245`, `tests/builder_validation_concepts.mjs:70` | Partial | Limited thresholds use total unit model count, option-aware base/upgrade filtering, default-only choices, and duplicate caps. All-model substitutions are grouped by datasheet/miniature context, and requirement failures map to the official error concept. Exact WH app fixture parity still needs comparison. |
 | `WarlordValidator` | `builder_warlord_rules.js:34-84` | Covered | Missing/multiple/eligibility/conditional Character and detachment-granted Warlord overrides. |
 | `InvalidWarlordGeneric` | `builder_warlord_rules.js:80-84` | Covered | Message custom. |
 | `InvalidWarlordDueToEnhancements` | `builder_enhancement_rules.js:158-160` | Covered | Miniature enhancements check the enhanced model against the selected warlord miniature; unit-level enhancements still apply at unit scope. |

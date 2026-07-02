@@ -19,6 +19,8 @@ import {
   enhancementPoints,
   miniatureKeywordIds,
   rosterSummary,
+  selectedMiniatureEnhancements,
+  selectedUnitEnhancements,
   unitSummary,
   validateRoster,
 } from "./builder_rules.js";
@@ -502,17 +504,23 @@ async function setWarlord(roster, unitId, targetId) {
   await refreshRosters();
 }
 
-function normalizeStoredEnhancementRows(rows) {
+function compactStoredEnhancementRows(rows) {
   if (!Array.isArray(rows)) {
     return [];
   }
   return rows
-    .map((row) => (typeof row === "string" ? { id: row } : { ...row }))
-    .filter((row) => row.id);
+    .filter((row) => row && typeof row === "object" && row.id)
+    .map((row) => {
+      const result = { id: row.id };
+      if (row.targetId) {
+        result.targetId = row.targetId;
+      }
+      return result;
+    });
 }
 
 function selectedUnitEnhancementIds(unit) {
-  return new Set(normalizeStoredEnhancementRows(unit.unitEnhancements).map((row) => row.id));
+  return new Set(selectedUnitEnhancements(unit).map((row) => row.id));
 }
 
 function miniatureTargetId(unit, miniature) {
@@ -529,7 +537,7 @@ function miniatureTargetIds(unit, miniature) {
 
 function selectedMiniatureEnhancementIds(unit, miniature) {
   const targetIds = miniatureTargetIds(unit, miniature);
-  const direct = normalizeStoredEnhancementRows(unit.miniatureEnhancements)
+  const direct = selectedMiniatureEnhancements(unit)
     .filter((row) => targetIds.has(row.targetId))
     .map((row) => row.id);
   return new Set(direct);
@@ -614,7 +622,7 @@ function enhancementCanBeOffered(unit, selectedIds) {
 }
 
 function withUnitEnhancement(candidate, enhancementId, checked) {
-  const rows = normalizeStoredEnhancementRows(candidate.unitEnhancements)
+  const rows = compactStoredEnhancementRows(candidate.unitEnhancements)
     .filter((row) => row.id !== enhancementId);
   if (checked) {
     rows.push({ id: enhancementId });
@@ -623,7 +631,7 @@ function withUnitEnhancement(candidate, enhancementId, checked) {
 }
 
 function withMiniatureEnhancement(candidate, targetIds, targetId, enhancementId, checked) {
-  const directRows = normalizeStoredEnhancementRows(candidate.miniatureEnhancements)
+  const directRows = compactStoredEnhancementRows(candidate.miniatureEnhancements)
     .filter((row) => !(row.id === enhancementId && targetIds.has(row.targetId)));
   if (checked) {
     directRows.push({ id: enhancementId, targetId });

@@ -174,7 +174,7 @@ test("allegiance abilities reject wrong groups and mandatory faction choices", (
     validateAllegianceAbilities(
       { factionKeywordId: "child-faction" },
       [],
-      [allegianceUnit({ id: "mandatory-selected", group, abilities: [mandatory] })],
+      [allegianceUnit({ id: "mandatory-selected", group, abilities: [mandatory.id] })],
       selectedMandatoryMessages
     );
     assert.ok(!messageCodes(selectedMandatoryMessages).includes("allegiance_ability.mandatory_not_selected"));

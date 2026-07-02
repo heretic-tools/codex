@@ -48,3 +48,9 @@ test("every Builder validation code is covered by a focused validation test", as
 
   assert.deepEqual(missingConceptCodes, []);
 });
+
+test("wargear validation codes preserve official loadout and requirement concepts", () => {
+  assert.equal(validationConceptForCode("wargear_loadout.invalid_miniature_wargear_loadout"), "InvalidWargearLoadout");
+  assert.equal(validationConceptForCode("wargear_loadout.invalid_unit_wargear_loadout"), "InvalidWargearLoadout");
+  assert.equal(validationConceptForCode("wargear_loadout.invalid_wargear_requirement"), "InvalidWargearRequirement");
+});

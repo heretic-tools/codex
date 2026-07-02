@@ -1,5 +1,12 @@
 import { state } from "./builder_state.js";
-import { compositionFactionIds, idsFromRows, miniatureKeywordIds, namesForIds } from "./builder_model.js";
+import {
+  compositionFactionIds,
+  idsFromRows,
+  miniatureKeywordIds,
+  namesForIds,
+  selectedMiniatureEnhancements,
+  selectedUnitEnhancements,
+} from "./builder_model.js";
 import { keywordNameInIds, unitHasWargearItem } from "./builder_validation_core.js";
 import { validationMessage } from "./builder_validation_messages.js";
 import { enhancementBodyguardRequirementSatisfied, validateAttachedUnitEnhancementLimits } from "./builder_attachment_rules.js";
@@ -88,11 +95,11 @@ function validateEnhancements(roster, detachments, units, messages) {
   const selected = [];
   for (const unit of units) {
     const unitSelected = [];
-    for (const enhancement of unit.unitEnhancements || []) {
+    for (const enhancement of selectedUnitEnhancements(unit)) {
       selected.push({ unit, enhancement, keywordIds: new Set(unit.keywordIds || []), targetName: unit.name, miniature: null, targetKind: "unit" });
       unitSelected.push(enhancement);
     }
-    for (const enhancement of unit.miniatureEnhancements || []) {
+    for (const enhancement of selectedMiniatureEnhancements(unit)) {
       const miniature = (unit.miniatures || []).find((item) => item.rosterUnitMiniatureId === enhancement.targetId || item.id === enhancement.targetId);
       const keywordIds = new Set(miniature
         ? [...miniatureKeywordIds(miniature.miniatureId), ...(unit.conditionalKeywordIds || [])]

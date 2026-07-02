@@ -89,6 +89,24 @@ Related audits:
   `enhancement_keyword_points_cost` table. Keyword-specific enhancement point
   overrides now have a regression test for active keyword matching, display
   order precedence, base-cost fallback, and unit-summary point totals.
+- 2026-07-02: Added a catalog inventory guard for the currently data-empty rule
+  tables. If a future data version adds live rows to those tables, tests fail
+  with an instruction to add live roster fixtures before updating the audit.
+- 2026-07-02: Allegiance validators now use the shared current-shape selection
+  normalizer, so selected allegiance abilities saved as compact IDs satisfy
+  unit, allied required allegiance, and conditional Warlord keyword rules the
+  same way object rows do.
+- 2026-07-02: Enhancement validators now use the shared current-shape selection
+  normalizers, so compact `{id}` and `{id,targetId}` enhancement rows satisfy
+  unit, miniature, and attached-unit enhancement rules the same way object rows
+  do.
+- 2026-07-02: Enhancement selection UI now reads through the same shared
+  current-shape normalizers, while writes stay compact as `{id}` and
+  `{id,targetId}` rows. The local cache does not persist full catalog
+  enhancement objects.
+- 2026-07-02: Enhancement selection normalization no longer accepts bare string
+  rows. Current Builder enhancement selections must use object rows, which keeps
+  old enhancement ID arrays out of the new app data shape.
 - 2026-07-02: Removed old-roster runtime fallbacks for `attachedUnits`,
   `allegianceAbilityIds`, `unitWargear`, `enhancementIds`, and nested miniature
   enhancement arrays. The new Builder data shape is now the only shape accepted
@@ -151,6 +169,9 @@ Related audits:
 - 2026-07-02: Added test-only concept mapping for every Builder
   validation/warning code. The runtime client keeps validation messages thin:
   `{ level, code, text }`.
+- 2026-07-02: Refined the test-only wargear concept mapping so loadout mismatch
+  codes map to the official `InvalidWargearLoadout` concept and limited/all-model
+  requirement failures map to `InvalidWargearRequirement`.
 - 2026-07-02: Tightened successor chapter Epic Hero validation to compare
   non-root faction scope IDs. Pedro Kantor now conflicts with Imperial Fists
   Epic Heroes while unrelated Adeptus Astartes root-share Epic Heroes such as
@@ -177,7 +198,7 @@ Related audits:
 - 2026-07-02: Reworked limited wargear choice coverage from independent
   occurrence summing to bounded exact-cover matching. Overlapping combo rows
   such as Battle Sisters Squad `Heavy bolter + Ministorum flamer` no longer
-  self-overcount against `choiceLimit`. `npm test` now passes 62 validation
+  self-overcount against `choiceLimit`. `npm test` now passes 64 validation
   tests.
 - 2026-07-02: Added live wargear coverage for additional v879 loadout shapes:
   alternate loadout rows replacing regular sets, duplicate-allowed loadout
