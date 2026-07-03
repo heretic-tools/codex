@@ -559,6 +559,45 @@ Related audits:
   focused pack now validates both its minimum-case and wargear-setup sections,
   reports `incomplete` unless pending rows are explicitly allowed, and fails on
   missing, duplicate, unexpected, state-mismatched, or parity-mismatched rows.
+- 2026-07-02: Added pass-pack result extraction. A filled focused pack can now
+  emit a full minimum checklist with the 17 manual rows merged back in, and a
+  standalone wargear results worksheet that is accepted by the existing wargear
+  manifest checker. This keeps the official app UI pass as a single manual data
+  entry surface.
+- 2026-07-03: Added a generated manual WH app runbook. It groups the 17
+  remaining minimum UI/golden rows by rule family and the 26 wargear UI setup
+  rows by roster faction/detachment, so the official app pass can be executed in
+  batches without scanning the raw pass-pack table.
+- 2026-07-03: Added a generated manual pass-pack status view. It reports total
+  match/pending/mismatch/blocked/invalid counts, structural status, and the next
+  pending runbook batch, so partial official app passes can be resumed without
+  recounting the markdown tables by hand.
+- 2026-07-03: Added structured manual triage actions to the focused pass pack.
+  The checker now enforces `match -> none`, `mismatch -> logic|builder-ui`, and
+  `blocked -> official-ui-blocked|builder-ui`, making the logic-vs-UI follow-up
+  decision explicit instead of relying on prose notes.
+- 2026-07-03: Added generated manual action backlog extraction. Once a row is
+  triaged, `--extract action-backlog` lists only the resulting `logic`,
+  `builder-ui`, and `official-ui-blocked` follow-ups while still failing on
+  malformed or action-inconsistent pass-pack rows.
+- 2026-07-03: Added generated next-pending-batch extraction. The pass-pack tool
+  can now emit only the current resumable WH app UI batch, so the next official
+  app pass starts from the status-selected rows instead of re-scanning the full
+  43-row table.
+- 2026-07-03: Added checked next-batch merge support. A filled
+  `docs/wh40k_app_manual_next_batch.md` can be merged back into a pass-pack
+  candidate with `--merge-batch`, and the command rejects malformed or
+  action-inconsistent results before the candidate replaces the working pack.
+- 2026-07-03: Added standalone next-batch checking. `--check-batch` reports
+  current-batch status/action counts and rejects malformed or action-inconsistent
+  rows before a merge candidate is produced.
+- 2026-07-03: Added generated next-action output. `--next-action` summarizes
+  the current manual pass state and emits the command bundle for the next
+  workflow step, keeping the batch loop resumable without re-reading the full
+  status document.
+- 2026-07-03: Split manual pass workflow helpers out of the CLI exporter into
+  `HereticBuilder/tools/manual_wh40k_pass_pack_workflow.mjs`, keeping the
+  pass-pack parser/exporter smaller without touching the Builder static client.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering

@@ -66,6 +66,10 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   high-risk wargear fixtures for
   duplicate-name all-model matching, substitutions, limited thresholds, and
   zero-count miniature wargear.
+- Manual official-app follow-ups now flow through the generated pass pack,
+  runbook, status view, next-batch sheet, and action backlog. The backlog keeps
+  proven `logic`, `builder-ui`, and `official-ui-blocked` outcomes separate
+  from pending rows.
 - Mandatory faction allegiance abilities are read through `factionScope`, so
   future parent-faction rows apply to child roster factions. v879 has no live
   rows in that table.
@@ -914,7 +918,23 @@ manual pass pack, checked in as `docs/wh40k_app_manual_pass_pack.md`, containing
 only those 17 manual rows plus the 26 wargear UI setups. Its `--check-results`
 mode validates both sections of the focused pack: the current checked-in pack is
 `pending` only when `--allow-pending` is supplied, while missing, duplicate,
-unexpected, state-mismatched, and parity-mismatched rows remain failures.
+unexpected, state-mismatched, and parity-mismatched rows remain failures. Its
+`--extract minimum-checklist` and `--extract wargear-results` modes turn a
+filled focused pack into the full minimum checklist and standalone wargear
+worksheet, so the manual app pass has one source of entered results. The
+generated `docs/wh40k_app_manual_runbook.md` groups those same rows into WH app
+execution batches: minimum UI/golden rows by rule family and wargear rows by
+roster faction/detachment. The generated
+`docs/wh40k_app_manual_status.md` summarizes current batch progress,
+`docs/wh40k_app_manual_next_action.md` names the next workflow step and commands,
+and `docs/wh40k_app_manual_next_batch.md` expands that exact current batch into
+the rows to run next. A filled next-batch sheet can be merged back into a
+pass-pack candidate with `--merge-batch`, and `--check-batch` can validate the
+batch standalone before merge; malformed or action-inconsistent candidates are
+rejected before they replace the working pack. The focused pack also has a
+checked `Action` column: `none` for confirmed matches, `logic` for
+validator/model/catalog follow-ups, `builder-ui` for Builder UI follow-ups, and
+`official-ui-blocked` for scenarios blocked only by the official app UI.
 The remaining parity work is to create the same roster cases in WH 40K app and
 Builder, then record valid/invalid state and error categories in the manual
 checklist and pass the generated markdown worksheet through `--check-results`.

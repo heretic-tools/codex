@@ -1171,7 +1171,7 @@ const manualMinimumParityCaseIds = [
   "allegiance-roster-min-max-groups",
 ];
 
-function execNodeWithoutParentCoverage(args) {
+function execNodeWithoutParentCoverage(args, options = {}) {
   const childEnv = { ...process.env };
   const childCoverageDir = childEnv.NODE_V8_COVERAGE
     ? mkdtempSync(join(tmpdir(), "heretic-builder-child-coverage-"))
@@ -1184,6 +1184,7 @@ function execNodeWithoutParentCoverage(args) {
       encoding: "utf8",
       env: childEnv,
       maxBuffer: 128 * 1024 * 1024,
+      ...options,
     });
   } finally {
     if (childCoverageDir) {
@@ -1241,6 +1242,7 @@ if (shouldRegisterTests) {
 
     const exportTool = join(projectRoot, "HereticBuilder", "tools", "export_minimum_parity_manifest.mjs");
     const passPackTool = join(projectRoot, "HereticBuilder", "tools", "export_manual_wh40k_pass_pack.mjs");
+    const wargearExportTool = join(projectRoot, "HereticBuilder", "tools", "export_wargear_parity_manifest.mjs");
     const jsonManifest = JSON.parse(execNodeWithoutParentCoverage([exportTool, "--json"]));
     assert.equal(jsonManifest.caseCount, 90);
     assert.equal(jsonManifest.cases[0].id, "builder-rule-table-export-counts");
@@ -1337,14 +1339,209 @@ if (shouldRegisterTests) {
       const passPackPath = join(projectRoot, "docs", "wh40k_app_manual_pass_pack.md");
       const checkedInPassPack = await readFile(passPackPath, "utf8");
       assert.equal(checkedInPassPack.trim(), generatedPassPack);
+      const generatedRunbook = execNodeWithoutParentCoverage([passPackTool, "--format", "runbook"]).trim();
+      const checkedInRunbook = await readFile(join(projectRoot, "docs", "wh40k_app_manual_runbook.md"), "utf8");
+      assert.equal(checkedInRunbook.trim(), generatedRunbook);
+      assert.equal(execNodeWithoutParentCoverage([passPackTool, "--runbook"]).trim(), generatedRunbook);
+      assert.ok(generatedRunbook.startsWith("# WH 40K app manual runbook"));
+      assert.ok(generatedRunbook.includes("Total manual rows: 43"));
+      assert.ok(generatedRunbook.includes("| Heretic Astartes allies | 1, 2, 3, 4, 5 |"));
+      assert.ok(generatedRunbook.includes("| Leagues of Votann / Armoured Trailblazers | 1, 3, 4, 5, 10 |"));
+      assert.ok(generatedRunbook.includes("| T’au Empire / Advanced Acquisition Cadre | 20, 26 |"));
+      const generatedStatus = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--status",
+        "--from",
+        passPackPath,
+        "--format",
+        "markdown",
+      ]).trim();
+      const checkedInStatus = await readFile(join(projectRoot, "docs", "wh40k_app_manual_status.md"), "utf8");
+      assert.equal(checkedInStatus.trim(), generatedStatus);
+      assert.ok(generatedStatus.startsWith("# WH 40K app manual pass pack status"));
+      assert.ok(generatedStatus.includes("Total rows: 43"));
+      assert.ok(generatedStatus.includes("Pending: 43"));
+      assert.ok(generatedStatus.includes("Action pending: 43"));
+      assert.ok(generatedStatus.includes("Next pending batch: Minimum UI / Heretic Astartes allies (rows 1, 2, 3, 4, 5)"));
+      const generatedNextAction = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--next-action",
+        "--from",
+        passPackPath,
+        "--format",
+        "markdown",
+      ]).trim();
+      const checkedInNextAction = await readFile(join(projectRoot, "docs", "wh40k_app_manual_next_action.md"), "utf8");
+      assert.equal(checkedInNextAction.trim(), generatedNextAction);
+      assert.ok(generatedNextAction.startsWith("# WH 40K app manual next action"));
+      assert.ok(generatedNextAction.includes("State: fill-next-batch"));
+      assert.ok(generatedNextAction.includes("Pending rows: 43"));
+      assert.ok(generatedNextAction.includes("Next batch: Minimum UI / Heretic Astartes allies (rows 1, 2, 3, 4, 5)"));
+      assert.ok(generatedNextAction.includes("--extract next-pending-batch"));
+      const nextActionJson = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--next-action",
+        "--from",
+        passPackPath,
+      ]));
+      assert.equal(nextActionJson.state, "fill-next-batch");
+      assert.equal(nextActionJson.pendingRows, 43);
+      assert.equal(nextActionJson.nextBatch.name, "Heretic Astartes allies");
+      const generatedNextBatch = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "next-pending-batch",
+        "--from",
+        passPackPath,
+      ]).trim();
+      const checkedInNextBatch = await readFile(join(projectRoot, "docs", "wh40k_app_manual_next_batch.md"), "utf8");
+      assert.equal(checkedInNextBatch.trim(), generatedNextBatch);
+      assert.ok(generatedNextBatch.startsWith("# WH 40K app next pending batch"));
+      assert.ok(generatedNextBatch.includes("Section: Minimum UI"));
+      assert.ok(generatedNextBatch.includes("Batch: Heretic Astartes allies"));
+      assert.ok(generatedNextBatch.includes("Pass-pack rows: 1, 2, 3, 4, 5"));
+      assert.ok(generatedNextBatch.includes("| 1 | `heretic-astartes-daemon-allies-points` |"));
+      const pendingBatchSummary = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--check-batch",
+        passPackPath.replace("wh40k_app_manual_pass_pack.md", "wh40k_app_manual_next_batch.md"),
+        "--from",
+        passPackPath,
+        "--allow-pending",
+      ]));
+      assert.equal(pendingBatchSummary.status, "pending");
+      assert.equal(pendingBatchSummary.section, "Minimum UI");
+      assert.equal(pendingBatchSummary.batch, "Heretic Astartes allies");
+      assert.equal(pendingBatchSummary.parsedRows, 5);
+      assert.equal(pendingBatchSummary.counts.pending, 5);
+      assert.throws(
+        () => execNodeWithoutParentCoverage([
+          passPackTool,
+          "--check-batch",
+          passPackPath.replace("wh40k_app_manual_pass_pack.md", "wh40k_app_manual_next_batch.md"),
+          "--from",
+          passPackPath,
+        ]),
+        (error) => {
+          const pendingSummary = JSON.parse(error.stdout);
+          assert.equal(pendingSummary.status, "pending");
+          return true;
+        }
+      );
+      const filledMinimumNextBatchPath = join(resultsDir, "filled-minimum-next-batch.md");
+      const filledMinimumNextBatch = generatedNextBatch.split("\n").map((line) => {
+        if (!line.startsWith("| ") || line.startsWith("| Row") || line.startsWith("| ---")) {
+          return line;
+        }
+        return line.replace(
+          " | Pending | Pending | Pending |",
+          " | official app agrees | match | none |",
+        );
+      }).join("\n");
+      writeFileSync(filledMinimumNextBatchPath, filledMinimumNextBatch);
+      const filledMinimumBatchSummary = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--check-batch",
+        filledMinimumNextBatchPath,
+        "--from",
+        passPackPath,
+      ]));
+      assert.equal(filledMinimumBatchSummary.status, "ready");
+      assert.equal(filledMinimumBatchSummary.counts.match, 5);
+      assert.equal(filledMinimumBatchSummary.actionTotals.none, 5);
+      const mergedFirstBatchPassPack = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--merge-batch",
+        filledMinimumNextBatchPath,
+        "--from",
+        passPackPath,
+      ]);
+      const mergedFirstBatchPassPackPath = join(resultsDir, "merged-first-batch-pass-pack.md");
+      writeFileSync(mergedFirstBatchPassPackPath, mergedFirstBatchPassPack);
+      const mergedFirstBatchSummary = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--check-results",
+        mergedFirstBatchPassPackPath,
+        "--allow-pending",
+      ]));
+      assert.equal(mergedFirstBatchSummary.status, "pending");
+      assert.equal(mergedFirstBatchSummary.minimum.pendingRows.length, 12);
+      assert.equal(mergedFirstBatchSummary.wargear.pendingRows.length, 26);
+      const mergedFirstBatchNext = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "next-pending-batch",
+        "--from",
+        mergedFirstBatchPassPackPath,
+      ]);
+      assert.ok(mergedFirstBatchNext.includes("Batch: Adeptus Astartes faction rules"));
+      const badActionNextBatchPath = join(resultsDir, "bad-action-next-batch.md");
+      writeFileSync(
+        badActionNextBatchPath,
+        filledMinimumNextBatch.replace(" | match | none |", " | match | logic |"),
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([
+          passPackTool,
+          "--check-batch",
+          badActionNextBatchPath,
+          "--from",
+          passPackPath,
+        ]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.structuralSummary.minimumActionMismatches, 1);
+          return true;
+        }
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([
+          passPackTool,
+          "--merge-batch",
+          badActionNextBatchPath,
+          "--from",
+          passPackPath,
+        ]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.minimum.actionMismatches.length, 1);
+          return true;
+        }
+      );
+      const generatedActionBacklog = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "action-backlog",
+        "--from",
+        passPackPath,
+      ]).trim();
+      const checkedInActionBacklog = await readFile(join(projectRoot, "docs", "wh40k_app_manual_action_backlog.md"), "utf8");
+      assert.equal(checkedInActionBacklog.trim(), generatedActionBacklog);
+      assert.ok(generatedActionBacklog.startsWith("# WH 40K app manual action backlog"));
+      assert.ok(generatedActionBacklog.includes("Pending rows: 43"));
+      assert.ok(generatedActionBacklog.includes("No actionable follow-ups yet."));
+      const passPackStatus = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--status",
+        "--from",
+        passPackPath,
+      ]));
+      assert.equal(passPackStatus.totalRows, 43);
+      assert.equal(passPackStatus.totals.pending, 43);
+      assert.equal(passPackStatus.totals.match, 0);
+      assert.equal(passPackStatus.actionTotals.pending, 43);
+      assert.equal(passPackStatus.actionTotals.none, 0);
+      assert.equal(passPackStatus.nextPendingBatch.name, "Heretic Astartes allies");
 
       assert.throws(
-        () => execNodeWithoutParentCoverage([passPackTool, "--check-results", passPackPath]),
+        () => execNodeWithoutParentCoverage(
+          [passPackTool, "--check-results", passPackPath],
+          { stdio: ["ignore", "ignore", "pipe"] },
+        ),
         (error) => {
-          const incompleteSummary = JSON.parse(error.stdout);
-          assert.equal(incompleteSummary.status, "incomplete");
-          assert.equal(incompleteSummary.minimum.pendingRows.length, 17);
-          assert.equal(incompleteSummary.wargear.pendingRows.length, 26);
+          assert.equal(error.status, 1);
           return true;
         }
       );
@@ -1359,9 +1556,86 @@ if (shouldRegisterTests) {
       assert.equal(passPackSummary.minimum.expectedRows, 17);
       assert.equal(passPackSummary.minimum.parsedRows, 17);
       assert.equal(passPackSummary.minimum.pendingRows.length, 17);
+      assert.equal(passPackSummary.minimum.actionMismatches.length, 0);
       assert.equal(passPackSummary.wargear.expectedRows, 26);
       assert.equal(passPackSummary.wargear.parsedRows, 26);
       assert.equal(passPackSummary.wargear.pendingRows.length, 26);
+      assert.equal(passPackSummary.wargear.actionMismatches.length, 0);
+
+      let inMinimumOnlyWargearSection = false;
+      const minimumOnlyFilledPassPack = generatedPassPack.split("\n").map((line) => {
+        if (line.startsWith("## Wargear UI Cases")) {
+          inMinimumOnlyWargearSection = true;
+          return line;
+        }
+        if (!inMinimumOnlyWargearSection && line.startsWith("| ") && line.includes(" | Pending | Pending | Pending |")) {
+          return line.replace(
+            " | Pending | Pending | Pending |",
+            " | official app agrees | match | none |",
+          );
+        }
+        return line;
+      }).join("\n");
+      const minimumOnlyFilledPassPackPath = join(resultsDir, "minimum-only-filled-pass-pack.md");
+      writeFileSync(minimumOnlyFilledPassPackPath, minimumOnlyFilledPassPack);
+      const wargearNextBatch = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "next-pending-batch",
+        "--from",
+        minimumOnlyFilledPassPackPath,
+      ]);
+      assert.ok(wargearNextBatch.includes("Section: Wargear UI"));
+      assert.ok(wargearNextBatch.includes("Batch: Leagues of Votann / Armoured Trailblazers"));
+      assert.ok(wargearNextBatch.includes("| 1 | `duplicate-name-cthonian-beserks-default-valid` | valid |"));
+      const filledWargearNextBatchPath = join(resultsDir, "filled-wargear-next-batch.md");
+      const filledWargearNextBatch = wargearNextBatch.split("\n").map((line) => {
+        if (!line.startsWith("| ") || line.startsWith("| Row") || line.startsWith("| ---")) {
+          return line;
+        }
+        const expectedState = line.includes(" | invalid | ") ? "invalid" : "valid";
+        return line.replace(
+          " | Pending | Pending | Pending | Pending |",
+          ` | ${expectedState} | manual app diagnostic | match | none |`,
+        );
+      }).join("\n");
+      writeFileSync(filledWargearNextBatchPath, filledWargearNextBatch);
+      const filledWargearBatchSummary = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--check-batch",
+        filledWargearNextBatchPath,
+        "--from",
+        minimumOnlyFilledPassPackPath,
+      ]));
+      assert.equal(filledWargearBatchSummary.status, "ready");
+      assert.equal(filledWargearBatchSummary.parsedRows, 5);
+      assert.equal(filledWargearBatchSummary.counts.match, 5);
+      const mergedWargearBatchPassPack = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--merge-batch",
+        filledWargearNextBatchPath,
+        "--from",
+        minimumOnlyFilledPassPackPath,
+      ]);
+      const mergedWargearBatchPassPackPath = join(resultsDir, "merged-wargear-batch-pass-pack.md");
+      writeFileSync(mergedWargearBatchPassPackPath, mergedWargearBatchPassPack);
+      const mergedWargearBatchSummary = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--check-results",
+        mergedWargearBatchPassPackPath,
+        "--allow-pending",
+      ]));
+      assert.equal(mergedWargearBatchSummary.status, "pending");
+      assert.equal(mergedWargearBatchSummary.minimum.pendingRows.length, 0);
+      assert.equal(mergedWargearBatchSummary.wargear.pendingRows.length, 21);
+      const mergedWargearBatchNext = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "next-pending-batch",
+        "--from",
+        mergedWargearBatchPassPackPath,
+      ]);
+      assert.ok(mergedWargearBatchNext.includes("Batch: Orks / More Dakka!"));
 
       let inWargearSection = false;
       const filledPassPack = generatedPassPack.split("\n").map((line) => {
@@ -1376,17 +1650,17 @@ if (shouldRegisterTests) {
         if (!line.startsWith("| ")) {
           return line;
         }
-        if (inWargearSection && line.includes(" | Pending | Pending | Pending |")) {
+        if (inWargearSection && line.includes(" | Pending | Pending | Pending | Pending |")) {
           const expectedState = line.includes(" | invalid | ") ? "invalid" : "valid";
           return line.replace(
-            " | Pending | Pending | Pending |",
-            ` | ${expectedState} | manual app diagnostic | match |`,
+            " | Pending | Pending | Pending | Pending |",
+            ` | ${expectedState} | manual app diagnostic | match | none |`,
           );
         }
         if (!inWargearSection && line.includes(" | Pending | Pending |")) {
           return line.replace(
-            " | Pending | Pending |",
-            " | official app agrees | match |",
+            " | Pending | Pending | Pending |",
+            " | official app agrees | match | none |",
           );
         }
         return line;
@@ -1401,17 +1675,175 @@ if (shouldRegisterTests) {
       assert.equal(filledPassPackSummary.status, "match");
       assert.equal(filledPassPackSummary.minimum.pendingRows.length, 0);
       assert.equal(filledPassPackSummary.wargear.pendingRows.length, 0);
+      const filledStatus = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--status",
+        "--from",
+        filledPassPackPath,
+      ]));
+      assert.equal(filledStatus.totalRows, 43);
+      assert.equal(filledStatus.totals.match, 43);
+      assert.equal(filledStatus.totals.pending, 0);
+      assert.equal(filledStatus.actionTotals.none, 43);
+      assert.equal(filledStatus.actionTotals.pending, 0);
+      assert.equal(filledStatus.nextPendingBatch, null);
+      const filledNextAction = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--next-action",
+        "--from",
+        filledPassPackPath,
+      ]));
+      assert.equal(filledNextAction.state, "complete");
+      assert.equal(filledNextAction.pendingRows, 0);
+      assert.equal(filledNextAction.nextBatch, null);
+      const filledNextBatch = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "next-pending-batch",
+        "--from",
+        filledPassPackPath,
+      ]);
+      assert.ok(filledNextBatch.includes("Total pending rows: 0"));
+      assert.ok(filledNextBatch.includes("No pending batch."));
+      const filledActionBacklog = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "action-backlog",
+        "--from",
+        filledPassPackPath,
+      ]);
+      assert.ok(filledActionBacklog.includes("Pending rows: 0"));
+      assert.ok(filledActionBacklog.includes("No actionable follow-ups yet."));
+
+      const extractedMinimumChecklist = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "minimum-checklist",
+        "--from",
+        filledPassPackPath,
+      ]);
+      const extractedMinimumChecklistPath = join(resultsDir, "extracted-minimum-checklist.md");
+      writeFileSync(extractedMinimumChecklistPath, extractedMinimumChecklist);
+      const extractedMinimumSummary = JSON.parse(execNodeWithoutParentCoverage([
+        exportTool,
+        "--check-results",
+        extractedMinimumChecklistPath,
+      ]));
+      assert.equal(extractedMinimumSummary.status, "match");
+      assert.equal(extractedMinimumSummary.pendingRows.length, 0);
+      assert.ok(extractedMinimumChecklist.includes("| `heretic-astartes-daemon-allies-points` | Manual WH app UI:"));
+      assert.ok(extractedMinimumChecklist.includes(" | official app agrees | match |"));
+
+      const extractedWargearResults = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "wargear-results",
+        "--from",
+        filledPassPackPath,
+      ]);
+      const extractedWargearResultsPath = join(resultsDir, "extracted-wargear-results.md");
+      writeFileSync(extractedWargearResultsPath, extractedWargearResults);
+      const extractedWargearSummary = JSON.parse(execNodeWithoutParentCoverage([
+        wargearExportTool,
+        "--check-results",
+        extractedWargearResultsPath,
+      ]));
+      assert.equal(extractedWargearSummary.status, "match");
+      assert.equal(extractedWargearSummary.parsedRows, 26);
+      assert.equal(extractedWargearSummary.pendingRows.length, 0);
+      assert.ok(extractedWargearResults.startsWith("# WH 40K app wargear parity results"));
 
       const passPackMismatchPath = join(resultsDir, "mismatch-pass-pack.md");
       writeFileSync(
         passPackMismatchPath,
         filledPassPack.replace(
-          " | valid | manual app diagnostic | match |",
-          " | invalid | manual app diagnostic | mismatch |",
+          " | valid | manual app diagnostic | match | none |",
+          " | invalid | manual app diagnostic | mismatch | logic |",
         ),
       );
       assert.throws(
         () => execNodeWithoutParentCoverage([passPackTool, "--check-results", passPackMismatchPath]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.wargear.stateMismatches.length, 1);
+          return true;
+        }
+      );
+      const mismatchActionBacklog = execNodeWithoutParentCoverage([
+        passPackTool,
+        "--extract",
+        "action-backlog",
+        "--from",
+        passPackMismatchPath,
+      ]);
+      assert.ok(mismatchActionBacklog.includes("Logic actions: 1"));
+      assert.ok(mismatchActionBacklog.includes("| logic | Wargear UI | 1 | `duplicate-name-cthonian-beserks-default-valid` | mismatch |"));
+      const mismatchNextAction = JSON.parse(execNodeWithoutParentCoverage([
+        passPackTool,
+        "--next-action",
+        "--from",
+        passPackMismatchPath,
+      ]));
+      assert.equal(mismatchNextAction.state, "work-action-backlog");
+      assert.equal(mismatchNextAction.actionTotals.logic, 1);
+      assert.equal(mismatchNextAction.pendingRows, 0);
+      const passPackActionMismatchPath = join(resultsDir, "action-mismatch-pass-pack.md");
+      writeFileSync(
+        passPackActionMismatchPath,
+        filledPassPack.replace(
+          " | valid | manual app diagnostic | match | none |",
+          " | invalid | manual app diagnostic | mismatch | none |",
+        ),
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([passPackTool, "--check-results", passPackActionMismatchPath]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.wargear.actionMismatches.length, 1);
+          assert.deepEqual(mismatchSummary.wargear.actionMismatches[0].expectedActions, ["logic", "builder-ui"]);
+          return true;
+        }
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([
+          passPackTool,
+          "--extract",
+          "next-pending-batch",
+          "--from",
+          passPackActionMismatchPath,
+        ]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.wargear.actionMismatches.length, 1);
+          return true;
+        }
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([
+          passPackTool,
+          "--extract",
+          "action-backlog",
+          "--from",
+          passPackActionMismatchPath,
+        ]),
+        (error) => {
+          const mismatchSummary = JSON.parse(error.stdout);
+          assert.equal(mismatchSummary.status, "mismatch");
+          assert.equal(mismatchSummary.wargear.actionMismatches.length, 1);
+          return true;
+        }
+      );
+      assert.throws(
+        () => execNodeWithoutParentCoverage([
+          passPackTool,
+          "--extract",
+          "wargear-results",
+          "--from",
+          passPackMismatchPath,
+        ]),
         (error) => {
           const mismatchSummary = JSON.parse(error.stdout);
           assert.equal(mismatchSummary.status, "mismatch");
