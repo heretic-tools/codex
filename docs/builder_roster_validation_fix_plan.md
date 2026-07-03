@@ -10,6 +10,25 @@ Related audits:
 - `docs/wh40k_app_roster_validation_audit.md`
 - `docs/wh40k_app_builder_parity_audit.md`
 
+## Current checkpoint
+
+As of 2026-07-03, the official WH 40K app manual comparison is intentionally
+parked as a tracked manual tail, not a blocker for thin-client Builder UX work.
+The minimum parity manifest has 91 rows: 74 guard-backed rows are matched by
+automated evidence, and 17 minimum UI/golden rows still need official app UI
+observations. The focused pass pack has 43 pending manual rows, with the next
+atomic worksheet at `docs/wh40k_app_manual_minimum_subcheck_batch.md`.
+
+The active implementation focus is now thin-client UX on top of the static
+catalog and local roster cache. The client remains a static GitHub Pages app:
+no Python/API runtime, no server-side roster state, and no shipped official app
+manual-result dependency in the runtime bundle.
+
+Next thin-client UX slices should keep using the existing static JSON catalog,
+pure local validation, and browser storage only. Prefer small presentation and
+message-contract improvements, then verify with a local static build and
+browser smoke test.
+
 ## Progress
 
 - 2026-07-01: Added stable validation message codes across Builder validators.
@@ -493,12 +512,21 @@ Related audits:
 - 2026-07-02: Added an executable minimum WH app parity manifest that maps the
   non-wargear required audit groups to focused Builder test files, anchors, and
   expected validation codes/concepts. The manual WH app checklist now has a
-  tracked row for all 90 minimum parity groups, guarded by a manifest test.
+  tracked row for all 91 minimum parity groups, guarded by a manifest test.
 - 2026-07-02: Added an optional local official WH 40K app DB fingerprint guard.
   When the installed app DB is present, the test compares all 73 loaded
   roster-rule tables in `/Users/losikov/Library/Containers/com.gamesworkshop.w40k/Data/Library/Application Support/db.sqlite`
   against `data/heretic_db.sqlite` by row count and ordered row hash; it skips
   cleanly on machines without the official app DB or `sqlite3`.
+- 2026-07-03: Added an optional official WH 40K app seed dump inventory guard.
+  When `/Applications/WH 40K.app` is installed, the test reads
+  `Datasource_SeedDatasource.bundle/dump.json`, pins the v879 129-section
+  inventory, verifies every exported Builder table present in the seed dump has
+  matching row counts, and classifies the remaining seed sections as reference,
+  mission/game, FAQ, stratagem, profile, or rule-container data. The only
+  Builder-loaded rule table absent from the seed dump is
+  `keyword_ally_restricting_keyword`, which remains covered as a runtime
+  data-empty table in the migrated app DB.
 - 2026-07-02: Added
   `HereticBuilder/tools/compare_wh40k_saved_rosters.mjs`, a read-only local
   script that converts saved WH app `roster_*` rows into Builder roster shape
@@ -529,7 +557,7 @@ Related audits:
   or parity-mismatched rows. A CLI guard verifies JSON export, markdown export,
   pending-result, match-result, and mismatch-result modes.
 - 2026-07-02: Added `HereticBuilder/tools/export_minimum_parity_manifest.mjs`.
-  It reuses the executable 90-case minimum parity manifest and exports JSON or a
+  It reuses the executable 91-case minimum parity manifest and exports JSON or a
   markdown WH app result worksheet. Its `--check-results` mode validates the
   `## Minimum manifest parity groups` section of the manual checklist, catching
   missing, duplicate, unexpected, pending, and invalid-parity rows. The existing
@@ -537,7 +565,7 @@ Related audits:
   checklist parsing, pending-result, match-result, and mismatch-result modes.
 - 2026-07-02: Converted the manual checklist's machine-verifiable minimum
   evidence rows from `Pending` to guard-backed `match`. The minimum checklist
-  now has 73 of 90 rows matched by local DB/bundle/export guards or focused
+  now has 74 of 91 rows matched by local DB/bundle/export guards or focused
   evidence tests, with 17 manual UI/golden-case rows still pending. The 25
   wargear UI parity rows remain pending until the generated WH app worksheet is
   filled from the official app UI.
@@ -598,6 +626,92 @@ Related audits:
 - 2026-07-03: Split manual pass workflow helpers out of the CLI exporter into
   `HereticBuilder/tools/manual_wh40k_pass_pack_workflow.mjs`, keeping the
   pass-pack parser/exporter smaller without touching the Builder static client.
+- 2026-07-03: Added an `Evidence note` gate to the manual pass pack and
+  next-batch workflow. Any `match`, `mismatch`, or `blocked` row must now record
+  the concrete WH app observation that justifies the parity/action choice;
+  pending rows may stay pending. Wargear `blocked` rows are now accepted as
+  official-UI-blocked follow-ups instead of being misclassified as expected-state
+  mismatches.
+- 2026-07-03: Added read-only `Builder expectation` and `Official concepts`
+  columns to the manual pass pack and next-batch sheets. The current batch now
+  carries the expected Builder valid/invalid diagnostic family and the mapped WH
+  app validator concept in the row being filled.
+- 2026-07-03: Added 54 explicit `Subchecks` for all 17 minimum manual UI rows.
+  Broad rows now enumerate the individual states to recreate in WH app, such as
+  all four Chaos daemon outnumbering gods, cult-legion ally buckets, Ynnari
+  Warlord controls, enhancement target controls, attachment invalid states, and
+  allegiance min/max controls.
+- 2026-07-03: Tightened the Heretic Astartes ally subchecks so valid controls
+  and invalid states are separate rows. Chaos daemon outnumbering, cult-legion
+  required-detachment checks, Chaos Knights keyword caps/mutual exclusion, and
+  Titanicus Traitoris caps now cannot be marked `match` by observing only one
+  side of the rule.
+- 2026-07-03: Split manual pass expectation/subcheck text out of
+  `export_manual_wh40k_pass_pack.mjs` into
+  `HereticBuilder/tools/manual_wh40k_pass_pack_expectations.mjs`, reducing the
+  CLI exporter while keeping generated pass-pack output unchanged.
+- 2026-07-03: Added generated minimum subcheck batch extraction and checking.
+  `--extract minimum-subcheck-batch` writes the current pending Minimum UI batch
+  as one row per subcheck, and `--check-subcheck-batch` rejects missing,
+  duplicate, action-inconsistent, or evidence-less filled subchecks. The current
+  Heretic Astartes batch expands from 5 pass-pack rows into 24 concrete WH app
+  observations without changing the thin Builder client.
+- 2026-07-03: Added read-only `Setup hint` guidance to the minimum subcheck
+  worksheet. All 54 minimum subchecks now have a concrete roster setup hint,
+  with the current Heretic Astartes batch spelling out the Strike Force roster,
+  ally caps, daemon Battleline controls, Chaos Knights/Titanicus keyword caps,
+  and Pactbound Zealots control detachment. The generated next-action output now
+  points Minimum UI work at
+  `docs/wh40k_app_manual_minimum_subcheck_batch.md` first, because that worksheet
+  is the atomic official-app observation path.
+- 2026-07-03: Added generated `Expected state` and `Expected diagnostic`
+  columns to the minimum subcheck worksheet. These columns derive from the
+  pinned Builder subcheck text and codes, so future WH app UI observations can
+  be compared against a concrete `valid`/`invalid` plus diagnostic-present/
+  diagnostic-absent expectation instead of free prose.
+- 2026-07-03: Added an optional official WH 40K app binary-symbol guard to
+  `tests/builder_validation_coverage.test.mjs`. When
+  `/Applications/WH 40K.app` is installed, the test extracts Battle Forge
+  validator class names from the Swift binary, pins the current 23-symbol set,
+  and verifies that every symbol maps to a Builder validation concept. This
+  catches newly introduced official validator classes independently from the
+  localization-key guard.
+- 2026-07-03: Added `--merge-subcheck-batch`, which converts a filled Minimum
+  UI subcheck worksheet back into a pass-pack candidate. The merge refuses
+  pending or malformed subchecks, then aggregates each pass-pack row's
+  subchecks into a single parity/action/evidence result so broad rows cannot be
+  marked complete while their concrete WH app observations are still pending.
+- 2026-07-03: Split the minimum subcheck worksheet generator/checker into
+  `HereticBuilder/tools/manual_wh40k_pass_pack_subchecks.mjs`, keeping
+  `export_manual_wh40k_pass_pack.mjs` focused on CLI orchestration after adding
+  the subcheck batch workflow.
+- 2026-07-03: Split next-batch extraction, standalone batch checking, merge
+  support, and action-backlog blocking checks into
+  `HereticBuilder/tools/manual_wh40k_pass_pack_batches.mjs`. The CLI exporter is
+  now down to roughly 1,100 lines while preserving generated pass-pack,
+  next-batch, and subcheck-batch output.
+- 2026-07-03: Added direct module-level tests for the manual pass-pack batch and
+  subcheck helpers. The tests now exercise pending/ready summaries, subcheck
+  merge aggregation, next-batch merge behavior, and action-backlog blocking
+  counts without going only through the CLI subprocess.
+- 2026-07-03: Resumed thin-client UX after parking the manual WH app tail.
+  Builder validation UI now shows a compact summary, groups diagnostics by
+  stable validation code, and filters the unit screen to diagnostics scoped to
+  the current unit while separately showing the count of other roster issues.
+  Validation messages now support optional lightweight `scope` metadata
+  (`unitId`, `datasheetId`, `unitIds`, `datasheetIds`, and target ids) so the
+  UI no longer has to rely only on message text for unit diagnostics. This
+  remains a runtime-local presentation contract and does not add a backend or
+  extra catalog chunks.
+- 2026-07-03: Deleted the pre-research Builder UI monolith and replaced it with
+  a small rewrite shell. The new `builder.js` only loads the static catalog,
+  opens the local roster cache, creates/list/deletes roster records, and renders
+  read-only roster summary plus `validateRoster` diagnostics. The old
+  detachment/unit/wargear editor DOM and CSS hooks were removed from
+  `builder.html`, `builder.css`, and `builder.js` so the next editor can be
+  rebuilt from the researched rule contracts instead of inherited UI state. The
+  browser cache store name is reset to `heretic-builder-thin-v1`, so old local
+  rosters are not read by the new client.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering

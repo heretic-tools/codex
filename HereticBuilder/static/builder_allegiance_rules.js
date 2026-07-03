@@ -1,7 +1,7 @@
 import { state } from "./builder_state.js";
 import { factionScope, selectedAllegianceAbilities } from "./builder_model.js";
 import { rosterSummary, unitHasWargearItem } from "./builder_validation_core.js";
-import { validationMessage } from "./builder_validation_messages.js";
+import { unitValidationMessage, validationMessage } from "./builder_validation_messages.js";
 
 function validateAllegianceAbilities(roster, detachments, units, messages) {
   const detachmentIds = new Set(detachments.map((detachment) => detachment.id));
@@ -11,7 +11,7 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
     const selectedAbilities = selectedAllegianceAbilities(unit);
     if (!groupId) {
       for (const ability of selectedAbilities) {
-        messages.push(validationMessage("allegiance_ability.not_allowed", `${unit.name} cannot select ${ability.name} from ${ability.groupName}.`));
+        messages.push(unitValidationMessage("allegiance_ability.not_allowed", unit, `${unit.name} cannot select ${ability.name} from ${ability.groupName}.`));
       }
       continue;
     }
@@ -21,27 +21,27 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
     }
     if (group.detachmentId && !detachmentIds.has(group.detachmentId)) {
       for (const ability of selectedAbilities.filter((item) => item.groupId === groupId)) {
-        messages.push(validationMessage("allegiance_ability.required_detachment_missing", `${unit.name} cannot select ${ability.name} without its required detachment.`));
+        messages.push(unitValidationMessage("allegiance_ability.required_detachment_missing", unit, `${unit.name} cannot select ${ability.name} without its required detachment.`));
       }
       continue;
     }
     for (const ability of selectedAbilities) {
       if (ability.groupId !== groupId) {
-        messages.push(validationMessage("allegiance_ability.not_allowed", `${unit.name} cannot select ${ability.name} from ${ability.groupName}.`));
+        messages.push(unitValidationMessage("allegiance_ability.not_allowed", unit, `${unit.name} cannot select ${ability.name} from ${ability.groupName}.`));
       }
     }
     const selected = selectedAbilities.filter((item) => item.groupId === groupId);
     groupCounts.set(groupId, (groupCounts.get(groupId) || 0) + selected.length);
     if (group.isMandatory && !selected.length) {
-      messages.push(validationMessage("allegiance_ability.not_selected", `${unit.name} must select one ${group.name}.`));
+      messages.push(unitValidationMessage("allegiance_ability.not_selected", unit, `${unit.name} must select one ${group.name}.`));
     }
     if (selected.length > 1) {
-      messages.push(validationMessage("allegiance_ability.multiple_selected", `${unit.name} has too many ${group.name} selections.`));
+      messages.push(unitValidationMessage("allegiance_ability.multiple_selected", unit, `${unit.name} has too many ${group.name} selections.`));
     }
     for (const ability of selected) {
       if (ability.requiresWargearItemId && !unitHasWargearItem(unit, ability.requiresWargearItemId)) {
         const itemName = state.catalog.wargearItemById.get(ability.requiresWargearItemId)?.name || "required wargear";
-        messages.push(validationMessage("allegiance_ability.missing_wargear_item", `${unit.name} with ${ability.name} must be equipped with ${itemName}.`));
+        messages.push(unitValidationMessage("allegiance_ability.missing_wargear_item", unit, `${unit.name} with ${ability.name} must be equipped with ${itemName}.`));
       }
     }
   }
@@ -80,7 +80,7 @@ function validateAllegianceAbilities(roster, detachments, units, messages) {
         continue;
       }
       if (!selectedIds.has(row.allegianceAbilityId)) {
-        messages.push(validationMessage("allegiance_ability.mandatory_not_selected", `${unit.name} must select ${ability?.name || "required ability"} for ${rosterSummary(roster).factionName}.`));
+        messages.push(unitValidationMessage("allegiance_ability.mandatory_not_selected", unit, `${unit.name} must select ${ability?.name || "required ability"} for ${rosterSummary(roster).factionName}.`));
       }
     }
   }

@@ -34,13 +34,13 @@ in-progress pass but still fails on structural or state/parity mismatches.
 For non-UI evidence rows, record the local guard command or data-source check in
 `WH app method`; use `match` only when that guard directly compares against the
 installed WH app DB/bundles or proves a static Builder export invariant.
-For the 90-row minimum group table, generate a fresh worksheet with
+For the 91-row minimum group table, generate a fresh worksheet with
 `node HereticBuilder/tools/export_minimum_parity_manifest.mjs --format markdown`
 and validate this checklist with
 `node HereticBuilder/tools/export_minimum_parity_manifest.mjs --check-results docs/wh40k_app_manual_parity_checklist.md --allow-manual-pending-only`.
 Drop `--allow-manual-pending-only` once every row has a real method/result/parity
 value.
-Current minimum-group status: 73 of 90 rows are guard-backed `match`; the
+Current minimum-group status: 74 of 91 rows are guard-backed `match`; the
 remaining 17 rows still require manual WH app UI/golden-case comparison. The 25
 wargear parity case rows also remain pending until the generated wargear
 worksheet is filled from the official app UI.
@@ -128,10 +128,11 @@ UI pass. That strict mode still fails if any guard-backed row is left pending.
 | --- | --- | --- | --- |
 | `builder-rule-table-export-counts` | `node --test tests/builder_validation_catalog_inventory.test.mjs` static export audit. | 102 exported table counts, 104 manifest files, 73 loaded roster-rule tables, 43 excluded app tables, pinned rule-table columns, and battle-size limit fields all match the Builder export. | match |
 | `local-official-wh40k-db-roster-rule-table-fingerprints` | `sqlite3` row-count and ordered row-hash comparison against the local official app DB. | 73 loaded roster-rule tables match data version 879. | match |
+| `local-official-wh40k-seed-dump-table-inventory` | Optional local guard in `node --test tests/builder_validation_catalog_inventory.test.mjs`. | Installed WH app seed dump data version 879 has 129 classified data sections; all exported Builder tables present in the seed dump have matching row counts, with `keyword_ally_restricting_keyword` and `metadata` explained as runtime/export-only tables. | match |
 | `saved-wh40k-roster-aggregate-comparison-tool` | `node HereticBuilder/tools/compare_wh40k_saved_rosters.mjs` read-only aggregate state comparison. | Current local `CSM` roster: official `invalid`, Builder `invalid`, Builder code `warlord.not_selected`. | match |
 | `official-validation-storage-aggregate-only` | Optional local guard in `node --test tests/builder_validation_catalog_inventory.test.mjs`. | The installed official DB has only `roster_validation_state` for validation storage, with columns `id`, `rosterId`, and `validationState`; no detailed diagnostic/message table is present. | match |
 | `saved-wh40k-roster-aggregate-comparison-guard` | Optional local guard in `node --test tests/builder_validation_catalog_inventory.test.mjs`. | When the official DB is present, every saved WH app roster compared by `compare_wh40k_saved_rosters.mjs` must match Builder aggregate `valid`/`invalid` state. Current local DB has 1 matching roster. | match |
-| `official-validation-localization-key-map` | Test-only map from official WH app validation localization keys to Builder validation codes. | 56 official validation keys are mapped; local installed WH app bundles match the pinned key set. | match |
+| `official-validation-localization-key-map` | Test-only map from official WH app validation localization keys and binary validator symbols to Builder validation codes/concepts. | 56 official validation keys are mapped; local installed WH app bundles match the pinned key set; 23 Battle Forge validator symbols are pinned from the installed app binary and all map to Builder concepts. | match |
 | `thin-client-catalog-path-and-fetch-failure` | `node --test tests/builder_validation_catalog_inventory.test.mjs` catalog-loader guard. | `siteHref` keeps relative and absolute static data paths intact, and failed table fetches surface the source path/status without adding runtime-side rule logic. | match |
 | `live-allied-rule-table-inventory` | `node --test tests/builder_validation_allied.test.mjs` focused evidence guard. | Current v879 exported rule rows are covered after the local WH app DB fingerprint guard; covered codes: none. | match |
 | `native-roster-has-no-allied-diagnostics` | `node --test tests/builder_validation_allied.test.mjs` focused evidence guard. | Focused Builder evidence guard passed after the local WH app DB fingerprint guard; covered codes: none. | match |

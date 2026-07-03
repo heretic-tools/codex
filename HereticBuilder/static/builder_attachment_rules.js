@@ -1,6 +1,6 @@
 import { state } from "./builder_state.js";
 import { idsFromRows, selectedMiniatureEnhancements, selectedUnitEnhancements, setIntersects } from "./builder_model.js";
-import { validationMessage } from "./builder_validation_messages.js";
+import { unitValidationMessage, validationMessage } from "./builder_validation_messages.js";
 
 function attachedGroups(roster) {
   return roster.attachments || [];
@@ -64,7 +64,7 @@ function validateAttachedUnits(roster, detachments, units, messages) {
   for (const [rosterUnitId, groupIds] of membership.entries()) {
     if (groupIds.size > 1) {
       const unit = units.find((item) => item.id === rosterUnitId);
-      messages.push(validationMessage("attached_unit.duplicate_membership", `${unit?.name || "Unit"} is part of more than one attached unit.`));
+      messages.push(unitValidationMessage("attached_unit.duplicate_membership", unit, `${unit?.name || "Unit"} is part of more than one attached unit.`));
     }
   }
   const detachmentIds = detachments.map((detachment) => detachment.id);
@@ -77,7 +77,7 @@ function validateAttachedUnits(roster, detachments, units, messages) {
     const attachedModels = members.filter((member) => member.attachmentType === "leader" || member.attachmentType === "support");
     if (!bodyguards.length && attachedModels.length) {
       for (const attached of attachedModels) {
-        messages.push(validationMessage("attached_unit.must_be_attached", `${attached.name} must be attached to a bodyguard unit.`));
+        messages.push(unitValidationMessage("attached_unit.must_be_attached", attached, `${attached.name} must be attached to a bodyguard unit.`));
       }
       continue;
     }
@@ -88,7 +88,15 @@ function validateAttachedUnits(roster, detachments, units, messages) {
     const bodyguard = bodyguards[0];
     for (const attached of attachedModels) {
       if (!attachedUnitCanAttach(roster, detachmentIds, attached, bodyguard, units)) {
-        messages.push(validationMessage("attached_unit.missing_requirements", `${attached.name} cannot attach to ${bodyguard.name} as ${attached.attachmentType}.`));
+        messages.push(validationMessage(
+          "attached_unit.missing_requirements",
+          `${attached.name} cannot attach to ${bodyguard.name} as ${attached.attachmentType}.`,
+          "error",
+          {
+            unitIds: [attached.id, bodyguard.id].filter(Boolean),
+            datasheetIds: [attached.datasheetId, bodyguard.datasheetId].filter(Boolean),
+          }
+        ));
       }
     }
   }
@@ -149,7 +157,14 @@ function validateAttachedUnitEnhancementLimits(roster, units, messages) {
       }
     }
     if (enhancementIds.size > 1) {
-      messages.push(validationMessage("enhancement.attached_unit_too_many_enhancements", `Attached unit ${group.id} has more than 1 enhancement.`));
+      messages.push(validationMessage(
+        "enhancement.attached_unit_too_many_enhancements",
+        `Attached unit ${group.id} has more than 1 enhancement.`,
+        "error",
+        {
+          unitIds: (group.members || []).map((member) => member.rosterUnitId).filter(Boolean),
+        }
+      ));
     }
   }
 }

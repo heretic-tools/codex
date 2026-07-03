@@ -13,7 +13,7 @@ import { validateAllegianceAbilities } from "./builder_allegiance_rules.js";
 import { validateAlliedUnits } from "./builder_allied_rules.js";
 import { validateAttachedUnits } from "./builder_attachment_rules.js";
 import { validateEnhancements } from "./builder_enhancement_rules.js";
-import { validationMessage, validationWarning } from "./builder_validation_messages.js";
+import { unitValidationMessage, validationMessage, validationWarning } from "./builder_validation_messages.js";
 import { validateWarlord } from "./builder_warlord_rules.js";
 import {
   validateDetachmentDatasheets,
@@ -74,23 +74,23 @@ function validateRoster(roster) {
     }
     const datasheet = state.catalog.datasheetById.get(unit.datasheetId);
     if (datasheetIsCombatPatrol(datasheet)) {
-      messages.push(validationMessage("roster.combat_patrol_datasheet", `${unit.name} is a Combat Patrol datasheet and cannot be used in roster builder.`));
+      messages.push(unitValidationMessage("roster.combat_patrol_datasheet", unit, `${unit.name} is a Combat Patrol datasheet and cannot be used in roster builder.`));
     }
     const isFactionExcluded = factionExcludesDatasheet(roster.factionKeywordId, unit.datasheetId);
     if ((unit.allyType || "native") === "native") {
       if (!isFactionExcluded && !datasheetIsNativeToFaction(roster.factionKeywordId, unit.datasheetId)) {
-        messages.push(validationMessage("roster.unit_not_native", `${unit.name} is not native to ${rosterSummary(roster).factionName}.`));
+        messages.push(unitValidationMessage("roster.unit_not_native", unit, `${unit.name} is not native to ${rosterSummary(roster).factionName}.`));
       }
     }
     if (isFactionExcluded) {
-      messages.push(validationMessage("roster.faction_datasheet_not_allowed", `${unit.name} is excluded from ${rosterSummary(roster).factionName} rosters.`));
+      messages.push(unitValidationMessage("roster.faction_datasheet_not_allowed", unit, `${unit.name} is excluded from ${rosterSummary(roster).factionName} rosters.`));
     }
   }
   for (const [datasheetId, count] of Object.entries(counts)) {
     const unit = firstByDatasheet.get(datasheetId);
     const effectiveLimit = duplicateLimitForUnit(unit, duplicateLimit);
     if (count > effectiveLimit) {
-      messages.push(validationMessage("roster.unit_limit_exceeded", `${unit.name} has ${count} units; limit is ${effectiveLimit}.`));
+      messages.push(unitValidationMessage("roster.unit_limit_exceeded", unit, `${unit.name} has ${count} units; limit is ${effectiveLimit}.`));
     }
   }
   validateSuccessorChapterEpicHeroes(units, messages);

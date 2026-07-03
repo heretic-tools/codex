@@ -7,6 +7,7 @@ Scope: execution order for the remaining official WH 40K app UI checks.
 Data version: 879
 Total manual rows: 43
 Minimum UI/golden rows: 17
+Minimum UI subchecks: 54
 Wargear UI setup rows: 26
 
 Primary input file: `docs/wh40k_app_manual_pass_pack.md`.
@@ -18,14 +19,19 @@ node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-results docs
 node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --status --from docs/wh40k_app_manual_pass_pack.md --format markdown > docs/wh40k_app_manual_status.md
 node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --next-action --from docs/wh40k_app_manual_pass_pack.md --format markdown > docs/wh40k_app_manual_next_action.md
 node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract next-pending-batch --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_next_batch.md
+node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract minimum-subcheck-batch --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_minimum_subcheck_batch.md
 node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-batch docs/wh40k_app_manual_next_batch.md --from docs/wh40k_app_manual_pass_pack.md --allow-pending
+node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-subcheck-batch docs/wh40k_app_manual_minimum_subcheck_batch.md --from docs/wh40k_app_manual_pass_pack.md --allow-pending
+node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --merge-subcheck-batch docs/wh40k_app_manual_minimum_subcheck_batch.md --from docs/wh40k_app_manual_pass_pack.md > updated-pass-pack.md
 node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --merge-batch docs/wh40k_app_manual_next_batch.md --from docs/wh40k_app_manual_pass_pack.md > updated-pass-pack.md
 node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract action-backlog --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_action_backlog.md
 node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract minimum-checklist --from docs/wh40k_app_manual_pass_pack.md > updated-minimum-checklist.md
 node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract wargear-results --from docs/wh40k_app_manual_pass_pack.md > filled-wargear-results.md
 ```
 
-Fill only the WH app result, diagnostic, parity, and action columns in the pass pack. Keep `blocked` for setups a UI cannot express.
+For Minimum UI batches, prefer `docs/wh40k_app_manual_minimum_subcheck_batch.md` because it carries one `Setup hint` per atomic official-app check.
+
+Fill only the WH app result/diagnostic, parity, action, and evidence columns in the pass pack or batch worksheets. Keep `blocked` for setups a UI cannot express.
 
 Action rule of thumb: `match -> none`, `mismatch -> logic|builder-ui`, `blocked -> official-ui-blocked|builder-ui`.
 
@@ -33,10 +39,10 @@ Action rule of thumb: `match -> none`, `mismatch -> logic|builder-ui`, `blocked 
 
 | Batch | Pass-pack rows | Case ids | Builder tests |
 | --- | --- | --- | --- |
-| Heretic Astartes allies | 1, 2, 3, 4, 5 | `heretic-astartes-daemon-allies-points`, `heretic-astartes-daemon-outnumbering`, `heretic-astartes-chaos-knights-cap`, `heretic-astartes-cult-legion-detachment`, `heretic-astartes-titanicus-traitoris-cap` | tests/builder_validation_allied.test.mjs |
+| Heretic Astartes allies | 1, 2, 3, 4, 5 | `heretic-astartes-daemon-allies-points`, `heretic-astartes-daemon-outnumbering`, `heretic-astartes-chaos-knights-cap`, `heretic-astartes-cult-legion-detachment`, `heretic-astartes-titanicus-traitoris-cap` | tests/builder_validation_allied.test.mjs, tests/builder_validation_allied_availability.test.mjs |
 | Adeptus Astartes faction rules | 6, 7 | `adeptus-astartes-detachment-dp-overrides`, `adeptus-astartes-successor-epic-hero-conflict` | tests/builder_validation_factions.test.mjs |
 | Aeldari and Drukhari faction rules | 8, 9, 10 | `ynnari-devoted-of-ynnead-warlord`, `asuryani-ynnari-keyword-restrictions`, `drukhari-harlequin-character-limits` | tests/builder_validation_factions.test.mjs |
-| Enhancements | 11, 12, 13 | `enhancement-roster-limit`, `enhancement-required-keyword-excluded-keyword-wargear`, `enhancement-disciple-of-khorne-warlord-target` | tests/builder_validation_enhancements.test.mjs |
+| Enhancements | 11, 12, 13 | `enhancement-roster-limit`, `enhancement-required-keyword-excluded-keyword-wargear`, `enhancement-disciple-of-khorne-warlord-target` | tests/builder_validation_enhancement_limits.test.mjs, tests/builder_validation_enhancement_edges.test.mjs |
 | Attachments | 14 | `attachment-valid-invalid-and-must-attach` | tests/builder_validation_attachments.test.mjs |
 | Allegiance abilities | 15, 16, 17 | `allegiance-pactbound-mark-of-chaos`, `allegiance-daemonic-required-wargear`, `allegiance-roster-min-max-groups` | tests/builder_validation_allegiance.test.mjs |
 

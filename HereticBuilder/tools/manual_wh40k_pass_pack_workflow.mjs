@@ -234,11 +234,13 @@ function createManualWh40kPassPackWorkflow(deps) {
       structuralSummary: {
         minimumActionMismatches: structuralSummary.minimum.actionMismatches.length,
         minimumDuplicateRows: structuralSummary.minimum.duplicateRows.length,
+        minimumEvidenceMismatches: structuralSummary.minimum.evidenceMismatches.length,
         minimumInvalidParityRows: structuralSummary.minimum.invalidParityRows.length,
         minimumMissingRows: structuralSummary.minimum.missingRows.length,
         minimumUnexpectedRows: structuralSummary.minimum.unexpectedRows.length,
         wargearActionMismatches: structuralSummary.wargear.actionMismatches.length,
         wargearDuplicateRows: structuralSummary.wargear.duplicateRows.length,
+        wargearEvidenceMismatches: structuralSummary.wargear.evidenceMismatches.length,
         wargearMissingRows: structuralSummary.wargear.missingRows.length,
         wargearParityMismatches: structuralSummary.wargear.parityMismatches.length,
         wargearStateMismatches: structuralSummary.wargear.stateMismatches.length,
@@ -308,11 +310,13 @@ function createManualWh40kPassPackWorkflow(deps) {
   function blockingStructuralCount(structuralSummary) {
     return structuralSummary.minimumActionMismatches +
       structuralSummary.minimumDuplicateRows +
+      structuralSummary.minimumEvidenceMismatches +
       structuralSummary.minimumInvalidParityRows +
       structuralSummary.minimumMissingRows +
       structuralSummary.minimumUnexpectedRows +
       structuralSummary.wargearActionMismatches +
       structuralSummary.wargearDuplicateRows +
+      structuralSummary.wargearEvidenceMismatches +
       structuralSummary.wargearMissingRows +
       structuralSummary.wargearParityMismatches +
       structuralSummary.wargearUnexpectedRows;
@@ -322,11 +326,15 @@ function createManualWh40kPassPackWorkflow(deps) {
     return {
       checkBatchPending: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-batch docs/wh40k_app_manual_next_batch.md --from docs/wh40k_app_manual_pass_pack.md --allow-pending",
       checkFilledBatch: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-batch docs/wh40k_app_manual_next_batch.md --from docs/wh40k_app_manual_pass_pack.md",
+      checkFilledSubcheckBatch: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-subcheck-batch docs/wh40k_app_manual_minimum_subcheck_batch.md --from docs/wh40k_app_manual_pass_pack.md",
+      checkSubcheckBatchPending: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-subcheck-batch docs/wh40k_app_manual_minimum_subcheck_batch.md --from docs/wh40k_app_manual_pass_pack.md --allow-pending",
       extractActionBacklog: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract action-backlog --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_action_backlog.md",
       extractMinimumChecklist: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract minimum-checklist --from docs/wh40k_app_manual_pass_pack.md > updated-minimum-checklist.md",
+      extractMinimumSubcheckBatch: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract minimum-subcheck-batch --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_minimum_subcheck_batch.md",
       extractNextBatch: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract next-pending-batch --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_next_batch.md",
       extractWargearResults: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract wargear-results --from docs/wh40k_app_manual_pass_pack.md > filled-wargear-results.md",
       mergeBatch: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --merge-batch docs/wh40k_app_manual_next_batch.md --from docs/wh40k_app_manual_pass_pack.md > updated-pass-pack.md",
+      mergeSubcheckBatch: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --merge-subcheck-batch docs/wh40k_app_manual_minimum_subcheck_batch.md --from docs/wh40k_app_manual_pass_pack.md > updated-pass-pack.md",
       refreshStatus: "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --status --from docs/wh40k_app_manual_pass_pack.md --format markdown > docs/wh40k_app_manual_status.md",
     };
   }
@@ -356,7 +364,11 @@ function createManualWh40kPassPackWorkflow(deps) {
       reason = "Official WH 40K app UI results are still needed for the next pending batch.";
       commandsToRun = [
         commands.extractNextBatch,
+        commands.extractMinimumSubcheckBatch,
         commands.checkBatchPending,
+        commands.checkSubcheckBatchPending,
+        commands.checkFilledSubcheckBatch,
+        commands.mergeSubcheckBatch,
         commands.checkFilledBatch,
         commands.mergeBatch,
         commands.refreshStatus,
@@ -388,6 +400,11 @@ function createManualWh40kPassPackWorkflow(deps) {
     const nextBatch = summary.nextBatch
       ? `${summary.nextBatch.section} / ${summary.nextBatch.name} (rows ${summary.nextBatch.pendingRows.join(", ")})`
       : "none";
+    const recommendedWorksheet = summary.nextBatch?.section === "Minimum UI"
+      ? "docs/wh40k_app_manual_minimum_subcheck_batch.md (per-subcheck Setup hint)"
+      : summary.nextBatch
+        ? "docs/wh40k_app_manual_next_batch.md"
+        : "none";
     const lines = [
       "# WH 40K app manual next action",
       "",
@@ -399,6 +416,7 @@ function createManualWh40kPassPackWorkflow(deps) {
       `Pending rows: ${summary.pendingRows}`,
       `Blocking failures: ${summary.blockingFailures}`,
       `Next batch: ${nextBatch}`,
+      `Recommended worksheet: ${recommendedWorksheet}`,
       `Action logic: ${summary.actionTotals.logic}`,
       `Action builder-ui: ${summary.actionTotals["builder-ui"]}`,
       `Action official-ui-blocked: ${summary.actionTotals["official-ui-blocked"]}`,
@@ -429,6 +447,7 @@ function createManualWh40kPassPackWorkflow(deps) {
       `Data version: ${pack.dataVersion}`,
       `Total manual rows: ${pack.minimumManualCaseCount + pack.wargearSetupCount}`,
       `Minimum UI/golden rows: ${pack.minimumManualCaseCount}`,
+      `Minimum UI subchecks: ${pack.minimumManualSubcheckCount}`,
       `Wargear UI setup rows: ${pack.wargearSetupCount}`,
       "",
       "Primary input file: `docs/wh40k_app_manual_pass_pack.md`.",
@@ -440,14 +459,19 @@ function createManualWh40kPassPackWorkflow(deps) {
       "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --status --from docs/wh40k_app_manual_pass_pack.md --format markdown > docs/wh40k_app_manual_status.md",
       "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --next-action --from docs/wh40k_app_manual_pass_pack.md --format markdown > docs/wh40k_app_manual_next_action.md",
       "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract next-pending-batch --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_next_batch.md",
+      "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract minimum-subcheck-batch --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_minimum_subcheck_batch.md",
       "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-batch docs/wh40k_app_manual_next_batch.md --from docs/wh40k_app_manual_pass_pack.md --allow-pending",
+      "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --check-subcheck-batch docs/wh40k_app_manual_minimum_subcheck_batch.md --from docs/wh40k_app_manual_pass_pack.md --allow-pending",
+      "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --merge-subcheck-batch docs/wh40k_app_manual_minimum_subcheck_batch.md --from docs/wh40k_app_manual_pass_pack.md > updated-pass-pack.md",
       "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --merge-batch docs/wh40k_app_manual_next_batch.md --from docs/wh40k_app_manual_pass_pack.md > updated-pass-pack.md",
       "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract action-backlog --from docs/wh40k_app_manual_pass_pack.md > docs/wh40k_app_manual_action_backlog.md",
       "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract minimum-checklist --from docs/wh40k_app_manual_pass_pack.md > updated-minimum-checklist.md",
       "node HereticBuilder/tools/export_manual_wh40k_pass_pack.mjs --extract wargear-results --from docs/wh40k_app_manual_pass_pack.md > filled-wargear-results.md",
       "```",
       "",
-      "Fill only the WH app result, diagnostic, parity, and action columns in the pass pack. Keep `blocked` for setups a UI cannot express.",
+      "For Minimum UI batches, prefer `docs/wh40k_app_manual_minimum_subcheck_batch.md` because it carries one `Setup hint` per atomic official-app check.",
+      "",
+      "Fill only the WH app result/diagnostic, parity, action, and evidence columns in the pass pack or batch worksheets. Keep `blocked` for setups a UI cannot express.",
       "",
       "Action rule of thumb: `match -> none`, `mismatch -> logic|builder-ui`, `blocked -> official-ui-blocked|builder-ui`.",
       "",

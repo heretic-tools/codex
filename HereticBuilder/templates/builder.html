@@ -6,7 +6,7 @@
   <title>Heretic Builder</title>
   <link rel="stylesheet" href="/static/desktop.css">
   <link rel="stylesheet" href="/static/codex.css">
-  <link rel="stylesheet" href="/static/builder.css?v=builder-7">
+  <link rel="stylesheet" href="/static/builder.css?v=builder-9">
 </head>
 <body>
   <main class="desktop codex-page builder-page">
@@ -22,119 +22,13 @@
           </div>
         </div>
       </div>
+
       <div class="builder-breadcrumb-row">
         <nav id="builder-breadcrumbs" class="breadcrumb-menu builder-breadcrumbs" aria-label="Breadcrumb"></nav>
-        <button id="delete-roster-button" class="breadcrumb-menu-item builder-delete-roster-button" type="button" hidden>Delete Roster</button>
       </div>
 
       <div class="panel builder-panel">
-        <div class="panel-content builder-panel-content">
-          <section id="list-screen" class="screen list-screen" aria-label="Roster list">
-            <div id="roster-list" class="roster-list" role="list"></div>
-            <button id="new-roster-button" class="roster-row create-roster-button" type="button">
-              <span>
-                <strong>Create Roster</strong>
-              </span>
-            </button>
-          </section>
-
-          <section id="create-screen" class="screen create-screen" aria-label="Create roster" hidden>
-            <button id="create-back-button" class="plain-button" type="button">Back</button>
-            <form id="roster-form" class="roster-form">
-              <label class="field">
-                <span>Name</span>
-                <input id="roster-name" name="name" type="text" maxlength="80" autocomplete="off" value="New Roster">
-              </label>
-
-              <label class="field">
-                <span>Faction</span>
-                <select id="faction-select" name="factionKeywordId"></select>
-              </label>
-
-              <label class="field">
-                <span>Battle Size</span>
-                <select id="battle-size-select" name="battleSizeId"></select>
-              </label>
-
-              <div class="form-actions">
-                <button class="primary-button" type="submit">Confirm</button>
-              </div>
-            </form>
-          </section>
-
-          <section id="roster-screen" class="screen roster-screen" aria-label="Roster editor" hidden>
-            <section class="roster-shell">
-              <aside class="roster-sidebar">
-                <div class="roster-title-block">
-                  <p id="detail-meta" class="meta-line"></p>
-                </div>
-
-                <div id="validation-list" class="validation-list" aria-label="Validation"></div>
-              </aside>
-
-              <section class="roster-editor">
-                <section class="editor-card">
-                  <div class="card-head">
-                    <h2 id="detachment-heading">Detachments</h2>
-                    <span id="detachment-points-metric" class="card-head-metric">0 / 0 DP</span>
-                  </div>
-                  <div class="detachment-picker">
-                    <label class="field">
-                      <span class="visually-hidden">Add Detachment</span>
-                      <select id="detachment-select" name="detachmentId"></select>
-                    </label>
-                    <button id="add-detachment-button" class="primary-button" type="button">Add</button>
-                  </div>
-                  <div id="detachment-list" class="detachment-list"></div>
-                </section>
-
-                <section class="editor-card">
-                  <div class="card-head">
-                    <h2 id="unit-heading">Units</h2>
-                    <span id="unit-points-metric" class="card-head-metric">0 / 0 pts</span>
-                  </div>
-                  <div class="unit-picker">
-                    <div class="builder-search unit-search-wrap" role="search">
-                      <label class="visually-hidden" for="unit-search">Search</label>
-                      <input id="unit-search" class="builder-search-input" name="unitSearch" type="search" autocomplete="off" placeholder="Search" aria-label="Search">
-                      <button id="unit-search-clear" class="builder-search-clear" type="button" aria-label="Clear search">x</button>
-                    </div>
-                    <div class="unit-add-row">
-                      <label class="field">
-                        <span class="visually-hidden">Add Unit</span>
-                        <select id="unit-select" name="datasheetId"></select>
-                      </label>
-                      <button id="add-unit-button" class="primary-button" type="button">Add</button>
-                    </div>
-                  </div>
-                  <div id="unit-list" class="unit-list"></div>
-                </section>
-              </section>
-            </section>
-          </section>
-
-          <section id="unit-screen" class="screen unit-screen" aria-label="Unit editor" hidden>
-            <section class="roster-shell unit-detail-shell">
-              <aside class="roster-sidebar">
-                <button id="unit-back-button" class="plain-button" type="button">Back to Roster</button>
-                <div class="roster-title-block">
-                  <p id="unit-detail-meta" class="meta-line"></p>
-                </div>
-                <div id="unit-validation-list" class="validation-list" aria-label="Unit validation"></div>
-              </aside>
-
-              <section class="roster-editor">
-                <section class="editor-card">
-                  <div class="card-head">
-                    <h2 id="unit-detail-heading">Wargear</h2>
-                    <span id="unit-detail-points" class="card-head-metric">0 pts</span>
-                  </div>
-                  <div id="unit-detail-options" class="wargear-list"></div>
-                </section>
-              </section>
-            </section>
-          </section>
-        </div>
+        <div id="builder-root" class="builder-root" aria-live="polite"></div>
       </div>
     </section>
 
@@ -149,6 +43,6 @@
   </main>
 
   <script src="/static/win-scrollbars.js" defer></script>
-  <script src="/static/builder.js" type="module"></script>
+  <script src="/static/builder.js?v=rewrite-2" type="module"></script>
 </body>
 </html>

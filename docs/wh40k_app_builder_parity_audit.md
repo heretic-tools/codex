@@ -69,7 +69,18 @@ Implementation updates, 2026-07-01 to 2026-07-02:
 - Manual official-app follow-ups now flow through the generated pass pack,
   runbook, status view, next-batch sheet, and action backlog. The backlog keeps
   proven `logic`, `builder-ui`, and `official-ui-blocked` outcomes separate
-  from pending rows.
+  from pending rows, and the pass-pack checker requires a non-pending evidence
+  note before any `match`, `mismatch`, or `blocked` row is accepted. Manual
+  pass rows also include read-only Builder expectation and official validator
+  concept columns so the WH app pass compares against a concrete diagnostic
+  family instead of prose alone. Minimum manual rows now also carry explicit
+  subchecks for each control/invalid state inside broad cases: 54 subchecks
+  across the 17 minimum manual UI rows. The current pending Minimum UI batch can
+  also be exported as `docs/wh40k_app_manual_minimum_subcheck_batch.md`, where
+  each subcheck is a fillable/checkable row with its own result, parity, action,
+  and evidence note. A filled subcheck batch can be merged back into a pass-pack
+  candidate with `--merge-subcheck-batch`, which refuses pending subchecks before
+  aggregating them into the broad pass-pack rows.
 - Mandatory faction allegiance abilities are read through `factionScope`, so
   future parent-faction rows apply to child roster factions. v879 has no live
   rows in that table.
@@ -364,12 +375,21 @@ Implementation updates, 2026-07-01 to 2026-07-02:
   from `Datasource_BattleForgeDatasource.bundle` and
   `UI_BattleForgeUI.bundle` to Builder validation codes. On this machine the
   installed app bundles match the pinned key set.
+- Official binary-symbol coverage now pins 23 Battle Forge validator class
+  symbols from `/Applications/WH 40K.app/Wrapper/w40.app/w40`. The optional
+  local guard fails if the installed app exposes an unexpected Battle Forge
+  validator symbol, and every pinned symbol maps to a Builder validation concept.
+- Official seed dump coverage now pins the installed app's v879
+  `Datasource_SeedDatasource.bundle/dump.json` inventory. The guard classifies
+  all 129 seed data sections, checks exported Builder table row counts against
+  matching seed sections, and documents `keyword_ally_restricting_keyword` as a
+  runtime/migrated data-empty table rather than a missing seed section.
 - The minimum parity manifest now anchors required subcases, including local
   official WH 40K app DB row-fingerprint comparison for all 73 loaded
-  roster-rule tables, a read-only saved-roster aggregate comparison tool, an
+  roster-rule tables, official seed dump inventory classification, a read-only saved-roster aggregate comparison tool, an
   optional guard proving the local official DB stores only aggregate validation
   state, an optional guard that compares every saved WH app roster, official
-  validation localization-key mapping, Heretic
+  validation localization-key/binary-symbol mapping, Heretic
   Astartes daemon allies under/over the points cap, all 4 live legacy
   Battleline outnumbering rows, the allied rule-table inventory guard, all
   380 live conditional keyword requirement rows, core required-wargear matcher
@@ -898,13 +918,13 @@ remain failures.
 Both manifests require their codes/categories to resolve through the test-only
 official-like concept map. The minimum manifest
   also anchors the required subcases inside those focused tests, instead of only
-  checking broad test titles. It now contains 90 required parity cases, and the
+  checking broad test titles. It now contains 91 required parity cases, and the
   manual checklist has a tracked row for each one.
-`HereticBuilder/tools/export_minimum_parity_manifest.mjs` exports those 90
+`HereticBuilder/tools/export_minimum_parity_manifest.mjs` exports those 91
 minimum groups as JSON or markdown and checks the manual checklist's
 `## Minimum manifest parity groups` table with `--check-results`, so missing,
 duplicate, unexpected, pending, and invalid-parity rows are caught before a
-manual WH app pass is treated as complete. The current checklist has 73 of 90
+manual WH app pass is treated as complete. The current checklist has 74 of 91
 minimum groups marked as guard-backed `match`; the remaining 17 rows are the
 manual WH app UI/golden-case comparisons that still need app-side results. The
 25 wargear UI case rows also remain pending until the generated wargear
@@ -934,7 +954,23 @@ batch standalone before merge; malformed or action-inconsistent candidates are
 rejected before they replace the working pack. The focused pack also has a
 checked `Action` column: `none` for confirmed matches, `logic` for
 validator/model/catalog follow-ups, `builder-ui` for Builder UI follow-ups, and
-`official-ui-blocked` for scenarios blocked only by the official app UI.
+`official-ui-blocked` for scenarios blocked only by the official app UI. Filled
+rows also require an `Evidence note` that records the concrete WH app
+observation behind the parity/action choice; this prevents marking `blocked`
+without saying whether the follow-up is a Builder UI gap or an official UI
+limitation. The generated rows also carry `Builder expectation` and
+`Official concepts` columns, so the person filling a batch can compare the WH
+app result directly against the expected Builder state/code family. Minimum UI
+rows additionally include 54 `Subchecks`, breaking broad manual rows into concrete
+states such as each Chaos daemon outnumbering god, each cult-legion ally bucket,
+and the valid/invalid controls for warlord, enhancement, attachment, and
+allegiance rules. The helper `--extract minimum-subcheck-batch` expands the
+current pending Minimum UI batch into a separate subcheck worksheet, and
+that worksheet now carries generated `Expected state` and `Expected diagnostic`
+columns for each atomic observation. `--check-subcheck-batch` validates that no
+subcheck row was skipped or filled without an evidence note, and
+`--merge-subcheck-batch` can derive the broad pass-pack row result from those
+filled subchecks.
 The remaining parity work is to create the same roster cases in WH 40K app and
 Builder, then record valid/invalid state and error categories in the manual
 checklist and pass the generated markdown worksheet through `--check-results`.

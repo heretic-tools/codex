@@ -8,7 +8,7 @@ import {
   selectedUnitEnhancements,
 } from "./builder_model.js";
 import { keywordNameInIds, unitHasWargearItem } from "./builder_validation_core.js";
-import { validationMessage } from "./builder_validation_messages.js";
+import { unitValidationMessage, validationMessage } from "./builder_validation_messages.js";
 import { enhancementBodyguardRequirementSatisfied, validateAttachedUnitEnhancementLimits } from "./builder_attachment_rules.js";
 
 function enhancementRequiredKeywordsSatisfied(enhancementId, unit, targetKeywordIds, roster) {
@@ -108,11 +108,13 @@ function validateEnhancements(roster, detachments, units, messages) {
       selected.push({ unit, enhancement, keywordIds, targetName, miniature, targetKind: "miniature" });
       unitSelected.push(enhancement);
       if (miniature && miniature.count <= 0) {
-        messages.push(validationMessage("enhancement.model_count_zero", `${targetName} cannot take enhancements with a model count of 0.`));
+        messages.push(unitValidationMessage("enhancement.model_count_zero", unit, `${targetName} cannot take enhancements with a model count of 0.`, {
+          targetId: miniature.rosterUnitMiniatureId || miniature.id || miniature.miniatureId,
+        }));
       }
     }
     if (unitSelected.length > 1) {
-      messages.push(validationMessage("enhancement.unit_has_too_many_enhancements", `${unit.name} has selected more than 1 Enhancement.`));
+      messages.push(unitValidationMessage("enhancement.unit_has_too_many_enhancements", unit, `${unit.name} has selected more than 1 Enhancement.`));
     }
   }
   const included = selected.filter((item) => item.enhancement.isIncludedInEnhancementLimit);
@@ -136,44 +138,44 @@ function validateEnhancements(roster, detachments, units, messages) {
   for (const item of selected) {
     const { unit, enhancement, keywordIds, targetName, miniature, targetKind } = item;
     if (enhancement.detachmentId && !detachmentIds.has(enhancement.detachmentId)) {
-      messages.push(validationMessage("enhancement.required_detachment_missing", `${enhancement.name} requires the ${detachmentNames([enhancement.detachmentId])[0]} detachment.`));
+      messages.push(unitValidationMessage("enhancement.required_detachment_missing", unit, `${enhancement.name} requires the ${detachmentNames([enhancement.detachmentId])[0]} detachment.`));
     }
     if (targetKind === "miniature" && enhancement.enhancementType !== "miniature") {
-      messages.push(validationMessage("enhancement.target_type_invalid", `${enhancement.name} must be selected for a unit, not a model.`));
+      messages.push(unitValidationMessage("enhancement.target_type_invalid", unit, `${enhancement.name} must be selected for a unit, not a model.`));
     }
     if (targetKind === "unit" && enhancement.enhancementType === "miniature") {
-      messages.push(validationMessage("enhancement.target_type_invalid", `${enhancement.name} must be selected for a model, not a unit.`));
+      messages.push(unitValidationMessage("enhancement.target_type_invalid", unit, `${enhancement.name} must be selected for a model, not a unit.`));
     }
     if ((unit.allyType || "native") !== "native" && state.catalog.alliedFactionById.get(unit.allyType)?.canTakeEnhancements === false) {
-      messages.push(validationMessage("enhancement.allied_unit_not_allowed", `${unit.name} cannot take enhancements as an allied unit.`));
+      messages.push(unitValidationMessage("enhancement.allied_unit_not_allowed", unit, `${unit.name} cannot take enhancements as an allied unit.`));
     }
     if (miniature?.excludedFromEnhancements) {
-      messages.push(validationMessage("enhancement.model_excluded", `${targetName} cannot take enhancements.`));
+      messages.push(unitValidationMessage("enhancement.model_excluded", unit, `${targetName} cannot take enhancements.`));
     }
     if (!enhancement.isEquipableByEpicHero && keywordNameInIds([...keywordIds], "Epic Hero")) {
-      messages.push(validationMessage("enhancement.epic_hero_not_allowed", `${targetName} cannot take ${enhancement.name} as an Epic Hero.`));
+      messages.push(unitValidationMessage("enhancement.epic_hero_not_allowed", unit, `${targetName} cannot take ${enhancement.name} as an Epic Hero.`));
     }
     if (!enhancement.isEquipableByNonCharacterUnit && !keywordNameInIds([...keywordIds], "Character")) {
-      messages.push(validationMessage("enhancement.unit_does_not_have_required_keywords", `${targetName} does not have the required Character keyword for ${enhancement.name}.`));
+      messages.push(unitValidationMessage("enhancement.unit_does_not_have_required_keywords", unit, `${targetName} does not have the required Character keyword for ${enhancement.name}.`));
     }
     if (!enhancementRequiredKeywordsSatisfied(enhancement.id, unit, [...keywordIds], roster)) {
-      messages.push(validationMessage("enhancement.model_does_not_have_required_keywords", `${targetName} does not have the required keywords for ${enhancement.name}.`));
+      messages.push(unitValidationMessage("enhancement.model_does_not_have_required_keywords", unit, `${targetName} does not have the required keywords for ${enhancement.name}.`));
     }
     const excluded = enhancementExcludedKeywordNames(enhancement.id, [...keywordIds]);
     if (excluded.length) {
-      messages.push(validationMessage("enhancement.model_must_not_have_excluded_keywords", `${targetName} cannot take ${enhancement.name} with keyword ${excluded.join(", ")}.`));
+      messages.push(unitValidationMessage("enhancement.model_must_not_have_excluded_keywords", unit, `${targetName} cannot take ${enhancement.name} with keyword ${excluded.join(", ")}.`));
     }
     for (const row of state.catalog.enhancementRequiredWargearItemsByEnhancementId.get(enhancement.id) || []) {
       if (!unitHasWargearItem(unit, row.wargearItemId, miniature)) {
         const itemName = state.catalog.wargearItemById.get(row.wargearItemId)?.name || "required wargear";
-        messages.push(validationMessage("enhancement.model_does_not_have_required_wargear", `${targetName} must have ${itemName} for ${enhancement.name}.`));
+        messages.push(unitValidationMessage("enhancement.model_does_not_have_required_wargear", unit, `${targetName} must have ${itemName} for ${enhancement.name}.`));
       }
     }
     if (!enhancementBodyguardRequirementSatisfied(roster, unit, enhancement.id, units)) {
-      messages.push(validationMessage("enhancement.attached_requirement_missing", `${unit.name} does not meet the attached-unit requirement for ${enhancement.name}.`));
+      messages.push(unitValidationMessage("enhancement.attached_requirement_missing", unit, `${unit.name} does not meet the attached-unit requirement for ${enhancement.name}.`));
     }
     if (enhancement.cannotBeWarlord && enhancementBlocksWarlordTarget(unit, miniature, targetKind)) {
-      messages.push(validationMessage("warlord.invalid_due_to_enhancement", `${targetName} cannot be your Warlord with ${enhancement.name}.`));
+      messages.push(unitValidationMessage("warlord.invalid_due_to_enhancement", unit, `${targetName} cannot be your Warlord with ${enhancement.name}.`));
     }
   }
   validateAttachedUnitEnhancementLimits(roster, units, messages);

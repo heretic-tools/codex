@@ -7,7 +7,7 @@ import {
   wargearLoadoutMatchesChoiceSets,
 } from "./builder_loadout_math.js";
 import { selectedWargearEntries } from "./builder_model.js";
-import { validationMessage } from "./builder_validation_messages.js";
+import { unitValidationMessage } from "./builder_validation_messages.js";
 
 function limitedChoiceItems(choiceId, context) {
   return choiceItems(state.catalog.limitedWargearChoiceItemsByChoiceId.get(choiceId), context);
@@ -223,7 +223,7 @@ function validateLimitedWargearChoiceSets(unit, messages) {
       ? selectedWargearCounts(unit, (entry) => !entryTargetsUnit(entry) && entry.miniatureId === row.miniatureId, includeLimitedOption)
       : selectedWargearCounts(unit, () => true, includeLimitedOption);
     if (!limitedChoiceCoverIsValid(selected, choices, limit.choiceLimit, limit.duplicateLimit, row.mandatory && limit.choiceLimit > 0)) {
-      messages.push(validationMessage("wargear_loadout.invalid_wargear_requirement", `Invalid wargear configuration for ${unit.name}.`));
+      messages.push(unitValidationMessage("wargear_loadout.invalid_wargear_requirement", unit, `Invalid wargear configuration for ${unit.name}.`));
     }
   }
 }
@@ -305,7 +305,7 @@ function validateAllModelWargearChoiceSets(unit, messages) {
     family.hasHardInvalid || (family.hasSubstituteWithoutBase && !family.hasValidBaseLine)
   ));
   if (invalid) {
-    messages.push(validationMessage("wargear_loadout.invalid_wargear_requirement", `Invalid wargear configuration for ${unit.name}.`));
+    messages.push(unitValidationMessage("wargear_loadout.invalid_wargear_requirement", unit, `Invalid wargear configuration for ${unit.name}.`));
   }
 }
 
@@ -316,21 +316,25 @@ function validateWargearEntryScope(unit, entry, messages) {
   const target = entryTargetMiniature(unit, entry);
   if (!optionRow || !group || group.datasheetId !== unit.datasheetId) {
     if (entryTargetsUnit(entry)) {
-      messages.push(validationMessage("wargear_loadout.invalid_unit_wargear", `${unit.name} has invalid unit wargear selected: ${item?.name || "unknown wargear"}.`));
+      messages.push(unitValidationMessage("wargear_loadout.invalid_unit_wargear", unit, `${unit.name} has invalid unit wargear selected: ${item?.name || "unknown wargear"}.`));
     } else {
-      messages.push(validationMessage("wargear_loadout.invalid_model_wargear", `${unit.name} has invalid wargear for ${target?.name || "model"}: ${item?.name || "unknown wargear"}.`));
+      messages.push(unitValidationMessage("wargear_loadout.invalid_model_wargear", unit, `${unit.name} has invalid wargear for ${target?.name || "model"}: ${item?.name || "unknown wargear"}.`, {
+        targetId: target?.rosterUnitMiniatureId || target?.id || target?.miniatureId || entry.miniatureId,
+      }));
     }
     return;
   }
   if (entryTargetsUnit(entry)) {
     if (group.miniatureId) {
-      messages.push(validationMessage("wargear_loadout.invalid_unit_wargear", `${unit.name} has invalid unit wargear selected: ${item?.name || "unknown wargear"}.`));
+      messages.push(unitValidationMessage("wargear_loadout.invalid_unit_wargear", unit, `${unit.name} has invalid unit wargear selected: ${item?.name || "unknown wargear"}.`));
     }
     return;
   }
   const selectedMiniatureId = target?.miniatureId || entry.miniatureId || "";
   if (!group.miniatureId || group.miniatureId !== selectedMiniatureId) {
-    messages.push(validationMessage("wargear_loadout.invalid_model_wargear", `${unit.name} has invalid wargear for ${target?.name || "model"}: ${item?.name || "unknown wargear"}.`));
+    messages.push(unitValidationMessage("wargear_loadout.invalid_model_wargear", unit, `${unit.name} has invalid wargear for ${target?.name || "model"}: ${item?.name || "unknown wargear"}.`, {
+      targetId: target?.rosterUnitMiniatureId || target?.id || target?.miniatureId || entry.miniatureId,
+    }));
   }
 }
 
@@ -340,22 +344,28 @@ function validateWargearLoadouts(units, messages) {
       validateWargearEntryScope(unit, entry, messages);
     }
     if (!wargearLoadoutMatchesChoiceSets(unit.datasheetId, null, selectedUnitWargearCounts(unit), 1)) {
-      messages.push(validationMessage("wargear_loadout.invalid_unit_wargear_loadout", `${unit.name} has an invalid unit wargear configuration.`));
+      messages.push(unitValidationMessage("wargear_loadout.invalid_unit_wargear_loadout", unit, `${unit.name} has an invalid unit wargear configuration.`));
     }
     for (const miniature of unit.miniatures || []) {
       const selected = selectedMiniatureWargearCounts(unit, miniature);
       if (miniature.count === 0) {
         if (Object.keys(selected).length) {
-          messages.push(validationMessage("wargear_loadout.zero_count_model_wargear", `${unit.name} has wargear selected for a model count of 0: ${miniature.name}.`));
+          messages.push(unitValidationMessage("wargear_loadout.zero_count_model_wargear", unit, `${unit.name} has wargear selected for a model count of 0: ${miniature.name}.`, {
+            targetId: miniature.rosterUnitMiniatureId || miniature.id || miniature.miniatureId,
+          }));
         }
         continue;
       }
       if (!wargearLoadoutMatchesChoiceSets(unit.datasheetId, miniature.miniatureId, selected, miniature.count)) {
-        messages.push(validationMessage(
+        messages.push(unitValidationMessage(
           "wargear_loadout.invalid_miniature_wargear_loadout",
+          unit,
           unit.modelCount === 1
             ? `Invalid wargear selected for ${unit.name}.`
-            : `Invalid wargear selected for ${miniature.name} model in ${unit.name}.`
+            : `Invalid wargear selected for ${miniature.name} model in ${unit.name}.`,
+          {
+            targetId: miniature.rosterUnitMiniatureId || miniature.id || miniature.miniatureId,
+          }
         ));
       }
     }

@@ -1,7 +1,7 @@
 import { state } from "./builder_state.js";
 import { factionScope, idsFromRows, namesForIds, setIntersects } from "./builder_model.js";
 import { unitHasKeyword } from "./builder_validation_core.js";
-import { validationMessage } from "./builder_validation_messages.js";
+import { unitValidationMessage, validationMessage } from "./builder_validation_messages.js";
 
 function validateDetachmentUniqueKeywords(detachments, messages) {
   if (detachments.length < 2) {
@@ -29,12 +29,12 @@ function validateDetachmentUniqueKeywords(detachments, messages) {
 function validateUnitCompositions(units, messages) {
   for (const unit of units) {
     if (unit.maxModelCount && unit.modelCount > unit.maxModelCount) {
-      messages.push(validationMessage("unit.max_model_count_too_many_models", `${unit.name} has ${unit.modelCount} models; limit is ${unit.maxModelCount}.`));
+      messages.push(unitValidationMessage("unit.max_model_count_too_many_models", unit, `${unit.name} has ${unit.modelCount} models; limit is ${unit.maxModelCount}.`));
     }
     if (!unit.selectedCompositionId) {
-      messages.push(validationMessage("unit_composition.invalid_unit_composition", `${unit.name} has an invalid unit composition.`));
+      messages.push(unitValidationMessage("unit_composition.invalid_unit_composition", unit, `${unit.name} has an invalid unit composition.`));
     } else if (!unit.selectedCompositionAvailable) {
-      messages.push(validationMessage("unit_composition.unavailable", `${unit.name} uses a composition that is not available to this faction or detachment.`));
+      messages.push(unitValidationMessage("unit_composition.unavailable", unit, `${unit.name} uses a composition that is not available to this faction or detachment.`));
     }
   }
 }
@@ -70,8 +70,9 @@ function validateSuccessorChapterEpicHeroes(units, messages) {
       }
     }
     if (shared.length) {
-      messages.push(validationMessage(
+      messages.push(unitValidationMessage(
         "roster.successor_chapter_epic_hero_in_roster",
+        successor,
         `${successor.name} cannot be included with other Epic Heroes from the same parent faction: ${shared.join(", ")}.`
       ));
     }
@@ -88,7 +89,7 @@ function validateDetachmentDatasheets(detachments, units, messages) {
       if ((state.catalog.detachmentExcludedDatasheets || []).some((row) => (
         row.detachmentId === detachment.id && row.datasheetId === unit.datasheetId
       ))) {
-        messages.push(validationMessage("detachment.datasheet_not_allowed", `${unit.name} is excluded from ${detachment.name}.`));
+        messages.push(unitValidationMessage("detachment.datasheet_not_allowed", unit, `${unit.name} is excluded from ${detachment.name}.`));
       }
     }
     for (const row of state.catalog.detachmentRequiredDatasheetsByDetachmentId.get(detachment.id) || []) {
@@ -111,13 +112,15 @@ function validateDetachmentDatasheets(detachments, units, messages) {
       if (actual !== linked.count) {
         messages.push(validationMessage(
           "detachment.linked_datasheet_count_mismatch",
-          `${detachment.name} requires exactly ${linked.count} ${datasheet?.name || "linked"} unit(s); roster has ${actual}.`
+          `${detachment.name} requires exactly ${linked.count} ${datasheet?.name || "linked"} unit(s); roster has ${actual}.`,
+          "error",
+          { datasheetId: linked.datasheetId }
         ));
       }
     }
     for (const unit of units) {
       if (!linkedCounts.has(unit.datasheetId)) {
-        messages.push(validationMessage("detachment.linked_datasheet_not_allowed", `${unit.name} is not part of ${detachment.name}.`));
+        messages.push(unitValidationMessage("detachment.linked_datasheet_not_allowed", unit, `${unit.name} is not part of ${detachment.name}.`));
       }
     }
   }

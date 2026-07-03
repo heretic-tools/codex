@@ -14,6 +14,8 @@ import { siteHref } from "../HereticBuilder/static/builder_state.js";
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const OFFICIAL_WH40K_APP_DB_PATH =
   "/Users/losikov/Library/Containers/com.gamesworkshop.w40k/Data/Library/Application Support/db.sqlite";
+const OFFICIAL_SEED_DUMP_PATH =
+  "/Applications/WH 40K.app/Wrapper/w40.app/Datasource_SeedDatasource.bundle/dump.json";
 const BUILDER_SQLITE_DB_PATH = join(projectRoot, "data", "heretic_db.sqlite");
 
 const LOADED_BUILDER_RULE_TABLES = [
@@ -176,6 +178,66 @@ const DATA_EMPTY_RULE_TABLES = [
   ["keyword_ally_restricting_keyword", "keywordAllyRestrictingKeywords"],
 ];
 
+const OFFICIAL_SEED_DUMP_REFERENCE_OR_GAME_TABLES = [
+  "amendment",
+  "army_rule",
+  "army_rule_behaviour_type",
+  "army_rule_excluded_from_command_bunker_faction_keyword",
+  "army_rule_faction_keyword",
+  "behaviour_type",
+  "bullet_point",
+  "datasheet_ability",
+  "datasheet_damage",
+  "datasheet_datasheet_ability",
+  "datasheet_rule",
+  "datasheet_sub_ability",
+  "detachment_detail",
+  "detachment_detail_bullet_point",
+  "detachment_rule",
+  "enhancement_datasheet_ability",
+  "enhancement_wargear_item_profile",
+  "faq",
+  "faq_config",
+  "force_disposition_mission",
+  "force_disposition_mission_recommended_preset",
+  "invulnerable_save",
+  "mission_deployment",
+  "mission_layout",
+  "mission_layout_linked_deployment",
+  "mission_pack",
+  "mission_pack_agenda_achieved",
+  "mission_pack_briefing",
+  "mission_pack_briefing_narrative_point",
+  "mission_pack_location",
+  "mission_pack_location_location_bonus",
+  "mission_pack_location_warzone_rule",
+  "mission_pack_upgrade",
+  "mission_preset",
+  "mission_twist",
+  "objective",
+  "primary_mission",
+  "primary_mission_action",
+  "primary_mission_objective",
+  "primary_mission_objective_scorable_period",
+  "primary_mission_objective_scoring",
+  "rule_container",
+  "rule_container_component",
+  "rule_section",
+  "secondary_mission",
+  "secondary_mission_action",
+  "secondary_mission_objective",
+  "secondary_mission_objective_scorable_period",
+  "secondary_mission_objective_scoring",
+  "secondary_mission_restricted_secondary_mission",
+  "secondary_objective",
+  "stratagem",
+  "stratagem_phase",
+  "wargear_ability",
+  "wargear_item_profile",
+  "wargear_item_profile_wargear_ability",
+  "wargear_rule",
+];
+
 function builderDataPath(path) {
   return join(projectRoot, "dist", "builder-data", path);
 }
@@ -317,6 +379,48 @@ test(
       ));
 
     assert.deepEqual(mismatches, []);
+  }
+);
+
+test(
+  "local official WH 40K app seed dump table inventory stays classified",
+  {
+    skip: !existsSync(OFFICIAL_SEED_DUMP_PATH) &&
+      "official WH 40K app seed dump is not available on this machine",
+  },
+  async () => {
+    const seedDump = JSON.parse(await readFile(OFFICIAL_SEED_DUMP_PATH, "utf8"));
+    const seedTables = Object.keys(seedDump.data).sort();
+    const loadedRuleTables = LOADED_BUILDER_RULE_TABLES.map(([tableName]) => tableName).sort();
+    const loadedRuleTableSet = new Set(loadedRuleTables);
+    const tableCounts = realCatalog.bootstrap.tableCounts;
+
+    assert.equal(seedDump.metadata.data_version, realCatalog.bootstrap.dataVersion);
+    assert.equal(seedTables.length, 129);
+
+    assert.deepEqual(
+      loadedRuleTables.filter((tableName) => !seedDump.data[tableName]),
+      ["keyword_ally_restricting_keyword"],
+    );
+    assert.deepEqual(
+      Object.keys(tableCounts).filter((tableName) => !seedDump.data[tableName]).sort(),
+      ["keyword_ally_restricting_keyword", "metadata"],
+    );
+    assert.deepEqual(
+      Object.keys(tableCounts)
+        .filter((tableName) => seedDump.data[tableName])
+        .map((tableName) => ({
+          builderRows: tableCounts[tableName],
+          seedRows: seedDump.data[tableName].length,
+          tableName,
+        }))
+        .filter((row) => row.builderRows !== row.seedRows),
+      [],
+    );
+    assert.deepEqual(
+      seedTables.filter((tableName) => !loadedRuleTableSet.has(tableName)),
+      OFFICIAL_SEED_DUMP_REFERENCE_OR_GAME_TABLES,
+    );
   }
 );
 

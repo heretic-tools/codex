@@ -1,6 +1,6 @@
 import { state } from "./builder_state.js";
 
-const DB_NAME = "heretic-builder-local-v2";
+const DB_NAME = "heretic-builder-thin-v1";
 const DB_VERSION = 1;
 const ROSTER_STORE = "rosters";
 

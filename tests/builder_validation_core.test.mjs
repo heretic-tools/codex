@@ -56,6 +56,7 @@ import {
   datasheetIdForEnhancementBodyguard
 } from "./builder_validation_helpers.mjs";
 import { unitHasWargearItem } from "../HereticBuilder/static/builder_validation_core.js";
+import { unitValidationMessage, validationWarning } from "../HereticBuilder/static/builder_validation_messages.js";
 
 test("validateRoster emits stable codes for real catalog messages", () => {
   state.catalog = realCatalog;
@@ -74,6 +75,31 @@ test("validateRoster emits stable codes for real catalog messages", () => {
     "roster.detachment_not_selected",
     "roster.empty",
   ]);
+});
+
+test("validation messages carry optional thin unit scope", () => {
+  const message = unitValidationMessage(
+    "unit.example",
+    { id: "unit-1", datasheetId: "datasheet-1" },
+    "Unit example.",
+    { targetId: "model-1", empty: "", unitIds: [] }
+  );
+
+  assert.deepEqual(message, {
+    level: "error",
+    code: "unit.example",
+    text: "Unit example.",
+    scope: {
+      targetId: "model-1",
+      unitId: "unit-1",
+      datasheetId: "datasheet-1",
+    },
+  });
+  assert.deepEqual(validationWarning("roster.empty", "Roster has no units."), {
+    level: "warning",
+    code: "roster.empty",
+    text: "Roster has no units.",
+  });
 });
 
 test("core wargear item matcher rejects missing options, wrong items, and wrong model targets", () => {
