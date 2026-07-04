@@ -60,6 +60,14 @@ function rosterWithAddedUnit(roster, { allyType = "native", datasheetId, unitId 
   });
 }
 
+function updateRosterUnit(roster, unitId, callback) {
+  return withModifiedRoster(roster, {
+    units: (roster.units || []).map((unit) => (
+      unit.id === unitId ? callback(unit) : unit
+    )),
+  });
+}
+
 function rosterWithRemovedUnit(roster, unitId) {
   if (!unitId) {
     return roster;
@@ -75,9 +83,63 @@ function rosterWithRemovedUnit(roster, unitId) {
   });
 }
 
+function rosterWithUnitComposition(roster, unitId, compositionId) {
+  return updateRosterUnit(roster, unitId, (unit) => {
+    if (!compositionId || unit.compositionId === compositionId) {
+      return unit;
+    }
+    return {
+      ...unit,
+      compositionId,
+      wargear: defaultWargear(unit.datasheetId, compositionId),
+      miniatures: defaultRosterMiniatures(unit.id, unit.datasheetId, compositionId),
+    };
+  });
+}
+
+function withWargearCount(wargear, optionId, count) {
+  const next = { ...(wargear || {}) };
+  const value = Math.max(0, Number(count || 0));
+  if (value) {
+    next[optionId] = value;
+  } else {
+    delete next[optionId];
+  }
+  return next;
+}
+
+function rosterWithUnitWargearCount(roster, unitId, { optionId, count, rosterUnitMiniatureId = "" }) {
+  if (!optionId) {
+    return roster;
+  }
+  return updateRosterUnit(roster, unitId, (unit) => {
+    if (!rosterUnitMiniatureId) {
+      return {
+        ...unit,
+        wargear: withWargearCount(unit.wargear, optionId, count),
+      };
+    }
+    return {
+      ...unit,
+      miniatures: (unit.miniatures || []).map((miniature) => {
+        const targetId = miniature.rosterUnitMiniatureId || miniature.id;
+        if (targetId !== rosterUnitMiniatureId) {
+          return miniature;
+        }
+        return {
+          ...miniature,
+          wargear: withWargearCount(miniature.wargear, optionId, count),
+        };
+      }),
+    };
+  });
+}
+
 export {
   rosterWithAddedDetachment,
   rosterWithAddedUnit,
   rosterWithRemovedDetachment,
   rosterWithRemovedUnit,
+  rosterWithUnitComposition,
+  rosterWithUnitWargearCount,
 };

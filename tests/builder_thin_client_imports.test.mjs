@@ -43,6 +43,7 @@ test("builder entry keeps route views, full catalog, and validators off the stat
     "builder_roster_create_view.js",
     "builder_roster_detail_view.js",
     "builder_roster_list_view.js",
+    "builder_roster_unit_detail_view.js",
     "builder_roster_validation.js",
     "builder_rules.js",
     "builder_validation_view.js",

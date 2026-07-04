@@ -14,6 +14,8 @@ import {
   rosterWithAddedUnit,
   rosterWithRemovedDetachment,
   rosterWithRemovedUnit,
+  rosterWithUnitComposition,
+  rosterWithUnitWargearCount,
 } from "../HereticBuilder/static/builder_roster_actions.js";
 
 test("builder roster actions add and remove detachments and default units", () => {
@@ -53,4 +55,54 @@ test("builder roster actions add and remove detachments and default units", () =
   assert.deepEqual(removedUnit.units, []);
   const removedDetachment = rosterWithRemovedDetachment(removedUnit, 0);
   assert.deepEqual(removedDetachment.detachmentIds, []);
+});
+
+test("builder roster actions update unit composition and scoped wargear", () => {
+  state.catalog = realCatalog;
+  const faction = factionNamed("Heretic Astartes");
+  const roster = {
+    id: "action-roster-wargear",
+    name: "Action Roster",
+    factionKeywordId: faction.id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const datasheet = availableDatasheets(roster, "native")
+    .find((row) => (realCatalog.wargearGroupsByDatasheetId.get(row.id) || []).length);
+  assert.ok(datasheet, "Expected a datasheet with wargear groups");
+  const withUnit = rosterWithAddedUnit(roster, {
+    datasheetId: datasheet.id,
+    unitId: "unit-1",
+  });
+  const unit = withUnit.units[0];
+
+  const composition = (realCatalog.compositionsByDatasheetId.get(datasheet.id) || [])
+    .find((row) => row.id !== unit.compositionId);
+  if (composition) {
+    const changed = rosterWithUnitComposition(withUnit, unit.id, composition.id);
+    assert.equal(changed.units[0].compositionId, composition.id);
+    assert.notDeepEqual(changed.units[0].miniatures, unit.miniatures);
+  }
+
+  const group = (realCatalog.wargearGroupsByDatasheetId.get(datasheet.id) || [])
+    .find((row) => !row.miniatureId || unit.miniatures.some((miniature) => miniature.miniatureId === row.miniatureId));
+  assert.ok(group, "Expected a scoped wargear group");
+  const option = (realCatalog.wargearOptionsByGroupId.get(group.id) || [])[0];
+  assert.ok(option, "Expected a wargear option");
+  const miniature = group.miniatureId
+    ? unit.miniatures.find((row) => row.miniatureId === group.miniatureId)
+    : null;
+  const changedWargear = rosterWithUnitWargearCount(withUnit, unit.id, {
+    optionId: option.id,
+    count: 2,
+    rosterUnitMiniatureId: miniature?.rosterUnitMiniatureId || "",
+  });
+  if (miniature) {
+    const changedMiniature = changedWargear.units[0].miniatures.find((row) => row.rosterUnitMiniatureId === miniature.rosterUnitMiniatureId);
+    assert.equal(changedMiniature.wargear[option.id], 2);
+  } else {
+    assert.equal(changedWargear.units[0].wargear[option.id], 2);
+  }
 });

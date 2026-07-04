@@ -6,6 +6,13 @@ function parseRoute() {
     return { name: "create", rosterId: "" };
   }
   if (parts[0] === "roster" && parts[1]) {
+    if (parts[2] === "unit" && parts[3]) {
+      return {
+        name: "unit",
+        rosterId: decodeURIComponent(parts[1]),
+        unitId: decodeURIComponent(parts[3]),
+      };
+    }
     return { name: "roster", rosterId: decodeURIComponent(parts[1]) };
   }
   return { name: "list", rosterId: "" };

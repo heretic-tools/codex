@@ -251,6 +251,19 @@
   margin-top: -2px;
 }
 
+.unit-open-button {
+  min-width: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  text-align: left;
+}
+
+.unit-open-button:hover {
+  text-decoration: underline;
+}
+
 .meta-badge,
 .disposition-badge {
   display: inline-block;
@@ -343,6 +356,69 @@
 
 .validation-section {
   grid-column: 1 / -1;
+}
+
+.unit-wargear-section {
+  gap: 12px;
+}
+
+.wargear-scope {
+  gap: 0;
+}
+
+.wargear-group {
+  display: grid;
+  gap: 0;
+}
+
+.wargear-group + .wargear-group {
+  margin-top: 8px;
+}
+
+.wargear-group-title {
+  margin: 0;
+  padding: 5px 7px;
+  color: var(--builder-ink);
+  background: var(--builder-panel);
+  border: 2px solid var(--builder-light);
+  border-right-color: var(--builder-shadow);
+  border-bottom-color: var(--builder-shadow);
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+.wargear-option-row {
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  align-items: center;
+  gap: 10px;
+  margin-top: -2px;
+  padding: 5px 7px;
+  background: var(--builder-panel);
+  border: 2px solid var(--builder-light);
+  border-right-color: var(--builder-shadow);
+  border-bottom-color: var(--builder-shadow);
+}
+
+.wargear-option-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.wargear-option-row input {
+  min-width: 0;
+  justify-self: end;
+}
+
+.wargear-option-row input[type="number"] {
+  width: 58px;
+  padding: 2px 4px;
+  color: var(--builder-ink);
+  background: #fff;
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
 }
 
 .validation-item + .validation-item {

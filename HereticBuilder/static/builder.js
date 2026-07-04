@@ -11,6 +11,7 @@ let createViewPromise = null;
 let detailViewPromise = null;
 let listViewPromise = null;
 let notFoundViewPromise = null;
+let unitViewPromise = null;
 
 function currentRoster() {
   return state.rosters.find((roster) => roster.id === state.route.rosterId) || null;
@@ -25,7 +26,7 @@ function catalogIsFull() {
 }
 
 function routeNeedsFullCatalog(route) {
-  if (route.name === "roster") {
+  if (route.name === "roster" || route.name === "unit") {
     return Boolean(routeRoster(route));
   }
   return false;
@@ -84,6 +85,13 @@ function loadNotFoundView() {
     notFoundViewPromise = import("./builder_not_found_view.js");
   }
   return notFoundViewPromise;
+}
+
+function loadUnitView() {
+  if (!unitViewPromise) {
+    unitViewPromise = import("./builder_roster_unit_detail_view.js");
+  }
+  return unitViewPromise;
 }
 
 function bootstrapRowById(rows, id) {
@@ -202,8 +210,27 @@ async function renderRoster() {
     roster,
     onDelete: deleteRoster,
     onUpdate: updateRoster,
+    onUnitOpen: (unit) => navigate(`/roster/${encodeURIComponent(roster.id)}/unit/${encodeURIComponent(unit.id)}`),
     summarizeRoster: rosterSummary,
     validateRoster,
+  }));
+}
+
+async function renderUnit() {
+  const roster = currentRoster();
+  const unit = roster?.units?.find((item) => item.id === state.route.unitId);
+  if (!roster || !unit) {
+    await renderNotFound();
+    return;
+  }
+  const { renderRosterUnitDetailView, unitDisplayName } = await loadUnitView();
+  el.title.textContent = unitDisplayName(roster, unit);
+  renderBreadcrumbs(builderBreadcrumbs());
+  el.root.appendChild(renderRosterUnitDetailView({
+    onBack: () => navigate(`/roster/${encodeURIComponent(roster.id)}`),
+    onUpdate: updateRoster,
+    roster,
+    unit,
   }));
 }
 
@@ -220,6 +247,8 @@ async function render() {
   clear(el.root);
   if (state.route.name === "create") {
     await renderCreate();
+  } else if (state.route.name === "unit") {
+    await renderUnit();
   } else if (state.route.name === "roster") {
     await renderRoster();
   } else {

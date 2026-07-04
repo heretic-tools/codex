@@ -23,11 +23,11 @@ function unitOptionLabel(roster, allyType, datasheet) {
   return `${datasheet.name} (${points})`;
 }
 
-function renderUnitRow(roster, summary, onUpdate) {
+function renderUnitRow(roster, summary, onUpdate, onUnitOpen) {
   const row = document.createElement("div");
-  row.className = "builder-row editor-row";
-  const text = document.createElement("span");
-  text.className = "row-text";
+  row.className = "builder-row editor-row unit-editor-row";
+  const text = button("unit-open-button", "", () => onUnitOpen(summary));
+  text.className = "unit-open-button row-text";
   text.append(
     textNode("strong", "", summary.name || "Unit"),
     textNode("span", "", `${summary.modelCount || 0} models`)
@@ -45,7 +45,7 @@ function renderUnitRow(roster, summary, onUpdate) {
   return row;
 }
 
-function renderUnitEditor({ newId, onUpdate, roster, validation }) {
+function renderUnitEditor({ newId, onUpdate, onUnitOpen, roster, validation }) {
   const root = document.createElement("section");
   root.className = "builder-section";
   root.append(sectionTitle(
@@ -90,7 +90,7 @@ function renderUnitEditor({ newId, onUpdate, roster, validation }) {
   const summaries = rosterUnitSummaries(roster);
   if (summaries.length) {
     for (const summary of summaries) {
-      list.appendChild(renderUnitRow(roster, summary, onUpdate));
+      list.appendChild(renderUnitRow(roster, summary, onUpdate, onUnitOpen));
     }
   } else {
     list.appendChild(emptyMessage("No units"));
