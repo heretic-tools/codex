@@ -28,7 +28,7 @@ function routeNeedsFullCatalog(route) {
   if (route.name === "roster") {
     return Boolean(routeRoster(route));
   }
-  return route.name === "list" && state.rosters.length > 0;
+  return false;
 }
 
 async function ensureCatalog() {
@@ -86,6 +86,27 @@ function loadNotFoundView() {
   return notFoundViewPromise;
 }
 
+function bootstrapRowById(rows, id) {
+  return (rows || []).find((row) => row.id === id) || null;
+}
+
+function storedPointsTotal(roster) {
+  return (roster.units || []).reduce((total, unit) => total + (unit.points || 0), 0);
+}
+
+function lightweightRosterSummary(roster) {
+  const faction = bootstrapRowById(state.catalog.factions, roster.factionKeywordId);
+  const battleSize = bootstrapRowById(state.catalog.battleSizes, roster.battleSizeId);
+  return {
+    battleSizeName: battleSize?.name || "Unknown Battle Size",
+    detachmentCount: (roster.detachmentIds || []).length,
+    factionName: faction?.name || "Unknown Faction",
+    pointsLimit: battleSize?.pointsLimit || 0,
+    pointsTotal: storedPointsTotal(roster),
+    unitCount: (roster.units || []).length,
+  };
+}
+
 async function setRoute(route) {
   state.route = route;
   try {
@@ -108,16 +129,12 @@ async function refreshRosters() {
 async function renderList() {
   el.title.textContent = "Builder";
   renderBreadcrumbs(baseBreadcrumbs());
-  const [{ renderRosterListView }, rules] = await Promise.all([
-    loadListView(),
-    state.rosters.length ? loadRules() : Promise.resolve({}),
-  ]);
+  const { renderRosterListView } = await loadListView();
   el.root.appendChild(renderRosterListView({
     rosters: state.rosters,
     onCreate: () => navigate("/new"),
     onOpen: (roster) => navigate(`/roster/${encodeURIComponent(roster.id)}`),
-    summarizeRoster: rules.rosterSummary,
-    validateRoster: rules.validateRoster,
+    summarizeRoster: lightweightRosterSummary,
   }));
 }
 

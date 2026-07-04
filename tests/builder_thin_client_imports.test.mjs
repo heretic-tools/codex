@@ -51,3 +51,10 @@ test("builder entry keeps route views, full catalog, and validators off the stat
     assert.equal(reachable.includes(fileName), false, `${fileName} must be loaded dynamically`);
   }
 });
+
+test("builder roster list stays bootstrap-only and does not validate rows", () => {
+  const entrySource = readFileSync(join(staticRoot, "builder.js"), "utf8");
+  const listSource = readFileSync(join(staticRoot, "builder_roster_list_view.js"), "utf8");
+  assert.doesNotMatch(entrySource, /state\.rosters\.length\s*\?\s*loadRules/);
+  assert.doesNotMatch(listSource, /validateRoster/);
+});
