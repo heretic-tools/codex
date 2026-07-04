@@ -4,6 +4,8 @@ function contextKey(datasheetId, miniatureId = null) {
   return `${datasheetId || ""}:${miniatureId || ""}`;
 }
 
+const precomputedLoadoutCacheByCatalog = new WeakMap();
+
 function canonicalWargearKey(wargearItemId, context = {}) {
   if (!wargearItemId) {
     return "";
@@ -34,6 +36,18 @@ function countKey(counts) {
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, value]) => `${key}:${value}`)
     .join("|");
+}
+
+function countsFromKey(value) {
+  const result = {};
+  for (const part of String(value || "").split("|")) {
+    const index = part.lastIndexOf(":");
+    if (index <= 0) {
+      continue;
+    }
+    result[part.slice(0, index)] = Number(part.slice(index + 1) || 0);
+  }
+  return cleanCounts(result);
 }
 
 function cleanCounts(counts) {
@@ -134,6 +148,58 @@ function loadoutChoiceSets(datasheetId, miniatureId) {
     }));
 }
 
+function choiceSetsContext(sets) {
+  if (!sets.length || !sets[0].datasheetId) {
+    return null;
+  }
+  const datasheetId = sets[0].datasheetId || "";
+  const miniatureId = sets[0].miniatureId || "";
+  if (sets.some((set) => (set.datasheetId || "") !== datasheetId || (set.miniatureId || "") !== miniatureId)) {
+    return null;
+  }
+  return { datasheetId, miniatureId };
+}
+
+function catalogPrecomputedLoadoutCache() {
+  if (!state.catalog || typeof state.catalog !== "object") {
+    return new Map();
+  }
+  if (!precomputedLoadoutCacheByCatalog.has(state.catalog)) {
+    precomputedLoadoutCacheByCatalog.set(state.catalog, new Map());
+  }
+  return precomputedLoadoutCacheByCatalog.get(state.catalog);
+}
+
+function precomputedLoadouts(datasheetId, miniatureId) {
+  const key = contextKey(datasheetId, miniatureId);
+  const fingerprints = state.catalog.precomputedLoadoutsByContext?.get(key);
+  if (!fingerprints) {
+    return null;
+  }
+  const cache = catalogPrecomputedLoadoutCache();
+  if (!cache.has(key)) {
+    cache.set(key, fingerprints.map((fingerprint) => countsFromKey(fingerprint)));
+  }
+  return cache.get(key);
+}
+
+function precomputedLoadoutsForChoiceSets(sets) {
+  const context = choiceSetsContext(sets);
+  if (!context) {
+    return null;
+  }
+  const expected = loadoutChoiceSets(context.datasheetId, context.miniatureId || null);
+  if (expected.length !== sets.length) {
+    return null;
+  }
+  for (let index = 0; index < sets.length; index += 1) {
+    if (sets[index].id !== expected[index].id) {
+      return null;
+    }
+  }
+  return precomputedLoadouts(context.datasheetId, context.miniatureId);
+}
+
 function choiceSetLoadouts(choiceSet) {
   const choices = choiceSet.choices || [];
   const limit = choiceSet.limit || 0;
@@ -162,6 +228,10 @@ function choiceSetLoadouts(choiceSet) {
 }
 
 function validLoadoutsFromChoiceSets(sets) {
+  const precomputed = precomputedLoadoutsForChoiceSets(sets);
+  if (precomputed) {
+    return precomputed;
+  }
   const regularSets = sets.filter((item) => !item.alternate);
   const alternateSets = sets.filter((item) => item.alternate);
   const loadouts = [];

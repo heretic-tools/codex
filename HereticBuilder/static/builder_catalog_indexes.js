@@ -34,6 +34,14 @@ function wargearAliasesByContext(rows) {
   return map;
 }
 
+function precomputedLoadoutsByContext(rows) {
+  const map = new Map();
+  for (const row of rows || []) {
+    map.set(contextKey(row.datasheetId, row.miniatureId), row.fingerprints || []);
+  }
+  return map;
+}
+
 function buildCatalogIndexes(bootstrap, tables) {
   const {
     detachments,
@@ -109,6 +117,8 @@ function buildCatalogIndexes(bootstrap, tables) {
   return {
     wargearAliases: bootstrap.wargearAliases || [],
     wargearAliasesByContext: wargearAliasesByContext(bootstrap.wargearAliases || []),
+    precomputedLoadouts: bootstrap.precomputedLoadouts || null,
+    precomputedLoadoutsByContext: precomputedLoadoutsByContext(bootstrap.precomputedLoadouts?.contexts || []),
     factionById: byId(bootstrap.factions || []),
     battleSizeById: byId(bootstrap.battleSizes || []),
     detachmentById: byId(detachments),

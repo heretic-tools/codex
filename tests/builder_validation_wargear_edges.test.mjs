@@ -144,6 +144,44 @@ test("data-empty wargear loadout math edge rows stay covered", () => {
   }]), []);
 });
 
+test("precomputed loadout fingerprints short-circuit full catalog contexts", () => {
+  const catalog = {
+    ...realCatalog,
+    precomputedLoadoutsByContext: new Map([[
+      "test-datasheet:test-miniature",
+      ["id:test-item:1"],
+    ]]),
+    loadoutChoiceSetsByDatasheetId: new Map([[
+      "test-datasheet",
+      [{
+        id: "test-loadout-set",
+        datasheetId: "test-datasheet",
+        miniatureId: "test-miniature",
+        limit: 1,
+        allowDuplicates: false,
+        alternate: false,
+      }],
+    ]]),
+    loadoutChoicesBySetId: new Map([[
+      "test-loadout-set",
+      [{ id: "test-loadout-choice", loadoutChoiceSetId: "test-loadout-set" }],
+    ]]),
+    loadoutChoiceItemsByChoiceId: new Map([[
+      "test-loadout-choice",
+      [{ loadoutChoiceId: "test-loadout-choice", wargearItemId: "test-item", count: 1 }],
+    ]]),
+    wargearAliasesByContext: new Map(),
+    wargearItemById: new Map([["test-item", { id: "test-item", name: "Test Item" }]]),
+  };
+
+  withCatalog(catalog, () => {
+    const sets = loadoutChoiceSets("test-datasheet", "test-miniature");
+    assert.deepEqual(validLoadoutsFromChoiceSets(sets), [{ "id:test-item": 1 }]);
+    assert.ok(wargearLoadoutMatchesChoiceSets("test-datasheet", "test-miniature", { "id:test-item": 1 }, 1));
+    assert.ok(!wargearLoadoutMatchesChoiceSets("test-datasheet", "test-miniature", { "id:test-item": 2 }, 1));
+  });
+});
+
 test("data-empty wargear requirement edge rows stay covered", () => {
   const noLimitSet = realCatalog.limitedWargearChoiceSets.find((set) => (
     (realCatalog.limitedWargearChoicesBySetId.get(set.id) || []).some((choice) => limitedChoiceRows(choice).length)

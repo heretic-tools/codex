@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -557,6 +557,29 @@ test("static Builder data manifest lists every exported rule file with matching 
     const entry = files.get(`tables/${tableName}.json`);
     assert.ok(entry, `${tableName} should be listed in manifest`);
     assert.equal(entry.rows, tableCounts[tableName], `${tableName} manifest rows should match tableCounts`);
+  }
+});
+
+test("builder data export precomputes bounded loadout fingerprints", () => {
+  const outDir = mkdtempSync(join(tmpdir(), "heretic-builder-data-export-"));
+  try {
+    execFileSync(
+      "python3",
+      ["HereticBuilder/tools/export_builder_data.py", "--out", outDir],
+      { cwd: projectRoot, stdio: "ignore" }
+    );
+    const bootstrap = JSON.parse(readFileSync(join(outDir, "bootstrap.json"), "utf8"));
+    const loadouts = bootstrap.precomputedLoadouts;
+
+    assert.equal(loadouts.maxLoadoutsPerContext, 1000);
+    assert.equal(loadouts.contextCount, 1578);
+    assert.equal(loadouts.skippedContextCount, 2);
+    assert.equal(
+      loadouts.contexts.reduce((total, row) => total + row.fingerprints.length, 0),
+      9082
+    );
+  } finally {
+    rmSync(outDir, { recursive: true, force: true });
   }
 });
 

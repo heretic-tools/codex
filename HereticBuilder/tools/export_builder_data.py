@@ -13,6 +13,7 @@ from roster_builder_assets import DEFAULT_DB, PROJECT_ROOT
 
 
 EXPORT_SCHEMA_VERSION = 1
+LOADOUT_PRECOMPUTE_MAX = 1000
 
 CATALOG_TABLES = (
     "all_model_wargear_choice",
@@ -381,8 +382,218 @@ def wargear_aliases(conn):
     )
 
 
+def loadout_context_key(datasheet_id, miniature_id=None):
+    return (datasheet_id or "", miniature_id or "")
+
+
+def wargear_alias_map(aliases):
+    result = {}
+    for row in aliases:
+        result.setdefault(
+            loadout_context_key(row.get("datasheetId"), row.get("miniatureId")),
+            {},
+        )[row["wargearItemId"]] = row["key"]
+    return result
+
+
+def canonical_wargear_key(wargear_item_id, datasheet_id, miniature_id, aliases):
+    if not wargear_item_id:
+        return ""
+    exact = aliases.get(loadout_context_key(datasheet_id, miniature_id), {}).get(wargear_item_id)
+    if exact:
+        return exact
+    datasheet_wide = aliases.get(loadout_context_key(datasheet_id, None), {}).get(wargear_item_id)
+    if datasheet_wide:
+        return datasheet_wide
+    return f"id:{wargear_item_id}"
+
+
+def clean_counts(counts):
+    result = {}
+    for key, value in (counts or {}).items():
+        count = int(value or 0)
+        if count > 0:
+            result[key] = count
+    return result
+
+
+def add_counts(*items):
+    result = {}
+    for counts in items:
+        for key, value in (counts or {}).items():
+            result[key] = result.get(key, 0) + int(value or 0)
+    return clean_counts(result)
+
+
+def count_key(counts):
+    return "|".join(
+        f"{key}:{value}"
+        for key, value in sorted(clean_counts(counts).items())
+        if value > 0
+    )
+
+
+def dedupe_counts(items):
+    seen = set()
+    result = []
+    for item in items:
+        clean = clean_counts(item)
+        key = count_key(clean)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(clean)
+    return result
+
+
+def combinations(items, limit, start=0):
+    if limit == 0:
+        return [[]]
+    result = []
+    for index in range(start, len(items) - limit + 1):
+        for tail in combinations(items, limit - 1, index + 1):
+            result.append([items[index], *tail])
+    return result
+
+
+def combinations_with_replacement(items, limit, start=0):
+    if limit == 0:
+        return [[]]
+    result = []
+    for index in range(start, len(items)):
+        for tail in combinations_with_replacement(items, limit - 1, index):
+            result.append([items[index], *tail])
+    return result
+
+
+def choice_set_loadouts(choice_set):
+    choices = choice_set.get("choices") or []
+    limit = choice_set.get("limit") or 0
+    if limit == 0:
+        return [{}]
+    if not choices:
+        return []
+    if choice_set.get("allowDuplicates"):
+        return dedupe_counts(add_counts(*items) for items in combinations_with_replacement(choices, limit))
+    empty_choices = [choice for choice in choices if not choice]
+    if empty_choices:
+        non_empty_choices = [choice for choice in choices if choice]
+        raw = []
+        for selected_count in range(0, min(limit, len(non_empty_choices)) + 1):
+            raw.extend(combinations(non_empty_choices, selected_count))
+        return dedupe_counts(add_counts(*items) for items in raw)
+    if limit > len(choices):
+        return []
+    return dedupe_counts(add_counts(*items) for items in combinations(choices, limit))
+
+
+def valid_loadouts_from_choice_sets(sets):
+    regular_sets = [item for item in sets if not item.get("alternate")]
+    alternate_sets = [item for item in sets if item.get("alternate")]
+    loadouts = []
+    if regular_sets:
+        products = [{}]
+        for choice_set in regular_sets:
+            set_loadouts = choice_set_loadouts(choice_set)
+            if not set_loadouts:
+                products = []
+                break
+            next_products = []
+            for base in products:
+                for piece in set_loadouts:
+                    next_products.append(add_counts(base, piece))
+            products = next_products
+        loadouts.extend(products)
+    else:
+        loadouts.append({})
+    for choice_set in alternate_sets:
+        loadouts.extend(choice_set_loadouts(choice_set))
+    return dedupe_counts(loadouts)
+
+
+def rows_by_key(rows, key):
+    result = {}
+    for row in rows:
+        result.setdefault(row[key], []).append(row)
+    return result
+
+
+def loadout_choice_items(rows, datasheet_id, miniature_id, item_ids, aliases):
+    counts = {}
+    for row in rows:
+        if row["wargearItemId"] not in item_ids:
+            continue
+        key = canonical_wargear_key(row["wargearItemId"], datasheet_id, miniature_id, aliases)
+        counts[key] = counts.get(key, 0) + int(row["count"] or 0)
+    return clean_counts(counts)
+
+
+def precomputed_loadouts(conn, aliases, max_loadouts_per_context=LOADOUT_PRECOMPUTE_MAX):
+    alias_by_context = wargear_alias_map(aliases)
+    loadout_sets = [dict(row) for row in conn.execute("select * from loadout_choice_set")]
+    choices_by_set = rows_by_key(
+        [dict(row) for row in conn.execute("select * from loadout_choice")],
+        "loadoutChoiceSetId",
+    )
+    items_by_choice = rows_by_key(
+        [dict(row) for row in conn.execute("select * from loadout_choice_wargear_item")],
+        "loadoutChoiceId",
+    )
+    item_ids = {
+        row["id"]
+        for row in conn.execute("select id from wargear_item")
+    }
+
+    sets_by_datasheet = rows_by_key(loadout_sets, "datasheetId")
+    contexts = []
+    skipped = 0
+    for datasheet_id, sets in sorted(sets_by_datasheet.items()):
+        miniature_ids = sorted({row["miniatureId"] for row in sets if row.get("miniatureId")})
+        for miniature_id in [None, *miniature_ids]:
+            normalized = []
+            for row in sorted(
+                [
+                    item
+                    for item in sets
+                    if (item.get("miniatureId") == miniature_id if miniature_id else not item.get("miniatureId"))
+                ],
+                key=lambda item: (bool(item.get("alternate")), item["id"]),
+            ):
+                normalized.append({
+                    **row,
+                    "choices": [
+                        loadout_choice_items(
+                            items_by_choice.get(choice["id"], []),
+                            row["datasheetId"],
+                            row.get("miniatureId"),
+                            item_ids,
+                            alias_by_context,
+                        )
+                        for choice in choices_by_set.get(row["id"], [])
+                    ],
+                })
+            if not normalized:
+                continue
+            valid = valid_loadouts_from_choice_sets(normalized)
+            if len(valid) > max_loadouts_per_context:
+                skipped += 1
+                continue
+            contexts.append({
+                "datasheetId": datasheet_id,
+                "miniatureId": miniature_id or "",
+                "fingerprints": [count_key(item) for item in valid],
+            })
+    return {
+        "maxLoadoutsPerContext": max_loadouts_per_context,
+        "contextCount": len(contexts),
+        "skippedContextCount": skipped,
+        "contexts": contexts,
+    }
+
+
 def bootstrap_payload(conn, version, counts):
     defaults = default_ids(conn)
+    aliases = wargear_aliases(conn)
     factions = [
         dict(row)
         for row in conn.execute(
@@ -411,7 +622,8 @@ def bootstrap_payload(conn, version, counts):
         **defaults,
         "factions": factions,
         "battleSizes": battle_sizes,
-        "wargearAliases": wargear_aliases(conn),
+        "wargearAliases": aliases,
+        "precomputedLoadouts": precomputed_loadouts(conn, aliases),
         "tableCounts": counts,
     }
 
