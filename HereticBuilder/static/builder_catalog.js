@@ -1,6 +1,4 @@
-import { buildCatalogIndexes } from "./builder_catalog_indexes.js";
 import { fetchJson, loadCatalogTables } from "./builder_catalog_loader.js";
-import { CATALOG_TABLES } from "./builder_catalog_tables.js";
 
 function catalogFromBootstrap(bootstrap) {
   return {
@@ -15,10 +13,16 @@ async function loadBootstrap() {
 }
 
 async function loadCatalog(bootstrap = null) {
-  const [resolvedBootstrap, tables] = await Promise.all([
+  const [
+    { buildCatalogIndexes },
+    { CATALOG_TABLES },
+    resolvedBootstrap,
+  ] = await Promise.all([
+    import("./builder_catalog_indexes.js"),
+    import("./builder_catalog_tables.js"),
     bootstrap ? Promise.resolve(bootstrap) : fetchJson("/builder-data/bootstrap.json"),
-    loadCatalogTables(CATALOG_TABLES),
   ]);
+  const tables = await loadCatalogTables(CATALOG_TABLES);
   return {
     ...catalogFromBootstrap(resolvedBootstrap),
     ...tables,

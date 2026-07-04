@@ -1,8 +1,7 @@
 import { button, textNode } from "./builder_dom.js";
-import { rosterSummary, validateRoster } from "./builder_rules.js";
 
-function rosterLine(roster, onOpen) {
-  const summary = rosterSummary(roster);
+function rosterLine(roster, onOpen, summarizeRoster, validateRoster) {
+  const summary = summarizeRoster(roster);
   const validation = validateRoster(roster);
   const node = button("builder-row roster-row", "", () => onOpen(roster));
   const text = document.createElement("span");
@@ -21,14 +20,14 @@ function rosterLine(roster, onOpen) {
   return node;
 }
 
-function renderRosterListView({ rosters, onCreate, onOpen }) {
+function renderRosterListView({ rosters, onCreate, onOpen, summarizeRoster, validateRoster }) {
   const root = document.createElement("section");
   root.className = "builder-stack";
   const list = document.createElement("div");
   list.className = "builder-list";
   if (rosters.length) {
     for (const roster of rosters) {
-      list.appendChild(rosterLine(roster, onOpen));
+      list.appendChild(rosterLine(roster, onOpen, summarizeRoster, validateRoster));
     }
   } else {
     list.appendChild(textNode("p", "empty-list", "No rosters"));

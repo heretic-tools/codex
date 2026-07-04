@@ -10,6 +10,7 @@ import { state } from "./builder_state.js";
 import { getAllRosters, newId, openLocalDb, removeRoster, saveRoster } from "./builder_storage.js";
 
 let catalogPromise = null;
+let rulesPromise = null;
 
 function currentRoster() {
   return state.rosters.find((roster) => roster.id === state.route.rosterId) || null;
@@ -50,13 +51,20 @@ async function ensureCatalog() {
   return catalogPromise;
 }
 
+function loadRules() {
+  if (!rulesPromise) {
+    rulesPromise = import("./builder_rules.js");
+  }
+  return rulesPromise;
+}
+
 async function setRoute(route) {
   state.route = route;
   try {
     if (routeNeedsFullCatalog(route)) {
       await ensureCatalog();
     }
-    render();
+    await render();
   } catch (error) {
     renderStartupError(error);
   }
@@ -69,13 +77,16 @@ async function refreshRosters() {
   ));
 }
 
-function renderList() {
+async function renderList() {
   el.title.textContent = "Builder";
   renderBreadcrumbs(baseBreadcrumbs());
+  const rules = state.rosters.length ? await loadRules() : {};
   el.root.appendChild(renderRosterListView({
     rosters: state.rosters,
     onCreate: () => navigate("/new"),
     onOpen: (roster) => navigate(`/roster/${encodeURIComponent(roster.id)}`),
+    summarizeRoster: rules.rosterSummary,
+    validateRoster: rules.validateRoster,
   }));
 }
 
@@ -119,17 +130,20 @@ async function deleteRoster(roster) {
   }
 }
 
-function renderRoster() {
+async function renderRoster() {
   const roster = currentRoster();
   if (!roster) {
     renderNotFound();
     return;
   }
+  const { rosterSummary, validateRoster } = await loadRules();
   el.title.textContent = roster.name || "New Roster";
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
     roster,
     onDelete: deleteRoster,
+    summarizeRoster: rosterSummary,
+    validateRoster,
   }));
 }
 
@@ -141,14 +155,14 @@ function renderNotFound() {
   }));
 }
 
-function render() {
+async function render() {
   clear(el.root);
   if (state.route.name === "create") {
     renderCreate();
   } else if (state.route.name === "roster") {
-    renderRoster();
+    await renderRoster();
   } else {
-    renderList();
+    await renderList();
   }
   window.requestAnimationFrame(() => window.setupWinScrollbars?.());
 }

@@ -1,9 +1,8 @@
 import { button, metricLine, textNode } from "./builder_dom.js";
-import { rosterSummary, validateRoster } from "./builder_rules.js";
 import { renderValidation } from "./builder_validation_view.js";
 
-function renderRosterDetailView({ onDelete, roster }) {
-  const summary = rosterSummary(roster);
+function renderRosterDetailView({ onDelete, roster, summarizeRoster, validateRoster }) {
+  const summary = summarizeRoster(roster);
   const validation = validateRoster(roster);
   const root = document.createElement("section");
   root.className = "builder-grid";
