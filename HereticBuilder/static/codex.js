@@ -68,6 +68,22 @@
     }
   }
 
+  function navigationHref(value) {
+    const target = sameOriginHref(value);
+    if (!target) {
+      return "";
+    }
+    try {
+      const url = new URL(value, window.location.href);
+      if (basePath && url.pathname === "/") {
+        return `${url.pathname}${url.search}${url.hash}`;
+      }
+    } catch (_error) {
+      return "";
+    }
+    return siteHref(target);
+  }
+
   function ruleReturnStack() {
     try {
       const value = JSON.parse(window.sessionStorage.getItem(ruleReturnStorageKey) || "[]");
@@ -134,7 +150,7 @@
 
   function goUp() {
     if (titleBar?.dataset.upHref) {
-      window.location.href = siteHref(sameOriginHref(titleBar.dataset.upHref));
+      window.location.href = navigationHref(titleBar.dataset.upHref);
     }
   }
 
@@ -151,7 +167,7 @@
     launchers.forEach((item) => item.setAttribute("aria-pressed", "false"));
     button.setAttribute("aria-pressed", "true");
     if (button.dataset.href) {
-      window.location.href = siteHref(sameOriginHref(button.dataset.href));
+      window.location.href = navigationHref(button.dataset.href);
       return;
     }
     history.replaceState(null, "", `#${button.dataset.route}`);
