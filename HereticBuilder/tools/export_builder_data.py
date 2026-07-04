@@ -580,6 +580,7 @@ def precomputed_loadouts(conn, aliases, max_loadouts_per_context=LOADOUT_PRECOMP
                 continue
             contexts.append({
                 "datasheetId": datasheet_id,
+                "loadoutChoiceSetIds": [row["id"] for row in normalized],
                 "miniatureId": miniature_id or "",
                 "fingerprints": [count_key(item) for item in valid],
             })
@@ -591,9 +592,8 @@ def precomputed_loadouts(conn, aliases, max_loadouts_per_context=LOADOUT_PRECOMP
     }
 
 
-def bootstrap_payload(conn, version, counts):
+def bootstrap_payload(conn, version, counts, aliases):
     defaults = default_ids(conn)
-    aliases = wargear_aliases(conn)
     factions = [
         dict(row)
         for row in conn.execute(
@@ -623,7 +623,6 @@ def bootstrap_payload(conn, version, counts):
         "factions": factions,
         "battleSizes": battle_sizes,
         "wargearAliases": aliases,
-        "precomputedLoadouts": precomputed_loadouts(conn, aliases),
         "tableCounts": counts,
     }
 
@@ -672,8 +671,14 @@ def export_builder_data(db_path, out_dir):
         counts = {table: table_count(conn, table) for table in CATALOG_TABLES}
         files = []
 
-        bootstrap = bootstrap_payload(conn, version, counts)
+        aliases = wargear_aliases(conn)
+
+        bootstrap = bootstrap_payload(conn, version, counts, aliases)
         record = write_json(out_dir / "bootstrap.json", bootstrap)
+        files.append(file_entry(out_dir, record))
+
+        loadouts = precomputed_loadouts(conn, aliases)
+        record = write_json(out_dir / "precomputed-loadouts.json", loadouts)
         files.append(file_entry(out_dir, record))
 
         for table in CATALOG_TABLES:

@@ -170,15 +170,35 @@ function catalogPrecomputedLoadoutCache() {
   return precomputedLoadoutCacheByCatalog.get(state.catalog);
 }
 
-function precomputedLoadouts(datasheetId, miniatureId) {
+function sameOrderedIds(left, right) {
+  if (!left || !right || left.length !== right.length) {
+    return false;
+  }
+  return left.every((item, index) => item === right[index]);
+}
+
+function normalizedPrecomputedRecord(record) {
+  if (Array.isArray(record)) {
+    return {
+      fingerprints: record,
+      loadoutChoiceSetIds: null,
+    };
+  }
+  return record || null;
+}
+
+function precomputedLoadouts(datasheetId, miniatureId, loadoutChoiceSetIds) {
   const key = contextKey(datasheetId, miniatureId);
-  const fingerprints = state.catalog.precomputedLoadoutsByContext?.get(key);
-  if (!fingerprints) {
+  const record = normalizedPrecomputedRecord(state.catalog.precomputedLoadoutsByContext?.get(key));
+  if (!record?.fingerprints) {
+    return null;
+  }
+  if (record.loadoutChoiceSetIds && !sameOrderedIds(record.loadoutChoiceSetIds, loadoutChoiceSetIds)) {
     return null;
   }
   const cache = catalogPrecomputedLoadoutCache();
   if (!cache.has(key)) {
-    cache.set(key, fingerprints.map((fingerprint) => countsFromKey(fingerprint)));
+    cache.set(key, record.fingerprints.map((fingerprint) => countsFromKey(fingerprint)));
   }
   return cache.get(key);
 }
@@ -197,7 +217,7 @@ function precomputedLoadoutsForChoiceSets(sets) {
       return null;
     }
   }
-  return precomputedLoadouts(context.datasheetId, context.miniatureId);
+  return precomputedLoadouts(context.datasheetId, context.miniatureId, sets.map((set) => set.id));
 }
 
 function choiceSetLoadouts(choiceSet) {

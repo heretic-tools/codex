@@ -327,6 +327,7 @@ test("thin client bootstrap loading does not fetch full rule tables", async () =
     assert.equal(catalog.bootstrap.dataVersion, realCatalog.bootstrap.dataVersion);
     assert.ok(catalog.factions.length > 0);
     assert.ok(catalog.battleSizes.length > 0);
+    assert.equal(catalog.bootstrap.precomputedLoadouts, undefined);
     assert.equal(catalog.datasheets, undefined);
   } finally {
     global.fetch = previousFetch;
@@ -556,9 +557,10 @@ test("static Builder data manifest lists every exported rule file with matching 
 
   assert.equal(manifest.exportSchemaVersion, realCatalog.bootstrap.exportSchemaVersion);
   assert.equal(manifest.dataVersion, realCatalog.bootstrap.dataVersion);
-  assert.equal(manifest.files.length, 104);
+  assert.equal(manifest.files.length, 105);
   assert.equal(tableEntries.length, Object.keys(tableCounts).length);
   assert.ok(files.has("bootstrap.json"));
+  assert.ok(files.has("precomputed-loadouts.json"));
   assert.ok(files.has("audit.json"));
 
   assert.deepEqual(
@@ -588,14 +590,19 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
       { cwd: projectRoot, stdio: "ignore" }
     );
     const bootstrap = JSON.parse(readFileSync(join(outDir, "bootstrap.json"), "utf8"));
-    const loadouts = bootstrap.precomputedLoadouts;
+    const loadouts = JSON.parse(readFileSync(join(outDir, "precomputed-loadouts.json"), "utf8"));
 
+    assert.equal(bootstrap.precomputedLoadouts, undefined);
     assert.equal(loadouts.maxLoadoutsPerContext, 1000);
     assert.equal(loadouts.contextCount, 1578);
     assert.equal(loadouts.skippedContextCount, 2);
     assert.equal(
       loadouts.contexts.reduce((total, row) => total + row.fingerprints.length, 0),
       9082
+    );
+    assert.equal(
+      loadouts.contexts.filter((row) => row.loadoutChoiceSetIds?.length).length,
+      loadouts.contextCount
     );
   } finally {
     rmSync(outDir, { recursive: true, force: true });
