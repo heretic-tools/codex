@@ -8,6 +8,7 @@ function rosterSummary(roster) {
     factionName: faction?.name || "Unknown faction",
     battleSizeName: size?.name || "Unknown size",
     pointsLimit: size?.pointsLimit || 0,
+    detachmentPointsLimit: size?.detachmentPointsLimit || 0,
   };
 }
 

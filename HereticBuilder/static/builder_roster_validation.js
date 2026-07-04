@@ -105,6 +105,7 @@ function validateRoster(roster) {
       total: totalPoints,
       limit: pointsLimit,
       detachmentPoints,
+      detachmentLimit,
       detachments,
     },
   };

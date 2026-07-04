@@ -38,8 +38,8 @@ python3 tools/builder.py export-builder-data
 
 The generated data pack is written to `../dist/builder-data/` by default. It
 contains immutable catalog/rule tables plus `manifest.json`, `bootstrap.json`,
-and `audit.json`; local user tables such as `roster*` are intentionally not
-exported.
+`precomputed-loadouts.json`, and `audit.json`; local user tables such as
+`roster*` are intentionally not exported.
 
 ## Static Builder App
 

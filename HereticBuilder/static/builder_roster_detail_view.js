@@ -1,7 +1,8 @@
 import { button, metricLine, textNode } from "./builder_dom.js";
+import { renderRosterEditor } from "./builder_roster_editor_view.js";
 import { renderValidation } from "./builder_validation_view.js";
 
-function renderRosterDetailView({ onDelete, roster, summarizeRoster, validateRoster }) {
+function renderRosterDetailView({ newId, onDelete, onUpdate, roster, summarizeRoster, validateRoster }) {
   const summary = summarizeRoster(roster);
   const validation = validateRoster(roster);
   const root = document.createElement("section");
@@ -11,11 +12,12 @@ function renderRosterDetailView({ onDelete, roster, summarizeRoster, validateRos
   overview.append(
     textNode("h2", "section-title", `${summary.factionName} / ${summary.battleSizeName}`),
     metricLine("Points", `${validation.points.total} / ${validation.points.limit}`),
-    metricLine("Detachments", String((roster.detachmentIds || []).length)),
-    metricLine("Units", String((roster.units || []).length)),
     button("plain-button", "Delete Roster", async () => onDelete(roster))
   );
-  root.append(overview, renderValidation(validation));
+  const editor = renderRosterEditor({ newId, onUpdate, roster, validation });
+  const validationView = renderValidation(validation);
+  validationView.classList.add("validation-section");
+  root.append(overview, editor, validationView);
   return root;
 }
 

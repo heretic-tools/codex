@@ -1,0 +1,56 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  availableDatasheets,
+  availableDetachments,
+  battleSizeNamed,
+  factionNamed,
+  realCatalog,
+  state,
+  validateRoster,
+} from "./builder_validation_helpers.mjs";
+import {
+  rosterWithAddedDetachment,
+  rosterWithAddedUnit,
+  rosterWithRemovedDetachment,
+  rosterWithRemovedUnit,
+} from "../HereticBuilder/static/builder_roster_actions.js";
+
+test("builder roster actions add and remove detachments and default units", () => {
+  state.catalog = realCatalog;
+  const faction = factionNamed("Heretic Astartes");
+  const roster = {
+    id: "action-roster",
+    name: "Action Roster",
+    factionKeywordId: faction.id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+
+  const detachment = availableDetachments(faction.id)[0];
+  assert.ok(detachment, "Expected an available detachment");
+  const withDetachment = rosterWithAddedDetachment(roster, detachment.id);
+  assert.deepEqual(withDetachment.detachmentIds, [detachment.id]);
+  assert.equal(rosterWithAddedDetachment(withDetachment, detachment.id).detachmentIds.length, 1);
+
+  const datasheet = availableDatasheets(withDetachment, "native")[0];
+  assert.ok(datasheet, "Expected an available datasheet");
+  const withUnit = rosterWithAddedUnit(withDetachment, {
+    datasheetId: datasheet.id,
+    unitId: "unit-1",
+  });
+  assert.equal(withUnit.units.length, 1);
+  assert.equal(withUnit.units[0].datasheetId, datasheet.id);
+  assert.equal(withUnit.units[0].allyType, "native");
+  assert.ok(withUnit.units[0].compositionId);
+  assert.ok(withUnit.units[0].miniatures.length > 0);
+  assert.ok(withUnit.units[0].miniatures.every((miniature) => miniature.rosterUnitMiniatureId));
+  assert.equal(validateRoster(withUnit).messages.some((message) => message.code === "unit.composition_missing"), false);
+
+  const removedUnit = rosterWithRemovedUnit(withUnit, "unit-1");
+  assert.deepEqual(removedUnit.units, []);
+  const removedDetachment = rosterWithRemovedDetachment(removedUnit, 0);
+  assert.deepEqual(removedDetachment.detachmentIds, []);
+});

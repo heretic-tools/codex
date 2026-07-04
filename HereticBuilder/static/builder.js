@@ -179,6 +179,12 @@ async function deleteRoster(roster) {
   }
 }
 
+async function updateRoster(roster) {
+  await saveRoster(roster);
+  await refreshRosters();
+  await render();
+}
+
 async function renderRoster() {
   const roster = currentRoster();
   if (!roster) {
@@ -192,8 +198,10 @@ async function renderRoster() {
   el.title.textContent = roster.name || "New Roster";
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
+    newId,
     roster,
     onDelete: deleteRoster,
+    onUpdate: updateRoster,
     summarizeRoster: rosterSummary,
     validateRoster,
   }));
