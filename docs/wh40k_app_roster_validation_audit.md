@@ -335,8 +335,8 @@ Important app-audit deltas to track:
    datasource validation strings. Any error-string extractor that only reads
    `Datasource_BattleForgeDatasource.bundle` is incomplete.
 4. `keyword_ally_restricting_keyword` exists in the migrated DB even though it
-   currently has 0 rows. The app also supports legacy keyword-column restricting
-   fields on `keyword`. Keep both paths.
+   currently has 0 rows. The app also supports keyword-column restricting fields
+   on `keyword`. Keep both paths.
 5. `allied_faction_allegiance_ability` currently has 0 rows, but the app has
    `AlliedUnitsRequiredAllegianceValidator`; the rule path must remain live for
    future data versions.

@@ -131,7 +131,7 @@ DB audit result:
 | `roster_builder_rule_allies.py:53-63` | Allied datasheet whitelist. | `builder_allied_rules.js:169-177` | Covered |
 | `roster_builder_rule_allies.py:64-75` | Allied points limit by battle size. | `builder_allied_rules.js:178-185` | Covered |
 | `roster_builder_rule_allies.py:80-102` | Required allied allegiance ability. | `builder_allied_rules.js:72-81,187` | Covered |
-| `roster_builder_rule_allies.py:103-149` | Ally restricting keywords, including legacy keyword column rule. | `builder_allied_rules.js:83-125,188` | Covered |
+| `roster_builder_rule_allies.py:103-149` | Ally restricting keywords, including keyword-column rule. | `builder_allied_rules.js:83-125,188` | Covered |
 | `roster_builder_rule_allies.py:151-178` | Allied keyword limits and mutually exclusive keyword limit. | `builder_allied_rules.js:47-70,186` | Covered |
 | `roster_builder_rule_allies.py:179-221` | Slotless donor/receiver keyword pairs. | `builder_allied_rules.js:20-45` | Covered |
 

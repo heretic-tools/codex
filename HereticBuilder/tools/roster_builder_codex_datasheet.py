@@ -2,7 +2,6 @@ import re
 
 from roster_builder_codex import (
     datasheet_id_for_faction,
-    escape_attr,
     escape_html,
     faction_by_id,
     faction_href,
@@ -110,16 +109,6 @@ def weapon_profile_key(profile):
     )
 
 
-def render_unit_meta_item(label, value):
-    if value in (None, ""):
-        return ""
-    return render_template(
-        "codex_unit_meta_item.html",
-        label=escape_html(label),
-        value=escape_html(value),
-    )
-
-
 def format_invulnerable_save_value(value):
     text = normalize_rule_text(value)
     if text in {"", "-"}:
@@ -149,26 +138,6 @@ def compact_invulnerable_save(save):
     if ranged_save:
         parts.append(f"R{ranged_save}")
     return "/".join(parts)
-
-
-def invulnerable_save_title(save):
-    details = []
-    if save.get("miniatureName"):
-        details.append(save["miniatureName"])
-    rules = normalize_rule_text(save.get("rules"))
-    if rules not in {"", "-"}:
-        details.append(rules)
-    return ": ".join(details)
-
-
-def render_invulnerable_save_cell(save):
-    value = compact_invulnerable_save(save) if save else "-"
-    title = invulnerable_save_title(save) if save else ""
-    title_attr = ""
-    if title:
-        label = f"Invulnerable save {value}: {title}"
-        title_attr = f' title="{escape_attr(title)}" aria-label="{escape_attr(label)}"'
-    return f'          <td class="unit-invulnerable-save-cell" data-label="INV"{title_attr}>{escape_html(value)}</td>\n'
 
 
 def render_statline_table(miniatures, invulnerable_saves=None):

@@ -132,39 +132,6 @@ def ability_info_card(ability):
         "bodyParts": [restriction_html, *body_parts, "".join(sub_abilities)],
     }
 
-def render_invulnerable_saves(saves):
-    if not saves:
-        return ""
-    rows = []
-    for save in saves:
-        values = []
-        if save.get("save"):
-            values.append(save["save"])
-        if save.get("meleeSave"):
-            values.append(f'Melee {save["meleeSave"]}')
-        if save.get("rangedSave"):
-            values.append(f'Ranged {save["rangedSave"]}')
-        label = ", ".join(values) if values else "Invulnerable Save"
-        if save.get("miniatureName"):
-            label = f'{save["miniatureName"]}: {label}'
-        rows.append(render_template(
-            "codex_unit_invulnerable_save.html",
-            label=escape_html(label),
-            rules_html=render_rich_text(save["rules"]) if not is_empty_rule(save.get("rules")) else "",
-        ))
-    return render_template(
-        "codex_unit_invulnerable_saves.html",
-        saves_html="".join(rows),
-    )
-
-def render_unit_keywords(keywords):
-    if not keywords:
-        return ""
-    return render_template(
-        "codex_unit_keywords.html",
-        keywords=escape_html(", ".join(keywords)),
-    )
-
 def is_faction_ability(ability):
     return str(ability.get("abilityType") or "").lower() == "faction"
 

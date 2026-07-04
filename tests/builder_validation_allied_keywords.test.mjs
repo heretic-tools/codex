@@ -63,13 +63,13 @@ import {
   alliedKeywordUnits,
 } from "./builder_validation_allied_helpers.mjs";
 
-test("all live legacy allied restricting keyword rows have invalid and paired coverage", () => {
+test("all live allied restricting keyword rows have invalid and paired coverage", () => {
   state.catalog = realCatalog;
-  const legacyRestrictingKeywords = realCatalog.keywords
+  const restrictingKeywords = realCatalog.keywords
     .filter((keyword) => keyword.allyRestrictingKeywordId);
-  assert.equal(legacyRestrictingKeywords.length, 4);
+  assert.equal(restrictingKeywords.length, 4);
 
-  for (const [index, keyword] of legacyRestrictingKeywords.entries()) {
+  for (const [index, keyword] of restrictingKeywords.entries()) {
     const alliedFactionId = alliedFactionForRestrictingKeyword(keyword);
     const restrictedOnlyDatasheet = datasheetForAlliedKeywordPresence(
       alliedFactionId,
@@ -88,7 +88,7 @@ test("all live legacy allied restricting keyword rows have invalid and paired co
     const invalidMessages = [];
     validateAlliedUnits(roster, [], [
       catalogAlliedUnit({
-        id: `legacy-restricting-keyword-${index}-invalid`,
+        id: `restricting-keyword-${index}-invalid`,
         alliedFactionId,
         datasheet: restrictedOnlyDatasheet,
         points: 0,
@@ -102,13 +102,13 @@ test("all live legacy allied restricting keyword rows have invalid and paired co
     const pairedMessages = [];
     validateAlliedUnits(roster, [], [
       catalogAlliedUnit({
-        id: `legacy-restricting-keyword-${index}-restricted`,
+        id: `restricting-keyword-${index}-restricted`,
         alliedFactionId,
         datasheet: restrictedOnlyDatasheet,
         points: 0,
       }),
       catalogAlliedUnit({
-        id: `legacy-restricting-keyword-${index}-restricting`,
+        id: `restricting-keyword-${index}-restricting`,
         alliedFactionId,
         datasheet: restrictingDatasheet,
         points: 0,

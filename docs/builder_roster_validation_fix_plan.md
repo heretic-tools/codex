@@ -273,10 +273,10 @@ browser smoke test.
   pass-through paths and explicit `loadCatalog` failure behavior when a cached
   Builder data fetch returns a non-OK response. `npm test` now passes 135
   validation tests.
-- 2026-07-02: Added cache-compat coverage for saved allegiance selections whose
-  old ability group is no longer present in the current catalog. The validator
-  now has an explicit regression test proving it skips the missing group without
-  false diagnostics. `npm test` now passes 146 validation tests.
+- 2026-07-02: Added coverage for selected allegiance abilities whose ability
+  group is not present in the current catalog. The validator now has an
+  explicit regression test proving it skips the missing group without false
+  diagnostics. `npm test` now passes 146 validation tests.
 - 2026-07-01: Added faction-specific golden tests for Adeptus Astartes
   detachment point overrides, successor chapter Epic Hero conflicts, Devoted of
   Ynnead mandatory warlords, Asuryani/Ynnari keyword restriction exclusions,
@@ -425,10 +425,10 @@ browser smoke test.
   current rows.
 - 2026-07-02: Added an allied rule-table inventory guard pinning every current
   v879 allied table count, including the 25 parent rows, the 0-row
-  `keyword_ally_restricting_keyword` new table, and the 4 legacy
+  `keyword_ally_restricting_keyword` new table, and the 4
   `keyword.allyRestrictingKeywordId` rows.
-- 2026-07-02: Added real-catalog coverage for every live v879 legacy allied
-  restricting keyword row. The test proves invalid and paired-valid states for
+- 2026-07-02: Added real-catalog coverage for every live v879 allied
+  restricting-keyword row. The test proves invalid and paired-valid states for
   all 4 Khorne/Nurgle/Slaanesh/Tzeentch Battleline outnumbering rules.
 - 2026-07-01: Expanded allied golden coverage for all four Heretic Astartes
   cult-legion parent factions, Titanicus Traitoris titan caps, Agents of the

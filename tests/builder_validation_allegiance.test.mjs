@@ -160,19 +160,19 @@ test("all live allegiance ability rows are accepted by their configured group", 
   }
 });
 
-test("data-empty missing allegiance ability groups stay cache-compatible", () => {
+test("missing allegiance ability groups without catalog rows are ignored", () => {
   state.catalog = realCatalog;
   const messages = [];
   validateAllegianceAbilities(
     { factionKeywordId: factionNamed("Space Wolves").id },
     [],
     [{
-      id: "cached-missing-allegiance-group-unit",
-      name: "Cached Missing Allegiance Group Unit",
+      id: "missing-allegiance-group-unit",
+      name: "Missing Allegiance Group Unit",
       allegianceAbilityGroupId: "missing-allegiance-group",
       allegianceAbilities: [{
-        id: "cached-missing-allegiance-ability",
-        name: "Cached Missing Allegiance Ability",
+        id: "missing-allegiance-ability",
+        name: "Missing Allegiance Ability",
         groupId: "missing-allegiance-group",
         groupName: "Missing Allegiance Group",
       }],

@@ -171,11 +171,11 @@ export const minimumParityCoreCases = [
     "codes": []
   },
   {
-    "id": "data-empty-missing-allegiance-group-cache-compat",
+    "id": "data-empty-missing-allegiance-group",
     "file": "tests/builder_validation_allegiance.test.mjs",
     "anchors": [
-      "data-empty missing allegiance ability groups stay cache-compatible",
-      "cached-missing-allegiance-group-unit",
+      "missing allegiance ability groups without catalog rows are ignored",
+      "missing-allegiance-group-unit",
       "missing-allegiance-group",
       "assert.deepEqual(messages, [])"
     ],
@@ -456,11 +456,11 @@ export const minimumParityCoreCases = [
     ]
   },
   {
-    "id": "live-legacy-allied-restricting-keyword-rows",
+    "id": "live-allied-restricting-keyword-rows",
     "file": "tests/builder_validation_allied_keywords.test.mjs",
     "anchors": [
-      "all live legacy allied restricting keyword rows have invalid and paired coverage",
-      "legacyRestrictingKeywords.length, 4"
+      "all live allied restricting keyword rows have invalid and paired coverage",
+      "restrictingKeywords.length, 4"
     ],
     "codes": [
       "allied_keyword_restricting_keyword.outnumbered_keywords"
