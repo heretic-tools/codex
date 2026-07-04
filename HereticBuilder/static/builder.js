@@ -1,16 +1,16 @@
 import { loadBootstrap, loadCatalog } from "./builder_catalog.js";
 import { clear } from "./builder_dom.js";
-import { renderNotFoundView } from "./builder_not_found_view.js";
 import { baseBreadcrumbs, builderBreadcrumbs, navigate, parseRoute } from "./builder_routes.js";
-import { renderRosterCreateView } from "./builder_roster_create_view.js";
-import { renderRosterDetailView } from "./builder_roster_detail_view.js";
-import { renderRosterListView } from "./builder_roster_list_view.js";
 import { el, renderBreadcrumbs, renderStartupError, setStatus } from "./builder_shell.js";
 import { state } from "./builder_state.js";
 import { getAllRosters, newId, openLocalDb, removeRoster, saveRoster } from "./builder_storage.js";
 
 let catalogPromise = null;
 let rulesPromise = null;
+let createViewPromise = null;
+let detailViewPromise = null;
+let listViewPromise = null;
+let notFoundViewPromise = null;
 
 function currentRoster() {
   return state.rosters.find((roster) => roster.id === state.route.rosterId) || null;
@@ -58,6 +58,34 @@ function loadRules() {
   return rulesPromise;
 }
 
+function loadCreateView() {
+  if (!createViewPromise) {
+    createViewPromise = import("./builder_roster_create_view.js");
+  }
+  return createViewPromise;
+}
+
+function loadDetailView() {
+  if (!detailViewPromise) {
+    detailViewPromise = import("./builder_roster_detail_view.js");
+  }
+  return detailViewPromise;
+}
+
+function loadListView() {
+  if (!listViewPromise) {
+    listViewPromise = import("./builder_roster_list_view.js");
+  }
+  return listViewPromise;
+}
+
+function loadNotFoundView() {
+  if (!notFoundViewPromise) {
+    notFoundViewPromise = import("./builder_not_found_view.js");
+  }
+  return notFoundViewPromise;
+}
+
 async function setRoute(route) {
   state.route = route;
   try {
@@ -80,7 +108,10 @@ async function refreshRosters() {
 async function renderList() {
   el.title.textContent = "Builder";
   renderBreadcrumbs(baseBreadcrumbs());
-  const rules = state.rosters.length ? await loadRules() : {};
+  const [{ renderRosterListView }, rules] = await Promise.all([
+    loadListView(),
+    state.rosters.length ? loadRules() : Promise.resolve({}),
+  ]);
   el.root.appendChild(renderRosterListView({
     rosters: state.rosters,
     onCreate: () => navigate("/new"),
@@ -109,9 +140,10 @@ async function createRoster(values) {
   navigate(`/roster/${encodeURIComponent(roster.id)}`);
 }
 
-function renderCreate() {
+async function renderCreate() {
   el.title.textContent = "Create Roster";
   renderBreadcrumbs(builderBreadcrumbs());
+  const { renderRosterCreateView } = await loadCreateView();
   el.root.appendChild(renderRosterCreateView({
     battleSizes: state.catalog.battleSizes,
     defaultBattleSizeId: state.catalog.bootstrap.defaultBattleSizeId,
@@ -133,10 +165,13 @@ async function deleteRoster(roster) {
 async function renderRoster() {
   const roster = currentRoster();
   if (!roster) {
-    renderNotFound();
+    await renderNotFound();
     return;
   }
-  const { rosterSummary, validateRoster } = await loadRules();
+  const [{ renderRosterDetailView }, { rosterSummary, validateRoster }] = await Promise.all([
+    loadDetailView(),
+    loadRules(),
+  ]);
   el.title.textContent = roster.name || "New Roster";
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
@@ -147,9 +182,10 @@ async function renderRoster() {
   }));
 }
 
-function renderNotFound() {
+async function renderNotFound() {
   el.title.textContent = "Builder";
   renderBreadcrumbs(builderBreadcrumbs());
+  const { renderNotFoundView } = await loadNotFoundView();
   el.root.appendChild(renderNotFoundView({
     onBack: () => navigate("/"),
   }));
@@ -158,7 +194,7 @@ function renderNotFound() {
 async function render() {
   clear(el.root);
   if (state.route.name === "create") {
-    renderCreate();
+    await renderCreate();
   } else if (state.route.name === "roster") {
     await renderRoster();
   } else {
