@@ -171,6 +171,8 @@ def site_url(path, base_path):
 
 
 def codex_root_site_url(path, base_path):
+    if path == "/":
+        return "/"
     if path == "/codex":
         return site_url("/", base_path)
     if path.startswith("/codex/"):
@@ -187,9 +189,8 @@ def codex_root_href(path):
 
 
 def inject_static_config(html, base_path, mount_codex_at_root=False):
-    runtime_base_path = "" if mount_codex_at_root else base_path
     config = (
-        f'  <meta name="heretic-base-path" content="{escape(runtime_base_path, quote=True)}">\n'
+        f'  <meta name="heretic-base-path" content="{escape(base_path, quote=True)}">\n'
         f'  <meta name="heretic-search-index" content="{escape(site_url("/search-index.json", base_path), quote=True)}">'
     )
     if "</head>" in html:
