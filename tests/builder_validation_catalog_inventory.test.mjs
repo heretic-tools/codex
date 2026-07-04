@@ -8,7 +8,7 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { realCatalog } from "./builder_validation_helpers.mjs";
-import { loadCatalog } from "../HereticBuilder/static/builder_catalog.js";
+import { loadBootstrap, loadCatalog } from "../HereticBuilder/static/builder_catalog.js";
 import { siteHref } from "../HereticBuilder/static/builder_state.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -313,6 +313,25 @@ test("thin client catalog loading keeps path and fetch failure behavior explicit
   } finally {
     global.fetch = previousFetch;
   }
+});
+
+test("thin client bootstrap loading does not fetch full rule tables", async () => {
+  const previousFetch = global.fetch;
+  const paths = [];
+  global.fetch = async (path) => {
+    paths.push(String(path));
+    return previousFetch(path);
+  };
+  try {
+    const catalog = await loadBootstrap();
+    assert.equal(catalog.bootstrap.dataVersion, realCatalog.bootstrap.dataVersion);
+    assert.ok(catalog.factions.length > 0);
+    assert.ok(catalog.battleSizes.length > 0);
+    assert.equal(catalog.datasheets, undefined);
+  } finally {
+    global.fetch = previousFetch;
+  }
+  assert.deepEqual(paths, ["/builder-data/bootstrap.json"]);
 });
 
 test("data-empty rule tables stay explicit until live fixture coverage is added", () => {

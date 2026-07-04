@@ -1,4 +1,4 @@
-import { loadCatalog } from "./builder_catalog.js";
+import { loadBootstrap, loadCatalog } from "./builder_catalog.js";
 import { clear } from "./builder_dom.js";
 import { renderNotFoundView } from "./builder_not_found_view.js";
 import { baseBreadcrumbs, builderBreadcrumbs, navigate, parseRoute } from "./builder_routes.js";
@@ -9,13 +9,57 @@ import { el, renderBreadcrumbs, renderStartupError, setStatus } from "./builder_
 import { state } from "./builder_state.js";
 import { getAllRosters, newId, openLocalDb, removeRoster, saveRoster } from "./builder_storage.js";
 
-function setRoute(route) {
-  state.route = route;
-  render();
-}
+let catalogPromise = null;
 
 function currentRoster() {
   return state.rosters.find((roster) => roster.id === state.route.rosterId) || null;
+}
+
+function routeRoster(route) {
+  return state.rosters.find((roster) => roster.id === route.rosterId) || null;
+}
+
+function catalogIsFull() {
+  return Boolean(state.catalog?.datasheetById);
+}
+
+function routeNeedsFullCatalog(route) {
+  if (route.name === "roster") {
+    return Boolean(routeRoster(route));
+  }
+  return route.name === "list" && state.rosters.length > 0;
+}
+
+async function ensureCatalog() {
+  if (catalogIsFull()) {
+    return state.catalog;
+  }
+  if (!catalogPromise) {
+    setStatus("Rules");
+    catalogPromise = loadCatalog(state.catalog?.bootstrap || null)
+      .then((catalog) => {
+        state.catalog = catalog;
+        setStatus(`v${catalog.bootstrap.dataVersion}`);
+        return catalog;
+      })
+      .catch((error) => {
+        catalogPromise = null;
+        throw error;
+      });
+  }
+  return catalogPromise;
+}
+
+async function setRoute(route) {
+  state.route = route;
+  try {
+    if (routeNeedsFullCatalog(route)) {
+      await ensureCatalog();
+    }
+    render();
+  } catch (error) {
+    renderStartupError(error);
+  }
 }
 
 async function refreshRosters() {
@@ -112,11 +156,11 @@ function render() {
 async function init() {
   try {
     setStatus("Data");
-    state.catalog = await loadCatalog();
+    state.catalog = await loadBootstrap();
     setStatus(`v${state.catalog.bootstrap.dataVersion}`);
     state.db = await openLocalDb();
     await refreshRosters();
-    setRoute(parseRoute());
+    await setRoute(parseRoute());
     window.addEventListener("hashchange", () => setRoute(parseRoute()));
   } catch (error) {
     renderStartupError(error);
