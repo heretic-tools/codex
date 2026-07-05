@@ -1073,6 +1073,12 @@ browser smoke test.
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
   choice-set hydration, and static precomputed loadouts now sit apart from
   valid loadout generation and partition matching.
+- 2026-07-05: Split limited-Wargear choice hydration and selected-choice cover
+  search out of `builder_wargear_limited_rules.js` into
+  `builder_wargear_limited_choices.js` and `builder_wargear_limited_cover.js`.
+  The validator now only applies limited-set limits to a roster unit, while
+  model-count thresholds, upgrade-key filtering, mandatory choices, duplicate
+  limits, and exact cover search are auditable separately.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

@@ -746,6 +746,16 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const rosterValidationSource = readFileSync(join(outDir, "static", "builder_roster_validation.js"), "utf8");
     assert.match(rosterValidationSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
 
+    const wargearRulesSource = readFileSync(join(outDir, "static", "builder_wargear_rules.js"), "utf8");
+    assert.match(wargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_rules\\.js\\?v=${version}`));
+
+    const limitedWargearRulesSource = readFileSync(join(outDir, "static", "builder_wargear_limited_rules.js"), "utf8");
+    assert.match(limitedWargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_choices\\.js\\?v=${version}`));
+    assert.match(limitedWargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_cover\\.js\\?v=${version}`));
+
+    const limitedWargearCoverSource = readFileSync(join(outDir, "static", "builder_wargear_limited_cover.js"), "utf8");
+    assert.match(limitedWargearCoverSource, new RegExp(`\\.\\/builder_wargear_limited_choices\\.js\\?v=${version}`));
+
     const warlordRulesSource = readFileSync(join(outDir, "static", "builder_warlord_rules.js"), "utf8");
     assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
     assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_candidates\\.js\\?v=${version}`));
