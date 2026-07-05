@@ -9,7 +9,6 @@ import {
   rosterListCacheIsFresh,
   rosterWithListCache,
 } from "./builder_roster_cache.js";
-import { parseImportedRosters, serializeRosters } from "./builder_roster_transfer.js";
 
 let catalogPromise = null;
 let rulesPromise = null;
@@ -17,6 +16,7 @@ let createViewPromise = null;
 let detailViewPromise = null;
 let listViewPromise = null;
 let notFoundViewPromise = null;
+let transferPromise = null;
 let unitViewPromise = null;
 
 function currentRoster() {
@@ -93,6 +93,13 @@ function loadNotFoundView() {
   return notFoundViewPromise;
 }
 
+function loadTransfer() {
+  if (!transferPromise) {
+    transferPromise = import("./builder_roster_transfer.js");
+  }
+  return transferPromise;
+}
+
 function loadUnitView() {
   if (!unitViewPromise) {
     unitViewPromise = import("./builder_roster_unit_detail_view.js");
@@ -165,22 +172,32 @@ async function renderList() {
   }));
 }
 
-function exportRosters() {
-  const payload = serializeRosters(state.rosters, currentDataVersion());
-  const blob = new Blob([payload], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.download = `heretic-builder-rosters-${new Date().toISOString().slice(0, 10)}.json`;
-  link.href = url;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
+async function exportRosters() {
+  try {
+    const { serializeRosters } = await loadTransfer();
+    const payload = serializeRosters(state.rosters, currentDataVersion());
+    const blob = new Blob([payload], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `heretic-builder-rosters-${new Date().toISOString().slice(0, 10)}.json`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    window.alert(error.message || "Failed to export rosters");
+  }
 }
 
 async function importRosters(file) {
   try {
-    const rosters = parseImportedRosters(await file.text());
+    const { parseImportedRosters, rostersWithNonConflictingIds } = await loadTransfer();
+    const rosters = rostersWithNonConflictingIds(
+      parseImportedRosters(await file.text()),
+      state.rosters.map((roster) => roster.id),
+      newId
+    );
     if (!rosters.length) {
       return;
     }

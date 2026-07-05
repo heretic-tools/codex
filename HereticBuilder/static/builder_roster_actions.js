@@ -87,13 +87,7 @@ function attachmentMembers(attachment) {
 }
 
 function attachmentHasUnit(attachment, unitId) {
-  if (attachmentMembers(attachment).some((member) => member.rosterUnitId === unitId)) {
-    return true;
-  }
-  return attachment.leaderUnitId === unitId
-    || attachment.bodyguardUnitId === unitId
-    || attachment.attachedUnitId === unitId
-    || attachment.targetUnitId === unitId;
+  return attachmentMembers(attachment).some((member) => member.rosterUnitId === unitId);
 }
 
 function attachmentHasBodyguard(attachment, bodyguardUnitId) {

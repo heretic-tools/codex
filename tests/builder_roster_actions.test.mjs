@@ -82,6 +82,20 @@ test("builder roster actions manage current-shape attachment groups", () => {
 
   assert.deepEqual(rosterWithRemovedAttachment(withSupport, "attachment-1").attachments, []);
   assert.deepEqual(rosterWithRemovedUnit(withSupport, "bodyguard-1").attachments, []);
+
+  const ignoredLegacyAttachment = rosterWithRemovedUnit({
+    ...roster,
+    attachments: [{
+      id: "legacy-attachment",
+      bodyguardUnitId: "bodyguard-1",
+      leaderUnitId: "leader-1",
+    }],
+  }, "bodyguard-1");
+  assert.deepEqual(ignoredLegacyAttachment.attachments, [{
+    id: "legacy-attachment",
+    bodyguardUnitId: "bodyguard-1",
+    leaderUnitId: "leader-1",
+  }]);
 });
 
 test("builder roster actions write compact allegiance ability selections", () => {

@@ -957,6 +957,24 @@ browser smoke test.
   `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
   loadout exports stay unchanged while the rule-facing module is smaller and
   still uses the same precomputed/static catalog data.
+- 2026-07-05: Tightened roster export/import to use only the current compact
+  Builder shape. Transfer now rejects explicit legacy fields such as
+  `attachedUnits`, `allegianceAbilityIds`, `unitWargear`, and old enhancement
+  ID arrays, while stripping unrelated runtime/UI fields from otherwise valid
+  current-shape roster data.
+- 2026-07-05: Moved roster transfer parsing/serialization behind a dynamic
+  import. The Builder list still exposes Export/Import, but the transfer module
+  no longer participates in the static startup graph and remains covered by the
+  standalone cache-bust test.
+- 2026-07-05: Removed the remaining attachment action fallback for old scalar
+  membership fields (`leaderUnitId`, `bodyguardUnitId`, `attachedUnitId`,
+  `targetUnitId`). Runtime attachment membership now reads only the current
+  `attachments[].members[]` shape; legacy fields are rejected at transfer
+  boundaries instead of being interpreted.
+- 2026-07-05: Made roster import collision-safe for browser-local storage.
+  Imported rosters now receive fresh roster IDs when their exported ID already
+  exists locally or repeats inside the same file, so Import adds data instead
+  of silently overwriting a cached roster.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
