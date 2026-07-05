@@ -990,6 +990,11 @@ browser smoke test.
   The public composition module is now a stable facade, while faction/
   detachment-gated composition selection and roster miniature normalization can
   be audited independently.
+- 2026-07-05: Split model availability helpers into allied unit sources,
+  datasheet availability, and detachment availability modules. The public
+  `builder_model_availability.js` facade still exports the same Builder model
+  API while native/allied datasheet filtering, Combat Patrol exclusion,
+  detachment availability, and allied source labels are auditable separately.
 - 2026-07-05: Split pure loadout count arithmetic out of
   `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
   loadout exports stay unchanged while the rule-facing module is smaller and
