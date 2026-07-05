@@ -1271,6 +1271,11 @@ browser smoke test.
   The roster page now stays as layout plus Warlord picker while validation
   buttons, target selection, smooth scroll/focus behavior, Codex links, and
   unit-search actions are isolated.
+- 2026-07-05: Split the roster overview shell and Warlord picker out of
+  `builder_roster_detail_view.js` into `builder_roster_overview_view.js` and
+  `builder_roster_warlord_picker.js`. The roster page now composes overview,
+  editor, and validation; the Warlord control owns candidate ordering and
+  eligibility labels.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and
