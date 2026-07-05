@@ -925,6 +925,10 @@ browser smoke test.
   rendering out of `builder_roster_detachment_editor_view.js` into focused
   candidate and row modules. The editor now owns only the add/search controls
   and list composition while preserving the previous public candidate exports.
+- 2026-07-05: Split detachment search/select/Add controls out of
+  `builder_roster_detachment_editor_view.js` into
+  `builder_roster_detachment_controls.js`. The editor now composes section title,
+  selected detachment list, and the focused controls module.
 - 2026-07-05: Added explicit empty picker states for unit and detachment search.
   When filters return no candidates, the dropdown shows a disabled explanatory
   option and both the select and Add button are disabled.

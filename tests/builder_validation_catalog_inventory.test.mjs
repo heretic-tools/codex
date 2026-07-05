@@ -932,7 +932,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const detachmentEditorSource = readFileSync(join(outDir, "static", "builder_roster_detachment_editor_view.js"), "utf8");
     assert.match(detachmentEditorSource, new RegExp(`\\.\\/builder_roster_detachment_candidates\\.js\\?v=${version}`));
+    assert.match(detachmentEditorSource, new RegExp(`\\.\\/builder_roster_detachment_controls\\.js\\?v=${version}`));
     assert.match(detachmentEditorSource, new RegExp(`\\.\\/builder_roster_detachment_rows\\.js\\?v=${version}`));
+
+    const detachmentControlsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_controls.js"), "utf8");
+    assert.match(detachmentControlsSource, new RegExp(`\\.\\/builder_roster_detachment_candidates\\.js\\?v=${version}`));
 
     const detachmentRowsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_rows.js"), "utf8");
     assert.match(detachmentRowsSource, new RegExp(`\\.\\/builder_codex_links\\.js\\?v=${version}`));
