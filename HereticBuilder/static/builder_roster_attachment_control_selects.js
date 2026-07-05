@@ -1,10 +1,11 @@
-import { option } from "./builder_dom.js";
 import {
-  ATTACHMENT_TYPES,
-  attachableUnits,
-  availableAttachmentTypes,
-  unitLabel,
-} from "./builder_roster_attachment_options.js";
+  attachedUnitControlOptions,
+  attachedUnitControlRows,
+  attachmentTypeControlOptions,
+  attachmentTypeControlRows,
+  bodyguardControlOptions,
+  emptyAttachmentControlOptions,
+} from "./builder_roster_attachment_control_options.js";
 
 function createAttachmentControlSelects() {
   const bodyguard = document.createElement("select");
@@ -17,9 +18,10 @@ function createAttachmentControlSelects() {
 }
 
 function disableAttachmentControlSelects({ add, attached, bodyguard, controls, type }) {
-  bodyguard.replaceChildren(option("", "Bodyguard: none available"));
-  type.replaceChildren(option("", "Attach as: none available"));
-  attached.replaceChildren(option("", "Unit: none available"));
+  const emptyOptions = emptyAttachmentControlOptions();
+  bodyguard.replaceChildren(emptyOptions.bodyguard);
+  type.replaceChildren(emptyOptions.type);
+  attached.replaceChildren(emptyOptions.attached);
   bodyguard.disabled = true;
   type.disabled = true;
   attached.disabled = true;
@@ -44,25 +46,22 @@ function refreshAttachmentControlSelects({
   }
 
   const previousBodyguard = bodyguard.value;
-  bodyguard.replaceChildren(...bodyguards.map((unit) => option(unit.id, unitLabel(unit, "Bodyguard", units))));
+  bodyguard.replaceChildren(...bodyguardControlOptions(bodyguards, units));
   bodyguard.value = bodyguards.some((unit) => unit.id === previousBodyguard)
     ? previousBodyguard
     : bodyguards[0]?.id || "";
 
   const selectedBodyguard = unitsById.get(bodyguard.value);
-  const typeRows = selectedBodyguard ? availableAttachmentTypes(roster, units, selectedBodyguard) : [];
+  const typeRows = attachmentTypeControlRows(roster, units, selectedBodyguard);
   const previousType = type.value;
-  type.replaceChildren(...typeRows.map((item) => option(item.value, `Attach as: ${item.label}`)));
+  type.replaceChildren(...attachmentTypeControlOptions(typeRows));
   type.value = typeRows.some((item) => item.value === previousType)
     ? previousType
     : typeRows[0]?.value || "";
 
-  const selectedType = ATTACHMENT_TYPES.find((item) => item.value === type.value);
-  const attachedRows = selectedBodyguard
-    ? attachableUnits(roster, units, selectedBodyguard, type.value)
-    : [];
+  const attachedRows = attachedUnitControlRows(roster, units, selectedBodyguard, type.value);
   const previousAttached = attached.value;
-  attached.replaceChildren(...attachedRows.map((unit) => option(unit.id, unitLabel(unit, selectedType?.label || "Unit", units))));
+  attached.replaceChildren(...attachedUnitControlOptions(attachedRows, type.value, units));
   attached.value = attachedRows.some((unit) => unit.id === previousAttached)
     ? previousAttached
     : attachedRows[0]?.id || "";
