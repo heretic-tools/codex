@@ -1103,6 +1103,11 @@ browser smoke test.
   `builder_model_wargear_defaults.js`. The main wargear model facade now keeps
   unit-level defaults, selected wargear entries, and points, while miniature
   loadout repair stays focused and testable.
+- 2026-07-05: Split the closest-valid default Wargear loadout optimizer out of
+  `builder_model_wargear_defaults.js` into
+  `builder_model_wargear_default_loadouts.js`. Base miniature loadouts and
+  default option values now stay separate from score-based valid-loadout
+  selection.
 - 2026-07-05: Split roster transfer normalization out of
   `builder_roster_transfer.js` into `builder_roster_transfer_normalize.js`.
   Export/import envelope parsing, serialization, and collision-safe IDs now
