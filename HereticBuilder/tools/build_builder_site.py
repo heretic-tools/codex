@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -36,6 +38,7 @@ class BuilderSiteConfig:
 class BuilderSiteBuildResult:
     out_dir: Path
     base_path: str
+    asset_version: str
     data_version: int
     data_file_count: int
 
@@ -59,10 +62,46 @@ def builder_site_config_from_args(args):
     )
 
 
-def write_builder_page(out_dir, base_path):
-    html = inject_static_config(render_template("builder.html"), base_path)
+def builder_asset_version():
+    digest = hashlib.sha256()
+    for path in sorted((PROJECT_ROOT / "HereticBuilder" / "static").glob("builder*.js")):
+        digest.update(path.name.encode("utf-8"))
+        digest.update(path.read_bytes())
+    for path in [
+        PROJECT_ROOT / "HereticBuilder" / "static" / "builder.css",
+        PROJECT_ROOT / "HereticBuilder" / "templates" / "builder.html",
+    ]:
+        digest.update(path.name.encode("utf-8"))
+        digest.update(path.read_bytes())
+    return digest.hexdigest()[:12]
+
+
+def write_builder_page(out_dir, base_path, asset_version):
+    html = render_template("builder.html").replace("__BUILDER_ASSET_VERSION__", asset_version)
+    html = inject_static_config(html, base_path)
     (out_dir / "index.html").write_text(html, encoding="utf-8")
     (out_dir / "404.html").write_text(html, encoding="utf-8")
+
+
+def version_builder_static_imports(out_dir, asset_version):
+    static_dir = out_dir / "static"
+    if not static_dir.exists():
+        return
+
+    def versioned(specifier):
+        if not specifier.startswith("./") or not specifier.endswith(".js"):
+            return specifier
+        return f"{specifier}?v={asset_version}"
+
+    patterns = [
+        re.compile(r'((?:import|export)\s+(?:[^"\']+\s+from\s+)?["\'])(\./[^"\']+\.js)(["\'])'),
+        re.compile(r'(import\(\s*["\'])(\./[^"\']+\.js)(["\']\s*\))'),
+    ]
+    for path in static_dir.glob("builder*.js"):
+        source = path.read_text(encoding="utf-8")
+        for pattern in patterns:
+            source = pattern.sub(lambda match: f"{match.group(1)}{versioned(match.group(2))}{match.group(3)}", source)
+        path.write_text(source, encoding="utf-8")
 
 
 def build_builder_site(config):
@@ -70,12 +109,15 @@ def build_builder_site(config):
         raise SystemExit(f"Database does not exist: {config.db}")
 
     out_dir = prepare_out_dir(config.out, protected_dirs=(config.source,))
+    asset_version = builder_asset_version()
     copy_assets(out_dir)
-    write_builder_page(out_dir, config.base_path)
+    version_builder_static_imports(out_dir, asset_version)
+    write_builder_page(out_dir, config.base_path, asset_version)
     data_result = export_builder_data(config.db, out_dir / "builder-data")
     return BuilderSiteBuildResult(
         out_dir=out_dir,
         base_path=config.base_path,
+        asset_version=asset_version,
         data_version=data_result.data_version,
         data_file_count=data_result.file_count,
     )
@@ -104,6 +146,7 @@ def build_builder_site_from_args(args):
 def print_builder_site_build_result(result):
     print(f"Builder site: {result.out_dir}")
     print(f"Base path: {result.base_path or '/'}")
+    print(f"Asset version: {result.asset_version}")
     print(f"Data version: {result.data_version}")
     print(f"Builder data files: {result.data_file_count}")
 

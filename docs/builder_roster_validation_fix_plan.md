@@ -712,6 +712,251 @@ browser smoke test.
   rebuilt from the researched rule contracts instead of inherited UI state. The
   browser cache store name is reset to `heretic-builder-thin-v1`, so old local
   rosters are not read by the new client.
+- 2026-07-04: Added the first thin-client unit detail editor slice on top of
+  the researched rule contracts: roster units open into their own local route,
+  warlord/enhancement/wargear changes write compact roster state, and selected
+  roster/unit summaries are refreshed through the same static validator used by
+  the diagnostics view. The route stays GitHub Pages compatible and does not add
+  a server roster API.
+- 2026-07-04: Tightened browser-local storage for the static Builder. IndexedDB
+  writes now resolve only after the enclosing transaction completes, list rows
+  use a compact `listSummary` cache instead of recalculating full validation on
+  the roster list, and export/import moves roster JSON through user-selected
+  files while revalidating imported rosters locally before saving them.
+- 2026-07-04: Added standalone Builder asset cache-busting for GitHub Pages.
+  The static build computes a content hash for Builder CSS/JS/template assets,
+  injects it into `builder.html`, and rewrites local Builder module imports in
+  the output directory so browsers do not keep stale modules after a Pages
+  deploy.
+- 2026-07-04: Removed the remaining list-summary fallback that recomputed
+  points from stored unit rows. The new Builder data shape now requires cached
+  list totals to be written by create/update/import flows, keeping the roster
+  list thin and avoiding compatibility paths for old local roster shapes.
+- 2026-07-04: Added a thin-client attachment editor for current-shape
+  `roster.attachments[].members[]` data. The roster screen can now create local
+  bodyguard plus leader/support groups, append additional attached members to an
+  existing bodyguard group, and remove attachment groups without adding any
+  server API. Unit deletion now removes any current-shape attachment group that
+  referenced the deleted unit.
+- 2026-07-04: Versioned the cached roster-list summary with the current Builder
+  data version. Create/update/import flows now write `roster.dataVersion`
+  alongside `listSummary`, startup refreshes stale summaries after a data
+  update, and the roster list can display cached valid/invalid state without
+  loading the full rule catalog on normal visits.
+- 2026-07-04: Added unit-detail allegiance ability selection. Datasheets with
+  an `allegianceAbilityGroupId` now show the relevant group and its static
+  catalog abilities, writes stay compact as `{id}` rows, and the existing
+  allegiance validators continue to own detachment, mandatory, roster-limit,
+  and required-wargear diagnostics.
+- 2026-07-04: Fixed roster-screen visibility for the thin-client editor.
+  Roster diagnostics now render in the top sidebar next to the points summary,
+  and selected detachments, units, and attached units render before their
+  add-controls. This keeps validation errors and already-added roster contents
+  visible without adding runtime state or a server API.
+- 2026-07-04: Added scoped validation to the unit detail editor. The unit route
+  now filters the existing roster diagnostics by `unitId`, `unitIds`,
+  `datasheetId`, and `datasheetIds`, shows those messages next to the unit
+  controls, and keeps a compact count of unrelated roster issues in the
+  overview. This is presentation-only and does not add cached validation state.
+- 2026-07-04: Added scoped validation badges to roster unit rows. The roster
+  unit list now reuses the same unit-scoped diagnostics to show error/warning
+  counts and a subtle row edge highlight, so users can see which unit needs
+  attention before opening the unit detail route.
+- 2026-07-04: Added detachment-scoped validation for Builder presentation.
+  Detachment availability, detachment-points, unique-keyword, required/linked
+  datasheet, and detachment keyword-restriction diagnostics now carry
+  `detachmentId` or `detachmentIds` where applicable. The roster detachment
+  list reuses that scope to show row-level error/warning badges without
+  parsing diagnostic text or storing extra client state.
+- 2026-07-04: Added attachment-scoped validation for Builder presentation.
+  Attached-unit duplicate membership, incomplete groups, missing bodyguard
+  groups, invalid leader/support plus bodyguard pairings, and attached-unit
+  enhancement-limit diagnostics now carry `attachmentId` or `attachmentIds`
+  where applicable. The roster attached-unit list can use that contract, plus
+  member `unitIds`, to show row-level badges without text parsing or extra
+  cache state.
+- 2026-07-05: Made the attached-unit empty state explain the first useful
+  catalog rule blocker when no legal leader/support plus bodyguard pair can be
+  created. Pactbound-style shared-keyword gates now surface as a concise
+  message on the roster screen while the client still stores no validation
+  results and adds no server dependency.
+- 2026-07-05: Added Warlord presentation scope for the thin-client roster UI.
+  Selected Warlord units now show a compact row badge, and selected invalid or
+  duplicate Warlord diagnostics carry unit-scoped metadata so row-level
+  validation badges can point at the responsible unit without parsing message
+  text or storing validation results.
+- 2026-07-05: Added validation context labels and a roster-level Warlord picker
+  to reduce dead-end diagnostics. The validation panel can now render compact
+  Unit/Detachment/Attached/Datasheet badges from existing scope metadata, and
+  the roster overview can set or clear the Warlord using the same compact
+  roster action as the unit-detail screen.
+- 2026-07-05: Tightened the roster-level Warlord picker so it reuses the
+  Warlord eligibility rules before the user commits a selection. Eligible
+  candidates sort first, while invalid candidates remain visible with a compact
+  reason such as `not eligible`, `Supreme Commander required`, or required
+  detachment/faction Warlord hints.
+- 2026-07-05: Added target-level eligibility hints to unit-detail enhancement
+  selects. Enhancement options still remain visible, but invalid target choices
+  now carry compact reasons such as `Character required`, `Epic Hero not
+  allowed`, `requires wargear`, `attached unit required`, or `cannot be
+  Warlord`, all derived from the same rule helpers used by validation.
+- 2026-07-05: Added pre-selection eligibility hints to unit-detail allegiance
+  ability selects. Mark/allegiance options now stay visible while invalid
+  choices explain required detachments, required wargear, mandatory faction
+  choices, or reached group limits through the same rule helper used by
+  validation.
+- 2026-07-05: Added model-target validation context for the unit detail UX.
+  Validation labels can now show `Model` scope, model-target enhancement and
+  Warlord diagnostics carry target IDs when the target is known, and the
+  wargear editor shows compact scoped wargear issues inside the affected unit
+  or model section without caching validation results.
+- 2026-07-05: Added a unit-detail `Reset Wargear` action. It restores
+  unit-level and model-level wargear from the current static-catalog
+  composition defaults while preserving the roster unit, model IDs, Warlord
+  flag, enhancements, and attachment state.
+- 2026-07-05: Added roster-screen validation navigation. Unit-scoped validation
+  groups can open the affected unit detail, detachment rows link to the matching
+  static Codex detachment route, and attachment-scoped validation groups can
+  scroll to the affected attached-unit row.
+- 2026-07-05: Added add-unit candidate hints for duplicate caps and point
+  pressure. The unit picker still permits intentionally invalid intermediate
+  rosters, but options now surface `limit reached` and `pts over` reasons using
+  the same static-catalog duplicate and points data as validation.
+- 2026-07-05: Added add-detachment candidate hints for detachment-point
+  pressure. Detachment options still remain selectable, but adding a detachment
+  that would exceed the battle-size DP limit now carries a compact `DP over`
+  reason before the roster is changed.
+- 2026-07-05: Added roster-level validation actions for global diagnostics.
+  Missing-Warlord, missing-detachment, over-points, and multi-scope validation
+  groups can now jump to the relevant thin-client editor section, while
+  single-unit, single-detachment, and single-attachment diagnostics keep their
+  direct Open/Codex/Show actions.
+- 2026-07-05: Added presentation scope metadata to allied validation
+  diagnostics. Allied bucket availability, required Warlord/detachment,
+  datasheet, points, keyword cap, mutually-exclusive keyword, required
+  allegiance, and outnumbering messages now identify affected roster unit ids
+  so the thin-client unit list can badge responsible rows without parsing text
+  or storing validation output.
+- 2026-07-05: Added presentation scope metadata to enhancement limit
+  diagnostics. Roster enhancement caps, per-enhancement duplicate caps, and
+  Combat Patrol duplicate/alternate enhancement messages now identify affected
+  roster unit ids, while missing Combat Patrol default enhancements remain a
+  global Units action because no concrete unit has selected the missing default.
+- 2026-07-05: Added presentation scope metadata to allegiance roster min/max
+  diagnostics. Group limit messages now identify the roster units with that
+  allegiance group, including detachment-scoped Houndpack/Headhunter cases, so
+  the unit list can point users at the relevant selectors.
+- 2026-07-05: Added presentation scope metadata to keyword restriction
+  diagnostics and tightened validation action priority. Top-level and
+  detachment-scoped keyword min/max/zero-limit messages now identify affected
+  roster unit ids when present, and detachment-scoped missing-datasheet or
+  keyword-minimum diagnostics now jump to Units instead of opening Codex.
+- 2026-07-05: Added explicit focus targets for validation navigation. Warlord
+  actions focus the Warlord select, Detachments actions focus the add-detachment
+  select, Units actions focus unit Search, and Attached actions focus the
+  bodyguard select instead of landing on the first existing row.
+- 2026-07-05: Added datasheet-aware validation actions. Grouped diagnostics now
+  carry `datasheetIds`, and single-datasheet missing/linked-datasheet
+  detachment errors can use a `Find` action that focuses Units Search and
+  pre-fills the required datasheet name.
+- 2026-07-05: Added richer Warlord presentation scope. Missing mandatory
+  Warlord diagnostics now carry the required datasheet id so validation can use
+  the Units `Find` action, mandatory-Warlord-present diagnostics scope the
+  required unit, and Supreme Commander diagnostics scope both the selected
+  Warlord and the Supreme Commander units.
+- 2026-07-05: Tightened validation-action priority after adding more scopes.
+  Datasheet `Find` actions still win first, then code-specific actions like
+  Warlord `Pick` and required-detachment `Detachments`, and only then generic
+  single-unit `Open`; this keeps new unit scope metadata from turning global
+  fix actions into less useful unit-detail navigation.
+- 2026-07-05: Added unit-detail validation actions and focus targets. Unit
+  diagnostics can now jump to local Wargear, Enhancements, Allegiance Ability,
+  Warlord, or Composition controls, and those targets focus the relevant select
+  or wargear input without adding cached validation state.
+- 2026-07-05: Added target-aware unit-detail Wargear navigation. Grouped
+  diagnostics now carry `targetIds`, and model-scoped wargear messages can jump
+  directly to the affected model's Wargear section instead of only the broad
+  unit Wargear area.
+- 2026-07-05: Added target-aware unit-detail Enhancement navigation.
+  Model-scoped enhancement diagnostics now jump to the affected model's
+  enhancement select when the diagnostic carries exactly one target id, while
+  broader enhancement diagnostics still jump to the main Enhancements section.
+- 2026-07-05: Added an inline clear button to the roster unit Search control.
+  The unit add row keeps Add immediately to the right of the datasheet select,
+  while Search now has the same compact `x` affordance as the Codex search
+  pattern and continues to act as the Units validation focus target.
+- 2026-07-05: Added detachment scope to missing Combat Patrol default
+  enhancement diagnostics. The action remains Units because the missing
+  enhancement must be selected on a unit, but the validation row can now show
+  which Combat Patrol detachment requires it.
+- 2026-07-05: Removed the separate add-unit Source select. The unit picker now
+  uses one searchable dropdown grouped by available source, with native
+  datasheets first and allied datasheets after them, while option values still
+  carry `allyType` plus `datasheetId` for thin-client roster updates.
+- 2026-07-05: Added compact roster unit thumbnails from local Codex unit-image
+  assets. The static exporter now writes `unit-images.json` as a datasheet-id to
+  filename map, full catalog load indexes it as `unitImagesByDatasheetId`, and
+  bootstrap/list startup remains image-free.
+- 2026-07-05: Reused the same local unit thumbnail helper in attached-unit rows,
+  so bodyguard and attached leader/support entries now share the roster unit
+  list's visual language without adding runtime fetches or cached UI state.
+- 2026-07-05: Added the local unit image helper to the unit-detail overview, so
+  opening a unit from the roster keeps the same visual identity while validation
+  controls and focus targets remain unchanged.
+- 2026-07-05: Added Codex-style inline Search with clear control to the
+  add-detachment row. Detachment validation focus still lands on the dropdown,
+  while the filter can match either detachment name or disposition.
+- 2026-07-05: Added explicit empty picker states for unit and detachment search.
+  When filters return no candidates, the dropdown shows a disabled explanatory
+  option and both the select and Add button are disabled.
+- 2026-07-05: Replaced the generic selected-unit `Allied` badge with a compact
+  source badge derived from the same allied parent-faction data used by the
+  add-unit picker, keeping long multi-faction sources truncated with a full
+  title tooltip.
+- 2026-07-05: Tightened roster validation action routing for empty rosters and
+  Warlord conflicts. `roster.empty` now jumps to Units, while multiple,
+  invalid, Supreme Commander, and detachment-mandatory Warlord conflicts jump
+  to the Warlord picker even when unit scope metadata is present.
+- 2026-07-05: Split unit-detail validation action navigation out of
+  `builder_roster_unit_detail_view.js` into
+  `builder_roster_unit_detail_actions.js`, preserving the public
+  `unitValidationActionTarget` re-export while reducing the main detail view.
+- 2026-07-05: Split attached-unit availability and empty-state explanation logic
+  out of `builder_roster_attachment_editor_view.js` into
+  `builder_roster_attachment_options.js`. The editor view now stays focused on
+  DOM rendering while tests keep importing `attachmentUnavailableMessage`
+  through the previous public module.
+- 2026-07-05: Split unit-detail Wargear rendering and scope-local validation
+  display out of `builder_roster_unit_detail_view.js` into
+  `builder_roster_unit_wargear_view.js`, leaving the main detail view focused on
+  composition, Warlord, allegiance, enhancements, and page layout.
+- 2026-07-05: Extended the standalone Builder cache-bust test to cover the new
+  split modules and local unit-image helper. This keeps GitHub Pages deployments
+  honest: every local Builder import must be rewritten with the same asset hash
+  as the entrypoint HTML.
+- 2026-07-05: Fixed attachment-scoped validation presentation to include
+  diagnostics scoped to a single member `unitId`, not only grouped `unitIds`.
+  Attachment rows now surface errors attached directly to a leader, support, or
+  bodyguard member inside the group.
+- 2026-07-05: Hardened unit-scoped validation presentation to also match
+  diagnostics scoped only to model `targetId` / `targetIds`. Current validators
+  usually include `unitId`, but the unit rows and unit detail page no longer
+  depend on that duplicate scope being present.
+- 2026-07-05: Extended attachment-scoped validation presentation with optional
+  member model-target matching. The roster attachment rows now receive the
+  existing unit-summary map and can surface model-only Wargear/Enhancement
+  diagnostics from attached leaders, support units, or bodyguards.
+- 2026-07-05: Deferred stale roster list-cache refresh from startup to roster
+  and unit routes. The Builder list route now stays bootstrap-only even when
+  cached summaries were written for an older data version; opening the concrete
+  roster recalculates and persists the summary without touching `modifiedAt`.
+- 2026-07-05: Added an `outdated` roster-list badge state for stale cached
+  summaries. The list can now be honest about data-version drift while still
+  avoiding full-catalog validation on the GitHub Pages startup path.
+- 2026-07-05: Split pure loadout count arithmetic out of
+  `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
+  loadout exports stay unchanged while the rule-facing module is smaller and
+  still uses the same precomputed/static catalog data.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering

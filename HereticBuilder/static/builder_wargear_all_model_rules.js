@@ -5,6 +5,7 @@ import {
   scopeModelCount,
   selectedMiniatureWargearCounts,
   selectedRosterUnitWargearCounts,
+  targetIdForMiniature,
 } from "./builder_wargear_selection.js";
 
 function allModelChoiceItems(choiceId, context) {
@@ -57,9 +58,14 @@ function validateAllModelWargearChoiceSets(unit, messages) {
         hasValidBaseLine: false,
         hasHardInvalid: false,
         hasSubstituteWithoutBase: false,
+        targetIds: [],
       });
     }
     const family = checksByFamily.get(familyKey);
+    const targetId = targetIdForMiniature(unit, row.miniatureId);
+    if (targetId && !family.targetIds.includes(targetId)) {
+      family.targetIds.push(targetId);
+    }
     const activeBase = [];
     for (const choice of baseChoices) {
       const occurrences = choiceOccurrences(selected, choice.items);
@@ -88,7 +94,12 @@ function validateAllModelWargearChoiceSets(unit, messages) {
     family.hasHardInvalid || (family.hasSubstituteWithoutBase && !family.hasValidBaseLine)
   ));
   if (invalid) {
-    messages.push(unitValidationMessage("wargear_loadout.invalid_wargear_requirement", unit, `Invalid wargear configuration for ${unit.name}.`));
+    const targetIds = [...checksByFamily.values()]
+      .flatMap((family) => family.targetIds || [])
+      .filter(Boolean);
+    messages.push(unitValidationMessage("wargear_loadout.invalid_wargear_requirement", unit, `Invalid wargear configuration for ${unit.name}.`, {
+      targetIds: [...new Set(targetIds)],
+    }));
   }
 }
 

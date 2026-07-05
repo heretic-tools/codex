@@ -64,7 +64,9 @@ function validateAttachedUnits(roster, detachments, units, messages) {
   for (const [rosterUnitId, groupIds] of membership.entries()) {
     if (groupIds.size > 1) {
       const unit = units.find((item) => item.id === rosterUnitId);
-      messages.push(unitValidationMessage("attached_unit.duplicate_membership", unit, `${unit?.name || "Unit"} is part of more than one attached unit.`));
+      messages.push(unitValidationMessage("attached_unit.duplicate_membership", unit, `${unit?.name || "Unit"} is part of more than one attached unit.`, {
+        attachmentIds: [...groupIds],
+      }));
     }
   }
   const detachmentIds = detachments.map((detachment) => detachment.id);
@@ -77,12 +79,19 @@ function validateAttachedUnits(roster, detachments, units, messages) {
     const attachedModels = members.filter((member) => member.attachmentType === "leader" || member.attachmentType === "support");
     if (!bodyguards.length && attachedModels.length) {
       for (const attached of attachedModels) {
-        messages.push(unitValidationMessage("attached_unit.must_be_attached", attached, `${attached.name} must be attached to a bodyguard unit.`));
+        messages.push(unitValidationMessage("attached_unit.must_be_attached", attached, `${attached.name} must be attached to a bodyguard unit.`, {
+          attachmentId: group.id,
+        }));
       }
       continue;
     }
     if (!bodyguards.length || !attachedModels.length) {
-      messages.push(validationMessage("attached_unit.incomplete", `Attached unit ${group.id} is incomplete.`));
+      messages.push(validationMessage(
+        "attached_unit.incomplete",
+        `Attached unit ${group.id} is incomplete.`,
+        "error",
+        { attachmentId: group.id }
+      ));
       continue;
     }
     const bodyguard = bodyguards[0];
@@ -93,6 +102,7 @@ function validateAttachedUnits(roster, detachments, units, messages) {
           `${attached.name} cannot attach to ${bodyguard.name} as ${attached.attachmentType}.`,
           "error",
           {
+            attachmentId: group.id,
             unitIds: [attached.id, bodyguard.id].filter(Boolean),
             datasheetIds: [attached.datasheetId, bodyguard.datasheetId].filter(Boolean),
           }
@@ -162,6 +172,7 @@ function validateAttachedUnitEnhancementLimits(roster, units, messages) {
         `Attached unit ${group.id} has more than 1 enhancement.`,
         "error",
         {
+          attachmentId: group.id,
           unitIds: (group.members || []).map((member) => member.rosterUnitId).filter(Boolean),
         }
       ));

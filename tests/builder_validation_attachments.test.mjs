@@ -426,6 +426,10 @@ test("attachment groups validate incomplete, duplicate, and invalid pairings", (
       }],
     }, [], units, mustAttachMessages);
     assert.ok(messageCodes(mustAttachMessages).includes("attached_unit.must_be_attached"));
+    assert.equal(
+      mustAttachMessages.find((message) => message.code === "attached_unit.must_be_attached")?.scope?.attachmentId,
+      "leader-without-bodyguard"
+    );
 
     const supportMustAttachMessages = [];
     validateAttachedUnits({
@@ -446,6 +450,10 @@ test("attachment groups validate incomplete, duplicate, and invalid pairings", (
       }],
     }, [], units, incompleteMessages);
     assert.ok(messageCodes(incompleteMessages).includes("attached_unit.incomplete"));
+    assert.equal(
+      incompleteMessages.find((message) => message.code === "attached_unit.incomplete")?.scope?.attachmentId,
+      "bodyguard-without-attached-model"
+    );
 
     const invalidMessages = [];
     validateAttachedUnits({
@@ -459,6 +467,10 @@ test("attachment groups validate incomplete, duplicate, and invalid pairings", (
       }],
     }, [], units, invalidMessages);
     assert.ok(messageCodes(invalidMessages).includes("attached_unit.missing_requirements"));
+    assert.equal(
+      invalidMessages.find((message) => message.code === "attached_unit.missing_requirements")?.scope?.attachmentId,
+      "invalid-group"
+    );
 
     const supportInvalidMessages = [];
     validateAttachedUnits({
@@ -494,5 +506,9 @@ test("attachment groups validate incomplete, duplicate, and invalid pairings", (
       ],
     }, [], units, duplicateMessages);
     assert.ok(messageCodes(duplicateMessages).includes("attached_unit.duplicate_membership"));
+    assert.deepEqual(
+      duplicateMessages.find((message) => message.code === "attached_unit.duplicate_membership")?.scope?.attachmentIds,
+      ["duplicate-a", "duplicate-b"]
+    );
   });
 });

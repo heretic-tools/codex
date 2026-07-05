@@ -16,12 +16,17 @@ function validateDetachmentUniqueKeywords(detachments, messages) {
           detachments: [],
         });
       }
-      byKeyword.get(row.keywordId).detachments.push(detachment.name);
+      byKeyword.get(row.keywordId).detachments.push(detachment);
     }
   }
-  for (const { name, detachments: names } of byKeyword.values()) {
-    if (names.length > 1) {
-      messages.push(validationMessage("roster.detachment_unique_keyword_error", `Detachments share unique keyword ${name}: ${names.join(", ")}.`));
+  for (const { name, detachments: items } of byKeyword.values()) {
+    if (items.length > 1) {
+      messages.push(validationMessage(
+        "roster.detachment_unique_keyword_error",
+        `Detachments share unique keyword ${name}: ${items.map((detachment) => detachment.name).join(", ")}.`,
+        "error",
+        { detachmentIds: items.map((detachment) => detachment.id) }
+      ));
     }
   }
 }
@@ -89,13 +94,20 @@ function validateDetachmentDatasheets(detachments, units, messages) {
       if ((state.catalog.detachmentExcludedDatasheets || []).some((row) => (
         row.detachmentId === detachment.id && row.datasheetId === unit.datasheetId
       ))) {
-        messages.push(unitValidationMessage("detachment.datasheet_not_allowed", unit, `${unit.name} is excluded from ${detachment.name}.`));
+        messages.push(unitValidationMessage("detachment.datasheet_not_allowed", unit, `${unit.name} is excluded from ${detachment.name}.`, {
+          detachmentId: detachment.id,
+        }));
       }
     }
     for (const row of state.catalog.detachmentRequiredDatasheetsByDetachmentId.get(detachment.id) || []) {
       const datasheet = state.catalog.datasheetById.get(row.datasheetId);
       if (!counts[row.datasheetId]) {
-        messages.push(validationMessage("detachment.datasheets_missing", `${detachment.name} requires ${datasheet?.name || "a required unit"}.`));
+        messages.push(validationMessage(
+          "detachment.datasheets_missing",
+          `${detachment.name} requires ${datasheet?.name || "a required unit"}.`,
+          "error",
+          { detachmentId: detachment.id, datasheetId: row.datasheetId }
+        ));
       }
     }
     if (!detachment.isCombatPatrol) {
@@ -114,13 +126,15 @@ function validateDetachmentDatasheets(detachments, units, messages) {
           "detachment.linked_datasheet_count_mismatch",
           `${detachment.name} requires exactly ${linked.count} ${datasheet?.name || "linked"} unit(s); roster has ${actual}.`,
           "error",
-          { datasheetId: linked.datasheetId }
+          { datasheetId: linked.datasheetId, detachmentId: detachment.id }
         ));
       }
     }
     for (const unit of units) {
       if (!linkedCounts.has(unit.datasheetId)) {
-        messages.push(unitValidationMessage("detachment.linked_datasheet_not_allowed", unit, `${unit.name} is not part of ${detachment.name}.`));
+        messages.push(unitValidationMessage("detachment.linked_datasheet_not_allowed", unit, `${unit.name} is not part of ${detachment.name}.`, {
+          detachmentId: detachment.id,
+        }));
       }
     }
   }
@@ -144,27 +158,37 @@ function keywordRestrictionGroupIsActive(group, warlordIds) {
   return !group.requiresWarlordMiniatureId || warlordIds.has(group.requiresWarlordMiniatureId);
 }
 
-function countKeywordRestrictedUnits(units, group) {
-  let count = 0;
+function keywordRestrictedUnits(units, group) {
+  const restricted = [];
   for (const unit of units) {
     if (group.excludedFactionKeywordId && (unit.factionKeywordIds || []).some((id) => factionScope(id).includes(group.excludedFactionKeywordId))) {
       continue;
     }
     if (setIntersects(new Set(unit.keywordIds || []), group.keywordIds)) {
-      count += 1;
+      restricted.push(unit);
     }
   }
-  return count;
+  return restricted;
 }
 
-function addKeywordLimitMessage(messages, group, count, limit, detachmentName) {
+function unitIdsScope(units, extra = {}) {
+  const unitIds = [...new Set((units || []).map((unit) => unit.id).filter(Boolean))];
+  const scope = { ...extra };
+  if (unitIds.length) {
+    scope.unitIds = unitIds;
+  }
+  return Object.keys(scope).length ? scope : null;
+}
+
+function addKeywordLimitMessage(messages, group, count, limit, detachment = null, affectedUnits = []) {
   const labels = group.keywordNames.join(", ");
-  const scope = detachmentName ? ` in ${detachmentName}` : "";
+  const scope = detachment ? ` in ${detachment.name}` : "";
   const prefix = group.excludedFactionKeywordName ? `Excluding ${group.excludedFactionKeywordName} units, ` : "";
+  const messageScope = unitIdsScope(affectedUnits, detachment ? { detachmentId: detachment.id } : {});
   if (limit === 0) {
-    messages.push(validationMessage("keyword_restriction_group.limit_zero", `${prefix}${labels} units are not allowed${scope}.`));
+    messages.push(validationMessage("keyword_restriction_group.limit_zero", `${prefix}${labels} units are not allowed${scope}.`, "error", messageScope));
   } else {
-    messages.push(validationMessage("keyword_restriction_group.limit_exceeded", `${prefix}${labels} has ${count} units${scope}; limit is ${limit}.`));
+    messages.push(validationMessage("keyword_restriction_group.limit_exceeded", `${prefix}${labels} has ${count} units${scope}; limit is ${limit}.`, "error", messageScope));
   }
 }
 
@@ -177,9 +201,10 @@ function validateKeywordRestrictions(roster, detachments, units, messages) {
     if (!keywordRestrictionGroupIsActive(group, warlordIds)) {
       continue;
     }
-    const count = countKeywordRestrictedUnits(units, group);
+    const affectedUnits = keywordRestrictedUnits(units, group);
+    const count = affectedUnits.length;
     if (group.limit != null && count > group.limit) {
-      addKeywordLimitMessage(messages, group, count, group.limit, null);
+      addKeywordLimitMessage(messages, group, count, group.limit, null, affectedUnits);
     }
   }
   for (const detachment of detachments) {
@@ -192,12 +217,18 @@ function validateKeywordRestrictions(roster, detachments, units, messages) {
       if (!group || !keywordRestrictionGroupIsActive(group, warlordIds)) {
         continue;
       }
-      const count = countKeywordRestrictedUnits(units, group);
+      const affectedUnits = keywordRestrictedUnits(units, group);
+      const count = affectedUnits.length;
       if (row.minRosterLimit != null && count < row.minRosterLimit) {
-        messages.push(validationMessage("keyword_restriction_group.minimum_not_met", `${detachment.name} requires at least ${row.minRosterLimit} ${group.keywordNames.join(", ")} unit(s).`));
+        messages.push(validationMessage(
+          "keyword_restriction_group.minimum_not_met",
+          `${detachment.name} requires at least ${row.minRosterLimit} ${group.keywordNames.join(", ")} unit(s).`,
+          "error",
+          unitIdsScope(affectedUnits, { detachmentId: detachment.id })
+        ));
       }
       if (row.maxRosterLimit != null && count > row.maxRosterLimit) {
-        addKeywordLimitMessage(messages, group, count, row.maxRosterLimit, detachment.name);
+        addKeywordLimitMessage(messages, group, count, row.maxRosterLimit, detachment, affectedUnits);
       }
     }
   }

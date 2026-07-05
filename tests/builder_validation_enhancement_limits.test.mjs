@@ -101,6 +101,10 @@ test("enhancement roster, duplicate, and per-unit limits use official battle-siz
   const rosterLimitMessages = [];
   validateEnhancements(roster, [lordsOfDread], units, rosterLimitMessages);
   assert.ok(messageCodes(rosterLimitMessages).includes("enhancement.roster_has_too_many_enhancements"));
+  assert.deepEqual(
+    rosterLimitMessages.find((message) => message.code === "enhancement.roster_has_too_many_enhancements")?.scope?.unitIds,
+    ["knight-0", "knight-1", "knight-2", "knight-3", "knight-4"]
+  );
 
   const duplicateMessages = [];
   validateEnhancements(roster, [lordsOfDread], [
@@ -124,6 +128,10 @@ test("enhancement roster, duplicate, and per-unit limits use official battle-siz
     ),
   ], duplicateMessages);
   assert.ok(messageCodes(duplicateMessages).includes("enhancement.models_have_same_enhancements"));
+  assert.deepEqual(
+    duplicateMessages.find((message) => message.code === "enhancement.models_have_same_enhancements")?.scope?.unitIds,
+    ["duplicate-knight-1", "duplicate-knight-2"]
+  );
 
   const unitLimitMessages = [];
   const overloadedUnit = enhancementTargetUnit({
@@ -177,6 +185,10 @@ test("upgrade enhancements are unit-level options with their own required groups
   })), duplicateMessages);
   assert.ok(messageCodes(duplicateMessages).includes("enhancement.models_have_same_enhancements"));
   assert.ok(!messageCodes(duplicateMessages).includes("enhancement.roster_has_too_many_enhancements"));
+  assert.deepEqual(
+    duplicateMessages.find((message) => message.code === "enhancement.models_have_same_enhancements")?.scope?.unitIds,
+    ["ratlings-upgrade-0", "ratlings-upgrade-1", "ratlings-upgrade-2", "ratlings-upgrade-3"]
+  );
 });
 
 test("Combat Patrol enhancements enforce the configured default and reject alternatives", () => {
@@ -192,6 +204,10 @@ test("Combat Patrol enhancements enforce the configured default and reject alter
   const requiredMessages = [];
   validateEnhancements(roster, [purgeCorps], [], requiredMessages);
   assert.ok(messageCodes(requiredMessages).includes("enhancement.combat_patrol_required"));
+  assert.deepEqual(
+    requiredMessages.find((message) => message.code === "enhancement.combat_patrol_required")?.scope?.detachmentId,
+    purgeCorps.id
+  );
 
   const duplicateMessages = [];
   validateEnhancements(roster, [purgeCorps], [
@@ -215,6 +231,10 @@ test("Combat Patrol enhancements enforce the configured default and reject alter
     ),
   ], duplicateMessages);
   assert.ok(messageCodes(duplicateMessages).includes("enhancement.combat_patrol_multiple_selected"));
+  assert.deepEqual(
+    duplicateMessages.find((message) => message.code === "enhancement.combat_patrol_multiple_selected")?.scope?.unitIds,
+    ["cp-captain-1", "cp-captain-2"]
+  );
 
   const alternateMessages = [];
   validateEnhancements(roster, [purgeCorps], [
@@ -229,6 +249,10 @@ test("Combat Patrol enhancements enforce the configured default and reject alter
     ),
   ], alternateMessages);
   assert.ok(messageCodes(alternateMessages).includes("enhancement.combat_patrol_not_allowed"));
+  assert.deepEqual(
+    alternateMessages.find((message) => message.code === "enhancement.combat_patrol_not_allowed")?.scope?.unitIds,
+    ["cp-captain-alt"]
+  );
 });
 
 test("all live Combat Patrol enhancement defaults require exactly one default and reject alternatives", () => {

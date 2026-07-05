@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from roster_builder_assets import DEFAULT_DB, PROJECT_ROOT
+from roster_builder_assets import DEFAULT_DB, PROJECT_ROOT, UNIT_IMAGES_BY_ID, UNIT_IMAGES_BY_NAME, UNIT_IMAGE_ROOT
 
 
 EXPORT_SCHEMA_VERSION = 1
@@ -627,6 +627,20 @@ def bootstrap_payload(conn, version, counts, aliases):
     }
 
 
+def unit_images_payload(conn):
+    images_by_datasheet_id = {}
+    for row in conn.execute("select id, name from datasheet order by id"):
+        image = UNIT_IMAGES_BY_ID.get(row["id"]) or UNIT_IMAGES_BY_NAME.get(str(row["name"] or "").lower())
+        if not image:
+            continue
+        filename = image.get("filename") or ""
+        if filename and (UNIT_IMAGE_ROOT / filename).exists():
+            images_by_datasheet_id[row["id"]] = filename
+    return {
+        "imagesByDatasheetId": images_by_datasheet_id,
+    }
+
+
 def excluded_table_names(all_tables, exported_tables):
     excluded = []
     for table in all_tables:
@@ -680,6 +694,10 @@ def export_builder_data(db_path, out_dir):
         loadouts = precomputed_loadouts(conn, aliases)
         record = write_json(out_dir / "precomputed-loadouts.json", loadouts)
         files.append(file_entry(out_dir, record))
+
+        unit_images = unit_images_payload(conn)
+        record = write_json(out_dir / "unit-images.json", unit_images)
+        files.append(file_entry(out_dir, record, len(unit_images["imagesByDatasheetId"])))
 
         for table in CATALOG_TABLES:
             columns = table_columns(conn, table)

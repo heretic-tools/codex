@@ -58,6 +58,7 @@ import {
   validateUnitCompositions,
   validateWargearLoadouts,
   validateWarlord,
+  warlordCandidateStatus,
   withCatalog,
   withMiniatureEnhancement,
 } from "./builder_validation_helpers.mjs";
@@ -261,6 +262,7 @@ export {
   validateUnitCompositions,
   validateWargearLoadouts,
   validateWarlord,
+  warlordCandidateStatus,
   warlordUnitForMiniature,
   withCatalog,
   withMiniatureEnhancement,

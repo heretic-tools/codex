@@ -119,6 +119,10 @@ test("Heretic Astartes Legiones Daemonica allies enforce points and restricting 
     alliedUnit({ id: "daemon-points-over-cap", datasheetName: "Bloodletters", allyType, points: 501 }),
   ], pointsMessages);
   assert.ok(messageCodes(pointsMessages).includes("allied_points.limit_exceeded"));
+  assert.deepEqual(
+    pointsMessages.find((message) => message.code === "allied_points.limit_exceeded")?.scope?.unitIds,
+    ["daemon-points-over-cap"]
+  );
 
   const restrictingCases = [
     { id: "khorne-daemon-outnumbering", battleline: "Bloodletters", nonBattleline: "Bloodmaster" },
@@ -134,6 +138,11 @@ test("Heretic Astartes Legiones Daemonica allies enforce points and restricting 
     assert.ok(
       messageCodes(restrictingMessages).includes("allied_keyword_restricting_keyword.outnumbered_keywords"),
       `${parityCase.id} should require enough matching Battleline allies`
+    );
+    assert.deepEqual(
+      restrictingMessages.find((message) => message.code === "allied_keyword_restricting_keyword.outnumbered_keywords")?.scope?.unitIds,
+      [`${parityCase.id}-invalid`],
+      `${parityCase.id} should scope the outnumbered allied unit`
     );
 
     const pairedMessages = [];
@@ -164,6 +173,10 @@ test("Heretic Astartes Chaos Knights allies enforce keyword caps and mutual excl
     alliedUnit({ id: "brigand-4", datasheetName: "War Dog Brigand", allyType, points: 100 }),
   ], capMessages);
   assert.ok(messageCodes(capMessages).includes("allied_keyword_count.limit_exceeded"));
+  assert.deepEqual(
+    capMessages.find((message) => message.code === "allied_keyword_count.limit_exceeded")?.scope?.unitIds,
+    ["brigand-1", "brigand-2", "brigand-3", "brigand-4"]
+  );
 
   const mutualMessages = [];
   validateAlliedUnits(roster, [], [
@@ -171,6 +184,10 @@ test("Heretic Astartes Chaos Knights allies enforce keyword caps and mutual excl
     alliedUnit({ id: "rampager", datasheetName: "Knight Rampager", allyType, points: 100 }),
   ], mutualMessages);
   assert.ok(messageCodes(mutualMessages).includes("allied_keyword_count.invalid_mutually_exclusive_keywords"));
+  assert.deepEqual(
+    mutualMessages.find((message) => message.code === "allied_keyword_count.invalid_mutually_exclusive_keywords")?.scope?.unitIds,
+    ["brigand", "rampager"]
+  );
 });
 
 test("Heretic Astartes Titanicus Traitoris allies enforce titan keyword caps", () => {

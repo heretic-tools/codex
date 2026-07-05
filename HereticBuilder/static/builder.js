@@ -4,6 +4,12 @@ import { baseBreadcrumbs, builderBreadcrumbs, navigate, parseRoute } from "./bui
 import { el, renderBreadcrumbs, renderStartupError, setStatus } from "./builder_shell.js";
 import { state } from "./builder_state.js";
 import { getAllRosters, newId, openLocalDb, removeRoster, saveRoster } from "./builder_storage.js";
+import {
+  rosterCachedPointsTotal,
+  rosterListCacheIsFresh,
+  rosterWithListCache,
+} from "./builder_roster_cache.js";
+import { parseImportedRosters, serializeRosters } from "./builder_roster_transfer.js";
 
 let catalogPromise = null;
 let rulesPromise = null;
@@ -98,21 +104,23 @@ function bootstrapRowById(rows, id) {
   return (rows || []).find((row) => row.id === id) || null;
 }
 
-function storedPointsTotal(roster) {
-  return (roster.units || []).reduce((total, unit) => total + (unit.points || 0), 0);
-}
-
 function lightweightRosterSummary(roster) {
   const faction = bootstrapRowById(state.catalog.factions, roster.factionKeywordId);
   const battleSize = bootstrapRowById(state.catalog.battleSizes, roster.battleSizeId);
+  const cacheFresh = rosterListCacheIsFresh(roster, currentDataVersion());
   return {
     battleSizeName: battleSize?.name || "Unknown Battle Size",
     detachmentCount: (roster.detachmentIds || []).length,
     factionName: faction?.name || "Unknown Faction",
     pointsLimit: battleSize?.pointsLimit || 0,
-    pointsTotal: storedPointsTotal(roster),
+    pointsTotal: rosterCachedPointsTotal(roster),
+    validationState: cacheFresh ? roster.listSummary.validationState : "outdated",
     unitCount: (roster.units || []).length,
   };
+}
+
+function currentDataVersion() {
+  return state.catalog?.bootstrap?.dataVersion || null;
 }
 
 async function setRoute(route) {
@@ -134,16 +142,58 @@ async function refreshRosters() {
   ));
 }
 
+async function saveRosterCacheIfStale(roster, validation) {
+  const dataVersion = currentDataVersion();
+  if (rosterListCacheIsFresh(roster, dataVersion)) {
+    return;
+  }
+  await saveRoster(rosterWithListCache(roster, validation, dataVersion), { touch: false });
+  await refreshRosters();
+}
+
 async function renderList() {
   el.title.textContent = "Builder";
   renderBreadcrumbs(baseBreadcrumbs());
   const { renderRosterListView } = await loadListView();
   el.root.appendChild(renderRosterListView({
-    rosters: state.rosters,
     onCreate: () => navigate("/new"),
+    onExport: exportRosters,
+    onImport: importRosters,
     onOpen: (roster) => navigate(`/roster/${encodeURIComponent(roster.id)}`),
+    rosters: state.rosters,
     summarizeRoster: lightweightRosterSummary,
   }));
+}
+
+function exportRosters() {
+  const payload = serializeRosters(state.rosters, currentDataVersion());
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.download = `heretic-builder-rosters-${new Date().toISOString().slice(0, 10)}.json`;
+  link.href = url;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function importRosters(file) {
+  try {
+    const rosters = parseImportedRosters(await file.text());
+    if (!rosters.length) {
+      return;
+    }
+    await ensureCatalog();
+    const { validateRoster } = await loadRules();
+    for (const roster of rosters) {
+      await saveRoster(rosterWithListCache(roster, validateRoster(roster), currentDataVersion()));
+    }
+    await refreshRosters();
+    await render();
+  } catch (error) {
+    window.alert(error.message || "Failed to import rosters");
+  }
 }
 
 async function createRoster(values) {
@@ -159,6 +209,11 @@ async function createRoster(values) {
     createdAt: now,
     modifiedAt: now,
     dataVersion: state.catalog.bootstrap.dataVersion,
+    listSummary: {
+      detachmentPoints: 0,
+      pointsTotal: 0,
+      validationState: "invalid",
+    },
   };
   await saveRoster(roster);
   await refreshRosters();
@@ -188,7 +243,8 @@ async function deleteRoster(roster) {
 }
 
 async function updateRoster(roster) {
-  await saveRoster(roster);
+  const { validateRoster } = await loadRules();
+  await saveRoster(rosterWithListCache(roster, validateRoster(roster), currentDataVersion()));
   await refreshRosters();
   await render();
 }
@@ -203,6 +259,8 @@ async function renderRoster() {
     loadDetailView(),
     loadRules(),
   ]);
+  const validation = validateRoster(roster);
+  await saveRosterCacheIfStale(roster, validation);
   el.title.textContent = roster.name || "New Roster";
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
@@ -212,6 +270,7 @@ async function renderRoster() {
     onUpdate: updateRoster,
     onUnitOpen: (unit) => navigate(`/roster/${encodeURIComponent(roster.id)}/unit/${encodeURIComponent(unit.id)}`),
     summarizeRoster: rosterSummary,
+    validation,
     validateRoster,
   }));
 }
@@ -223,7 +282,12 @@ async function renderUnit() {
     await renderNotFound();
     return;
   }
-  const { renderRosterUnitDetailView, unitDisplayName } = await loadUnitView();
+  const [{ renderRosterUnitDetailView, unitDisplayName }, { validateRoster }] = await Promise.all([
+    loadUnitView(),
+    loadRules(),
+  ]);
+  const validation = validateRoster(roster);
+  await saveRosterCacheIfStale(roster, validation);
   el.title.textContent = unitDisplayName(roster, unit);
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterUnitDetailView({
@@ -231,6 +295,7 @@ async function renderUnit() {
     onUpdate: updateRoster,
     roster,
     unit,
+    validation,
   }));
 }
 

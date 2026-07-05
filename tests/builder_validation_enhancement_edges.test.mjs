@@ -6,6 +6,7 @@ import {
   defaultMiniatures,
   defaultWargear,
   factionScope,
+  enhancementCandidateStatus,
   validateAllegianceAbilities,
   validateAlliedUnits,
   validateAttachedUnits,
@@ -73,6 +74,11 @@ import {
   enhancementFlagUnit,
   validateEnhancementFlagRows,
 } from "./builder_validation_enhancements_helpers.mjs";
+
+function miniatureKeywordIdsFor(miniature) {
+  return (realCatalog.miniatureKeywordsByMiniatureId.get(miniature.miniatureId) || [])
+    .map((row) => row.keywordId);
+}
 
 test("enhancements enforce required keywords, excluded keywords, and required wargear", () => {
   state.catalog = realCatalog;
@@ -330,6 +336,15 @@ test("enhancements validate target type, zero models, allied units, excluded mod
   );
   assert.ok(messageCodes(epicHeroMessages).includes("enhancement.epic_hero_not_allowed"));
 
+  const nonCharacterUnit = withMiniatureEnhancement(
+    enhancementTargetUnit({
+      id: "intercessor-enhancement",
+      datasheetName: "Intercessor Squad",
+      miniatureName: "Intercessor Sergeant",
+      factionNames: ["Adeptus Astartes"],
+    }),
+    fusillade
+  );
   const nonCharacterMessages = [];
   validateEnhancements(
     {
@@ -337,18 +352,86 @@ test("enhancements validate target type, zero models, allied units, excluded mod
       battleSizeId: battleSizeNamed("Strike Force").id,
     },
     [detachmentNamed("Librarius Conclave")],
-    [withMiniatureEnhancement(
-      enhancementTargetUnit({
-        id: "intercessor-enhancement",
-        datasheetName: "Intercessor Squad",
-        miniatureName: "Intercessor Sergeant",
-        factionNames: ["Adeptus Astartes"],
-      }),
-      fusillade
-    )],
+    [nonCharacterUnit],
     nonCharacterMessages
   );
   assert.ok(messageCodes(nonCharacterMessages).includes("enhancement.unit_does_not_have_required_keywords"));
+  assert.deepEqual(
+    nonCharacterMessages.find((message) => message.code === "enhancement.unit_does_not_have_required_keywords")?.scope?.targetId,
+    nonCharacterUnit.miniatures[0].rosterUnitMiniatureId
+  );
+});
+
+test("enhancement candidate status mirrors target-level eligibility", () => {
+  state.catalog = realCatalog;
+  const roster = {
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+  };
+  const detachment = detachmentNamed("Librarius Conclave");
+  const fusillade = enhancementNamed("Fusillade", "Librarius Conclave");
+  const librarian = enhancementTargetUnit({
+    id: "librarian-candidate",
+    datasheetName: "Librarian",
+    miniatureName: "Librarian",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const librarianMiniature = librarian.miniatures[0];
+  assert.deepEqual(
+    enhancementCandidateStatus({
+      roster,
+      detachments: [detachment],
+      units: [librarian],
+      unit: librarian,
+      enhancement: fusillade,
+      keywordIds: miniatureKeywordIdsFor(librarianMiniature),
+      miniature: librarianMiniature,
+      targetKind: "miniature",
+    }),
+    { eligible: true, reason: "" }
+  );
+
+  const guilliman = enhancementTargetUnit({
+    id: "guilliman-candidate",
+    datasheetName: "Roboute Guilliman",
+    miniatureName: "Roboute Guilliman",
+    factionNames: ["Adeptus Astartes", "Ultramarines"],
+  });
+  const guillimanMiniature = guilliman.miniatures[0];
+  assert.equal(
+    enhancementCandidateStatus({
+      roster,
+      detachments: [detachment],
+      units: [guilliman],
+      unit: guilliman,
+      enhancement: fusillade,
+      keywordIds: miniatureKeywordIdsFor(guillimanMiniature),
+      miniature: guillimanMiniature,
+      targetKind: "miniature",
+    }).reason,
+    "Epic Hero not allowed"
+  );
+
+  const intercessor = enhancementTargetUnit({
+    id: "intercessor-candidate",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const intercessorMiniature = intercessor.miniatures[0];
+  assert.equal(
+    enhancementCandidateStatus({
+      roster,
+      detachments: [detachment],
+      units: [intercessor],
+      unit: intercessor,
+      enhancement: fusillade,
+      keywordIds: miniatureKeywordIdsFor(intercessorMiniature),
+      miniature: intercessorMiniature,
+      targetKind: "miniature",
+    }).reason,
+    "Character required"
+  );
 });
 
 test("enhancement attached bodyguard requirements are validated against attachment groups", () => {
@@ -410,6 +493,10 @@ test("enhancement attached bodyguard requirements are validated against attachme
     { ...bodyguard, unitEnhancements: [{ id: extraEnhancement.id }] },
   ], attachedLimitMessages);
   assert.ok(messageCodes(attachedLimitMessages).includes("enhancement.attached_unit_too_many_enhancements"));
+  assert.equal(
+    attachedLimitMessages.find((message) => message.code === "enhancement.attached_unit_too_many_enhancements")?.scope?.attachmentId,
+    "overloaded-pack"
+  );
 });
 
 test("cannotBeWarlord miniature enhancement only blocks the enhanced warlord model", () => {

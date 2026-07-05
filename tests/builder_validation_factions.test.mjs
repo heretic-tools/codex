@@ -173,6 +173,10 @@ test("Aeldari keyword restriction groups cover Asuryani/Ynnari exclusions and Dr
     warlordMiniatureIds: [],
   }], asuryaniMessages);
   assert.ok(messageCodes(asuryaniMessages).includes("keyword_restriction_group.limit_zero"));
+  assert.deepEqual(
+    asuryaniMessages.find((message) => message.code === "keyword_restriction_group.limit_zero")?.scope?.unitIds,
+    ["asuryani-ynnead"]
+  );
 
   const ynnariMessages = [];
   validateKeywordRestrictions(roster, [], [{
@@ -209,6 +213,10 @@ test("Aeldari keyword restriction groups cover Asuryani/Ynnari exclusions and Dr
     drukhariLimitMessages
   );
   assert.ok(messageCodes(drukhariLimitMessages).includes("keyword_restriction_group.limit_exceeded"));
+  assert.deepEqual(
+    drukhariLimitMessages.find((message) => message.code === "keyword_restriction_group.limit_exceeded")?.scope?.unitIds,
+    ["death-jester-1", "death-jester-2"]
+  );
 });
 
 test("all live top-level keyword restriction limits have valid and invalid coverage", () => {
@@ -411,6 +419,10 @@ test("detachment keyword restrictions enforce minimum and maximum roster limits"
     minimumMessages
   );
   assert.ok(messageCodes(minimumMessages).includes("keyword_restriction_group.minimum_not_met"));
+  assert.deepEqual(
+    minimumMessages.find((message) => message.code === "keyword_restriction_group.minimum_not_met")?.scope?.unitIds,
+    ["war-dog-1", "war-dog-2"]
+  );
 
   const troupeMasterDatasheet = datasheetNamed("Troupe Master");
   const maximumMessages = [];
@@ -424,6 +436,10 @@ test("detachment keyword restrictions enforce minimum and maximum roster limits"
     maximumMessages
   );
   assert.ok(messageCodes(maximumMessages).includes("keyword_restriction_group.limit_exceeded"));
+  assert.deepEqual(
+    maximumMessages.find((message) => message.code === "keyword_restriction_group.limit_exceeded")?.scope?.unitIds,
+    ["troupe-master-0", "troupe-master-1", "troupe-master-2", "troupe-master-3"]
+  );
 });
 
 test("all live detachment keyword restriction limits have valid and invalid coverage", () => {

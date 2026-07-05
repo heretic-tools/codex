@@ -6,7 +6,7 @@
   <title>Heretic Builder</title>
   <link rel="stylesheet" href="/static/desktop.css">
   <link rel="stylesheet" href="/static/codex.css">
-  <link rel="stylesheet" href="/static/builder.css?v=thin-client-1">
+  <link rel="stylesheet" href="/static/builder.css?v=__BUILDER_ASSET_VERSION__">
 </head>
 <body>
   <main class="desktop codex-page builder-page">
@@ -28,7 +28,9 @@
       </div>
 
       <div class="panel builder-panel">
-        <div id="builder-root" class="builder-root" aria-live="polite"></div>
+        <div class="panel-content builder-panel-content">
+          <div id="builder-root" class="builder-root" aria-live="polite"></div>
+        </div>
       </div>
     </section>
 
@@ -43,6 +45,6 @@
   </main>
 
   <script src="/static/win-scrollbars.js" defer></script>
-  <script src="/static/builder.js?v=thin-client-1" type="module"></script>
+  <script src="/static/builder.js?v=__BUILDER_ASSET_VERSION__" type="module"></script>
 </body>
 </html>

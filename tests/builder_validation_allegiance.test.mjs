@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   state,
+  allegianceAbilityCandidateStatus,
   costForDetachment,
   defaultMiniatures,
   defaultWargear,
@@ -295,6 +296,114 @@ test("Pactbound Zealots Mark of Chaos enforces mandatory single selection and de
   assert.ok(messageCodes(detachmentMessages).includes("allegiance_ability.required_detachment_missing"));
 });
 
+test("allegiance candidate status mirrors detachment-gated ability eligibility", () => {
+  state.catalog = realCatalog;
+  const group = realCatalog.allegianceAbilityGroups.find((item) => item.detachmentId);
+  assert.ok(group, "Expected a detachment-gated allegiance group");
+  const ability = firstAbilityForGroup(group.id);
+  const unit = allegianceUnit({ id: "detachment-candidate", group });
+  const roster = {
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    detachmentIds: [],
+  };
+
+  const missing = allegianceAbilityCandidateStatus({
+    ability,
+    detachments: [],
+    roster,
+    unit,
+    units: [unit],
+  });
+  assert.equal(missing.eligible, false);
+  assert.match(missing.reason, /requires /);
+  assert.match(missing.reason, new RegExp(realCatalog.detachmentById.get(group.detachmentId)?.name || "required detachment"));
+
+  const selected = allegianceAbilityCandidateStatus({
+    ability,
+    detachments: [realCatalog.detachmentById.get(group.detachmentId)],
+    roster: { ...roster, detachmentIds: [group.detachmentId] },
+    unit,
+    units: [unit],
+  });
+  assert.equal(selected.eligible, true);
+});
+
+test("allegiance candidate status mirrors required wargear eligibility", () => {
+  state.catalog = realCatalog;
+  const ability = realCatalog.allegianceAbilities.find((item) => item.requiresWargearItemId);
+  assert.ok(ability, "Expected an allegiance ability with required wargear");
+  const group = realCatalog.allegianceAbilityGroupById.get(ability.allegianceAbilityGroupId);
+  const unit = allegianceUnit({ id: "required-wargear-candidate", group });
+  const roster = {
+    factionKeywordId: factionNamed("Legiones Daemonica").id,
+    detachmentIds: [],
+  };
+
+  const missing = allegianceAbilityCandidateStatus({
+    ability,
+    detachments: [],
+    roster,
+    unit,
+    units: [unit],
+  });
+  assert.equal(missing.eligible, false);
+  assert.match(missing.reason, new RegExp(realCatalog.wargearItemById.get(ability.requiresWargearItemId)?.name || "wargear"));
+
+  unit.wargear[optionIdForWargearItem(ability.requiresWargearItemId)] = 1;
+  const equipped = allegianceAbilityCandidateStatus({
+    ability,
+    detachments: [],
+    roster,
+    unit,
+    units: [unit],
+  });
+  assert.equal(equipped.eligible, true);
+});
+
+test("allegiance candidate status mirrors roster group max limits", () => {
+  state.catalog = realCatalog;
+  const group = realCatalog.allegianceAbilityGroups.find((item) => item.maxRosterLimit != null && (
+    realCatalog.allegianceAbilitiesByGroupId.get(item.id) || []
+  ).some((ability) => !ability.requiresWargearItemId));
+  assert.ok(group, "Expected an allegiance group with a max roster limit");
+  const ability = (realCatalog.allegianceAbilitiesByGroupId.get(group.id) || [])
+    .find((item) => !item.requiresWargearItemId);
+  assert.ok(ability, `Expected a no-wargear control ability for ${group.name}`);
+  const selectedUnits = Array.from({ length: group.maxRosterLimit }, (_, index) => allegianceUnit({
+    id: `limit-selected-${index}`,
+    group,
+    abilities: [{
+      ...ability,
+      groupId: ability.allegianceAbilityGroupId,
+      groupName: group.name,
+    }],
+  }));
+  const targetUnit = allegianceUnit({ id: "limit-target", group });
+  const roster = {
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    detachmentIds: group.detachmentId ? [group.detachmentId] : [],
+  };
+  const detachments = group.detachmentId ? [realCatalog.detachmentById.get(group.detachmentId)] : [];
+
+  const blocked = allegianceAbilityCandidateStatus({
+    ability,
+    detachments,
+    roster,
+    unit: targetUnit,
+    units: [...selectedUnits, targetUnit],
+  });
+  assert.deepEqual(blocked, { eligible: false, reason: "group limit reached" });
+
+  const replacing = allegianceAbilityCandidateStatus({
+    ability,
+    detachments,
+    roster,
+    unit: selectedUnits[0],
+    units: selectedUnits,
+  });
+  assert.equal(replacing.eligible, true);
+});
+
 test("all live mandatory allegiance groups require one selection and reject multiples", () => {
   state.catalog = realCatalog;
   const mandatoryGroups = realCatalog.allegianceAbilityGroups.filter((group) => group.isMandatory);
@@ -541,6 +650,10 @@ test("all live allegiance roster min and max groups have valid and invalid cover
       messageCodes(belowMessages).includes("allegiance_ability.group_limit_not_reached"),
       `${group.name} should require at least ${group.minRosterLimit} selections`
     );
+    assert.deepEqual(
+      belowMessages.find((message) => message.code === "allegiance_ability.group_limit_not_reached")?.scope?.unitIds,
+      Array.from({ length: Math.max(0, group.minRosterLimit - 1) }, (_, unitIndex) => `min-${index}-below-${unitIndex}`)
+    );
 
     const atMinMessages = [];
     validateAllegianceAbilities(
@@ -586,6 +699,10 @@ test("all live allegiance roster min and max groups have valid and invalid cover
       messageCodes(overMessages).includes("allegiance_ability.group_limit_exceeded"),
       `${group.name} should fail above its maximum roster limit`
     );
+    assert.deepEqual(
+      overMessages.find((message) => message.code === "allegiance_ability.group_limit_exceeded")?.scope?.unitIds,
+      Array.from({ length: group.maxRosterLimit + 1 }, (_, unitIndex) => `max-${index}-over-${unitIndex}`)
+    );
   }
 });
 
@@ -609,6 +726,10 @@ test("detachment allegiance keyword groups enforce roster min and max limits", (
     minMessages
   );
   assert.ok(messageCodes(minMessages).includes("allegiance_ability.group_limit_not_reached"));
+  assert.deepEqual(
+    minMessages.find((message) => message.code === "allegiance_ability.group_limit_not_reached")?.scope?.unitIds,
+    ["houndpack-1", "houndpack-2"]
+  );
 
   const headhunterGroup = allegianceGroup("Headhunter Task Force Keywords", "Headhunter Task Force", ["Character"]);
   const headhunterCharacter = allegianceAbility(headhunterGroup.id, "Character");
@@ -625,4 +746,8 @@ test("detachment allegiance keyword groups enforce roster min and max limits", (
     maxMessages
   );
   assert.ok(messageCodes(maxMessages).includes("allegiance_ability.group_limit_exceeded"));
+  assert.deepEqual(
+    maxMessages.find((message) => message.code === "allegiance_ability.group_limit_exceeded")?.scope?.unitIds,
+    ["headhunter-1", "headhunter-2", "headhunter-3", "headhunter-4"]
+  );
 });

@@ -27,8 +27,26 @@ function storeRequest(mode, callback) {
     const tx = state.db.transaction(ROSTER_STORE, mode);
     const store = tx.objectStore(ROSTER_STORE);
     const request = callback(store);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
+    let result;
+    let settled = false;
+    const fail = () => {
+      if (!settled) {
+        settled = true;
+        reject(request.error || tx.error || new Error("IndexedDB transaction failed"));
+      }
+    };
+    request.onerror = fail;
+    request.onsuccess = () => {
+      result = request.result;
+    };
+    tx.onerror = fail;
+    tx.onabort = fail;
+    tx.oncomplete = () => {
+      if (!settled) {
+        settled = true;
+        resolve(result);
+      }
+    };
   });
 }
 
@@ -36,10 +54,10 @@ function getAllRosters() {
   return storeRequest("readonly", (store) => store.getAll());
 }
 
-function saveRoster(roster) {
+function saveRoster(roster, { touch = true } = {}) {
   return storeRequest("readwrite", (store) => store.put({
     ...roster,
-    modifiedAt: new Date().toISOString(),
+    modifiedAt: touch ? new Date().toISOString() : roster.modifiedAt || new Date().toISOString(),
   }));
 }
 

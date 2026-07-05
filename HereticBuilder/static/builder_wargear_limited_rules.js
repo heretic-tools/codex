@@ -1,7 +1,7 @@
 import { canonicalWargearKey, choiceItems, cleanCounts } from "./builder_loadout_math.js";
 import { state } from "./builder_state.js";
 import { unitValidationMessage } from "./builder_validation_messages.js";
-import { entryTargetsUnit, selectedWargearCounts } from "./builder_wargear_selection.js";
+import { entryTargetsUnit, selectedWargearCounts, targetIdForMiniature } from "./builder_wargear_selection.js";
 
 function limitedChoiceItems(choiceId, context) {
   return choiceItems(state.catalog.limitedWargearChoiceItemsByChoiceId.get(choiceId), context);
@@ -148,7 +148,9 @@ function validateLimitedWargearChoiceSets(unit, messages) {
       ? selectedWargearCounts(unit, (entry) => !entryTargetsUnit(entry) && entry.miniatureId === row.miniatureId, includeLimitedOption)
       : selectedWargearCounts(unit, () => true, includeLimitedOption);
     if (!limitedChoiceCoverIsValid(selected, choices, limit.choiceLimit, limit.duplicateLimit, row.mandatory && limit.choiceLimit > 0)) {
-      messages.push(unitValidationMessage("wargear_loadout.invalid_wargear_requirement", unit, `Invalid wargear configuration for ${unit.name}.`));
+      messages.push(unitValidationMessage("wargear_loadout.invalid_wargear_requirement", unit, `Invalid wargear configuration for ${unit.name}.`, {
+        targetId: targetIdForMiniature(unit, row.miniatureId),
+      }));
     }
   }
 }

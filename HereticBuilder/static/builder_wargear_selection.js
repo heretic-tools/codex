@@ -21,6 +21,11 @@ function entryTargetMiniature(unit, entry) {
   return (unit.miniatures || []).find((miniature) => entryMatchesMiniature(entry, miniature)) || null;
 }
 
+function targetIdForMiniature(unit, miniatureId) {
+  const miniature = (unit.miniatures || []).find((item) => item.miniatureId === miniatureId);
+  return miniature?.rosterUnitMiniatureId || miniature?.id || miniature?.miniatureId || miniatureId || "";
+}
+
 function selectedWargearCounts(unit, predicate, includeOption = () => true) {
   const counts = {};
   for (const entry of selectedWargearEntries(unit)) {
@@ -76,4 +81,5 @@ export {
   selectedRosterUnitWargearCounts,
   selectedUnitWargearCounts,
   selectedWargearCounts,
+  targetIdForMiniature,
 };

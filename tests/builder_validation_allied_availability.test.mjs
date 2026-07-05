@@ -75,6 +75,10 @@ test("Heretic Astartes cult legion allies require one configured detachment", ()
   const missingMessages = [];
   validateAlliedUnits(roster, [], [plagueMarines], missingMessages);
   assert.ok(messageCodes(missingMessages).includes("allied_unit.required_detachment_not_selected"));
+  assert.deepEqual(
+    missingMessages.find((message) => message.code === "allied_unit.required_detachment_not_selected")?.scope?.unitIds,
+    ["plague-marines"]
+  );
 
   const selectedMessages = [];
   validateAlliedUnits(roster, [detachmentNamed("Pactbound Zealots")], [plagueMarines], selectedMessages);

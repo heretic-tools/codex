@@ -18,11 +18,13 @@ async function loadCatalog(bootstrap = null) {
     { CATALOG_TABLES },
     resolvedBootstrap,
     precomputedLoadouts,
+    unitImages,
   ] = await Promise.all([
     import("./builder_catalog_indexes.js"),
     import("./builder_catalog_tables.js"),
     bootstrap ? Promise.resolve(bootstrap) : fetchJson("/builder-data/bootstrap.json"),
     fetchJson("/builder-data/precomputed-loadouts.json"),
+    fetchJson("/builder-data/unit-images.json"),
   ]);
   const tables = await loadCatalogTables(CATALOG_TABLES);
   return {
@@ -31,6 +33,7 @@ async function loadCatalog(bootstrap = null) {
     ...buildCatalogIndexes(resolvedBootstrap, {
       ...tables,
       precomputedLoadouts,
+      unitImages,
     }),
   };
 }

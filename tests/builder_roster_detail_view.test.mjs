@@ -1,0 +1,240 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+global.document = { querySelector: () => null };
+
+const { rosterValidationActionTarget } = await import("../HereticBuilder/static/builder_roster_detail_view.js");
+
+test("roster validation actions prefer exact scoped editor targets", () => {
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "warlord.invalid",
+      detachmentIds: [],
+      unitIds: ["unit-1"],
+    }),
+    { kind: "unit", text: "Open", unitId: "unit-1" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "roster.detachment_not_allowed",
+      detachmentIds: ["detachment-1"],
+      unitIds: [],
+    }),
+    { detachmentId: "detachment-1", kind: "detachmentCodex", text: "Codex" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: ["attachment-1"],
+      code: "attached_unit.invalid_pairing",
+      detachmentIds: [],
+      unitIds: [],
+    }),
+    { attribute: "attachment-id", kind: "row", text: "Show", value: "attachment-1" }
+  );
+});
+
+test("roster validation actions handle roster-level issues without scopes", () => {
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "warlord.not_selected",
+      detachmentIds: [],
+      unitIds: [],
+    }),
+    { kind: "target", target: "warlord", text: "Pick" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "roster.detachment_not_selected",
+      detachmentIds: [],
+      unitIds: [],
+    }),
+    { kind: "target", target: "detachments", text: "Detachments" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "roster.points_limit_exceeded",
+      detachmentIds: [],
+      unitIds: [],
+    }),
+    { kind: "target", target: "units", text: "Units" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "roster.empty",
+      detachmentIds: [],
+      unitIds: [],
+    }),
+    { kind: "target", target: "units", text: "Units" }
+  );
+});
+
+test("roster validation actions route broad rule families to useful editors", () => {
+  for (const code of [
+    "allied_units.required_warlord_missing",
+    "mandatory_warlord.detachment_not_selected",
+    "mandatory_warlord.not_selected",
+    "mandatory_warlord.supreme_commander_not_selected",
+    "warlord.invalid_generic",
+    "warlord.multiple_selected",
+  ]) {
+    assert.deepEqual(
+      rosterValidationActionTarget({ attachmentIds: [], code, detachmentIds: [], unitIds: [] }),
+      { kind: "target", target: "warlord", text: "Pick" },
+      code
+    );
+  }
+
+  for (const code of [
+    "allied_unit.required_detachment_not_selected",
+    "roster.detachment_missing",
+  ]) {
+    assert.deepEqual(
+      rosterValidationActionTarget({ attachmentIds: [], code, detachmentIds: [], unitIds: [] }),
+      { kind: "target", target: "detachments", text: "Detachments" },
+      code
+    );
+  }
+
+  for (const code of [
+    "allegiance_ability.group_limit_exceeded",
+    "allied_keyword_count.limit_exceeded",
+    "enhancement.roster_has_too_many_enhancements",
+    "keyword_restriction_group.limit_zero",
+    "mandatory_warlord.not_present_in_roster",
+  ]) {
+    assert.deepEqual(
+      rosterValidationActionTarget({ attachmentIds: [], code, detachmentIds: [], unitIds: [] }),
+      { kind: "target", target: "units", text: "Units" },
+      code
+    );
+  }
+});
+
+test("roster validation code actions can override detachment codex links", () => {
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "detachment.datasheets_missing",
+      datasheetIds: ["datasheet-1"],
+      detachmentIds: ["detachment-1"],
+      unitIds: [],
+    }),
+    { datasheetId: "datasheet-1", kind: "unitSearch", text: "Find" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "mandatory_warlord.not_present_in_roster",
+      datasheetIds: ["warlord-datasheet"],
+      detachmentIds: [],
+      unitIds: [],
+    }),
+    { datasheetId: "warlord-datasheet", kind: "unitSearch", text: "Find" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "keyword_restriction_group.minimum_not_met",
+      detachmentIds: ["detachment-1"],
+      unitIds: [],
+    }),
+    { kind: "target", target: "units", text: "Units" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "roster.detachment_points_limit_exceeded",
+      detachmentIds: ["detachment-1"],
+      unitIds: [],
+    }),
+    { kind: "target", target: "detachments", text: "Detachments" }
+  );
+});
+
+test("roster validation code actions can override unit scopes", () => {
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "mandatory_warlord.not_selected",
+      detachmentIds: [],
+      unitIds: ["mandatory-unit"],
+    }),
+    { kind: "target", target: "warlord", text: "Pick" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "allied_units.required_warlord_missing",
+      detachmentIds: [],
+      unitIds: ["allied-unit"],
+    }),
+    { kind: "target", target: "warlord", text: "Pick" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "allied_unit.required_detachment_not_selected",
+      detachmentIds: [],
+      unitIds: ["allied-unit"],
+    }),
+    { kind: "target", target: "detachments", text: "Detachments" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "warlord.multiple_selected",
+      detachmentIds: [],
+      unitIds: ["warlord-1", "warlord-2"],
+    }),
+    { kind: "target", target: "warlord", text: "Pick" }
+  );
+});
+
+test("roster validation actions point multi-scope groups to list editors", () => {
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "duplicate",
+      detachmentIds: [],
+      unitIds: ["unit-1", "unit-2"],
+    }),
+    { kind: "target", target: "units", text: "Units" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "dp",
+      detachmentIds: ["detachment-1", "detachment-2"],
+      unitIds: [],
+    }),
+    { kind: "target", target: "detachments", text: "Detachments" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: ["attachment-1", "attachment-2"],
+      code: "attached",
+      detachmentIds: [],
+      unitIds: [],
+    }),
+    { kind: "target", target: "attachments", text: "Attached" }
+  );
+});

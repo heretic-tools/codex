@@ -72,6 +72,7 @@ import {
   validateUnitCompositions,
   validateWargearLoadouts,
   validateWarlord,
+  warlordCandidateStatus,
   warlordUnitForMiniature,
   withCatalog,
   withMiniatureEnhancement,
@@ -113,18 +114,29 @@ test("generic warlord validation covers missing, multiple, invalid, and Supreme 
     }),
   ], multipleMessages);
   assert.ok(messageCodes(multipleMessages).includes("warlord.multiple_selected"));
+  assert.deepEqual(
+    multipleMessages.find((message) => message.code === "warlord.multiple_selected")?.scope?.unitIds,
+    ["captain", "librarian"]
+  );
 
+  const invalidWarlordUnit = enhancementTargetUnit({
+    id: "intercessor-sergeant",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+    isWarlord: true,
+  });
   const invalidMessages = [];
-  validateWarlord(roster, [], [
-    enhancementTargetUnit({
-      id: "intercessor-sergeant",
-      datasheetName: "Intercessor Squad",
-      miniatureName: "Intercessor Sergeant",
-      factionNames: ["Adeptus Astartes"],
-      isWarlord: true,
-    }),
-  ], invalidMessages);
+  validateWarlord(roster, [], [invalidWarlordUnit], invalidMessages);
   assert.ok(messageCodes(invalidMessages).includes("warlord.invalid_generic"));
+  assert.deepEqual(
+    invalidMessages.find((message) => message.code === "warlord.invalid_generic")?.scope?.unitIds,
+    ["intercessor-sergeant"]
+  );
+  assert.deepEqual(
+    invalidMessages.find((message) => message.code === "warlord.invalid_generic")?.scope?.targetIds,
+    [invalidWarlordUnit.miniatures[0].rosterUnitMiniatureId]
+  );
 
   const headhunterGroup = allegianceGroup("Headhunter Task Force Keywords", "Headhunter Task Force", ["Character"]);
   const headhunterCharacter = allegianceAbility(headhunterGroup.id, "Character");
@@ -166,6 +178,10 @@ test("generic warlord validation covers missing, multiple, invalid, and Supreme 
     }),
   ], supremeCommanderMessages);
   assert.ok(messageCodes(supremeCommanderMessages).includes("mandatory_warlord.supreme_commander_not_selected"));
+  assert.deepEqual(
+    supremeCommanderMessages.find((message) => message.code === "mandatory_warlord.supreme_commander_not_selected")?.scope?.unitIds,
+    ["captain-warlord", "guilliman"]
+  );
 
   const deathleaperWarlord = enhancementTargetUnit({
     id: "deathleaper",
@@ -187,6 +203,53 @@ test("generic warlord validation covers missing, multiple, invalid, and Supreme 
     battleSizeId: battleSizeNamed("Strike Force").id,
   }, [detachmentNamed("Vanguard Onslaught")], [deathleaperWarlord], deathleaperWithGrantMessages);
   assert.ok(!messageCodes(deathleaperWithGrantMessages).includes("warlord.invalid_generic"));
+});
+
+test("warlord candidate status mirrors selectable model eligibility", () => {
+  state.catalog = realCatalog;
+  const roster = {
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+  };
+  const captain = enhancementTargetUnit({
+    id: "captain",
+    datasheetName: "Captain",
+    miniatureName: "Captain",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const intercessorSergeant = enhancementTargetUnit({
+    id: "intercessor-sergeant",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+  });
+  assert.deepEqual(
+    warlordCandidateStatus(roster, [], [captain], captain, captain.miniatures[0]),
+    { eligible: true, reason: "" }
+  );
+  assert.equal(
+    warlordCandidateStatus(roster, [], [intercessorSergeant], intercessorSergeant, intercessorSergeant.miniatures[0]).eligible,
+    false
+  );
+
+  const deathleaper = enhancementTargetUnit({
+    id: "deathleaper-candidate",
+    datasheetName: "Deathleaper",
+    miniatureName: "Deathleaper",
+    factionNames: ["Tyranids"],
+  });
+  const tyranidRoster = {
+    factionKeywordId: factionNamed("Tyranids").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+  };
+  assert.equal(
+    warlordCandidateStatus(tyranidRoster, [], [deathleaper], deathleaper, deathleaper.miniatures[0]).eligible,
+    false
+  );
+  assert.deepEqual(
+    warlordCandidateStatus(tyranidRoster, [detachmentNamed("Vanguard Onslaught")], [deathleaper], deathleaper, deathleaper.miniatures[0]),
+    { eligible: true, reason: "" }
+  );
 });
 
 test("all live warlord miniature flags have valid and invalid coverage", () => {
@@ -228,6 +291,11 @@ test("all live warlord miniature flags have valid and invalid coverage", () => {
     assert.ok(
       messageCodes(wrongWarlordMessages).includes("mandatory_warlord.supreme_commander_not_selected"),
       `${miniature.name} should require a Supreme Commander Warlord`
+    );
+    assert.deepEqual(
+      wrongWarlordMessages.find((message) => message.code === "mandatory_warlord.supreme_commander_not_selected")?.scope?.unitIds,
+      [`${miniature.id}:captain-warlord`, `${miniature.id}:supreme-present`],
+      `${miniature.name} should scope the selected Warlord and Supreme Commander units`
     );
     supremeInvalidRows += 1;
 
@@ -293,8 +361,8 @@ test("all live warlord miniature flags have valid and invalid coverage", () => {
 });
 
 test("faction mandatory warlord validation covers missing required model and wrong selection", () => {
-  const mandatoryMiniature = { id: "mandatory-model", name: "Mandatory Model" };
-  const otherMiniature = { id: "other-model", name: "Other Model" };
+  const mandatoryMiniature = { datasheetId: "mandatory-datasheet", id: "mandatory-model", name: "Mandatory Model" };
+  const otherMiniature = { datasheetId: "other-datasheet", id: "other-model", name: "Other Model" };
   const characterKeyword = { id: "character-keyword", name: "Character" };
   const catalog = {
     factionKeywordById: new Map([[
@@ -350,6 +418,10 @@ test("faction mandatory warlord validation covers missing required model and wro
       allegianceAbilities: [],
     }], missingMessages);
     assert.ok(messageCodes(missingMessages).includes("mandatory_warlord.not_present_in_roster"));
+    assert.deepEqual(
+      missingMessages.find((message) => message.code === "mandatory_warlord.not_present_in_roster")?.scope?.datasheetId,
+      "mandatory-datasheet"
+    );
 
     const notSelectedMessages = [];
     validateWarlord(roster, [], [{
@@ -364,6 +436,10 @@ test("faction mandatory warlord validation covers missing required model and wro
       allegianceAbilities: [],
     }], notSelectedMessages);
     assert.ok(messageCodes(notSelectedMessages).includes("mandatory_warlord.not_selected"));
+    assert.deepEqual(
+      notSelectedMessages.find((message) => message.code === "mandatory_warlord.not_selected")?.scope?.unitIds,
+      ["mandatory-unit"]
+    );
 
     const parentScopeMessages = [];
     validateWarlord({ factionKeywordId: "child-faction" }, [], [{
@@ -378,6 +454,10 @@ test("faction mandatory warlord validation covers missing required model and wro
       allegianceAbilities: [],
     }], parentScopeMessages);
     assert.ok(messageCodes(parentScopeMessages).includes("mandatory_warlord.not_present_in_roster"));
+    assert.deepEqual(
+      parentScopeMessages.find((message) => message.code === "mandatory_warlord.not_present_in_roster")?.scope?.datasheetId,
+      "mandatory-datasheet"
+    );
   });
 });
 

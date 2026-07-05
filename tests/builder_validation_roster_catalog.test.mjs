@@ -370,6 +370,10 @@ test("all live battle sizes drive roster points, detachment points, duplicate, a
       units: [],
     });
     assert.ok(messageCodes(overDetachmentValidation.messages).includes("roster.detachment_points_limit_exceeded"));
+    assert.deepEqual(
+      overDetachmentValidation.messages.find((message) => message.code === "roster.detachment_points_limit_exceeded")?.scope?.detachmentIds,
+      overDetachmentIds
+    );
 
     const duplicateValidation = validateRoster({
       id: `${size.id}:captain-duplicates`,

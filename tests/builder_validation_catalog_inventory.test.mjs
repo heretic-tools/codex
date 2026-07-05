@@ -308,11 +308,38 @@ test("thin client catalog loading keeps path and fetch failure behavior explicit
   try {
     await assert.rejects(
       loadCatalog(),
-      /\/builder-data\/(bootstrap|tables\/[^/]+)\.json: 503/
+      /\/builder-data\/(bootstrap|precomputed-loadouts|unit-images|tables\/[^/]+)\.json: 503/
     );
   } finally {
     global.fetch = previousFetch;
   }
+});
+
+test("GitHub Pages project base path prefixes Builder data URLs", async () => {
+  const previousDocument = global.document;
+  global.document = {
+    querySelector: (selector) => (
+      selector === 'meta[name="heretic-base-path"]' ? { content: "/builder/" } : null
+    ),
+  };
+  try {
+    const { siteHref: projectSiteHref } = await import(
+      `../HereticBuilder/static/builder_state.js?github-pages-base-path=${Date.now()}`
+    );
+    assert.equal(projectSiteHref("relative/path"), "relative/path");
+    assert.equal(projectSiteHref("//cdn.example/builder-data/bootstrap.json"), "//cdn.example/builder-data/bootstrap.json");
+    assert.equal(projectSiteHref("/builder-data/bootstrap.json"), "/builder/builder-data/bootstrap.json");
+    assert.equal(projectSiteHref("/static/builder.js"), "/builder/static/builder.js");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("Builder roster storage stays browser-local and serverless", () => {
+  const source = readFileSync(join(projectRoot, "HereticBuilder", "static", "builder_storage.js"), "utf8");
+  assert.match(source, /indexedDB/);
+  assert.doesNotMatch(source, /localStorage|sessionStorage/);
+  assert.doesNotMatch(source, /fetch\s*\(/);
 });
 
 test("thin client bootstrap loading does not fetch full rule tables", async () => {
@@ -546,6 +573,46 @@ test("static Builder data export audit has no unexpected roster tables", async (
   assert.deepEqual(audit.unexpectedUnexportedTables, []);
 });
 
+test("standalone Builder build cache-busts HTML and local module imports", () => {
+  const outDir = mkdtempSync(join(tmpdir(), "heretic-builder-cache-bust-"));
+  try {
+    execFileSync("python3", [
+      "HereticBuilder/tools/build_builder_site.py",
+      "--out",
+      outDir,
+      "--base-path",
+      "/builder",
+    ], { cwd: projectRoot });
+
+    const index = readFileSync(join(outDir, "index.html"), "utf8");
+    const match = index.match(/\/builder\/static\/builder\.js\?v=([a-f0-9]{12})/);
+    assert.ok(match, "Expected builder.js content hash in standalone HTML");
+    const version = match[1];
+    assert.match(index, new RegExp(`/builder/static/builder\\.css\\?v=${version}`));
+
+    const builderSource = readFileSync(join(outDir, "static", "builder.js"), "utf8");
+    assert.match(builderSource, new RegExp(`\\.\\/builder_roster_list_view\\.js\\?v=${version}`));
+    assert.match(builderSource, new RegExp(`\\.\\/builder_roster_unit_detail_view\\.js\\?v=${version}`));
+
+    const listSource = readFileSync(join(outDir, "static", "builder_roster_list_view.js"), "utf8");
+    assert.match(listSource, new RegExp(`\\.\\/builder_dom\\.js\\?v=${version}`));
+
+    const unitEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_editor_view.js"), "utf8");
+    assert.match(unitEditorSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
+
+    const unitDetailSource = readFileSync(join(outDir, "static", "builder_roster_unit_detail_view.js"), "utf8");
+    assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_detail_actions\\.js\\?v=${version}`));
+    assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_wargear_view\\.js\\?v=${version}`));
+    assert.match(unitDetailSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
+
+    const attachmentEditorSource = readFileSync(join(outDir, "static", "builder_roster_attachment_editor_view.js"), "utf8");
+    assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_roster_attachment_options\\.js\\?v=${version}`));
+    assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
+  } finally {
+    rmSync(outDir, { force: true, recursive: true });
+  }
+});
+
 test("static Builder data manifest lists every exported rule file with matching rows and hashes", async () => {
   const response = await fetch("/builder-data/manifest.json");
   assert.equal(response.ok, true);
@@ -557,10 +624,11 @@ test("static Builder data manifest lists every exported rule file with matching 
 
   assert.equal(manifest.exportSchemaVersion, realCatalog.bootstrap.exportSchemaVersion);
   assert.equal(manifest.dataVersion, realCatalog.bootstrap.dataVersion);
-  assert.equal(manifest.files.length, 105);
+  assert.equal(manifest.files.length, 106);
   assert.equal(tableEntries.length, Object.keys(tableCounts).length);
   assert.ok(files.has("bootstrap.json"));
   assert.ok(files.has("precomputed-loadouts.json"));
+  assert.ok(files.has("unit-images.json"));
   assert.ok(files.has("audit.json"));
 
   assert.deepEqual(
@@ -579,6 +647,19 @@ test("static Builder data manifest lists every exported rule file with matching 
     assert.ok(entry, `${tableName} should be listed in manifest`);
     assert.equal(entry.rows, tableCounts[tableName], `${tableName} manifest rows should match tableCounts`);
   }
+});
+
+test("static Builder data exports compact unit image map", async () => {
+  const response = await fetch("/builder-data/unit-images.json");
+  assert.equal(response.ok, true);
+
+  const payload = await response.json();
+  const abaddon = realCatalog.datasheets.find((datasheet) => datasheet.name === "Abaddon the Despoiler");
+  assert.ok(abaddon);
+  const filename = payload.imagesByDatasheetId[abaddon.id];
+
+  assert.match(filename, /^abaddon-the-despoiler__[a-f0-9]+__banner\.png$/);
+  assert.ok(existsSync(join(projectRoot, "HereticBuilder", "assets", "unit-images", filename)));
 });
 
 test("builder data export precomputes bounded loadout fingerprints", () => {

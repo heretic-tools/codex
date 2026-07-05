@@ -45,6 +45,10 @@ function precomputedLoadoutsByContext(rows) {
   return map;
 }
 
+function unitImagesByDatasheetId(payload) {
+  return new Map(Object.entries(payload?.imagesByDatasheetId || {}));
+}
+
 function buildCatalogIndexes(bootstrap, tables) {
   const {
     detachments,
@@ -116,6 +120,7 @@ function buildCatalogIndexes(bootstrap, tables) {
     wargearOptions,
     wargearItems,
     precomputedLoadouts,
+    unitImages,
   } = tables;
 
   return {
@@ -123,6 +128,7 @@ function buildCatalogIndexes(bootstrap, tables) {
     wargearAliasesByContext: wargearAliasesByContext(bootstrap.wargearAliases || []),
     precomputedLoadouts: precomputedLoadouts || null,
     precomputedLoadoutsByContext: precomputedLoadoutsByContext(precomputedLoadouts?.contexts || []),
+    unitImagesByDatasheetId: unitImagesByDatasheetId(unitImages),
     factionById: byId(bootstrap.factions || []),
     battleSizeById: byId(bootstrap.battleSizes || []),
     detachmentById: byId(detachments),

@@ -42,12 +42,22 @@ function validateRoster(roster) {
   for (const detachmentId of detachmentIds) {
     const detachment = state.catalog.detachmentById.get(detachmentId);
     if (!detachmentAllowed(detachmentId, roster.factionKeywordId)) {
-      messages.push(validationMessage("roster.detachment_not_allowed", `${detachment?.name || "Detachment"} is not available to this faction.`));
+      messages.push(validationMessage(
+        "roster.detachment_not_allowed",
+        `${detachment?.name || "Detachment"} is not available to this faction.`,
+        "error",
+        { detachmentId }
+      ));
     }
   }
   const detachmentLimit = size?.detachmentPointsLimit || 0;
   if (detachmentLimit && detachmentPoints > detachmentLimit) {
-    messages.push(validationMessage("roster.detachment_points_limit_exceeded", `Roster uses ${detachmentPoints} detachment points; limit is ${detachmentLimit}.`));
+    messages.push(validationMessage(
+      "roster.detachment_points_limit_exceeded",
+      `Roster uses ${detachmentPoints} detachment points; limit is ${detachmentLimit}.`,
+      "error",
+      { detachmentIds }
+    ));
   }
   const pointsLimit = size?.pointsLimit || 0;
   if (pointsLimit && totalPoints > pointsLimit) {

@@ -86,6 +86,10 @@ test("detachment and composition validators cover unique, excluded, linked, and 
     detachmentNamed("Kabalite Cartel"),
   ], uniqueMessages);
   assert.ok(messageCodes(uniqueMessages).includes("roster.detachment_unique_keyword_error"));
+  assert.deepEqual(
+    uniqueMessages.find((message) => message.code === "roster.detachment_unique_keyword_error")?.scope?.detachmentIds,
+    [detachmentNamed("Kabalite Agonysts").id, detachmentNamed("Kabalite Cartel").id]
+  );
 
   withCatalog({
     detachmentUniqueKeywordsByDetachmentId: new Map([
@@ -111,6 +115,10 @@ test("detachment and composition validators cover unique, excluded, linked, and 
       { id: "detachment-c", name: "Detachment C" },
     ], sameIdMessages);
     assert.ok(messageCodes(sameIdMessages).includes("roster.detachment_unique_keyword_error"));
+    assert.deepEqual(
+      sameIdMessages.find((message) => message.code === "roster.detachment_unique_keyword_error")?.scope?.detachmentIds,
+      ["detachment-a", "detachment-c"]
+    );
   });
 
   const shadowLegion = detachmentNamed("Shadow Legion");
@@ -141,6 +149,14 @@ test("detachment and composition validators cover unique, excluded, linked, and 
   );
   assert.ok(messageCodes(linkedMessages).includes("detachment.linked_datasheet_count_mismatch"));
   assert.ok(messageCodes(linkedMessages).includes("detachment.linked_datasheet_not_allowed"));
+  assert.equal(
+    linkedMessages.find((message) => message.code === "detachment.linked_datasheet_count_mismatch")?.scope?.detachmentId,
+    purgeCorps.id
+  );
+  assert.equal(
+    linkedMessages.find((message) => message.code === "detachment.linked_datasheet_not_allowed")?.scope?.detachmentId,
+    purgeCorps.id
+  );
 
   const compositionMessages = [];
   validateUnitCompositions([
@@ -167,6 +183,10 @@ test("detachment and composition validators cover unique, excluded, linked, and 
       requiredDatasheetMessages
     );
     assert.ok(messageCodes(requiredDatasheetMessages).includes("detachment.datasheets_missing"));
+    assert.equal(
+      requiredDatasheetMessages.find((message) => message.code === "detachment.datasheets_missing")?.scope?.detachmentId,
+      "required-detachment"
+    );
 
     const selectedRequiredDatasheetMessages = [];
     validateDetachmentDatasheets(
@@ -360,6 +380,10 @@ test("validateRoster reports roster-level detachment, points, Combat Patrol, nat
     units: [],
   });
   assert.ok(messageCodes(illegalDetachmentValidation.messages).includes("roster.detachment_not_allowed"));
+  assert.equal(
+    illegalDetachmentValidation.messages.find((message) => message.code === "roster.detachment_not_allowed")?.scope?.detachmentId,
+    detachmentNamed("Kabalite Agonysts").id
+  );
 
   const pointsValidation = validateRoster({
     id: "over-points",
