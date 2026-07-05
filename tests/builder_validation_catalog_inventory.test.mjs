@@ -685,6 +685,22 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const transferNormalizeUnitsSource = readFileSync(join(outDir, "static", "builder_roster_transfer_normalize_units.js"), "utf8");
     assert.match(transferNormalizeUnitsSource, new RegExp(`\\.\\/builder_roster_transfer_normalize_helpers\\.js\\?v=${version}`));
 
+    const transferNormalizeHelpersSource = readFileSync(
+      join(outDir, "static", "builder_roster_transfer_normalize_helpers.js"),
+      "utf8",
+    );
+    assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_legacy_fields\\.js\\?v=${version}`));
+    assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_list_summary\\.js\\?v=${version}`));
+    assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_selection_rows\\.js\\?v=${version}`));
+    assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_wargear_map\\.js\\?v=${version}`));
+    assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_values\\.js\\?v=${version}`));
+
+    const transferWargearMapSource = readFileSync(join(outDir, "static", "builder_roster_transfer_wargear_map.js"), "utf8");
+    assert.match(transferWargearMapSource, new RegExp(`\\.\\/builder_roster_transfer_values\\.js\\?v=${version}`));
+
+    const transferListSummarySource = readFileSync(join(outDir, "static", "builder_roster_transfer_list_summary.js"), "utf8");
+    assert.match(transferListSummarySource, new RegExp(`\\.\\/builder_roster_transfer_values\\.js\\?v=${version}`));
+
     const listSource = readFileSync(join(outDir, "static", "builder_roster_list_view.js"), "utf8");
     assert.match(listSource, new RegExp(`\\.\\/builder_dom\\.js\\?v=${version}`));
 
