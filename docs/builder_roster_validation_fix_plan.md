@@ -1176,6 +1176,11 @@ browser smoke test.
   `builder_wargear_all_model_choices.js`. The validation rule now focuses on
   per-family validity and emits the same unit-scoped diagnostic, while catalog
   choice arithmetic is isolated and cache-busted by the static build test.
+- 2026-07-05: Split all-model Wargear family aggregation out of
+  `builder_wargear_all_model_rules.js` into
+  `builder_wargear_all_model_family_checks.js`. Family state, substitute-only
+  rejection, mixed-base detection, and miniature target collection can now be
+  audited independently from the catalog row traversal.
 - 2026-07-05: Split Attached Units add-control rendering out of
   `builder_roster_attachment_editor_view.js` into
   `builder_roster_attachment_controls.js`. The editor view now composes the

@@ -2,14 +2,18 @@ import { state } from "./builder_state.js";
 import { unitValidationMessage } from "./builder_validation_messages.js";
 import {
   allModelWargearChoices,
-  choiceOccurrences,
-  substituteFamilyKey,
 } from "./builder_wargear_all_model_choices.js";
+import {
+  addAllModelFamilyTarget,
+  allModelFamilyCheck,
+  allModelFamilyTargetIds,
+  applyAllModelFamilyCheck,
+  hasInvalidAllModelFamilies,
+} from "./builder_wargear_all_model_family_checks.js";
 import {
   scopeModelCount,
   selectedMiniatureWargearCounts,
   selectedRosterUnitWargearCounts,
-  targetIdForMiniature,
 } from "./builder_wargear_selection.js";
 
 function validateAllModelWargearChoiceSets(unit, messages) {
@@ -25,51 +29,12 @@ function validateAllModelWargearChoiceSets(unit, messages) {
     if (modelCount <= 0) {
       continue;
     }
-    const familyKey = substituteFamilyKey(row, substituteChoices);
-    if (!checksByFamily.has(familyKey)) {
-      checksByFamily.set(familyKey, {
-        hasValidBaseLine: false,
-        hasHardInvalid: false,
-        hasSubstituteWithoutBase: false,
-        targetIds: [],
-      });
-    }
-    const family = checksByFamily.get(familyKey);
-    const targetId = targetIdForMiniature(unit, row.miniatureId);
-    if (targetId && !family.targetIds.includes(targetId)) {
-      family.targetIds.push(targetId);
-    }
-    const activeBase = [];
-    for (const choice of baseChoices) {
-      const occurrences = choiceOccurrences(selected, choice.items);
-      if (occurrences) {
-        activeBase.push([choice, occurrences]);
-      }
-    }
-    const substituteCount = choices
-      .filter((choice) => choice.substitute)
-      .reduce((total, choice) => total + choiceOccurrences(selected, choice.items), 0);
-    if (activeBase.length > 1) {
-      family.hasHardInvalid = true;
-      continue;
-    }
-    if (baseChoices.length && !activeBase.length && substituteCount) {
-      family.hasSubstituteWithoutBase = true;
-      continue;
-    }
-    if (activeBase.length === 1 && activeBase[0][1] + substituteCount !== modelCount) {
-      family.hasHardInvalid = true;
-    } else if (activeBase.length === 1) {
-      family.hasValidBaseLine = true;
-    }
+    const family = allModelFamilyCheck(checksByFamily, row, substituteChoices);
+    addAllModelFamilyTarget(family, unit, row);
+    applyAllModelFamilyCheck(family, baseChoices, choices, selected, modelCount);
   }
-  const invalid = [...checksByFamily.values()].some((family) => (
-    family.hasHardInvalid || (family.hasSubstituteWithoutBase && !family.hasValidBaseLine)
-  ));
-  if (invalid) {
-    const targetIds = [...checksByFamily.values()]
-      .flatMap((family) => family.targetIds || [])
-      .filter(Boolean);
+  if (hasInvalidAllModelFamilies(checksByFamily)) {
+    const targetIds = allModelFamilyTargetIds(checksByFamily);
     messages.push(unitValidationMessage("wargear_loadout.invalid_wargear_requirement", unit, `Invalid wargear configuration for ${unit.name}.`, {
       targetIds: [...new Set(targetIds)],
     }));
