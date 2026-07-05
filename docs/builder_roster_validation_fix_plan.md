@@ -1330,6 +1330,10 @@ browser smoke test.
   `builder_wargear_limited_choices.js` into
   `builder_wargear_limited_limits.js`. Choice hydration now stays separate from
   effective `choiceLimit`/`duplicateLimit` row selection.
+- 2026-07-05: Split roster-list row rendering out of
+  `builder_roster_list_view.js` into `builder_roster_list_rows.js`. The list
+  view now owns screen assembly and import/export controls, while the roster
+  summary row and validation-state badge mapping are independently testable.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
