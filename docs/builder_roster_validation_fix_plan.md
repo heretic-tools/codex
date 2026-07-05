@@ -1045,6 +1045,10 @@ browser smoke test.
   import. The Builder list still exposes Export/Import, but the transfer module
   no longer participates in the static startup graph and remains covered by the
   standalone cache-bust test.
+- 2026-07-05: Split roster transfer actions out of
+  `builder_roster_io_actions.js` into `builder_roster_transfer_actions.js`.
+  Create/update/delete stay in the core roster action facade, while Export/Import
+  keep their lazy transfer/rules/catalog loading in a focused module.
 - 2026-07-05: Removed the remaining attachment action fallback for old scalar
   membership fields (`leaderUnitId`, `bodyguardUnitId`, `attachedUnitId`,
   `targetUnitId`). Runtime attachment membership now reads only the current

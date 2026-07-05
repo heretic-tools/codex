@@ -612,7 +612,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const rosterIoSource = readFileSync(join(outDir, "static", "builder_roster_io_actions.js"), "utf8");
     assert.match(rosterIoSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
-    assert.match(rosterIoSource, new RegExp(`\\.\\/builder_catalog_runtime\\.js\\?v=${version}`));
+    assert.match(rosterIoSource, new RegExp(`\\.\\/builder_roster_transfer_actions\\.js\\?v=${version}`));
+
+    const rosterTransferActionsSource = readFileSync(join(outDir, "static", "builder_roster_transfer_actions.js"), "utf8");
+    assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
+    assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_catalog_runtime\\.js\\?v=${version}`));
+    assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
 
     const catalogRuntimeSource = readFileSync(join(outDir, "static", "builder_catalog_runtime.js"), "utf8");
     assert.match(catalogRuntimeSource, new RegExp(`\\.\\/builder_catalog\\.js\\?v=${version}`));
