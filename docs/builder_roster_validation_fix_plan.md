@@ -905,6 +905,11 @@ browser smoke test.
   `builder_roster_attachment_rows.js`. The attachment editor now owns only the
   picker controls and list composition, while row validation badges, member
   removal, and unit thumbnail rendering stay in a focused module.
+- 2026-07-05: Split attached-unit row metadata out of
+  `builder_roster_attachment_rows.js` into
+  `builder_roster_attachment_row_model.js`. The row renderer now keeps DOM and
+  remove actions, while member ordering, title text, and validation badge status
+  are computed in a small model helper.
 - 2026-07-05: Added the local unit image helper to the unit-detail overview, so
   opening a unit from the roster keeps the same visual identity while validation
   controls and focus targets remain unchanged.

@@ -4,9 +4,13 @@ import {
   rosterWithRemovedAttachment,
   rosterWithRemovedAttachmentMember,
 } from "./builder_roster_actions.js";
+import {
+  attachmentMembersForRow,
+  attachmentTitle,
+  attachmentValidationStatus,
+} from "./builder_roster_attachment_row_model.js";
 import { removeButton } from "./builder_roster_editor_dom.js";
 import { unitImageNode } from "./builder_unit_images.js";
-import { validationForAttachment } from "./builder_validation_view.js";
 
 function renderAttachmentMember(roster, attachment, member, unit, onUpdate, onUnitOpen = null) {
   const node = document.createElement("span");
@@ -28,26 +32,6 @@ function renderAttachmentMember(roster, attachment, member, unit, onUpdate, onUn
   return node;
 }
 
-function attachmentValidationStatus(validation, attachment, unitsById) {
-  const messages = validationForAttachment(validation, attachment, unitsById).messages || [];
-  const errors = messages.filter((message) => message.level === "error").length;
-  const warnings = messages.filter((message) => message.level === "warning").length;
-  if (errors) {
-    return { className: "error", text: `${errors} error${errors === 1 ? "" : "s"}` };
-  }
-  if (warnings) {
-    return { className: "warning", text: `${warnings} warning${warnings === 1 ? "" : "s"}` };
-  }
-  return null;
-}
-
-function attachmentTitle(members, index) {
-  const bodyguardNames = members
-    .filter((member) => member.attachmentType === "bodyguard")
-    .map((member) => member.unit.name || "Bodyguard");
-  return bodyguardNames.length ? bodyguardNames.join(" + ") : `Attached Unit ${index + 1}`;
-}
-
 function attachmentTitleNode(members, index, onUnitOpen) {
   const bodyguards = members.filter((member) => member.attachmentType === "bodyguard");
   if (bodyguards.length === 1 && onUnitOpen) {
@@ -57,15 +41,7 @@ function attachmentTitleNode(members, index, onUnitOpen) {
 }
 
 function renderAttachmentRow(roster, attachment, index, unitsById, validation, onUpdate, onUnitOpen = null) {
-  const members = [
-    ...(attachment.members || []).filter((member) => member.attachmentType === "bodyguard"),
-    ...(attachment.members || []).filter((member) => member.attachmentType === "leader" || member.attachmentType === "support"),
-  ]
-    .map((member) => ({
-      ...member,
-      unit: unitsById.get(member.rosterUnitId),
-    }))
-    .filter((member) => member.unit);
+  const members = attachmentMembersForRow(attachment, unitsById);
 
   const row = document.createElement("div");
   row.className = "builder-row editor-row attachment-editor-row";
