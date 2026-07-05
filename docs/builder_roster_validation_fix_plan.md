@@ -1216,6 +1216,10 @@ browser smoke test.
   `builder_roster_attachment_control_state.js`. The select refresher is now a
   short ordering function over bodyguard, attachment type, and attached-unit
   options.
+- 2026-07-05: Split unit-scoped validation message matching out of
+  `builder_validation_scopes.js` into `builder_validation_unit_scopes.js`.
+  Unit, datasheet, and miniature target-id diagnostics are now audited apart
+  from detachment, attachment, and direct target filters.
 - 2026-07-05: Split grouped catalog rule indexes by domain into detachment,
   unit/composition, enhancement/allegiance, allied/restriction, and Wargear
   modules. `builder_catalog_group_indexes.js` now only merges those domain

@@ -1,4 +1,5 @@
 import { validationMessageMatchesAttachment } from "./builder_validation_attachment_scopes.js";
+import { validationMessageMatchesUnit } from "./builder_validation_unit_scopes.js";
 
 function validationState(messages) {
   return messages.some((message) => message.level === "error") ? "invalid" : "valid";
@@ -10,21 +11,6 @@ function validationWithMessages(validation, messages) {
     state: validationState(messages),
     messages,
   };
-}
-
-function validationMessageMatchesUnit(message, unit) {
-  const scope = message.scope || {};
-  const targetIds = new Set((unit.miniatures || []).flatMap((miniature) => [
-    miniature.rosterUnitMiniatureId,
-    miniature.id,
-    miniature.miniatureId,
-  ]).filter(Boolean));
-  return scope.unitId === unit.id
-    || (scope.unitIds || []).includes(unit.id)
-    || scope.datasheetId === unit.datasheetId
-    || (scope.datasheetIds || []).includes(unit.datasheetId)
-    || targetIds.has(scope.targetId)
-    || (scope.targetIds || []).some((targetId) => targetIds.has(targetId));
 }
 
 function validationForUnit(validation, unit) {
