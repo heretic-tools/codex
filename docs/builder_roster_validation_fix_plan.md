@@ -1039,6 +1039,11 @@ browser smoke test.
   `builder_model_wargear_defaults.js`. The main wargear model facade now keeps
   unit-level defaults, selected wargear entries, and points, while miniature
   loadout repair stays focused and testable.
+- 2026-07-05: Split roster transfer normalization out of
+  `builder_roster_transfer.js` into `builder_roster_transfer_normalize.js`.
+  Export/import envelope parsing, serialization, and collision-safe IDs now
+  sit apart from strict current-shape roster/unit/miniature/attachment
+  normalization and legacy-field rejection.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
