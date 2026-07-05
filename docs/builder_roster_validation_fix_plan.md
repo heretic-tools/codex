@@ -937,6 +937,11 @@ browser smoke test.
   `builder_roster_attachment_failures.js`. The options module is now a small UI
   candidate facade, while the rule diagnostics remain cache-busted for
   standalone GitHub Pages builds.
+- 2026-07-05: Split attached-unit validation matchers and attached-unit
+  Enhancement restrictions out of `builder_attachment_rules.js`. The public
+  attachment rule module still exports the same validation API, while
+  datasheet/bodyguard matching and "one Enhancement per attached unit" rules
+  are independently auditable.
 - 2026-07-05: Split unit-detail Wargear rendering and scope-local validation
   display out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_wargear_view.js`, leaving the main detail view focused on
