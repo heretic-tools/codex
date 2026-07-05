@@ -1,0 +1,36 @@
+import { loadRules, loadUnitView } from "./builder_module_loaders.js";
+import { builderBreadcrumbs, navigate } from "./builder_routes.js";
+import { el, renderBreadcrumbs } from "./builder_shell.js";
+import { state } from "./builder_state.js";
+import {
+  currentRoster,
+  saveRosterCacheIfStale,
+} from "./builder_roster_runtime.js";
+import { updateRoster } from "./builder_roster_io_actions.js";
+import { renderNotFound } from "./builder_route_not_found_renderer.js";
+
+async function renderUnit(render) {
+  const roster = currentRoster();
+  const unit = roster?.units?.find((item) => item.id === state.route.unitId);
+  if (!roster || !unit) {
+    await renderNotFound();
+    return;
+  }
+  const [{ renderRosterUnitDetailView, unitDisplayName }, { validateRoster }] = await Promise.all([
+    loadUnitView(),
+    loadRules(),
+  ]);
+  const validation = validateRoster(roster);
+  await saveRosterCacheIfStale(roster, validation);
+  el.title.textContent = unitDisplayName(roster, unit);
+  renderBreadcrumbs(builderBreadcrumbs());
+  el.root.appendChild(renderRosterUnitDetailView({
+    onBack: () => navigate(`/roster/${encodeURIComponent(roster.id)}`),
+    onUpdate: (nextRoster) => updateRoster(nextRoster, render),
+    roster,
+    unit,
+    validation,
+  }));
+}
+
+export { renderUnit };

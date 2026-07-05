@@ -1125,6 +1125,10 @@ browser smoke test.
   `builder_route_basic_renderers.js` and `builder_route_roster_renderers.js`.
   The central renderer now only performs route switching, catalog gating, root
   clearing, and scrollbar refresh while the lazy route bodies stay separate.
+- 2026-07-05: Split roster detail, unit detail, and not-found route bodies out of
+  `builder_route_roster_renderers.js` into dedicated route modules. The roster
+  route facade now only re-exports lazy route handlers, keeping cache/local
+  persistence and route-specific update flows isolated.
 - 2026-07-05: Split generic catalog index helpers out of
   `builder_catalog_indexes.js` into `builder_catalog_index_helpers.js`.
   Rule-index construction still returns the same catalog shape, but by-id,

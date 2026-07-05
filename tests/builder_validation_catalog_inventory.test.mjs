@@ -606,9 +606,25 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(routeBasicRenderersSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
 
     const routeRosterRenderersSource = readFileSync(join(outDir, "static", "builder_route_roster_renderers.js"), "utf8");
-    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
-    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
-    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
+    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_route_not_found_renderer\\.js\\?v=${version}`));
+    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_route_roster_detail_renderer\\.js\\?v=${version}`));
+    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_route_unit_detail_renderer\\.js\\?v=${version}`));
+
+    const routeRosterDetailRendererSource = readFileSync(
+      join(outDir, "static", "builder_route_roster_detail_renderer.js"),
+      "utf8",
+    );
+    assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
+    assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
+    assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
+
+    const routeUnitDetailRendererSource = readFileSync(join(outDir, "static", "builder_route_unit_detail_renderer.js"), "utf8");
+    assert.match(routeUnitDetailRendererSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
+    assert.match(routeUnitDetailRendererSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
+    assert.match(routeUnitDetailRendererSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
+
+    const routeNotFoundRendererSource = readFileSync(join(outDir, "static", "builder_route_not_found_renderer.js"), "utf8");
+    assert.match(routeNotFoundRendererSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
 
     const rosterIoSource = readFileSync(join(outDir, "static", "builder_roster_io_actions.js"), "utf8");
     assert.match(rosterIoSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
