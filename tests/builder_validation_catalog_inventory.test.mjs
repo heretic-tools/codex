@@ -596,9 +596,19 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(builderSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
 
     const routeRenderersSource = readFileSync(join(outDir, "static", "builder_route_renderers.js"), "utf8");
-    assert.match(routeRenderersSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
-    assert.match(routeRenderersSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
+    assert.match(routeRenderersSource, new RegExp(`\\.\\/builder_route_basic_renderers\\.js\\?v=${version}`));
+    assert.match(routeRenderersSource, new RegExp(`\\.\\/builder_route_roster_renderers\\.js\\?v=${version}`));
     assert.match(routeRenderersSource, new RegExp(`\\.\\/builder_catalog_runtime\\.js\\?v=${version}`));
+
+    const routeBasicRenderersSource = readFileSync(join(outDir, "static", "builder_route_basic_renderers.js"), "utf8");
+    assert.match(routeBasicRenderersSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
+    assert.match(routeBasicRenderersSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
+    assert.match(routeBasicRenderersSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
+
+    const routeRosterRenderersSource = readFileSync(join(outDir, "static", "builder_route_roster_renderers.js"), "utf8");
+    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
+    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
+    assert.match(routeRosterRenderersSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
 
     const rosterIoSource = readFileSync(join(outDir, "static", "builder_roster_io_actions.js"), "utf8");
     assert.match(rosterIoSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
