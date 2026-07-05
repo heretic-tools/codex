@@ -1194,6 +1194,11 @@ browser smoke test.
   and `builder_loadout_matcher.js`. `builder_loadout_math.js` is now the
   stable public facade for catalog keys, count helpers, valid-loadout
   generation, and Wargear loadout matching.
+- 2026-07-05: Split selected-Wargear target matching and count extraction out of
+  `builder_wargear_selection.js` into `builder_wargear_entry_targets.js` and
+  `builder_wargear_selection_counts.js`. Wargear validators keep the same public
+  imports while unit/model targeting and count hydration are independently
+  auditable.
 - 2026-07-05: Split limited-Wargear choice hydration and selected-choice cover
   search out of `builder_wargear_limited_rules.js` into
   `builder_wargear_limited_choices.js` and `builder_wargear_limited_cover.js`.

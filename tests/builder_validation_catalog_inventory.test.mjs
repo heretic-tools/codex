@@ -933,6 +933,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(wargearRulesSource, new RegExp(`\\.\\/builder_wargear_all_model_rules\\.js\\?v=${version}`));
     assert.match(wargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_rules\\.js\\?v=${version}`));
 
+    const wargearSelectionSource = readFileSync(join(outDir, "static", "builder_wargear_selection.js"), "utf8");
+    assert.match(wargearSelectionSource, new RegExp(`\\.\\/builder_wargear_entry_targets\\.js\\?v=${version}`));
+    assert.match(wargearSelectionSource, new RegExp(`\\.\\/builder_wargear_selection_counts\\.js\\?v=${version}`));
+
+    const wargearSelectionCountsSource = readFileSync(join(outDir, "static", "builder_wargear_selection_counts.js"), "utf8");
+    assert.match(wargearSelectionCountsSource, new RegExp(`\\.\\/builder_wargear_entry_targets\\.js\\?v=${version}`));
+
     const allModelWargearRulesSource = readFileSync(join(outDir, "static", "builder_wargear_all_model_rules.js"), "utf8");
     assert.match(allModelWargearRulesSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));
 
