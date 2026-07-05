@@ -1,25 +1,15 @@
 import { state } from "./builder_state.js";
-import { idsFromRows, unique } from "./builder_model_core.js";
-import {
-  compositionFactionIds,
-  selectedAllegianceAbilities,
-} from "./builder_model_selections.js";
+import { idsFromRows } from "./builder_model_core.js";
+import { compositionFactionIds } from "./builder_model_selections.js";
 import {
   compositionIsAvailable,
   effectiveComposition,
   miniaturesForUnit,
 } from "./builder_model_compositions.js";
-import {
-  conditionalKeywordRowsForUnit,
-  rosterWarlordMiniatureIds,
-  unitKeywords,
-} from "./builder_model_keywords.js";
-import {
-  datasheetPointsStepForUnit,
-  enhancementPoints,
-} from "./builder_model_points.js";
+import { enhancementPoints } from "./builder_model_points.js";
 import { summaryEnhancements } from "./builder_model_summary_enhancements.js";
-import { wargearPoints } from "./builder_model_wargear.js";
+import { summaryKeywordState } from "./builder_model_summary_keywords.js";
+import { summaryPoints } from "./builder_model_summary_points.js";
 
 function unitSummary(roster, unit) {
   const datasheet = state.catalog.datasheetById.get(unit.datasheetId) || {};
@@ -27,41 +17,36 @@ function unitSummary(roster, unit) {
   const factionIds = compositionFactionIds(roster, allyType);
   const composition = effectiveComposition(unit, factionIds, roster.detachmentIds || []);
   const miniatures = miniaturesForUnit(unit, composition);
-  const selectedAbilities = selectedAllegianceAbilities(unit);
-  const ownWarlordMiniatureIds = miniatures.filter((item) => item.isWarlord && item.count > 0).map((item) => item.miniatureId);
-  const rosterWarlordIds = new Set([...rosterWarlordMiniatureIds(roster), ...ownWarlordMiniatureIds]);
-  const conditionalKeywordRows = conditionalKeywordRowsForUnit(roster, unit, selectedAbilities, rosterWarlordIds);
-  const conditionalKeywordIds = unique(conditionalKeywordRows.map((item) => item.keywordId));
-  const keywords = unitKeywords(roster, unit, miniatures, selectedAbilities, rosterWarlordIds, conditionalKeywordRows);
-  const keywordIds = keywords.map((item) => item.id);
-  const { miniatureEnhancements, unitEnhancements } = summaryEnhancements(unit, miniatures, keywordIds, conditionalKeywordIds);
+  const keywordState = summaryKeywordState(roster, unit, miniatures);
+  const { miniatureEnhancements, unitEnhancements } = summaryEnhancements(
+    unit,
+    miniatures,
+    keywordState.keywordIds,
+    keywordState.conditionalKeywordIds
+  );
   const compositionAvailable = composition ? compositionIsAvailable(composition, factionIds, roster.detachmentIds || []) : false;
-  const points = (composition?.points || 0)
-    + datasheetPointsStepForUnit(roster, unit)
-    + wargearPoints(unit)
-    + unitEnhancements.reduce((total, enhancement) => total + (enhancement.points || 0), 0)
-    + miniatureEnhancements.reduce((total, enhancement) => total + (enhancement.points || 0), 0);
+  const { datasheetPointsStep, points } = summaryPoints(roster, unit, composition, unitEnhancements, miniatureEnhancements);
   return {
     ...unit,
     allyType,
     name: datasheet.name || unit.name || "Unit",
     compositionId: composition?.id || unit.compositionId || "",
     points,
-    datasheetPointsStep: datasheetPointsStepForUnit(roster, unit),
+    datasheetPointsStep,
     modelCount: miniatures.reduce((total, miniature) => total + (miniature.count || 0), 0),
     maxModelCount: datasheet.maxModelCount,
     isSuccessorChapter: Boolean(datasheet.isSuccessorChapter),
     allegianceAbilityGroupId: datasheet.allegianceAbilityGroupId,
     selectedCompositionId: composition?.id || "",
     selectedCompositionAvailable: compositionAvailable,
-    keywordIds,
-    conditionalKeywordIds,
-    keywordNames: keywords.map((item) => item.name),
+    keywordIds: keywordState.keywordIds,
+    conditionalKeywordIds: keywordState.conditionalKeywordIds,
+    keywordNames: keywordState.keywordNames,
     factionKeywordIds: idsFromRows(state.catalog.datasheetFactionKeywordsByDatasheetId.get(unit.datasheetId), "factionKeywordId"),
-    isWarlord: ownWarlordMiniatureIds.length > 0,
-    warlordMiniatureIds: ownWarlordMiniatureIds,
+    isWarlord: keywordState.ownWarlordMiniatureIds.length > 0,
+    warlordMiniatureIds: keywordState.ownWarlordMiniatureIds,
     miniatures,
-    allegianceAbilities: selectedAbilities,
+    allegianceAbilities: keywordState.selectedAbilities,
     unitEnhancements,
     miniatureEnhancements,
   };

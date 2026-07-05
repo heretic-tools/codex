@@ -1003,6 +1003,10 @@ browser smoke test.
   Unit and model Enhancement point overrides now sit beside the shared
   Enhancement point helper while the main summary function keeps composing the
   final roster unit row.
+- 2026-07-05: Split unit-summary keyword state and final point total helpers out
+  of `builder_model_summary.js` into `builder_model_summary_keywords.js` and
+  `builder_model_summary_points.js`. `unitSummary` now composes catalog rows,
+  keyword state, Enhancement decoration, and point totals through focused slices.
 - 2026-07-05: Split composition availability/effective-selection rules and
   miniature row/label helpers out of `builder_model_compositions.js` into
   `builder_model_composition_availability.js` and `builder_model_miniatures.js`.
