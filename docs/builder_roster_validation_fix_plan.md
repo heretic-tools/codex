@@ -1092,6 +1092,11 @@ browser smoke test.
   composes `builder_catalog_id_indexes.js` and
   `builder_catalog_group_indexes.js`, preserving the catalog shape loaded by
   the static Builder.
+- 2026-07-05: Split all-model Wargear choice extraction and occurrence counting
+  out of `builder_wargear_all_model_rules.js` into
+  `builder_wargear_all_model_choices.js`. The validation rule now focuses on
+  per-family validity and emits the same unit-scoped diagnostic, while catalog
+  choice arithmetic is isolated and cache-busted by the static build test.
 - 2026-07-05: Split grouped catalog rule indexes by domain into detachment,
   unit/composition, enhancement/allegiance, allied/restriction, and Wargear
   modules. `builder_catalog_group_indexes.js` now only merges those domain
