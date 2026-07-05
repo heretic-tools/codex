@@ -1048,6 +1048,14 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_roster_attachment_options\\.js\\?v=${version}`));
     assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_roster_attachment_rows\\.js\\?v=${version}`));
 
+    const attachmentControlsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_controls.js"), "utf8");
+    assert.match(attachmentControlsSource, new RegExp(`\\.\\/builder_roster_attachment_control_selects\\.js\\?v=${version}`));
+    assert.match(attachmentControlsSource, new RegExp(`\\.\\/builder_roster_actions\\.js\\?v=${version}`));
+
+    const attachmentControlSelectsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_control_selects.js"), "utf8");
+    assert.match(attachmentControlSelectsSource, new RegExp(`\\.\\/builder_dom\\.js\\?v=${version}`));
+    assert.match(attachmentControlSelectsSource, new RegExp(`\\.\\/builder_roster_attachment_options\\.js\\?v=${version}`));
+
     const attachmentRowsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_rows.js"), "utf8");
     assert.match(attachmentRowsSource, new RegExp(`\\.\\/builder_roster_attachment_member_view\\.js\\?v=${version}`));
     assert.match(attachmentRowsSource, new RegExp(`\\.\\/builder_roster_attachment_row_model\\.js\\?v=${version}`));

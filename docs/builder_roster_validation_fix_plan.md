@@ -1196,6 +1196,11 @@ browser smoke test.
   `builder_roster_attachment_controls.js`. The editor view now composes the
   section/list, while bodyguard/type/attached selects and the Add action remain
   a small DOM module over local roster mutations.
+- 2026-07-05: Split Attached Units select construction and refresh logic out of
+  `builder_roster_attachment_controls.js` into
+  `builder_roster_attachment_control_selects.js`. The controls module now only
+  wires the Add action and event listeners, while selectable bodyguard/type/unit
+  options stay isolated from roster mutation.
 - 2026-07-05: Split grouped catalog rule indexes by domain into detachment,
   unit/composition, enhancement/allegiance, allied/restriction, and Wargear
   modules. `builder_catalog_group_indexes.js` now only merges those domain
