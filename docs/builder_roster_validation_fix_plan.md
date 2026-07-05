@@ -1003,6 +1003,11 @@ browser smoke test.
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
   choice-set hydration, and static precomputed loadouts now sit apart from
   valid loadout generation and partition matching.
+- 2026-07-05: Split the unit picker/editor view into
+  `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
+  slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
+  selected-unit row rendering, and search/select layout are now auditable
+  independently.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
