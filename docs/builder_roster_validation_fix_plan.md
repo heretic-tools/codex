@@ -1346,6 +1346,11 @@ browser smoke test.
   `builder_allied_keyword_limit_rules.js` into
   `builder_allied_keyword_slotless_rules.js`. Keyword-limit validation now
   references a dedicated helper for the donor/receiver offset rule.
+- 2026-07-05: Split attachment control select creation and refresh logic out of
+  `builder_roster_attachment_control_selects.js` into
+  `builder_roster_attachment_control_create.js` and
+  `builder_roster_attachment_control_refresh.js`. The public selects module is
+  now only a compatibility facade.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
