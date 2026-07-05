@@ -887,6 +887,10 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const attachmentEnhancementRulesSource = readFileSync(join(outDir, "static", "builder_attachment_enhancement_rules.js"), "utf8");
     assert.match(attachmentEnhancementRulesSource, new RegExp(`\\.\\/builder_attachment_matchers\\.js\\?v=${version}`));
+    assert.match(attachmentEnhancementRulesSource, new RegExp(`\\.\\/builder_attachment_enhancement_bodyguard_rules\\.js\\?v=${version}`));
+
+    const attachmentEnhancementBodyguardRulesSource = readFileSync(join(outDir, "static", "builder_attachment_enhancement_bodyguard_rules.js"), "utf8");
+    assert.match(attachmentEnhancementBodyguardRulesSource, new RegExp(`\\.\\/builder_attachment_matchers\\.js\\?v=${version}`));
 
     const alliedRulesSource = readFileSync(join(outDir, "static", "builder_allied_rules.js"), "utf8");
     assert.match(alliedRulesSource, new RegExp(`\\.\\/builder_allied_faction_rules\\.js\\?v=${version}`));

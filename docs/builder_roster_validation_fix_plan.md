@@ -1201,6 +1201,11 @@ browser smoke test.
   `builder_roster_attachment_control_selects.js`. The controls module now only
   wires the Add action and event listeners, while selectable bodyguard/type/unit
   options stay isolated from roster mutation.
+- 2026-07-05: Split Enhancement attached-bodyguard satisfaction checks out of
+  `builder_attachment_enhancement_rules.js` into
+  `builder_attachment_enhancement_bodyguard_rules.js`. Datasheet/keyword
+  matching for enhancement bodyguard groups is now separate from the attached
+  unit enhancement-count validator.
 - 2026-07-05: Split grouped catalog rule indexes by domain into detachment,
   unit/composition, enhancement/allegiance, allied/restriction, and Wargear
   modules. `builder_catalog_group_indexes.js` now only merges those domain
