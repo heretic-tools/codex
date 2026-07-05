@@ -1151,6 +1151,11 @@ browser smoke test.
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
   selected-unit row rendering, and search/select layout are now auditable
   independently.
+- 2026-07-05: Split unit candidate status/label calculation out of
+  `builder_roster_unit_candidates.js` into
+  `builder_roster_unit_candidate_status.js`. Query/source grouping now stays
+  separate from default-composition hydration, duplicate-limit checks, and
+  points-over-limit labels.
 - 2026-07-05: Split enhancement eligibility and candidate-status predicates
   out of `builder_enhancement_rules.js` into
   `builder_enhancement_eligibility.js`. UI candidate filtering and roster
