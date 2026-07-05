@@ -1045,6 +1045,10 @@ browser smoke test.
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a
   small route/view composer while rule-aware option selection lives in a
   focused editor module covered by cache-busted static build tests.
+- 2026-07-05: Split Composition, Warlord, and Allegiance unit-detail controls
+  out of `builder_roster_unit_detail_editors.js` into dedicated editor modules.
+  The shared unit-detail editors module is now an export facade for
+  Composition, Warlord, Allegiance, and Enhancement controls.
 - 2026-07-05: Split the Builder lazy module registry out of `builder.js` into
   `builder_module_loaders.js`. The entrypoint still keeps route views,
   transfer, full rules, and validators behind dynamic imports, while startup
