@@ -1339,6 +1339,11 @@ browser smoke test.
   `builder_roster_validation_action_scroll.js`. Diagnostic code-to-action
   routing is now DOM-free, while the renderer only builds the action button and
   delegates focus behavior.
+- 2026-07-05: Split validation diagnostic code-to-action mapping out of
+  `builder_roster_validation_action_targets.js` into
+  `builder_roster_validation_code_action_targets.js`. The target resolver now
+  applies code defaults separately from unit/detachment/attachment scope
+  fallbacks.
 - 2026-07-05: Split default miniature wargear and closest-valid-loadout
   selection out of `builder_model_wargear.js` into
   `builder_model_wargear_defaults.js`. The main wargear model facade now keeps

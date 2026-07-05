@@ -1,3 +1,5 @@
+import { rosterValidationCodeActionTarget } from "./builder_roster_validation_code_action_targets.js";
+
 function rosterValidationActionTarget(group) {
   const attachmentIds = group.attachmentIds || [];
   const datasheetIds = group.datasheetIds || [];
@@ -33,49 +35,6 @@ function rosterValidationActionTarget(group) {
     return { kind: "target", target: "attachments", text: "Attached" };
   }
   return null;
-}
-
-function rosterValidationCodeActionTarget(code) {
-  switch (code) {
-    case "mandatory_warlord.not_selected":
-    case "mandatory_warlord.detachment_not_selected":
-    case "mandatory_warlord.supreme_commander_not_selected":
-    case "allied_units.required_warlord_missing":
-    case "warlord.invalid_generic":
-    case "warlord.multiple_selected":
-    case "warlord.not_selected":
-      return { kind: "target", target: "warlord", text: "Pick" };
-    case "allied_unit.required_detachment_not_selected":
-    case "roster.detachment_missing":
-    case "roster.detachment_not_selected":
-    case "roster.detachment_points_limit_exceeded":
-      return { kind: "target", target: "detachments", text: "Detachments" };
-    case "allegiance_ability.group_limit_exceeded":
-    case "allegiance_ability.group_limit_not_reached":
-    case "allied_faction.datasheet_not_allowed":
-    case "allied_faction.not_available":
-    case "allied_keyword_count.invalid_mutually_exclusive_keywords":
-    case "allied_keyword_count.limit_exceeded":
-    case "allied_keyword_restricting_keyword.outnumbered_keywords":
-    case "allied_points.limit_exceeded":
-    case "allied_unit.required_allegiance_ability_missing":
-    case "enhancement.combat_patrol_multiple_selected":
-    case "enhancement.combat_patrol_not_allowed":
-    case "enhancement.combat_patrol_required":
-    case "enhancement.models_have_same_enhancements":
-    case "enhancement.roster_has_too_many_enhancements":
-    case "detachment.datasheets_missing":
-    case "detachment.linked_datasheet_count_mismatch":
-    case "keyword_restriction_group.limit_exceeded":
-    case "keyword_restriction_group.minimum_not_met":
-    case "keyword_restriction_group.limit_zero":
-    case "mandatory_warlord.not_present_in_roster":
-    case "roster.empty":
-    case "roster.points_limit_exceeded":
-      return { kind: "target", target: "units", text: "Units" };
-    default:
-      return null;
-  }
 }
 
 export { rosterValidationActionTarget };
