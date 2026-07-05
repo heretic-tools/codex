@@ -748,10 +748,23 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(unitActionsSource, new RegExp(`\\.\\/builder_roster_unit_upgrade_actions\\.js\\?v=${version}`));
 
     const unitBaseActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_base_actions.js"), "utf8");
-    assert.match(unitBaseActionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
-    assert.match(unitBaseActionsSource, new RegExp(`\\.\\/builder_roster_attachment_members\\.js\\?v=${version}`));
-    assert.match(unitBaseActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
-    assert.match(unitBaseActionsSource, new RegExp(`\\.\\/builder_roster_unit_default_rows\\.js\\?v=${version}`));
+    assert.match(unitBaseActionsSource, new RegExp(`\\.\\/builder_roster_unit_add_actions\\.js\\?v=${version}`));
+    assert.match(unitBaseActionsSource, new RegExp(`\\.\\/builder_roster_unit_composition_actions\\.js\\?v=${version}`));
+    assert.match(unitBaseActionsSource, new RegExp(`\\.\\/builder_roster_unit_remove_actions\\.js\\?v=${version}`));
+
+    const unitAddActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_add_actions.js"), "utf8");
+    assert.match(unitAddActionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(unitAddActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(unitAddActionsSource, new RegExp(`\\.\\/builder_roster_unit_default_rows\\.js\\?v=${version}`));
+
+    const unitCompositionActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_composition_actions.js"), "utf8");
+    assert.match(unitCompositionActionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(unitCompositionActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(unitCompositionActionsSource, new RegExp(`\\.\\/builder_roster_unit_default_rows\\.js\\?v=${version}`));
+
+    const unitRemoveActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_remove_actions.js"), "utf8");
+    assert.match(unitRemoveActionsSource, new RegExp(`\\.\\/builder_roster_attachment_members\\.js\\?v=${version}`));
+    assert.match(unitRemoveActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
 
     const unitWargearActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_wargear_actions.js"), "utf8");
     assert.match(unitWargearActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));

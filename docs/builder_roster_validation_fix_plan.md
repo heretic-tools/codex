@@ -1356,6 +1356,10 @@ browser smoke test.
   `builder_enhancement_base_target_status.js`. Detachment/type/allied/model/
   Epic Hero/Character candidate gating is now separate from required-keyword,
   Wargear, attached-unit, and cannot-be-Warlord checks.
+- 2026-07-05: Split unit base roster actions out of
+  `builder_roster_unit_base_actions.js` into add, composition, and remove
+  modules. Unit creation defaults, composition resets, and attachment cleanup on
+  removal now have independent action files behind the same public facade.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
