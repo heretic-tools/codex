@@ -998,6 +998,11 @@ browser smoke test.
   `builder_validation_groups.js`. The validation view remains the DOM facade,
   while unit, detachment, attachment, model-target matching, and grouped
   message metadata can be audited independently.
+- 2026-07-05: Split loadout catalog/key helpers and precomputed fingerprint
+  cache out of `builder_loadout_math.js` into `builder_loadout_catalog.js` and
+  `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
+  choice-set hydration, and static precomputed loadouts now sit apart from
+  valid loadout generation and partition matching.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering

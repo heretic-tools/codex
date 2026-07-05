@@ -1,4 +1,10 @@
-import { state } from "./builder_state.js";
+import {
+  canonicalWargearKey,
+  choiceItems,
+  loadoutChoiceSets,
+  wargearOptionKey,
+} from "./builder_loadout_catalog.js";
+import { precomputedLoadoutsForChoiceSets } from "./builder_loadout_precomputed.js";
 import {
   addCounts,
   cleanCounts,
@@ -6,143 +12,8 @@ import {
   combinationsWithReplacement,
   countKey,
   countsEqual,
-  countsFromKey,
   dedupeCounts,
 } from "./builder_loadout_counts.js";
-
-function contextKey(datasheetId, miniatureId = null) {
-  return `${datasheetId || ""}:${miniatureId || ""}`;
-}
-
-const precomputedLoadoutCacheByCatalog = new WeakMap();
-
-function canonicalWargearKey(wargearItemId, context = {}) {
-  if (!wargearItemId) {
-    return "";
-  }
-  const aliases = state.catalog.wargearAliasesByContext || new Map();
-  const exact = aliases.get(contextKey(context.datasheetId, context.miniatureId))?.get(wargearItemId);
-  if (exact) {
-    return exact;
-  }
-  const datasheetWide = aliases.get(contextKey(context.datasheetId, null))?.get(wargearItemId);
-  if (datasheetWide) {
-    return datasheetWide;
-  }
-  return `id:${wargearItemId}`;
-}
-
-function wargearOptionKey(optionRow) {
-  const group = optionRow ? state.catalog.wargearGroupById.get(optionRow.wargearOptionGroupId) : null;
-  return canonicalWargearKey(optionRow?.wargearItemId, {
-    datasheetId: group?.datasheetId,
-    miniatureId: group?.miniatureId,
-  });
-}
-
-function choiceItems(rows, context = {}) {
-  const counts = {};
-  for (const row of rows || []) {
-    const item = state.catalog.wargearItemById.get(row.wargearItemId);
-    if (item) {
-      const key = canonicalWargearKey(row.wargearItemId, context);
-      counts[key] = (counts[key] || 0) + (row.count || 0);
-    }
-  }
-  return cleanCounts(counts);
-}
-
-function loadoutChoiceItems(choiceId, context) {
-  return choiceItems(state.catalog.loadoutChoiceItemsByChoiceId.get(choiceId), context);
-}
-
-function loadoutChoiceSets(datasheetId, miniatureId) {
-  return (state.catalog.loadoutChoiceSetsByDatasheetId.get(datasheetId) || [])
-    .filter((row) => (miniatureId ? row.miniatureId === miniatureId : !row.miniatureId))
-    .sort((left, right) => (
-      Number(Boolean(left.alternate)) - Number(Boolean(right.alternate))
-      || String(left.id).localeCompare(String(right.id))
-    ))
-    .map((row) => ({
-      ...row,
-      choices: (state.catalog.loadoutChoicesBySetId.get(row.id) || []).map((choice) => loadoutChoiceItems(choice.id, {
-        datasheetId: row.datasheetId,
-        miniatureId: row.miniatureId,
-      })),
-    }));
-}
-
-function choiceSetsContext(sets) {
-  if (!sets.length || !sets[0].datasheetId) {
-    return null;
-  }
-  const datasheetId = sets[0].datasheetId || "";
-  const miniatureId = sets[0].miniatureId || "";
-  if (sets.some((set) => (set.datasheetId || "") !== datasheetId || (set.miniatureId || "") !== miniatureId)) {
-    return null;
-  }
-  return { datasheetId, miniatureId };
-}
-
-function catalogPrecomputedLoadoutCache() {
-  if (!state.catalog || typeof state.catalog !== "object") {
-    return new Map();
-  }
-  if (!precomputedLoadoutCacheByCatalog.has(state.catalog)) {
-    precomputedLoadoutCacheByCatalog.set(state.catalog, new Map());
-  }
-  return precomputedLoadoutCacheByCatalog.get(state.catalog);
-}
-
-function sameOrderedIds(left, right) {
-  if (!left || !right || left.length !== right.length) {
-    return false;
-  }
-  return left.every((item, index) => item === right[index]);
-}
-
-function normalizedPrecomputedRecord(record) {
-  if (Array.isArray(record)) {
-    return {
-      fingerprints: record,
-      loadoutChoiceSetIds: null,
-    };
-  }
-  return record || null;
-}
-
-function precomputedLoadouts(datasheetId, miniatureId, loadoutChoiceSetIds) {
-  const key = contextKey(datasheetId, miniatureId);
-  const record = normalizedPrecomputedRecord(state.catalog.precomputedLoadoutsByContext?.get(key));
-  if (!record?.fingerprints) {
-    return null;
-  }
-  if (record.loadoutChoiceSetIds && !sameOrderedIds(record.loadoutChoiceSetIds, loadoutChoiceSetIds)) {
-    return null;
-  }
-  const cache = catalogPrecomputedLoadoutCache();
-  if (!cache.has(key)) {
-    cache.set(key, record.fingerprints.map((fingerprint) => countsFromKey(fingerprint)));
-  }
-  return cache.get(key);
-}
-
-function precomputedLoadoutsForChoiceSets(sets) {
-  const context = choiceSetsContext(sets);
-  if (!context) {
-    return null;
-  }
-  const expected = loadoutChoiceSets(context.datasheetId, context.miniatureId || null);
-  if (expected.length !== sets.length) {
-    return null;
-  }
-  for (let index = 0; index < sets.length; index += 1) {
-    if (sets[index].id !== expected[index].id) {
-      return null;
-    }
-  }
-  return precomputedLoadouts(context.datasheetId, context.miniatureId, sets.map((set) => set.id));
-}
 
 function choiceSetLoadouts(choiceSet) {
   const choices = choiceSet.choices || [];
