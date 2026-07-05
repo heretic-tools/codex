@@ -678,6 +678,10 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(modelSource, new RegExp(`\\.\\/builder_model_detachments\\.js\\?v=${version}`));
     assert.match(modelSource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
 
+    const modelCompositionsSource = readFileSync(join(outDir, "static", "builder_model_compositions.js"), "utf8");
+    assert.match(modelCompositionsSource, new RegExp(`\\.\\/builder_model_composition_availability\\.js\\?v=${version}`));
+    assert.match(modelCompositionsSource, new RegExp(`\\.\\/builder_model_miniatures\\.js\\?v=${version}`));
+
     const modelSummarySource = readFileSync(join(outDir, "static", "builder_model_summary.js"), "utf8");
     assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
     assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_keywords\\.js\\?v=${version}`));

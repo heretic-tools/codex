@@ -984,6 +984,12 @@ browser smoke test.
   `builder_model_points.js`. Unit summary now focuses on composing the final
   roster row while conditional keywords, roster Warlord keyword context,
   datasheet step points, and Enhancement points are independently auditable.
+- 2026-07-05: Split composition availability/effective-selection rules and
+  miniature row/label helpers out of `builder_model_compositions.js` into
+  `builder_model_composition_availability.js` and `builder_model_miniatures.js`.
+  The public composition module is now a stable facade, while faction/
+  detachment-gated composition selection and roster miniature normalization can
+  be audited independently.
 - 2026-07-05: Split pure loadout count arithmetic out of
   `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
   loadout exports stay unchanged while the rule-facing module is smaller and
