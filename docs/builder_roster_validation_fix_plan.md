@@ -965,6 +965,10 @@ browser smoke test.
   attachment rule module still exports the same validation API, while
   datasheet/bodyguard matching and "one Enhancement per attached unit" rules
   are independently auditable.
+- 2026-07-05: Split duplicate attached-unit membership validation out of
+  `builder_attachment_rules.js` into `builder_attachment_membership_rules.js`.
+  The public validator now delegates repeated-unit membership diagnostics before
+  checking incomplete groups, must-attach cases, and pair attachability.
 - 2026-07-05: Split unit-detail Wargear rendering and scope-local validation
   display out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_wargear_view.js`, leaving the main detail view focused on

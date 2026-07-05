@@ -1,5 +1,6 @@
 import { unitValidationMessage, validationMessage } from "./builder_validation_messages.js";
 import { attachedGroups, attachedUnitCanAttach } from "./builder_attachment_matchers.js";
+import { validateAttachmentDuplicateMembership } from "./builder_attachment_membership_rules.js";
 export {
   enhancementBodyguardRequirementSatisfied,
   validateAttachedUnitEnhancementLimits,
@@ -10,23 +11,7 @@ function validateAttachedUnits(roster, detachments, units, messages) {
   if (!groups.length) {
     return;
   }
-  const membership = new Map();
-  for (const group of groups) {
-    for (const member of group.members || []) {
-      if (!membership.has(member.rosterUnitId)) {
-        membership.set(member.rosterUnitId, new Set());
-      }
-      membership.get(member.rosterUnitId).add(group.id);
-    }
-  }
-  for (const [rosterUnitId, groupIds] of membership.entries()) {
-    if (groupIds.size > 1) {
-      const unit = units.find((item) => item.id === rosterUnitId);
-      messages.push(unitValidationMessage("attached_unit.duplicate_membership", unit, `${unit?.name || "Unit"} is part of more than one attached unit.`, {
-        attachmentIds: [...groupIds],
-      }));
-    }
-  }
+  validateAttachmentDuplicateMembership(groups, units, messages);
   const detachmentIds = detachments.map((detachment) => detachment.id);
   for (const group of groups) {
     const members = (group.members || []).map((member) => ({
