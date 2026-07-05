@@ -1157,6 +1157,10 @@ browser smoke test.
   bootstrap loading, local DB opening, roster-list refresh, initial route
   dispatch, and hash-change wiring; full catalog/rules loading still happens
   only behind roster/unit/import paths.
+- 2026-07-05: Split browser-local IndexedDB opening and transaction plumbing
+  out of `builder_storage.js` into `builder_storage_db.js`. Public roster
+  storage exports are unchanged, while the serverless GitHub Pages storage
+  boundary remains guarded against `fetch`, `localStorage`, and `sessionStorage`.
 - 2026-07-05: Split basic list/create route rendering and roster/unit/not-found
   route rendering out of `builder_route_renderers.js` into
   `builder_route_basic_renderers.js` and `builder_route_roster_renderers.js`.
