@@ -994,6 +994,11 @@ browser smoke test.
   The public composition module is now a stable facade, while faction/
   detachment-gated composition selection and roster miniature normalization can
   be audited independently.
+- 2026-07-05: Split composition gating predicates and shape/specificity scoring
+  out of `builder_model_composition_availability.js` into
+  `builder_model_composition_filters.js`. Effective composition selection now
+  reads as a small orchestration layer over separately auditable static-catalog
+  predicates.
 - 2026-07-05: Split model availability helpers into allied unit sources,
   datasheet availability, and detachment availability modules. The public
   `builder_model_availability.js` facade still exports the same Builder model
