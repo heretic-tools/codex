@@ -1,42 +1,11 @@
 import { state } from "./builder_state.js";
 import {
-  factionScope,
-  idsFromRows,
-  namesForIds,
-  setIntersects,
-} from "./builder_model.js";
+  keywordRestrictedUnits,
+  keywordRestrictionGroupById,
+  keywordRestrictionGroupIsActive,
+  keywordRestrictionGroupsForFaction,
+} from "./builder_keyword_restriction_groups.js";
 import { validationMessage } from "./builder_validation_messages.js";
-
-function keywordRestrictionGroupFromRow(row) {
-  const keywordIds = idsFromRows(state.catalog.keywordRestrictionGroupKeywordsByGroupId.get(row.id), "keywordId");
-  const excludedFaction = row.excludedFactionKeywordId ? state.catalog.factionKeywordById.get(row.excludedFactionKeywordId) : null;
-  return {
-    ...row,
-    keywordIds: new Set(keywordIds),
-    keywordNames: namesForIds(state.catalog.keywordById, keywordIds, "keyword"),
-    excludedFactionKeywordName: excludedFaction?.name || "",
-  };
-}
-
-function keywordRestrictionGroupIsActive(group, warlordIds) {
-  if (!group.keywordIds.size) {
-    return false;
-  }
-  return !group.requiresWarlordMiniatureId || warlordIds.has(group.requiresWarlordMiniatureId);
-}
-
-function keywordRestrictedUnits(units, group) {
-  const restricted = [];
-  for (const unit of units) {
-    if (group.excludedFactionKeywordId && (unit.factionKeywordIds || []).some((id) => factionScope(id).includes(group.excludedFactionKeywordId))) {
-      continue;
-    }
-    if (setIntersects(new Set(unit.keywordIds || []), group.keywordIds)) {
-      restricted.push(unit);
-    }
-  }
-  return restricted;
-}
 
 function unitIdsScope(units, extra = {}) {
   const unitIds = [...new Set((units || []).map((unit) => unit.id).filter(Boolean))];
@@ -60,9 +29,7 @@ function addKeywordLimitMessage(messages, group, count, limit, detachment = null
 }
 
 function validateKeywordRestrictions(roster, detachments, units, messages) {
-  const groupRows = factionScope(roster.factionKeywordId)
-    .flatMap((factionId) => state.catalog.keywordRestrictionGroupsByFactionId.get(factionId) || []);
-  const groups = new Map(groupRows.map((row) => [row.id, keywordRestrictionGroupFromRow(row)]));
+  const groups = keywordRestrictionGroupsForFaction(roster.factionKeywordId);
   const warlordIds = new Set(units.flatMap((unit) => unit.warlordMiniatureIds || []));
   for (const group of groups.values()) {
     if (!keywordRestrictionGroupIsActive(group, warlordIds)) {
@@ -76,11 +43,7 @@ function validateKeywordRestrictions(roster, detachments, units, messages) {
   }
   for (const detachment of detachments) {
     for (const row of state.catalog.restrictionGroupDetachmentLimitsByDetachmentId.get(detachment.id) || []) {
-      let group = groups.get(row.restrictionGroupId);
-      if (!group) {
-        const source = state.catalog.keywordRestrictionGroups.find((item) => item.id === row.restrictionGroupId);
-        group = source ? keywordRestrictionGroupFromRow(source) : null;
-      }
+      const group = groups.get(row.restrictionGroupId) || keywordRestrictionGroupById(row.restrictionGroupId);
       if (!group || !keywordRestrictionGroupIsActive(group, warlordIds)) {
         continue;
       }

@@ -791,6 +791,9 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(restrictionRulesSource, new RegExp(`\\.\\/builder_successor_chapter_rules\\.js\\?v=${version}`));
     assert.match(restrictionRulesSource, new RegExp(`\\.\\/builder_unit_composition_rules\\.js\\?v=${version}`));
 
+    const keywordRestrictionRulesSource = readFileSync(join(outDir, "static", "builder_keyword_restriction_rules.js"), "utf8");
+    assert.match(keywordRestrictionRulesSource, new RegExp(`\\.\\/builder_keyword_restriction_groups\\.js\\?v=${version}`));
+
     const unitEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_editor_view.js"), "utf8");
     assert.match(unitEditorSource, new RegExp(`\\.\\/builder_roster_unit_candidates\\.js\\?v=${version}`));
     assert.match(unitEditorSource, new RegExp(`\\.\\/builder_roster_unit_rows\\.js\\?v=${version}`));

@@ -1191,6 +1191,11 @@ browser smoke test.
   Detachment/unit composition checks now stay separate from faction and
   detachment keyword restriction group matching, minimums, maximums, and
   excluded-faction scope handling.
+- 2026-07-05: Split keyword restriction group hydration, activation, and unit
+  matching out of `builder_keyword_restriction_rules.js` into
+  `builder_keyword_restriction_groups.js`. The validator now focuses on roster
+  and detachment limit messages while group catalog lookup remains auditable
+  separately.
 - 2026-07-05: Split the remaining detachment datasheet/unique-keyword, unit
   composition, and Successor Chapter Epic Hero restrictions out of
   `builder_restriction_rules.js` into focused rule modules. The public
