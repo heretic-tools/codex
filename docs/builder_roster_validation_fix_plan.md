@@ -1334,6 +1334,10 @@ browser smoke test.
   `builder_roster_list_view.js` into `builder_roster_list_rows.js`. The list
   view now owns screen assembly and import/export controls, while the roster
   summary row and validation-state badge mapping are independently testable.
+- 2026-07-05: Split attachment add-action mutation out of
+  `builder_roster_attachment_actions.js` into
+  `builder_roster_attachment_add_actions.js`. The public attachment actions
+  module is now a thin compatibility facade over add/remove/member helpers.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
