@@ -852,7 +852,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const validationSource = readFileSync(join(outDir, "static", "builder_validation_view.js"), "utf8");
     assert.match(validationSource, new RegExp(`\\.\\/builder_validation_groups\\.js\\?v=${version}`));
+    assert.match(validationSource, new RegExp(`\\.\\/builder_validation_message_list\\.js\\?v=${version}`));
     assert.match(validationSource, new RegExp(`\\.\\/builder_validation_scopes\\.js\\?v=${version}`));
+
+    const validationMessageListSource = readFileSync(join(outDir, "static", "builder_validation_message_list.js"), "utf8");
+    assert.match(validationMessageListSource, new RegExp(`\\.\\/builder_validation_groups\\.js\\?v=${version}`));
 
     const validationScopesSource = readFileSync(join(outDir, "static", "builder_validation_scopes.js"), "utf8");
     assert.match(validationScopesSource, new RegExp(`\\.\\/builder_validation_attachment_scopes\\.js\\?v=${version}`));

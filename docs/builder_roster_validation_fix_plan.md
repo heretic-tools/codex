@@ -1139,6 +1139,10 @@ browser smoke test.
   `builder_validation_groups.js`. The validation view remains the DOM facade,
   while unit, detachment, attachment, model-target matching, and grouped
   message metadata can be audited independently.
+- 2026-07-05: Split validation message-list DOM rendering out of
+  `builder_validation_view.js` into `builder_validation_message_list.js`.
+  The validation view now composes the section/summary wrapper, while grouped
+  item rows, scope badges, counts, and compact lists are isolated.
 - 2026-07-05: Split attachment-specific validation scope matching out of
   `builder_validation_scopes.js` into `builder_validation_attachment_scopes.js`.
   Member unit IDs and model target IDs for attached-unit groups are now audited
