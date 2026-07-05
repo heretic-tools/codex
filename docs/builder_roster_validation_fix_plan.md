@@ -910,6 +910,11 @@ browser smoke test.
   `builder_roster_attachment_row_model.js`. The row renderer now keeps DOM and
   remove actions, while member ordering, title text, and validation badge status
   are computed in a small model helper.
+- 2026-07-05: Split attached-unit member/title DOM out of
+  `builder_roster_attachment_rows.js` into
+  `builder_roster_attachment_member_view.js`. The row renderer now composes the
+  row frame, validation badge, bodyguard thumbnail, and remove-attached-unit
+  action while member removal links stay isolated.
 - 2026-07-05: Added the local unit image helper to the unit-detail overview, so
   opening a unit from the roster keeps the same visual identity while validation
   controls and focus targets remain unchanged.
