@@ -975,6 +975,16 @@ browser smoke test.
   Imported rosters now receive fresh roster IDs when their exported ID already
   exists locally or repeats inside the same file, so Import adds data instead
   of silently overwriting a cached roster.
+- 2026-07-05: Split attachment mutation actions out of
+  `builder_roster_actions.js` into `builder_roster_attachment_actions.js`.
+  The public action facade keeps the same exports, while attachment membership
+  and member add/remove rules are isolated and covered by cache-busted static
+  build tests.
+- 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
+  enhancement editors out of `builder_roster_unit_detail_view.js` into
+  `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a
+  small route/view composer while rule-aware option selection lives in a
+  focused editor module covered by cache-busted static build tests.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
