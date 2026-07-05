@@ -1326,6 +1326,10 @@ browser smoke test.
   The validator now only applies limited-set limits to a roster unit, while
   model-count thresholds, upgrade-key filtering, mandatory choices, duplicate
   limits, and exact cover search are auditable separately.
+- 2026-07-05: Split limited-Wargear model-count threshold lookup out of
+  `builder_wargear_limited_choices.js` into
+  `builder_wargear_limited_limits.js`. Choice hydration now stays separate from
+  effective `choiceLimit`/`duplicateLimit` row selection.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

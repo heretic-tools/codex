@@ -1079,6 +1079,9 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(limitedWargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_choices\\.js\\?v=${version}`));
     assert.match(limitedWargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_cover\\.js\\?v=${version}`));
 
+    const limitedWargearChoicesSource = readFileSync(join(outDir, "static", "builder_wargear_limited_choices.js"), "utf8");
+    assert.match(limitedWargearChoicesSource, new RegExp(`\\.\\/builder_wargear_limited_limits\\.js\\?v=${version}`));
+
     const limitedWargearCoverSource = readFileSync(join(outDir, "static", "builder_wargear_limited_cover.js"), "utf8");
     assert.match(limitedWargearCoverSource, new RegExp(`\\.\\/builder_wargear_limited_choices\\.js\\?v=${version}`));
 
