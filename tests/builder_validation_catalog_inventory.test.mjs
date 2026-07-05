@@ -609,6 +609,9 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_catalog\\.js\\?v=${version}`));
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_precomputed\\.js\\?v=${version}`));
 
+    const modelWargearSource = readFileSync(join(outDir, "static", "builder_model_wargear.js"), "utf8");
+    assert.match(modelWargearSource, new RegExp(`\\.\\/builder_model_wargear_defaults\\.js\\?v=${version}`));
+
     const enhancementRulesSource = readFileSync(join(outDir, "static", "builder_enhancement_rules.js"), "utf8");
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_eligibility\\.js\\?v=${version}`));
 
