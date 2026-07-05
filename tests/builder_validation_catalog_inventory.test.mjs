@@ -911,8 +911,14 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(enhancementSelectedRulesSource, new RegExp(`\\.\\/builder_enhancement_wargear_rules\\.js\\?v=${version}`));
 
     const enhancementEligibilitySource = readFileSync(join(outDir, "static", "builder_enhancement_eligibility.js"), "utf8");
+    assert.match(enhancementEligibilitySource, new RegExp(`\\.\\/builder_enhancement_base_target_status\\.js\\?v=${version}`));
     assert.match(enhancementEligibilitySource, new RegExp(`\\.\\/builder_enhancement_keyword_rules\\.js\\?v=${version}`));
     assert.match(enhancementEligibilitySource, new RegExp(`\\.\\/builder_enhancement_wargear_rules\\.js\\?v=${version}`));
+
+    const enhancementBaseTargetStatusSource = readFileSync(join(outDir, "static", "builder_enhancement_base_target_status.js"), "utf8");
+    assert.match(enhancementBaseTargetStatusSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(enhancementBaseTargetStatusSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+    assert.match(enhancementBaseTargetStatusSource, new RegExp(`\\.\\/builder_validation_core\\.js\\?v=${version}`));
 
     const enhancementLimitSource = readFileSync(join(outDir, "static", "builder_enhancement_limit_rules.js"), "utf8");
     assert.match(enhancementLimitSource, new RegExp(`\\.\\/builder_enhancement_combat_patrol_rules\\.js\\?v=${version}`));

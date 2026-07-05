@@ -1351,6 +1351,11 @@ browser smoke test.
   `builder_roster_attachment_control_create.js` and
   `builder_roster_attachment_control_refresh.js`. The public selects module is
   now only a compatibility facade.
+- 2026-07-05: Split base Enhancement target eligibility out of
+  `builder_enhancement_eligibility.js` into
+  `builder_enhancement_base_target_status.js`. Detachment/type/allied/model/
+  Epic Hero/Character candidate gating is now separate from required-keyword,
+  Wargear, attached-unit, and cannot-be-Warlord checks.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
