@@ -979,6 +979,11 @@ browser smoke test.
   faction scope, row/id helpers, names, keywords, and set operations, while
   detachment costs/disposition badges and selected Allegiance/Enhancement rows
   are auditable separately.
+- 2026-07-05: Split unit-summary keyword/Warlord context and points helpers
+  out of `builder_model_summary.js` into `builder_model_keywords.js` and
+  `builder_model_points.js`. Unit summary now focuses on composing the final
+  roster row while conditional keywords, roster Warlord keyword context,
+  datasheet step points, and Enhancement points are independently auditable.
 - 2026-07-05: Split pure loadout count arithmetic out of
   `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
   loadout exports stay unchanged while the rule-facing module is smaller and
