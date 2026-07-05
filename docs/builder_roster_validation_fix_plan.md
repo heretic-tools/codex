@@ -1268,6 +1268,11 @@ browser smoke test.
   top-level validator now owns empty/multiple selection flow, while Supreme
   Commander, detachment-mandatory Warlord, mandatory faction replacement, and
   generic eligibility checks are isolated.
+- 2026-07-05: Split mandatory selected-Warlord checks out of
+  `builder_warlord_selected_rules.js` into
+  `builder_warlord_mandatory_selected_rules.js`. Supreme Commander,
+  detachment-required Warlord, and faction-required Warlord diagnostics are now
+  separate from the selected model's generic eligibility validation.
 - 2026-07-05: Split Allegiance Ability candidate-status and shared helper
   lookups out of `builder_allegiance_rules.js`. The validator still owns
   roster messages, while UI candidate availability, detachment gates, mandatory

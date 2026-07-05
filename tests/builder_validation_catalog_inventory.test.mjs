@@ -1064,7 +1064,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const warlordSelectedRulesSource = readFileSync(join(outDir, "static", "builder_warlord_selected_rules.js"), "utf8");
     assert.match(warlordSelectedRulesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
+    assert.match(warlordSelectedRulesSource, new RegExp(`\\.\\/builder_warlord_mandatory_selected_rules\\.js\\?v=${version}`));
     assert.match(warlordSelectedRulesSource, new RegExp(`\\.\\/builder_warlord_scopes\\.js\\?v=${version}`));
+
+    const warlordMandatorySelectedRulesSource = readFileSync(join(outDir, "static", "builder_warlord_mandatory_selected_rules.js"), "utf8");
+    assert.match(warlordMandatorySelectedRulesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
+    assert.match(warlordMandatorySelectedRulesSource, new RegExp(`\\.\\/builder_warlord_scopes\\.js\\?v=${version}`));
 
     const warlordCandidatesSource = readFileSync(join(outDir, "static", "builder_warlord_candidates.js"), "utf8");
     assert.match(warlordCandidatesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
