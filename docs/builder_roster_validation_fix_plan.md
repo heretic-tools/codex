@@ -1153,6 +1153,12 @@ browser smoke test.
   `builder_restriction_rules.js` into focused rule modules. The public
   restriction module is now a stable facade for detachment, keyword,
   successor-chapter, and unit-composition validators.
+- 2026-07-05: Split `validateRoster` orchestration into validation context,
+  basic roster limits, domain rule runner, and post-rule unit checks. The
+  public `builder_roster_validation.js` module now preserves diagnostic order
+  while keeping points/context construction, selected-detachment/points limits,
+  domain validators, duplicate/native/faction checks, and final result shaping
+  independently auditable.
 - 2026-07-05: Split roster-detail validation action routing out of
   `builder_roster_detail_view.js` into `builder_roster_validation_actions.js`.
   The roster page now stays as layout plus Warlord picker while validation

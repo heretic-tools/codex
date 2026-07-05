@@ -817,7 +817,15 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(validationSource, new RegExp(`\\.\\/builder_validation_scopes\\.js\\?v=${version}`));
 
     const rosterValidationSource = readFileSync(join(outDir, "static", "builder_roster_validation.js"), "utf8");
-    assert.match(rosterValidationSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
+    assert.match(rosterValidationSource, new RegExp(`\\.\\/builder_roster_validation_basic_rules\\.js\\?v=${version}`));
+    assert.match(rosterValidationSource, new RegExp(`\\.\\/builder_roster_validation_context\\.js\\?v=${version}`));
+    assert.match(rosterValidationSource, new RegExp(`\\.\\/builder_roster_validation_rule_runner\\.js\\?v=${version}`));
+    assert.match(rosterValidationSource, new RegExp(`\\.\\/builder_roster_validation_unit_rules\\.js\\?v=${version}`));
+
+    const rosterValidationRuleRunnerSource = readFileSync(join(outDir, "static", "builder_roster_validation_rule_runner.js"), "utf8");
+    assert.match(rosterValidationRuleRunnerSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
+    assert.match(rosterValidationRuleRunnerSource, new RegExp(`\\.\\/builder_wargear_rules\\.js\\?v=${version}`));
+    assert.match(rosterValidationRuleRunnerSource, new RegExp(`\\.\\/builder_restriction_rules\\.js\\?v=${version}`));
 
     const wargearRulesSource = readFileSync(join(outDir, "static", "builder_wargear_rules.js"), "utf8");
     assert.match(wargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_rules\\.js\\?v=${version}`));
