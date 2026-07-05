@@ -985,6 +985,14 @@ browser smoke test.
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a
   small route/view composer while rule-aware option selection lives in a
   focused editor module covered by cache-busted static build tests.
+- 2026-07-05: Split the Builder lazy module registry out of `builder.js` into
+  `builder_module_loaders.js`. The entrypoint still keeps route views,
+  transfer, full rules, and validators behind dynamic imports, while startup
+  routing/storage code is easier to audit for thin-client behavior.
+- 2026-07-05: Split roster runtime helpers out of `builder.js` into
+  `builder_roster_runtime.js`. Roster lookup, bootstrap-only list summaries,
+  refresh sorting, and stale list-cache persistence are isolated from the
+  route render loop without pulling full rules into the startup graph.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
