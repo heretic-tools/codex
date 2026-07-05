@@ -1114,6 +1114,12 @@ browser smoke test.
   The roster page now stays as layout plus Warlord picker while validation
   buttons, target selection, smooth scroll/focus behavior, Codex links, and
   unit-search actions are isolated.
+- 2026-07-05: Split validation-action target mapping and DOM scroll/focus
+  helpers out of `builder_roster_validation_actions.js` into
+  `builder_roster_validation_action_targets.js` and
+  `builder_roster_validation_action_scroll.js`. Diagnostic code-to-action
+  routing is now DOM-free, while the renderer only builds the action button and
+  delegates focus behavior.
 - 2026-07-05: Split default miniature wargear and closest-valid-loadout
   selection out of `builder_model_wargear.js` into
   `builder_model_wargear_defaults.js`. The main wargear model facade now keeps
