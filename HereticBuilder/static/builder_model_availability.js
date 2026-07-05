@@ -1,11 +1,11 @@
 import { state } from "./builder_state.js";
 import {
-  compositionFactionIds,
   datasheetFactionIds,
   factionDescendantIds,
   factionScope,
   idsFromRows,
 } from "./builder_model_core.js";
+import { compositionFactionIds } from "./builder_model_selections.js";
 import { defaultComposition } from "./builder_model_compositions.js";
 
 function availableDetachments(factionKeywordId) {

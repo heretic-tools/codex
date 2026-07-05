@@ -1,22 +1,28 @@
 export {
-  compositionFactionIds,
-  conditionalKeywordApplies,
-  costForDetachment,
   datasheetFactionIds,
-  detachmentBadgeNode,
-  detachmentDispositionBadgeNode,
-  detachmentDispositionName,
   factionScope,
   idsFromRows,
   lowerName,
   miniatureKeywordIds,
   namesForIds,
-  selectedAllegianceAbilities,
-  selectedMiniatureEnhancements,
-  selectedUnitEnhancements,
   setIntersects,
   unique,
 } from "./builder_model_core.js";
+
+export {
+  costForDetachment,
+  detachmentBadgeNode,
+  detachmentDispositionBadgeNode,
+  detachmentDispositionName,
+} from "./builder_model_detachments.js";
+
+export {
+  compositionFactionIds,
+  conditionalKeywordApplies,
+  selectedAllegianceAbilities,
+  selectedMiniatureEnhancements,
+  selectedUnitEnhancements,
+} from "./builder_model_selections.js";
 
 export {
   availableCompositions,

@@ -1,14 +1,16 @@
 import { state } from "./builder_state.js";
 import {
-  compositionFactionIds,
-  conditionalKeywordApplies,
   idsFromRows,
   miniatureKeywordIds,
+  unique,
+} from "./builder_model_core.js";
+import {
+  compositionFactionIds,
+  conditionalKeywordApplies,
   selectedAllegianceAbilities,
   selectedMiniatureEnhancements,
   selectedUnitEnhancements,
-  unique,
-} from "./builder_model_core.js";
+} from "./builder_model_selections.js";
 import {
   compositionIsAvailable,
   effectiveComposition,

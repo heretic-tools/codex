@@ -632,6 +632,17 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const modelWargearSource = readFileSync(join(outDir, "static", "builder_model_wargear.js"), "utf8");
     assert.match(modelWargearSource, new RegExp(`\\.\\/builder_model_wargear_defaults\\.js\\?v=${version}`));
 
+    const modelSource = readFileSync(join(outDir, "static", "builder_model.js"), "utf8");
+    assert.match(modelSource, new RegExp(`\\.\\/builder_model_core\\.js\\?v=${version}`));
+    assert.match(modelSource, new RegExp(`\\.\\/builder_model_detachments\\.js\\?v=${version}`));
+    assert.match(modelSource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
+
+    const modelSummarySource = readFileSync(join(outDir, "static", "builder_model_summary.js"), "utf8");
+    assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
+
+    const modelAvailabilitySource = readFileSync(join(outDir, "static", "builder_model_availability.js"), "utf8");
+    assert.match(modelAvailabilitySource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
+
     const enhancementRulesSource = readFileSync(join(outDir, "static", "builder_enhancement_rules.js"), "utf8");
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_eligibility\\.js\\?v=${version}`));
 

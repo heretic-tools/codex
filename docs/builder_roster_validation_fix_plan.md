@@ -964,6 +964,12 @@ browser smoke test.
 - 2026-07-05: Added an `outdated` roster-list badge state for stale cached
   summaries. The list can now be honest about data-version drift while still
   avoiding full-catalog validation on the GitHub Pages startup path.
+- 2026-07-05: Split model-level detachment helpers and selected-row helpers
+  out of `builder_model_core.js` into `builder_model_detachments.js` and
+  `builder_model_selections.js`. Core model utilities now stay focused on
+  faction scope, row/id helpers, names, keywords, and set operations, while
+  detachment costs/disposition badges and selected Allegiance/Enhancement rows
+  are auditable separately.
 - 2026-07-05: Split pure loadout count arithmetic out of
   `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
   loadout exports stay unchanged while the rule-facing module is smaller and
