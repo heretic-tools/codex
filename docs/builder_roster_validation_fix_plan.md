@@ -1379,6 +1379,11 @@ browser smoke test.
   `builder_roster_unit_enhancement_select.js`. The editor now composes the
   section and roster mutations, while detachments, target keywords, points, and
   candidate-status labels are auditable separately from DOM select rendering.
+- 2026-07-05: Split unit-detail Enhancement select model construction out of
+  `builder_roster_unit_enhancement_editor.js` into
+  `builder_roster_unit_enhancement_models.js`. The editor now owns only the
+  section shell and roster mutation callbacks, while unit/model option rows are
+  prepared in a dedicated view-model helper.
 - 2026-07-05: Split allied-rule helpers and allied keyword/allegiance/
   restricting-keyword validation out of `builder_allied_rules.js` into
   `builder_allied_rule_helpers.js` and `builder_allied_keyword_rules.js`.
