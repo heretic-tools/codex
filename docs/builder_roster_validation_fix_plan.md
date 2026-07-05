@@ -950,6 +950,10 @@ browser smoke test.
   display out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_wargear_view.js`, leaving the main detail view focused on
   composition, Warlord, allegiance, enhancements, and page layout.
+- 2026-07-05: Split Wargear option/group controls and Wargear-scope validation
+  display out of `builder_roster_unit_wargear_view.js` into option and
+  validation view modules. The Wargear scope module now only composes sections,
+  group lookup, target anchors, and the two focused renderers.
 - 2026-07-05: Extended the standalone Builder cache-bust test to cover the new
   split modules and local unit-image helper. This keeps GitHub Pages deployments
   honest: every local Builder import must be rewritten with the same asset hash
