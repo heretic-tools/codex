@@ -1042,6 +1042,11 @@ browser smoke test.
   `builder_roster_attachment_failures.js` into
   `builder_roster_attachment_failure_messages.js`. Attachment pairing checks
   now keep catalog-derived failure reasons separate from UI-facing text.
+- 2026-07-05: Split attachment bodyguard-group row failure checks out of
+  `builder_roster_attachment_failures.js` into
+  `builder_roster_attachment_rule_failures.js`. Pair-level failure aggregation
+  now stays separate from faction, detachment, datasheet, keyword, and shared
+  keyword rule checks.
 - 2026-07-05: Split Enhancement required/excluded keyword gates out of
   `builder_enhancement_eligibility.js` into
   `builder_enhancement_keyword_rules.js`. Candidate status and validation still
