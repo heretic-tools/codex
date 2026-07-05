@@ -993,6 +993,11 @@ browser smoke test.
   `builder_model_points.js`. Unit summary now focuses on composing the final
   roster row while conditional keywords, roster Warlord keyword context,
   datasheet step points, and Enhancement points are independently auditable.
+- 2026-07-05: Split unit-summary Enhancement decoration out of
+  `builder_model_summary.js` into `builder_model_summary_enhancements.js`.
+  Unit and model Enhancement point overrides now sit beside the shared
+  Enhancement point helper while the main summary function keeps composing the
+  final roster unit row.
 - 2026-07-05: Split composition availability/effective-selection rules and
   miniature row/label helpers out of `builder_model_compositions.js` into
   `builder_model_composition_availability.js` and `builder_model_miniatures.js`.

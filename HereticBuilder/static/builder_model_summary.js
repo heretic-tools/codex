@@ -1,14 +1,8 @@
 import { state } from "./builder_state.js";
-import {
-  idsFromRows,
-  miniatureKeywordIds,
-  unique,
-} from "./builder_model_core.js";
+import { idsFromRows, unique } from "./builder_model_core.js";
 import {
   compositionFactionIds,
   selectedAllegianceAbilities,
-  selectedMiniatureEnhancements,
-  selectedUnitEnhancements,
 } from "./builder_model_selections.js";
 import {
   compositionIsAvailable,
@@ -24,6 +18,7 @@ import {
   datasheetPointsStepForUnit,
   enhancementPoints,
 } from "./builder_model_points.js";
+import { summaryEnhancements } from "./builder_model_summary_enhancements.js";
 import { wargearPoints } from "./builder_model_wargear.js";
 
 function unitSummary(roster, unit) {
@@ -39,20 +34,7 @@ function unitSummary(roster, unit) {
   const conditionalKeywordIds = unique(conditionalKeywordRows.map((item) => item.keywordId));
   const keywords = unitKeywords(roster, unit, miniatures, selectedAbilities, rosterWarlordIds, conditionalKeywordRows);
   const keywordIds = keywords.map((item) => item.id);
-  const unitEnhancements = selectedUnitEnhancements(unit).map((enhancement) => ({
-    ...enhancement,
-    points: enhancementPoints(enhancement.id, keywordIds),
-  }));
-  const miniatureEnhancements = selectedMiniatureEnhancements(unit).map((enhancement) => {
-    const miniature = miniatures.find((item) => (
-      item.rosterUnitMiniatureId === enhancement.targetId || item.id === enhancement.targetId
-    ));
-    const targetKeywordIds = miniature ? unique([...miniatureKeywordIds(miniature.miniatureId), ...conditionalKeywordIds]) : keywordIds;
-    return {
-      ...enhancement,
-      points: enhancementPoints(enhancement.id, targetKeywordIds),
-    };
-  });
+  const { miniatureEnhancements, unitEnhancements } = summaryEnhancements(unit, miniatures, keywordIds, conditionalKeywordIds);
   const compositionAvailable = composition ? compositionIsAvailable(composition, factionIds, roster.detachmentIds || []) : false;
   const points = (composition?.points || 0)
     + datasheetPointsStepForUnit(roster, unit)
