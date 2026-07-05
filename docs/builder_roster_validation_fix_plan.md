@@ -1269,6 +1269,12 @@ browser smoke test.
   `builder_restriction_rules.js` into focused rule modules. The public
   restriction module is now a stable facade for detachment, keyword,
   successor-chapter, and unit-composition validators.
+- 2026-07-05: Split detachment datasheet requirements/exclusions and
+  detachment unique-keyword conflicts out of
+  `builder_detachment_restriction_rules.js` into
+  `builder_detachment_datasheet_rules.js` and
+  `builder_detachment_unique_keyword_rules.js`. The detachment restriction
+  facade now exposes independent rule families.
 - 2026-07-05: Split `validateRoster` orchestration into validation context,
   basic roster limits, domain rule runner, and post-rule unit checks. The
   public `builder_roster_validation.js` module now preserves diagnostic order
