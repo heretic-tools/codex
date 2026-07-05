@@ -1018,6 +1018,12 @@ browser smoke test.
   `builder_roster_unit_enhancement_editor.js`. Composition, Warlord, and
   allegiance controls are now separate from enhancement option hydration and
   eligibility-labelled selects.
+- 2026-07-05: Split allied-rule helpers and allied keyword/allegiance/
+  restricting-keyword validation out of `builder_allied_rules.js` into
+  `builder_allied_rule_helpers.js` and `builder_allied_keyword_rules.js`.
+  `validateAlliedUnits` now stays as the ally-family orchestrator while
+  keyword caps, slotless donors, required allegiance abilities, and restricting
+  keyword counts are audited in a focused module.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
