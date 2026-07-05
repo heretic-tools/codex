@@ -1039,6 +1039,11 @@ browser smoke test.
   Rule-index construction still returns the same catalog shape, but by-id,
   grouped, precomputed-loadout, and unit-image maps can now be audited apart
   from the long list of official-rule indexes.
+- 2026-07-05: Split catalog index construction into ID/precomputed indexes and
+  grouped rule indexes. `builder_catalog_indexes.js` is now only a facade that
+  composes `builder_catalog_id_indexes.js` and
+  `builder_catalog_group_indexes.js`, preserving the catalog shape loaded by
+  the static Builder.
 - 2026-07-05: Split roster runtime helpers out of `builder.js` into
   `builder_roster_runtime.js`. Roster lookup, bootstrap-only list summaries,
   refresh sorting, and stale list-cache persistence are isolated from the
