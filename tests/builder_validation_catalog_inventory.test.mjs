@@ -676,6 +676,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const enhancementRulesSource = readFileSync(join(outDir, "static", "builder_enhancement_rules.js"), "utf8");
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_eligibility\\.js\\?v=${version}`));
+    assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_limit_rules\\.js\\?v=${version}`));
 
     const attachmentRulesSource = readFileSync(join(outDir, "static", "builder_attachment_rules.js"), "utf8");
     assert.match(attachmentRulesSource, new RegExp(`\\.\\/builder_attachment_matchers\\.js\\?v=${version}`));
