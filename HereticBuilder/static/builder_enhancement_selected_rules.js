@@ -1,5 +1,5 @@
 import { state } from "./builder_state.js";
-import { keywordNameInIds, unitHasWargearItem } from "./builder_validation_core.js";
+import { keywordNameInIds } from "./builder_validation_core.js";
 import { unitValidationMessage } from "./builder_validation_messages.js";
 import { enhancementBodyguardRequirementSatisfied } from "./builder_attachment_rules.js";
 import {
@@ -9,6 +9,7 @@ import {
   enhancementRequiredKeywordsSatisfied,
 } from "./builder_enhancement_eligibility.js";
 import { targetScope } from "./builder_enhancement_selection.js";
+import { missingEnhancementRequiredWargearName } from "./builder_enhancement_wargear_rules.js";
 
 function validateSelectedEnhancementTarget(roster, detachmentIds, units, item, messages) {
   const { unit, enhancement, keywordIds, targetName, miniature, targetKind } = item;
@@ -40,11 +41,9 @@ function validateSelectedEnhancementTarget(roster, detachmentIds, units, item, m
   if (excluded.length) {
     messages.push(unitValidationMessage("enhancement.model_must_not_have_excluded_keywords", unit, `${targetName} cannot take ${enhancement.name} with keyword ${excluded.join(", ")}.`, targetScope(miniature)));
   }
-  for (const row of state.catalog.enhancementRequiredWargearItemsByEnhancementId.get(enhancement.id) || []) {
-    if (!unitHasWargearItem(unit, row.wargearItemId, miniature)) {
-      const itemName = state.catalog.wargearItemById.get(row.wargearItemId)?.name || "required wargear";
-      messages.push(unitValidationMessage("enhancement.model_does_not_have_required_wargear", unit, `${targetName} must have ${itemName} for ${enhancement.name}.`, targetScope(miniature)));
-    }
+  const missingWargearName = missingEnhancementRequiredWargearName(enhancement.id, unit, miniature);
+  if (missingWargearName) {
+    messages.push(unitValidationMessage("enhancement.model_does_not_have_required_wargear", unit, `${targetName} must have ${missingWargearName} for ${enhancement.name}.`, targetScope(miniature)));
   }
   if (!enhancementBodyguardRequirementSatisfied(roster, unit, enhancement.id, units)) {
     messages.push(unitValidationMessage("enhancement.attached_requirement_missing", unit, `${unit.name} does not meet the attached-unit requirement for ${enhancement.name}.`));

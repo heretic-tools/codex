@@ -5,7 +5,8 @@ import {
   enhancementExcludedKeywordNames,
   enhancementRequiredKeywordsSatisfied,
 } from "./builder_enhancement_keyword_rules.js";
-import { keywordNameInIds, unitHasWargearItem } from "./builder_validation_core.js";
+import { missingEnhancementRequiredWargearName } from "./builder_enhancement_wargear_rules.js";
+import { keywordNameInIds } from "./builder_validation_core.js";
 
 function detachmentNames(detachmentIds) {
   return namesForIds(state.catalog.detachmentById, detachmentIds, "required detachment");
@@ -48,11 +49,9 @@ function enhancementCandidateStatus({ roster, detachments = [], units = [], unit
   if (excluded.length) {
     return { eligible: false, reason: `blocked by ${excluded.join(", ")}` };
   }
-  for (const row of state.catalog.enhancementRequiredWargearItemsByEnhancementId.get(enhancement.id) || []) {
-    if (!unitHasWargearItem(unit, row.wargearItemId, miniature)) {
-      const itemName = state.catalog.wargearItemById.get(row.wargearItemId)?.name || "required wargear";
-      return { eligible: false, reason: `requires ${itemName}` };
-    }
+  const missingWargearName = missingEnhancementRequiredWargearName(enhancement.id, unit, miniature);
+  if (missingWargearName) {
+    return { eligible: false, reason: `requires ${missingWargearName}` };
   }
   if (!enhancementBodyguardRequirementSatisfied(roster, unit, enhancement.id, units)) {
     return { eligible: false, reason: "attached unit required" };

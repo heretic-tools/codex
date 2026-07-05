@@ -1350,6 +1350,10 @@ browser smoke test.
   The top-level validator now composes selection targets and limit checks,
   while detachment, target type, allied, keyword, Wargear, attached-unit, and
   Warlord-blocking diagnostics live in a focused rule module.
+- 2026-07-05: Split required-Wargear Enhancement checks into
+  `builder_enhancement_wargear_rules.js`. Candidate availability and roster
+  validation now share the same missing-Wargear lookup, keeping UI reasons and
+  validation diagnostics aligned.
 - 2026-07-05: Split Enhancement selection limits into
   `builder_enhancement_limit_rules.js`. Battle-size Enhancement caps,
   per-Enhancement limits, and Combat Patrol default Enhancement enforcement are
