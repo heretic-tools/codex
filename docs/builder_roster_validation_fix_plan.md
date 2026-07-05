@@ -993,6 +993,11 @@ browser smoke test.
   `builder_roster_runtime.js`. Roster lookup, bootstrap-only list summaries,
   refresh sorting, and stale list-cache persistence are isolated from the
   route render loop without pulling full rules into the startup graph.
+- 2026-07-05: Split validation scope filtering and message grouping out of
+  `builder_validation_view.js` into `builder_validation_scopes.js` and
+  `builder_validation_groups.js`. The validation view remains the DOM facade,
+  while unit, detachment, attachment, model-target matching, and grouped
+  message metadata can be audited independently.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
