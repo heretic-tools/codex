@@ -1024,6 +1024,11 @@ browser smoke test.
   `validateAlliedUnits` now stays as the ally-family orchestrator while
   keyword caps, slotless donors, required allegiance abilities, and restricting
   keyword counts are audited in a focused module.
+- 2026-07-05: Split keyword restriction group validation out of
+  `builder_restriction_rules.js` into `builder_keyword_restriction_rules.js`.
+  Detachment/unit composition checks now stay separate from faction and
+  detachment keyword restriction group matching, minimums, maximums, and
+  excluded-faction scope handling.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
