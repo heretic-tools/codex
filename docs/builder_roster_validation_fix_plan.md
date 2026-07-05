@@ -1291,6 +1291,11 @@ browser smoke test.
   `builder_allegiance_rules.js` into `builder_allegiance_group_limits.js`.
   Per-unit selected ability validation remains in the main validator, while
   roster-wide group count diagnostics are isolated.
+- 2026-07-05: Split per-unit Allegiance Ability validation and mandatory
+  faction Allegiance checks out of `builder_allegiance_rules.js` into
+  `builder_allegiance_unit_rules.js` and
+  `builder_allegiance_mandatory_rules.js`. The top-level validator now composes
+  unit selection checks, roster-wide group limits, and faction mandatory rows.
 - 2026-07-05: Split loadout catalog/key helpers and precomputed fingerprint
   cache out of `builder_loadout_math.js` into `builder_loadout_catalog.js` and
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
