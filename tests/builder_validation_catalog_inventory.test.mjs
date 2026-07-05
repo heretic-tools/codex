@@ -610,6 +610,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const transferSource = readFileSync(join(outDir, "static", "builder_roster_transfer.js"), "utf8");
     assert.match(transferSource, new RegExp(`\\.\\/builder_roster_transfer_normalize\\.js\\?v=${version}`));
 
+    const transferNormalizeSource = readFileSync(join(outDir, "static", "builder_roster_transfer_normalize.js"), "utf8");
+    assert.match(transferNormalizeSource, new RegExp(`\\.\\/builder_roster_transfer_normalize_helpers\\.js\\?v=${version}`));
+    assert.match(transferNormalizeSource, new RegExp(`\\.\\/builder_roster_transfer_normalize_units\\.js\\?v=${version}`));
+
+    const transferNormalizeUnitsSource = readFileSync(join(outDir, "static", "builder_roster_transfer_normalize_units.js"), "utf8");
+    assert.match(transferNormalizeUnitsSource, new RegExp(`\\.\\/builder_roster_transfer_normalize_helpers\\.js\\?v=${version}`));
+
     const listSource = readFileSync(join(outDir, "static", "builder_roster_list_view.js"), "utf8");
     assert.match(listSource, new RegExp(`\\.\\/builder_dom\\.js\\?v=${version}`));
 

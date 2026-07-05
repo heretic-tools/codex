@@ -979,6 +979,10 @@ browser smoke test.
   `attachedUnits`, `allegianceAbilityIds`, `unitWargear`, and old enhancement
   ID arrays, while stripping unrelated runtime/UI fields from otherwise valid
   current-shape roster data.
+- 2026-07-05: Split roster transfer normalization into helper and unit/member
+  row modules. The top-level roster normalizer still rejects legacy roster
+  shapes, while primitive value coercion, selection rows, Wargear maps,
+  miniature rows, unit rows, and attachment members can be audited separately.
 - 2026-07-05: Moved roster transfer parsing/serialization behind a dynamic
   import. The Builder list still exposes Export/Import, but the transfer module
   no longer participates in the static startup graph and remains covered by the
