@@ -721,6 +721,18 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_choices\\.js\\?v=${version}`));
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_matcher\\.js\\?v=${version}`));
 
+    const loadoutCatalogSource = readFileSync(join(outDir, "static", "builder_loadout_catalog.js"), "utf8");
+    assert.match(loadoutCatalogSource, new RegExp(`\\.\\/builder_loadout_choice_items\\.js\\?v=${version}`));
+    assert.match(loadoutCatalogSource, new RegExp(`\\.\\/builder_loadout_choice_sets\\.js\\?v=${version}`));
+    assert.match(loadoutCatalogSource, new RegExp(`\\.\\/builder_loadout_keys\\.js\\?v=${version}`));
+
+    const loadoutChoiceItemsSource = readFileSync(join(outDir, "static", "builder_loadout_choice_items.js"), "utf8");
+    assert.match(loadoutChoiceItemsSource, new RegExp(`\\.\\/builder_loadout_counts\\.js\\?v=${version}`));
+    assert.match(loadoutChoiceItemsSource, new RegExp(`\\.\\/builder_loadout_keys\\.js\\?v=${version}`));
+
+    const loadoutChoiceSetsSource = readFileSync(join(outDir, "static", "builder_loadout_choice_sets.js"), "utf8");
+    assert.match(loadoutChoiceSetsSource, new RegExp(`\\.\\/builder_loadout_choice_items\\.js\\?v=${version}`));
+
     const loadoutCountsSource = readFileSync(join(outDir, "static", "builder_loadout_counts.js"), "utf8");
     assert.match(loadoutCountsSource, new RegExp(`\\.\\/builder_loadout_count_keys\\.js\\?v=${version}`));
     assert.match(loadoutCountsSource, new RegExp(`\\.\\/builder_loadout_count_arithmetic\\.js\\?v=${version}`));
