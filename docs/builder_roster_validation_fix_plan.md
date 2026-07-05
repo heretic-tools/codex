@@ -1364,6 +1364,10 @@ browser smoke test.
   `builder_keyword_restriction_rules.js` into
   `builder_keyword_restriction_messages.js`. The restriction validator now keeps
   group traversal separate from diagnostic construction.
+- 2026-07-05: Split roster runtime bootstrap-only summary/cache helpers out of
+  `builder_roster_runtime.js` into `builder_roster_runtime_summary.js`. The
+  runtime module now owns current roster lookup and storage refresh, while list
+  summaries and current-data-version cache wrappers stay isolated.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

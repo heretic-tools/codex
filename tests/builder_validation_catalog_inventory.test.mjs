@@ -599,6 +599,15 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(builderSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
     assert.match(builderSource, new RegExp(`\\.\\/builder_storage\\.js\\?v=${version}`));
 
+    const rosterRuntimeSource = readFileSync(join(outDir, "static", "builder_roster_runtime.js"), "utf8");
+    assert.match(rosterRuntimeSource, new RegExp(`\\.\\/builder_roster_runtime_summary\\.js\\?v=${version}`));
+    assert.match(rosterRuntimeSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+    assert.match(rosterRuntimeSource, new RegExp(`\\.\\/builder_storage\\.js\\?v=${version}`));
+
+    const rosterRuntimeSummarySource = readFileSync(join(outDir, "static", "builder_roster_runtime_summary.js"), "utf8");
+    assert.match(rosterRuntimeSummarySource, new RegExp(`\\.\\/builder_roster_cache\\.js\\?v=${version}`));
+    assert.match(rosterRuntimeSummarySource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+
     const storageSource = readFileSync(join(outDir, "static", "builder_storage.js"), "utf8");
     assert.match(storageSource, new RegExp(`\\.\\/builder_storage_db\\.js\\?v=${version}`));
 
