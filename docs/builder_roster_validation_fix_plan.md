@@ -1149,6 +1149,10 @@ browser smoke test.
   roster messages, while UI candidate availability, detachment gates, mandatory
   faction choices, Wargear requirements, and roster group-limit candidate
   checks are independently auditable.
+- 2026-07-05: Split Allegiance Ability roster-level min/max group limits out of
+  `builder_allegiance_rules.js` into `builder_allegiance_group_limits.js`.
+  Per-unit selected ability validation remains in the main validator, while
+  roster-wide group count diagnostics are isolated.
 - 2026-07-05: Split loadout catalog/key helpers and precomputed fingerprint
   cache out of `builder_loadout_math.js` into `builder_loadout_catalog.js` and
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
