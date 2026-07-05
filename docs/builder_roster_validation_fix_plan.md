@@ -1301,6 +1301,10 @@ browser smoke test.
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
   choice-set hydration, and static precomputed loadouts now sit apart from
   valid loadout generation and partition matching.
+- 2026-07-05: Split static precomputed loadout cache and record normalization
+  out of `builder_loadout_precomputed.js` into
+  `builder_loadout_precomputed_cache.js`. Choice-set context validation now
+  stays separate from WeakMap cache handling and fingerprint count hydration.
 - 2026-07-05: Split canonical Wargear keys, loadout choice item counts, and
   choice-set hydration out of `builder_loadout_catalog.js` into
   `builder_loadout_keys.js`, `builder_loadout_choice_items.js`, and
