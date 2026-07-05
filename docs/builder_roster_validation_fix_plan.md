@@ -1200,6 +1200,10 @@ browser smoke test.
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
   selected-unit row rendering, and search/select layout are now auditable
   independently.
+- 2026-07-05: Split selected-unit source badges and validation status labels out
+  of `builder_roster_unit_rows.js` into `builder_roster_unit_badges.js` and
+  `builder_roster_unit_validation_status.js`. The row renderer now only composes
+  image/name/meta/remove controls.
 - 2026-07-05: Split unit picker search/select/Add controls out of
   `builder_roster_unit_editor_view.js` into `builder_roster_unit_controls.js`.
   The editor view now composes the section and selected-unit list, while control
