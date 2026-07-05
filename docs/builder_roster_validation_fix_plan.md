@@ -1007,6 +1007,11 @@ browser smoke test.
   faction scope, row/id helpers, names, keywords, and set operations, while
   detachment costs/disposition badges and selected Allegiance/Enhancement rows
   are auditable separately.
+- 2026-07-05: Split remaining model core helpers into
+  `builder_model_factions.js` and `builder_model_utils.js`, leaving
+  `builder_model_core.js` as a compatibility facade. Faction tree traversal,
+  datasheet/miniature catalog id lookup, and generic set/name/id utilities are
+  now independently cache-busted by the static build inventory.
 - 2026-07-05: Split selected-row normalization, composition faction scope, and
   conditional keyword predicates out of `builder_model_selections.js` into
   dedicated modules. The selection facade still exports the same Builder model
