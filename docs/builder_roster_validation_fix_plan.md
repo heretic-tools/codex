@@ -1043,6 +1043,11 @@ browser smoke test.
   `builder_model_availability.js` facade still exports the same Builder model
   API while native/allied datasheet filtering, Combat Patrol exclusion,
   detachment availability, and allied source labels are auditable separately.
+- 2026-07-05: Split datasheet availability predicates into
+  `builder_datasheet_faction_filters.js` and
+  `builder_datasheet_combat_patrol.js`. The availability list now composes
+  native/allied filtering, detachment exclusions, Combat Patrol hiding, and
+  composition availability through focused helpers.
 - 2026-07-05: Split pure loadout count arithmetic out of
   `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
   loadout exports stay unchanged while the rule-facing module is smaller and

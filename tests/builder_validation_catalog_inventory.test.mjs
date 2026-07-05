@@ -787,6 +787,8 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(modelAvailabilitySource, new RegExp(`\\.\\/builder_detachment_availability\\.js\\?v=${version}`));
 
     const datasheetAvailabilitySource = readFileSync(join(outDir, "static", "builder_datasheet_availability.js"), "utf8");
+    assert.match(datasheetAvailabilitySource, new RegExp(`\\.\\/builder_datasheet_combat_patrol\\.js\\?v=${version}`));
+    assert.match(datasheetAvailabilitySource, new RegExp(`\\.\\/builder_datasheet_faction_filters\\.js\\?v=${version}`));
     assert.match(datasheetAvailabilitySource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
     assert.match(datasheetAvailabilitySource, new RegExp(`\\.\\/builder_model_compositions\\.js\\?v=${version}`));
     assert.match(datasheetAvailabilitySource, new RegExp(`\\.\\/builder_allied_unit_sources\\.js\\?v=${version}`));

@@ -1,62 +1,17 @@
 import {
-  datasheetFactionIds,
-  factionDescendantIds,
-  factionScope,
   idsFromRows,
 } from "./builder_model_core.js";
 import { compositionFactionIds } from "./builder_model_selections.js";
 import { defaultComposition } from "./builder_model_compositions.js";
 import { alliedFactionAllowed } from "./builder_allied_unit_sources.js";
 import { state } from "./builder_state.js";
-
-function factionExcludesDatasheet(factionKeywordId, datasheetId) {
-  const scope = new Set(factionScope(factionKeywordId));
-  return state.catalog.factionExcludedDatasheets.some((row) => (
-    row.datasheetId === datasheetId && scope.has(row.factionKeywordId)
-  ));
-}
-
-function datasheetHasDescendantFaction(factionKeywordId, datasheetId) {
-  const descendants = new Set(factionDescendantIds(factionKeywordId));
-  if (!descendants.size) {
-    return false;
-  }
-  return datasheetFactionIds(datasheetId).some((id) => descendants.has(id));
-}
-
-function datasheetIsNativeToFaction(factionKeywordId, datasheetId) {
-  const datasheetFactions = datasheetFactionIds(datasheetId);
-  const scope = new Set(factionScope(factionKeywordId));
-  if (!datasheetFactions.some((id) => scope.has(id))) {
-    return false;
-  }
-  if (factionExcludesDatasheet(factionKeywordId, datasheetId)) {
-    return false;
-  }
-  if (datasheetFactions.includes(factionKeywordId) && datasheetHasDescendantFaction(factionKeywordId, datasheetId)) {
-    return false;
-  }
-  return true;
-}
-
-function datasheetExcluded(roster, datasheetId) {
-  if (factionExcludesDatasheet(roster.factionKeywordId, datasheetId)) {
-    return true;
-  }
-  return datasheetDetachmentExcluded(roster, datasheetId);
-}
-
-function datasheetDetachmentExcluded(roster, datasheetId) {
-  return (roster.detachmentIds || []).some((detachmentId) => (
-    state.catalog.detachmentExcludedDatasheets.some((row) => (
-      row.detachmentId === detachmentId && row.datasheetId === datasheetId
-    ))
-  ));
-}
-
-function datasheetIsCombatPatrol(datasheet) {
-  return Boolean(state.catalog.publicationById.get(datasheet?.publicationId)?.isCombatPatrol);
-}
+import { datasheetIsCombatPatrol } from "./builder_datasheet_combat_patrol.js";
+import {
+  datasheetDetachmentExcluded,
+  datasheetExcluded,
+  datasheetIsNativeToFaction,
+  factionExcludesDatasheet,
+} from "./builder_datasheet_faction_filters.js";
 
 function availableDatasheets(roster, allyType = "native") {
   const factionIds = compositionFactionIds(roster, allyType);
