@@ -999,6 +999,11 @@ browser smoke test.
   `builder_model_composition_filters.js`. Effective composition selection now
   reads as a small orchestration layer over separately auditable static-catalog
   predicates.
+- 2026-07-05: Split attachment member predicates out of
+  `builder_roster_attachment_actions.js` into
+  `builder_roster_attachment_members.js`. Unit removal can now depend on the
+  small member helper instead of importing all attachment mutation actions, and
+  attachment actions reuse the shared roster mutation helper.
 - 2026-07-05: Split model availability helpers into allied unit sources,
   datasheet availability, and detachment availability modules. The public
   `builder_model_availability.js` facade still exports the same Builder model

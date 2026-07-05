@@ -3,7 +3,7 @@ import {
   defaultComposition,
   defaultWargear,
 } from "./builder_model.js";
-import { attachmentHasUnit } from "./builder_roster_attachment_actions.js";
+import { attachmentHasUnit } from "./builder_roster_attachment_members.js";
 import {
   updateRosterUnit,
   withModifiedRoster,

@@ -671,11 +671,15 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(actionsSource, new RegExp(`\\.\\/builder_roster_detachment_actions\\.js\\?v=${version}`));
     assert.match(actionsSource, new RegExp(`\\.\\/builder_roster_unit_actions\\.js\\?v=${version}`));
 
+    const attachmentActionsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_actions.js"), "utf8");
+    assert.match(attachmentActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(attachmentActionsSource, new RegExp(`\\.\\/builder_roster_attachment_members\\.js\\?v=${version}`));
+
     const detachmentActionsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_actions.js"), "utf8");
     assert.match(detachmentActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
 
     const unitActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_actions.js"), "utf8");
-    assert.match(unitActionsSource, new RegExp(`\\.\\/builder_roster_attachment_actions\\.js\\?v=${version}`));
+    assert.match(unitActionsSource, new RegExp(`\\.\\/builder_roster_attachment_members\\.js\\?v=${version}`));
     assert.match(unitActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
     assert.match(unitActionsSource, new RegExp(`\\.\\/builder_roster_unit_default_rows\\.js\\?v=${version}`));
     assert.match(unitActionsSource, new RegExp(`\\.\\/builder_roster_unit_wargear_actions\\.js\\?v=${version}`));

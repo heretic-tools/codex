@@ -1,27 +1,10 @@
-function withModifiedRoster(roster, fields) {
-  return {
-    ...roster,
-    ...fields,
-  };
-}
-
-function attachmentMembers(attachment) {
-  return Array.isArray(attachment.members) ? attachment.members : [];
-}
-
-function attachmentHasUnit(attachment, unitId) {
-  return attachmentMembers(attachment).some((member) => member.rosterUnitId === unitId);
-}
-
-function attachmentHasBodyguard(attachment, bodyguardUnitId) {
-  return attachmentMembers(attachment).some((member) => (
-    member.rosterUnitId === bodyguardUnitId && member.attachmentType === "bodyguard"
-  ));
-}
-
-function unitHasAttachmentMembership(roster, unitId) {
-  return (roster.attachments || []).some((attachment) => attachmentHasUnit(attachment, unitId));
-}
+import { withModifiedRoster } from "./builder_roster_action_helpers.js";
+import {
+  attachmentHasBodyguard,
+  attachmentHasUnit,
+  attachmentMembers,
+  unitHasAttachmentMembership,
+} from "./builder_roster_attachment_members.js";
 
 function rosterWithAddedAttachment(roster, {
   attachedUnitId,
