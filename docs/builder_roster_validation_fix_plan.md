@@ -986,6 +986,11 @@ browser smoke test.
   The public action facade keeps the same exports, while attachment membership
   and member add/remove rules are isolated and covered by cache-busted static
   build tests.
+- 2026-07-05: Split the remaining roster action facade into focused helper,
+  detachment, and unit mutation modules. Existing UI imports still use
+  `builder_roster_actions.js`, while add/remove detachment behavior, unit
+  composition/Wargear/Enhancement/Warlord mutations, and shared immutable
+  update helpers can now be audited independently.
 - 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
   enhancement editors out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a
