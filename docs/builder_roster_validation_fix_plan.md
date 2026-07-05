@@ -1126,6 +1126,10 @@ browser smoke test.
   `validateAlliedUnits` now stays as the ally-family orchestrator while
   keyword caps, slotless donors, required allegiance abilities, and restricting
   keyword counts are audited in a focused module.
+- 2026-07-05: Split allied required-Allegiance, keyword-limit/slotless, and
+  restricting-keyword checks out of `builder_allied_keyword_rules.js` into
+  dedicated modules. The allied keyword module is now a facade while the three
+  allied subrule families can be audited independently.
 - 2026-07-05: Split keyword restriction group validation out of
   `builder_restriction_rules.js` into `builder_keyword_restriction_rules.js`.
   Detachment/unit composition checks now stay separate from faction and
