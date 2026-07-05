@@ -926,6 +926,12 @@ browser smoke test.
   `builder_roster_attachment_options.js`. The editor view now stays focused on
   DOM rendering while tests keep importing `attachmentUnavailableMessage`
   through the previous public module.
+- 2026-07-05: Split attached-unit option labels and failure explanations out of
+  `builder_roster_attachment_options.js` into
+  `builder_roster_attachment_types.js` and
+  `builder_roster_attachment_failures.js`. The options module is now a small UI
+  candidate facade, while the rule diagnostics remain cache-busted for
+  standalone GitHub Pages builds.
 - 2026-07-05: Split unit-detail Wargear rendering and scope-local validation
   display out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_wargear_view.js`, leaving the main detail view focused on
