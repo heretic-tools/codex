@@ -1,90 +1,13 @@
 import { state } from "./builder_state.js";
-import { factionScope, selectedAllegianceAbilities } from "./builder_model.js";
+import { selectedAllegianceAbilities } from "./builder_model.js";
 import { rosterSummary, unitHasWargearItem } from "./builder_validation_core.js";
 import { unitValidationMessage, validationMessage } from "./builder_validation_messages.js";
-
-function detachmentIdsFor(roster, detachments) {
-  const ids = new Set((roster?.detachmentIds || []).filter(Boolean));
-  for (const detachment of detachments || []) {
-    if (detachment?.id) {
-      ids.add(detachment.id);
-    }
-  }
-  return ids;
-}
-
-function mandatoryAllegianceRowsForRoster(roster) {
-  const rows = [];
-  const seenAbilityIds = new Set();
-  for (const factionId of factionScope(roster.factionKeywordId)) {
-    for (const row of state.catalog.mandatoryAllegianceAbilitiesByFactionId.get(factionId) || []) {
-      if (seenAbilityIds.has(row.allegianceAbilityId)) {
-        continue;
-      }
-      seenAbilityIds.add(row.allegianceAbilityId);
-      rows.push(row);
-    }
-  }
-  return rows;
-}
-
-function selectedCountForGroup(units, groupId, currentUnitId) {
-  let count = 0;
-  let currentUnitSelected = false;
-  for (const unit of units || []) {
-    const selected = selectedAllegianceAbilities(unit).filter((ability) => ability.groupId === groupId);
-    if (unit.id === currentUnitId && selected.length) {
-      currentUnitSelected = true;
-    }
-    count += selected.length;
-  }
-  return { count, currentUnitSelected };
-}
+import { mandatoryAllegianceRowsForRoster } from "./builder_allegiance_helpers.js";
+import { allegianceAbilityCandidateStatus } from "./builder_allegiance_candidates.js";
 
 function unitIdsScope(units) {
   const unitIds = [...new Set((units || []).map((unit) => unit.id).filter(Boolean))];
   return unitIds.length ? { unitIds } : null;
-}
-
-function allegianceAbilityCandidateStatus({ ability, detachments = [], roster, unit, units = [] }) {
-  const groupId = unit?.allegianceAbilityGroupId;
-  const group = state.catalog.allegianceAbilityGroupById.get(groupId);
-  if (!ability || !group) {
-    return { eligible: false, reason: "not available" };
-  }
-  if (ability.allegianceAbilityGroupId !== group.id && ability.groupId !== group.id) {
-    return { eligible: false, reason: `requires ${group.name}` };
-  }
-
-  const detachmentIds = detachmentIdsFor(roster, detachments);
-  if (group.detachmentId && !detachmentIds.has(group.detachmentId)) {
-    const detachmentName = state.catalog.detachmentById.get(group.detachmentId)?.name || "required detachment";
-    return { eligible: false, reason: `requires ${detachmentName}` };
-  }
-
-  const mandatoryAbilityIds = new Set(
-    mandatoryAllegianceRowsForRoster(roster)
-      .filter((row) => state.catalog.allegianceAbilityById.get(row.allegianceAbilityId)?.allegianceAbilityGroupId === group.id)
-      .map((row) => row.allegianceAbilityId)
-  );
-  if (mandatoryAbilityIds.size && !mandatoryAbilityIds.has(ability.id)) {
-    const names = [...mandatoryAbilityIds]
-      .map((id) => state.catalog.allegianceAbilityById.get(id)?.name)
-      .filter(Boolean);
-    return { eligible: false, reason: `requires ${names.join(" or ") || "required ability"}` };
-  }
-
-  if (ability.requiresWargearItemId && !unitHasWargearItem(unit, ability.requiresWargearItemId)) {
-    const itemName = state.catalog.wargearItemById.get(ability.requiresWargearItemId)?.name || "wargear";
-    return { eligible: false, reason: `requires ${itemName}` };
-  }
-
-  const { count, currentUnitSelected } = selectedCountForGroup(units, group.id, unit.id);
-  if (group.maxRosterLimit != null && count >= group.maxRosterLimit && !currentUnitSelected) {
-    return { eligible: false, reason: "group limit reached" };
-  }
-
-  return { eligible: true };
 }
 
 function validateAllegianceAbilities(roster, detachments, units, messages) {

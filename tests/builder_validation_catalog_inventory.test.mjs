@@ -678,6 +678,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_eligibility\\.js\\?v=${version}`));
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_limit_rules\\.js\\?v=${version}`));
 
+    const allegianceRulesSource = readFileSync(join(outDir, "static", "builder_allegiance_rules.js"), "utf8");
+    assert.match(allegianceRulesSource, new RegExp(`\\.\\/builder_allegiance_helpers\\.js\\?v=${version}`));
+    assert.match(allegianceRulesSource, new RegExp(`\\.\\/builder_allegiance_candidates\\.js\\?v=${version}`));
+
+    const allegianceCandidatesSource = readFileSync(join(outDir, "static", "builder_allegiance_candidates.js"), "utf8");
+    assert.match(allegianceCandidatesSource, new RegExp(`\\.\\/builder_allegiance_helpers\\.js\\?v=${version}`));
+
     const attachmentRulesSource = readFileSync(join(outDir, "static", "builder_attachment_rules.js"), "utf8");
     assert.match(attachmentRulesSource, new RegExp(`\\.\\/builder_attachment_matchers\\.js\\?v=${version}`));
     assert.match(attachmentRulesSource, new RegExp(`\\.\\/builder_attachment_enhancement_rules\\.js\\?v=${version}`));

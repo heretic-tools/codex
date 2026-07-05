@@ -1049,6 +1049,11 @@ browser smoke test.
   `validateWarlord` and `warlordCandidateStatus` API, while mandatory faction
   Warlord, Supreme Commander, detachment-required Warlord, and generic
   eligibility checks now have smaller audit surfaces.
+- 2026-07-05: Split Allegiance Ability candidate-status and shared helper
+  lookups out of `builder_allegiance_rules.js`. The validator still owns
+  roster messages, while UI candidate availability, detachment gates, mandatory
+  faction choices, Wargear requirements, and roster group-limit candidate
+  checks are independently auditable.
 - 2026-07-05: Split loadout catalog/key helpers and precomputed fingerprint
   cache out of `builder_loadout_math.js` into `builder_loadout_catalog.js` and
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
