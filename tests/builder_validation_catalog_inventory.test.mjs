@@ -665,7 +665,18 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const loadoutMathSource = readFileSync(join(outDir, "static", "builder_loadout_math.js"), "utf8");
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_catalog\\.js\\?v=${version}`));
-    assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_precomputed\\.js\\?v=${version}`));
+    assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_counts\\.js\\?v=${version}`));
+    assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_choices\\.js\\?v=${version}`));
+    assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_matcher\\.js\\?v=${version}`));
+
+    const loadoutChoicesSource = readFileSync(join(outDir, "static", "builder_loadout_choices.js"), "utf8");
+    assert.match(loadoutChoicesSource, new RegExp(`\\.\\/builder_loadout_precomputed\\.js\\?v=${version}`));
+    assert.match(loadoutChoicesSource, new RegExp(`\\.\\/builder_loadout_counts\\.js\\?v=${version}`));
+
+    const loadoutMatcherSource = readFileSync(join(outDir, "static", "builder_loadout_matcher.js"), "utf8");
+    assert.match(loadoutMatcherSource, new RegExp(`\\.\\/builder_loadout_catalog\\.js\\?v=${version}`));
+    assert.match(loadoutMatcherSource, new RegExp(`\\.\\/builder_loadout_counts\\.js\\?v=${version}`));
+    assert.match(loadoutMatcherSource, new RegExp(`\\.\\/builder_loadout_choices\\.js\\?v=${version}`));
 
     const modelWargearSource = readFileSync(join(outDir, "static", "builder_model_wargear.js"), "utf8");
     assert.match(modelWargearSource, new RegExp(`\\.\\/builder_model_wargear_defaults\\.js\\?v=${version}`));

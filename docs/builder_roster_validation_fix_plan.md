@@ -1079,6 +1079,11 @@ browser smoke test.
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
   choice-set hydration, and static precomputed loadouts now sit apart from
   valid loadout generation and partition matching.
+- 2026-07-05: Split valid loadout generation and exact/multi-model matcher
+  search out of `builder_loadout_math.js` into `builder_loadout_choices.js`
+  and `builder_loadout_matcher.js`. `builder_loadout_math.js` is now the
+  stable public facade for catalog keys, count helpers, valid-loadout
+  generation, and Wargear loadout matching.
 - 2026-07-05: Split limited-Wargear choice hydration and selected-choice cover
   search out of `builder_wargear_limited_rules.js` into
   `builder_wargear_limited_choices.js` and `builder_wargear_limited_cover.js`.
