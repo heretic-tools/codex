@@ -900,6 +900,11 @@ browser smoke test.
 - 2026-07-05: Reused the same local unit thumbnail helper in attached-unit rows,
   so bodyguard and attached leader/support entries now share the roster unit
   list's visual language without adding runtime fetches or cached UI state.
+- 2026-07-05: Split attached-unit row rendering out of
+  `builder_roster_attachment_editor_view.js` into
+  `builder_roster_attachment_rows.js`. The attachment editor now owns only the
+  picker controls and list composition, while row validation badges, member
+  removal, and unit thumbnail rendering stay in a focused module.
 - 2026-07-05: Added the local unit image helper to the unit-detail overview, so
   opening a unit from the roster keeps the same visual identity while validation
   controls and focus targets remain unchanged.
