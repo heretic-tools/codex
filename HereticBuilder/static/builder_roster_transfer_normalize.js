@@ -7,6 +7,8 @@ import {
 } from "./builder_roster_transfer_normalize_helpers.js";
 import {
   normalizedAttachments,
+} from "./builder_roster_transfer_normalize_attachments.js";
+import {
   normalizedUnits,
 } from "./builder_roster_transfer_normalize_units.js";
 

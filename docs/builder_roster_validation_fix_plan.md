@@ -1031,6 +1031,11 @@ browser smoke test.
   row modules. The top-level roster normalizer still rejects legacy roster
   shapes, while primitive value coercion, selection rows, Wargear maps,
   miniature rows, unit rows, and attachment members can be audited separately.
+- 2026-07-05: Split attachment-member normalization out of
+  `builder_roster_transfer_normalize_units.js` into
+  `builder_roster_transfer_normalize_attachments.js`. Roster import still only
+  accepts the current compact Builder shape; unit and attachment strict parsing
+  are now separate.
 - 2026-07-05: Moved roster transfer parsing/serialization behind a dynamic
   import. The Builder list still exposes Export/Import, but the transfer module
   no longer participates in the static startup graph and remains covered by the
