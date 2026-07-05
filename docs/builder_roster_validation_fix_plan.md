@@ -1211,6 +1211,11 @@ browser smoke test.
   `builder_roster_attachment_control_options.js`. The select refresher now
   preserves values and disabled state, while bodyguard/type/unit option rows
   stay in a dedicated DOM option helper.
+- 2026-07-05: Split Attached Units select empty/disabled/value preservation
+  helpers out of `builder_roster_attachment_control_selects.js` into
+  `builder_roster_attachment_control_state.js`. The select refresher is now a
+  short ordering function over bodyguard, attachment type, and attached-unit
+  options.
 - 2026-07-05: Split grouped catalog rule indexes by domain into detachment,
   unit/composition, enhancement/allegiance, allied/restriction, and Wargear
   modules. `builder_catalog_group_indexes.js` now only merges those domain
