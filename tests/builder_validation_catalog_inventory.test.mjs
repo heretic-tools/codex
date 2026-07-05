@@ -779,6 +779,16 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_limit_rules\\.js\\?v=${version}`));
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_selection\\.js\\?v=${version}`));
 
+    const enhancementLimitSource = readFileSync(join(outDir, "static", "builder_enhancement_limit_rules.js"), "utf8");
+    assert.match(enhancementLimitSource, new RegExp(`\\.\\/builder_enhancement_combat_patrol_rules\\.js\\?v=${version}`));
+    assert.match(enhancementLimitSource, new RegExp(`\\.\\/builder_enhancement_limit_scopes\\.js\\?v=${version}`));
+
+    const enhancementCombatPatrolSource = readFileSync(
+      join(outDir, "static", "builder_enhancement_combat_patrol_rules.js"),
+      "utf8",
+    );
+    assert.match(enhancementCombatPatrolSource, new RegExp(`\\.\\/builder_enhancement_limit_scopes\\.js\\?v=${version}`));
+
     const enhancementEligibilitySource = readFileSync(join(outDir, "static", "builder_enhancement_eligibility.js"), "utf8");
     assert.match(enhancementEligibilitySource, new RegExp(`\\.\\/builder_enhancement_keyword_rules\\.js\\?v=${version}`));
 

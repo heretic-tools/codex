@@ -1219,6 +1219,11 @@ browser smoke test.
   `builder_enhancement_limit_rules.js`. Battle-size Enhancement caps,
   per-Enhancement limits, and Combat Patrol default Enhancement enforcement are
   now separate from the per-target Enhancement requirement checks.
+- 2026-07-05: Split Combat Patrol default Enhancement enforcement out of
+  `builder_enhancement_limit_rules.js` into
+  `builder_enhancement_combat_patrol_rules.js`, with shared unit-scope metadata
+  in `builder_enhancement_limit_scopes.js`. Roster caps, duplicate limits, and
+  Combat Patrol defaults are now independently auditable.
 - 2026-07-05: Split unit-detail enhancement controls out of
   `builder_roster_unit_detail_editors.js` into
   `builder_roster_unit_enhancement_editor.js`. Composition, Warlord, and
