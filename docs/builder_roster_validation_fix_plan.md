@@ -1420,6 +1420,10 @@ browser smoke test.
   `builder_model_wargear_defaults.js`. The main wargear model facade now keeps
   unit-level defaults, selected wargear entries, and points, while miniature
   loadout repair stays focused and testable.
+- 2026-07-05: Split selected Wargear entry flattening and Wargear point totals
+  out of `builder_model_wargear.js` into `builder_model_wargear_selected.js`.
+  Default Wargear construction remains in the facade, while selected runtime
+  cost accounting can be audited independently.
 - 2026-07-05: Split the closest-valid default Wargear loadout optimizer out of
   `builder_model_wargear_defaults.js` into
   `builder_model_wargear_default_loadouts.js`. Base miniature loadouts and

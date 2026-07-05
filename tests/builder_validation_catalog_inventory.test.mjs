@@ -782,6 +782,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const modelWargearSource = readFileSync(join(outDir, "static", "builder_model_wargear.js"), "utf8");
     assert.match(modelWargearSource, new RegExp(`\\.\\/builder_model_wargear_defaults\\.js\\?v=${version}`));
+    assert.match(modelWargearSource, new RegExp(`\\.\\/builder_model_wargear_selected\\.js\\?v=${version}`));
 
     const modelWargearDefaultsSource = readFileSync(join(outDir, "static", "builder_model_wargear_defaults.js"), "utf8");
     assert.match(modelWargearDefaultsSource, new RegExp(`\\.\\/builder_model_wargear_default_loadouts\\.js\\?v=${version}`));

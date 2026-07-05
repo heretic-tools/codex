@@ -1,6 +1,10 @@
 import { state } from "./builder_state.js";
 import { compositionMiniatures } from "./builder_model_compositions.js";
 import { defaultMiniatureWargear } from "./builder_model_wargear_defaults.js";
+export {
+  selectedWargearEntries,
+  wargearPoints,
+} from "./builder_model_wargear_selected.js";
 
 function addWargearCount(result, optionId, count) {
   const value = Math.max(0, Number(count || 0));
@@ -32,44 +36,8 @@ function defaultMiniatures(datasheetId, compositionId = "") {
   }));
 }
 
-function selectedWargearEntries(unit) {
-  const entries = [];
-  for (const [optionId, count] of Object.entries(unit.wargear || {})) {
-    if ((count || 0) > 0) {
-      entries.push({
-        optionId,
-        count: Number(count || 0),
-        rosterUnitMiniatureId: null,
-        miniatureId: null,
-      });
-    }
-  }
-  for (const miniature of unit.miniatures || []) {
-    for (const [optionId, count] of Object.entries(miniature.wargear || {})) {
-      if ((count || 0) > 0) {
-        entries.push({
-          optionId,
-          count: Number(count || 0),
-          rosterUnitMiniatureId: miniature.rosterUnitMiniatureId || miniature.id,
-          miniatureId: miniature.miniatureId,
-        });
-      }
-    }
-  }
-  return entries;
-}
-
-function wargearPoints(unit) {
-  return selectedWargearEntries(unit).reduce((total, entry) => {
-    const optionRow = state.catalog.wargearOptionById.get(entry.optionId);
-    return total + (optionRow?.points || 0) * (entry.count || 0);
-  }, 0);
-}
-
 export {
   defaultMiniatureWargear,
   defaultMiniatures,
   defaultWargear,
-  selectedWargearEntries,
-  wargearPoints,
 };
