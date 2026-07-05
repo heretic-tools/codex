@@ -915,6 +915,11 @@ browser smoke test.
   `builder_roster_attachment_member_view.js`. The row renderer now composes the
   row frame, validation badge, bodyguard thumbnail, and remove-attached-unit
   action while member removal links stay isolated.
+- 2026-07-05: Split attached-unit candidate discovery and unavailable-message
+  diagnostics out of `builder_roster_attachment_options.js` into
+  `builder_roster_attachment_candidates.js` and
+  `builder_roster_attachment_unavailable.js`. The options facade still exports
+  the same picker helpers while no-match explanations are isolated.
 - 2026-07-05: Added the local unit image helper to the unit-detail overview, so
   opening a unit from the roster keeps the same visual identity while validation
   controls and focus targets remain unchanged.

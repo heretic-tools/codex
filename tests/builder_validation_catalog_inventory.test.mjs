@@ -1050,8 +1050,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(attachmentRowModelSource, new RegExp(`\\.\\/builder_validation_view\\.js\\?v=${version}`));
 
     const attachmentOptionsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_options.js"), "utf8");
+    assert.match(attachmentOptionsSource, new RegExp(`\\.\\/builder_roster_attachment_candidates\\.js\\?v=${version}`));
     assert.match(attachmentOptionsSource, new RegExp(`\\.\\/builder_roster_attachment_types\\.js\\?v=${version}`));
-    assert.match(attachmentOptionsSource, new RegExp(`\\.\\/builder_roster_attachment_failures\\.js\\?v=${version}`));
+    assert.match(attachmentOptionsSource, new RegExp(`\\.\\/builder_roster_attachment_unavailable\\.js\\?v=${version}`));
+
+    const attachmentUnavailableSource = readFileSync(join(outDir, "static", "builder_roster_attachment_unavailable.js"), "utf8");
+    assert.match(attachmentUnavailableSource, new RegExp(`\\.\\/builder_roster_attachment_candidates\\.js\\?v=${version}`));
+    assert.match(attachmentUnavailableSource, new RegExp(`\\.\\/builder_roster_attachment_failures\\.js\\?v=${version}`));
 
     const attachmentFailuresSource = readFileSync(join(outDir, "static", "builder_roster_attachment_failures.js"), "utf8");
     assert.match(attachmentFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_failure_messages\\.js\\?v=${version}`));
