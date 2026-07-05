@@ -631,7 +631,22 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(catalogIdIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
 
     const catalogGroupIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_group_indexes.js"), "utf8");
-    assert.match(catalogGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
+    assert.match(catalogGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_allied_group_indexes\\.js\\?v=${version}`));
+    assert.match(catalogGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_detachment_group_indexes\\.js\\?v=${version}`));
+    assert.match(catalogGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_enhancement_group_indexes\\.js\\?v=${version}`));
+    assert.match(catalogGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_unit_group_indexes\\.js\\?v=${version}`));
+    assert.match(catalogGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_wargear_group_indexes\\.js\\?v=${version}`));
+
+    const catalogAlliedGroupIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_allied_group_indexes.js"), "utf8");
+    assert.match(catalogAlliedGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
+    const catalogDetachmentGroupIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_detachment_group_indexes.js"), "utf8");
+    assert.match(catalogDetachmentGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
+    const catalogEnhancementGroupIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_enhancement_group_indexes.js"), "utf8");
+    assert.match(catalogEnhancementGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
+    const catalogUnitGroupIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_unit_group_indexes.js"), "utf8");
+    assert.match(catalogUnitGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
+    const catalogWargearGroupIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_wargear_group_indexes.js"), "utf8");
+    assert.match(catalogWargearGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
 
     const loaderSource = readFileSync(join(outDir, "static", "builder_module_loaders.js"), "utf8");
     assert.match(loaderSource, new RegExp(`\\.\\/builder_roster_list_view\\.js\\?v=${version}`));

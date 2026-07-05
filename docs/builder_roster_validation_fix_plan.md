@@ -1069,6 +1069,10 @@ browser smoke test.
   composes `builder_catalog_id_indexes.js` and
   `builder_catalog_group_indexes.js`, preserving the catalog shape loaded by
   the static Builder.
+- 2026-07-05: Split grouped catalog rule indexes by domain into detachment,
+  unit/composition, enhancement/allegiance, allied/restriction, and Wargear
+  modules. `builder_catalog_group_indexes.js` now only merges those domain
+  maps while preserving every existing `state.catalog.*By*` key.
 - 2026-07-05: Split roster runtime helpers out of `builder.js` into
   `builder_roster_runtime.js`. Roster lookup, bootstrap-only list summaries,
   refresh sorting, and stale list-cache persistence are isolated from the
