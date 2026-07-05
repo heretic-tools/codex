@@ -1006,6 +1006,11 @@ browser smoke test.
   `builder_roster_actions.js`, while add/remove detachment behavior, unit
   composition/Wargear/Enhancement/Warlord mutations, and shared immutable
   update helpers can now be audited independently.
+- 2026-07-05: Split unit action mutations further into default miniature rows,
+  Wargear reset/count mutations, and upgrade/Warlord mutations. The public
+  `builder_roster_unit_actions.js` module still exports the same unit action
+  API, while add/remove/composition, Wargear, Enhancement/Allegiance, and
+  Warlord state changes are independently auditable.
 - 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
   enhancement editors out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a
