@@ -1157,6 +1157,11 @@ browser smoke test.
   `builder_model_wargear_default_loadouts.js`. Base miniature loadouts and
   default option values now stay separate from score-based valid-loadout
   selection.
+- 2026-07-05: Split default Wargear option-key/count helpers and closest-valid
+  loadout scoring/search out of `builder_model_wargear_default_loadouts.js`
+  into `builder_model_wargear_default_options.js` and
+  `builder_model_wargear_default_search.js`. The public default-loadout module
+  is now a facade while option mapping and scoring are independently auditable.
 - 2026-07-05: Split roster transfer normalization out of
   `builder_roster_transfer.js` into `builder_roster_transfer_normalize.js`.
   Export/import envelope parsing, serialization, and collision-safe IDs now
