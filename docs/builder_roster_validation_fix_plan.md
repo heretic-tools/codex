@@ -1372,6 +1372,10 @@ browser smoke test.
   `builder_wargear_limited_cover.js` into vector preparation and memoized search
   modules. Target/vector construction is now isolated from the recursive cover
   solver.
+- 2026-07-05: Split validation message summary/count helpers out of
+  `builder_validation_message_list.js` into `builder_validation_summary.js`.
+  The message-list module now owns grouped DOM rendering, while summary text is
+  reusable without DOM code.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
