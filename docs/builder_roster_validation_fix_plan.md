@@ -1384,6 +1384,10 @@ browser smoke test.
   `builder_roster_unit_wargear_actions.js` into count-change and reset-default
   modules. Manual option count updates and default-Wargear restoration now sit
   behind separate action helpers.
+- 2026-07-05: Split Supreme Commander Warlord selection discovery out of
+  `builder_warlord_mandatory_selected_rules.js` into
+  `builder_warlord_supreme_commander_rules.js`. The mandatory-selected validator
+  now delegates the Supreme Commander roster scan.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

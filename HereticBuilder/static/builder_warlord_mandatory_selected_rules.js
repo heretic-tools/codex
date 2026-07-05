@@ -6,14 +6,7 @@ import {
   unitScope,
   unitsWithMiniature,
 } from "./builder_warlord_scopes.js";
-
-function supremeCommanderSelections(units) {
-  return units.flatMap((unit) => (
-    (unit.miniatures || [])
-      .filter((miniature) => miniature.isSupremeCommander && miniature.count > 0)
-      .map((miniature) => ({ miniature, unit }))
-  ));
-}
+import { supremeCommanderSelections } from "./builder_warlord_supreme_commander_rules.js";
 
 function validateMandatorySelectedWarlordRules({
   detachments,
