@@ -1,34 +1,7 @@
+import { slotlessAlliedKeywordCount } from "./builder_allied_keyword_slotless_rules.js";
 import { unitIdsScope } from "./builder_allied_rule_helpers.js";
-import { idsFromRows } from "./builder_model.js";
 import { state } from "./builder_state.js";
 import { validationMessage } from "./builder_validation_messages.js";
-
-function slotlessAlliedKeywordCount(alliedFactionKeywordId, units) {
-  let slotless = 0;
-  for (const group of state.catalog.alliedFactionKeywordSlotlessGroupsByKeywordId.get(alliedFactionKeywordId) || []) {
-    const donorKeywords = new Set(idsFromRows(
-      state.catalog.alliedFactionKeywordSlotlessDonorsByGroupId.get(group.id),
-      "keywordId"
-    ));
-    const receiverKeywords = new Set(idsFromRows(
-      state.catalog.alliedFactionKeywordSlotlessReceiversByGroupId.get(group.id),
-      "keywordId"
-    ));
-    if (!donorKeywords.size || !receiverKeywords.size) {
-      continue;
-    }
-    const donorCount = units.filter((unit) => {
-      const ids = new Set(unit.keywordIds || []);
-      return [...donorKeywords].every((id) => ids.has(id));
-    }).length;
-    const receiverCount = units.filter((unit) => {
-      const ids = new Set(unit.keywordIds || []);
-      return [...receiverKeywords].every((id) => ids.has(id));
-    }).length;
-    slotless += Math.min(donorCount, receiverCount);
-  }
-  return slotless;
-}
 
 function validateAlliedKeywordLimits(roster, alliedFactionId, label, units, warlordIds, messages) {
   let activeKeywordCounts = 0;

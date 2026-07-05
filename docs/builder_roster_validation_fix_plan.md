@@ -1342,6 +1342,10 @@ browser smoke test.
   `builder_loadout_choices.js` into `builder_loadout_choice_set_loadouts.js`.
   Single-set limit, duplicate, empty-choice, and combination handling are now
   separate from composing regular/alternate loadout choice sets.
+- 2026-07-05: Split allied keyword slotless donor/receiver counting out of
+  `builder_allied_keyword_limit_rules.js` into
+  `builder_allied_keyword_slotless_rules.js`. Keyword-limit validation now
+  references a dedicated helper for the donor/receiver offset rule.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

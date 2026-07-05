@@ -965,6 +965,16 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(alliedKeywordRulesSource, new RegExp(`\\.\\/builder_allied_keyword_limit_rules\\.js\\?v=${version}`));
     assert.match(alliedKeywordRulesSource, new RegExp(`\\.\\/builder_allied_restricting_keyword_rules\\.js\\?v=${version}`));
 
+    const alliedKeywordLimitRulesSource = readFileSync(join(outDir, "static", "builder_allied_keyword_limit_rules.js"), "utf8");
+    assert.match(alliedKeywordLimitRulesSource, new RegExp(`\\.\\/builder_allied_keyword_slotless_rules\\.js\\?v=${version}`));
+    assert.match(alliedKeywordLimitRulesSource, new RegExp(`\\.\\/builder_allied_rule_helpers\\.js\\?v=${version}`));
+    assert.match(alliedKeywordLimitRulesSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+    assert.match(alliedKeywordLimitRulesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
+
+    const alliedKeywordSlotlessRulesSource = readFileSync(join(outDir, "static", "builder_allied_keyword_slotless_rules.js"), "utf8");
+    assert.match(alliedKeywordSlotlessRulesSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(alliedKeywordSlotlessRulesSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+
     const restrictionRulesSource = readFileSync(join(outDir, "static", "builder_restriction_rules.js"), "utf8");
     assert.match(restrictionRulesSource, new RegExp(`\\.\\/builder_detachment_restriction_rules\\.js\\?v=${version}`));
     assert.match(restrictionRulesSource, new RegExp(`\\.\\/builder_keyword_restriction_rules\\.js\\?v=${version}`));
