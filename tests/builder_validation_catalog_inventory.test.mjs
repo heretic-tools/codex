@@ -706,6 +706,14 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const unitRowsSource = readFileSync(join(outDir, "static", "builder_roster_unit_rows.js"), "utf8");
     assert.match(unitRowsSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
 
+    const detachmentEditorSource = readFileSync(join(outDir, "static", "builder_roster_detachment_editor_view.js"), "utf8");
+    assert.match(detachmentEditorSource, new RegExp(`\\.\\/builder_roster_detachment_candidates\\.js\\?v=${version}`));
+    assert.match(detachmentEditorSource, new RegExp(`\\.\\/builder_roster_detachment_rows\\.js\\?v=${version}`));
+
+    const detachmentRowsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_rows.js"), "utf8");
+    assert.match(detachmentRowsSource, new RegExp(`\\.\\/builder_codex_links\\.js\\?v=${version}`));
+    assert.match(detachmentRowsSource, new RegExp(`\\.\\/builder_validation_view\\.js\\?v=${version}`));
+
     const unitDetailSource = readFileSync(join(outDir, "static", "builder_roster_unit_detail_view.js"), "utf8");
     assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_detail_actions\\.js\\?v=${version}`));
     assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_detail_editors\\.js\\?v=${version}`));
