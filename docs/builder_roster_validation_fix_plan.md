@@ -1014,6 +1014,11 @@ browser smoke test.
   `builder_roster_attachment_members.js`. Unit removal can now depend on the
   small member helper instead of importing all attachment mutation actions, and
   attachment actions reuse the shared roster mutation helper.
+- 2026-07-05: Split attachment removal mutations out of
+  `builder_roster_attachment_actions.js` into
+  `builder_roster_attachment_remove_actions.js`. The public attachment action
+  facade still exports add/remove helpers, while remove-member cleanup is
+  separately auditable.
 - 2026-07-05: Split attachment failure copy out of
   `builder_roster_attachment_failures.js` into
   `builder_roster_attachment_failure_messages.js`. Attachment pairing checks
