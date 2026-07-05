@@ -1014,6 +1014,11 @@ browser smoke test.
   `builder_validation_groups.js`. The validation view remains the DOM facade,
   while unit, detachment, attachment, model-target matching, and grouped
   message metadata can be audited independently.
+- 2026-07-05: Split Warlord validation into eligibility, candidate-status, and
+  scope-helper modules. `builder_warlord_rules.js` still exports the same
+  `validateWarlord` and `warlordCandidateStatus` API, while mandatory faction
+  Warlord, Supreme Commander, detachment-required Warlord, and generic
+  eligibility checks now have smaller audit surfaces.
 - 2026-07-05: Split loadout catalog/key helpers and precomputed fingerprint
   cache out of `builder_loadout_math.js` into `builder_loadout_catalog.js` and
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,

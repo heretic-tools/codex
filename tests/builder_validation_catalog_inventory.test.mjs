@@ -662,6 +662,17 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(validationSource, new RegExp(`\\.\\/builder_validation_groups\\.js\\?v=${version}`));
     assert.match(validationSource, new RegExp(`\\.\\/builder_validation_scopes\\.js\\?v=${version}`));
 
+    const rosterValidationSource = readFileSync(join(outDir, "static", "builder_roster_validation.js"), "utf8");
+    assert.match(rosterValidationSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
+
+    const warlordRulesSource = readFileSync(join(outDir, "static", "builder_warlord_rules.js"), "utf8");
+    assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
+    assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_candidates\\.js\\?v=${version}`));
+    assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_scopes\\.js\\?v=${version}`));
+
+    const warlordCandidatesSource = readFileSync(join(outDir, "static", "builder_warlord_candidates.js"), "utf8");
+    assert.match(warlordCandidatesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
+
     const attachmentEditorSource = readFileSync(join(outDir, "static", "builder_roster_attachment_editor_view.js"), "utf8");
     assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_roster_attachment_options\\.js\\?v=${version}`));
     assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
