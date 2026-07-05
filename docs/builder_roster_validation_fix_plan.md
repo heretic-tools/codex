@@ -1029,6 +1029,11 @@ browser smoke test.
   Detachment/unit composition checks now stay separate from faction and
   detachment keyword restriction group matching, minimums, maximums, and
   excluded-faction scope handling.
+- 2026-07-05: Split roster-detail validation action routing out of
+  `builder_roster_detail_view.js` into `builder_roster_validation_actions.js`.
+  The roster page now stays as layout plus Warlord picker while validation
+  buttons, target selection, smooth scroll/focus behavior, Codex links, and
+  unit-search actions are isolated.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
