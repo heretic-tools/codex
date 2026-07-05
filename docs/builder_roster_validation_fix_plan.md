@@ -1000,6 +1000,11 @@ browser smoke test.
   `builder_module_loaders.js`. The entrypoint still keeps route views,
   transfer, full rules, and validators behind dynamic imports, while startup
   routing/storage code is easier to audit for thin-client behavior.
+- 2026-07-05: Split generic catalog index helpers out of
+  `builder_catalog_indexes.js` into `builder_catalog_index_helpers.js`.
+  Rule-index construction still returns the same catalog shape, but by-id,
+  grouped, precomputed-loadout, and unit-image maps can now be audited apart
+  from the long list of official-rule indexes.
 - 2026-07-05: Split roster runtime helpers out of `builder.js` into
   `builder_roster_runtime.js`. Roster lookup, bootstrap-only list summaries,
   refresh sorting, and stale list-cache persistence are isolated from the

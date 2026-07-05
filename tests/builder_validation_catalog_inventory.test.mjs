@@ -594,6 +594,14 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(builderSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
     assert.match(builderSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
 
+    const catalogSource = readFileSync(join(outDir, "static", "builder_catalog.js"), "utf8");
+    assert.match(catalogSource, new RegExp(`\\.\\/builder_catalog_loader\\.js\\?v=${version}`));
+    assert.match(catalogSource, new RegExp(`\\.\\/builder_catalog_indexes\\.js\\?v=${version}`));
+    assert.match(catalogSource, new RegExp(`\\.\\/builder_catalog_tables\\.js\\?v=${version}`));
+
+    const catalogIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_indexes.js"), "utf8");
+    assert.match(catalogIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
+
     const loaderSource = readFileSync(join(outDir, "static", "builder_module_loaders.js"), "utf8");
     assert.match(loaderSource, new RegExp(`\\.\\/builder_roster_list_view\\.js\\?v=${version}`));
     assert.match(loaderSource, new RegExp(`\\.\\/builder_roster_transfer\\.js\\?v=${version}`));
