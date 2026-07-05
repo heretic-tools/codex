@@ -1121,6 +1121,11 @@ browser smoke test.
   Detachment/unit composition checks now stay separate from faction and
   detachment keyword restriction group matching, minimums, maximums, and
   excluded-faction scope handling.
+- 2026-07-05: Split the remaining detachment datasheet/unique-keyword, unit
+  composition, and Successor Chapter Epic Hero restrictions out of
+  `builder_restriction_rules.js` into focused rule modules. The public
+  restriction module is now a stable facade for detachment, keyword,
+  successor-chapter, and unit-composition validators.
 - 2026-07-05: Split roster-detail validation action routing out of
   `builder_roster_detail_view.js` into `builder_roster_validation_actions.js`.
   The roster page now stays as layout plus Warlord picker while validation
