@@ -1185,6 +1185,10 @@ browser smoke test.
   composes `builder_catalog_id_indexes.js` and
   `builder_catalog_group_indexes.js`, preserving the catalog shape loaded by
   the static Builder.
+- 2026-07-05: Split the static Builder catalog table definition list into core,
+  enhancement/allegiance, allied/restriction, and Wargear table modules. The
+  exported `CATALOG_TABLES` order is unchanged, but DB rule domains can now be
+  audited separately from the loader facade.
 - 2026-07-05: Split all-model Wargear choice extraction and occurrence counting
   out of `builder_wargear_all_model_rules.js` into
   `builder_wargear_all_model_choices.js`. The validation rule now focuses on

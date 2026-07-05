@@ -651,6 +651,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(catalogSource, new RegExp(`\\.\\/builder_catalog_indexes\\.js\\?v=${version}`));
     assert.match(catalogSource, new RegExp(`\\.\\/builder_catalog_tables\\.js\\?v=${version}`));
 
+    const catalogTablesSource = readFileSync(join(outDir, "static", "builder_catalog_tables.js"), "utf8");
+    assert.match(catalogTablesSource, new RegExp(`\\.\\/builder_catalog_allied_restriction_tables\\.js\\?v=${version}`));
+    assert.match(catalogTablesSource, new RegExp(`\\.\\/builder_catalog_core_tables\\.js\\?v=${version}`));
+    assert.match(catalogTablesSource, new RegExp(`\\.\\/builder_catalog_enhancement_tables\\.js\\?v=${version}`));
+    assert.match(catalogTablesSource, new RegExp(`\\.\\/builder_catalog_wargear_tables\\.js\\?v=${version}`));
+
     const catalogIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_indexes.js"), "utf8");
     assert.match(catalogIndexesSource, new RegExp(`\\.\\/builder_catalog_group_indexes\\.js\\?v=${version}`));
     assert.match(catalogIndexesSource, new RegExp(`\\.\\/builder_catalog_id_indexes\\.js\\?v=${version}`));
