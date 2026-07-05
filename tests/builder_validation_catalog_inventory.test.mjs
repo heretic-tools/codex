@@ -736,7 +736,15 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(modelWargearDefaultLoadoutsSource, new RegExp(`\\.\\/builder_model_wargear_default_search\\.js\\?v=${version}`));
 
     const modelWargearDefaultSearchSource = readFileSync(join(outDir, "static", "builder_model_wargear_default_search.js"), "utf8");
+    assert.match(modelWargearDefaultSearchSource, new RegExp(`\\.\\/builder_model_wargear_default_candidates\\.js\\?v=${version}`));
     assert.match(modelWargearDefaultSearchSource, new RegExp(`\\.\\/builder_model_wargear_default_options\\.js\\?v=${version}`));
+    assert.match(modelWargearDefaultSearchSource, new RegExp(`\\.\\/builder_model_wargear_default_scores\\.js\\?v=${version}`));
+
+    const modelWargearDefaultCandidatesSource = readFileSync(
+      join(outDir, "static", "builder_model_wargear_default_candidates.js"),
+      "utf8",
+    );
+    assert.match(modelWargearDefaultCandidatesSource, new RegExp(`\\.\\/builder_model_wargear_default_scores\\.js\\?v=${version}`));
 
     const modelSource = readFileSync(join(outDir, "static", "builder_model.js"), "utf8");
     assert.match(modelSource, new RegExp(`\\.\\/builder_model_core\\.js\\?v=${version}`));
