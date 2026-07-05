@@ -955,6 +955,11 @@ browser smoke test.
   display out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_wargear_view.js`, leaving the main detail view focused on
   composition, Warlord, allegiance, enhancements, and page layout.
+- 2026-07-05: Split the unit-detail overview and Wargear section shells out of
+  `builder_roster_unit_detail_view.js` into
+  `builder_roster_unit_overview_view.js` and
+  `builder_roster_unit_wargear_section_view.js`. The route module now only
+  resolves summary/validation context and composes focused view slices.
 - 2026-07-05: Split Wargear option/group controls and Wargear-scope validation
   display out of `builder_roster_unit_wargear_view.js` into option and
   validation view modules. The Wargear scope module now only composes sections,
@@ -1037,6 +1042,10 @@ browser smoke test.
   `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
   loadout exports stay unchanged while the rule-facing module is smaller and
   still uses the same precomputed/static catalog data.
+- 2026-07-05: Split the loadout count facade into key serialization,
+  arithmetic/deduplication, and combination helper modules. Existing loadout
+  imports still go through `builder_loadout_counts.js`, while the helper
+  modules are now individually cache-busted and auditable.
 - 2026-07-05: Tightened roster export/import to use only the current compact
   Builder shape. Transfer now rejects explicit legacy fields such as
   `attachedUnits`, `allegianceAbilityIds`, `unitWargear`, and old enhancement

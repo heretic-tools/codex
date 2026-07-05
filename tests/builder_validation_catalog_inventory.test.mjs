@@ -705,6 +705,17 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_choices\\.js\\?v=${version}`));
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_matcher\\.js\\?v=${version}`));
 
+    const loadoutCountsSource = readFileSync(join(outDir, "static", "builder_loadout_counts.js"), "utf8");
+    assert.match(loadoutCountsSource, new RegExp(`\\.\\/builder_loadout_count_keys\\.js\\?v=${version}`));
+    assert.match(loadoutCountsSource, new RegExp(`\\.\\/builder_loadout_count_arithmetic\\.js\\?v=${version}`));
+    assert.match(loadoutCountsSource, new RegExp(`\\.\\/builder_loadout_combinations\\.js\\?v=${version}`));
+
+    const loadoutCountArithmeticSource = readFileSync(
+      join(outDir, "static", "builder_loadout_count_arithmetic.js"),
+      "utf8",
+    );
+    assert.match(loadoutCountArithmeticSource, new RegExp(`\\.\\/builder_loadout_count_keys\\.js\\?v=${version}`));
+
     const loadoutChoicesSource = readFileSync(join(outDir, "static", "builder_loadout_choices.js"), "utf8");
     assert.match(loadoutChoicesSource, new RegExp(`\\.\\/builder_loadout_precomputed\\.js\\?v=${version}`));
     assert.match(loadoutChoicesSource, new RegExp(`\\.\\/builder_loadout_counts\\.js\\?v=${version}`));
@@ -830,8 +841,15 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const unitDetailSource = readFileSync(join(outDir, "static", "builder_roster_unit_detail_view.js"), "utf8");
     assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_detail_actions\\.js\\?v=${version}`));
     assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_detail_editors\\.js\\?v=${version}`));
-    assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_wargear_view\\.js\\?v=${version}`));
-    assert.match(unitDetailSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
+    assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_overview_view\\.js\\?v=${version}`));
+    assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_wargear_section_view\\.js\\?v=${version}`));
+
+    const unitOverviewSource = readFileSync(join(outDir, "static", "builder_roster_unit_overview_view.js"), "utf8");
+    assert.match(unitOverviewSource, new RegExp(`\\.\\/builder_roster_unit_detail_editors\\.js\\?v=${version}`));
+    assert.match(unitOverviewSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
+
+    const unitWargearSectionSource = readFileSync(join(outDir, "static", "builder_roster_unit_wargear_section_view.js"), "utf8");
+    assert.match(unitWargearSectionSource, new RegExp(`\\.\\/builder_roster_unit_wargear_view\\.js\\?v=${version}`));
 
     const unitWargearViewSource = readFileSync(join(outDir, "static", "builder_roster_unit_wargear_view.js"), "utf8");
     assert.match(unitWargearViewSource, new RegExp(`\\.\\/builder_roster_unit_wargear_options_view\\.js\\?v=${version}`));
