@@ -1097,6 +1097,11 @@ browser smoke test.
   `builder_wargear_all_model_choices.js`. The validation rule now focuses on
   per-family validity and emits the same unit-scoped diagnostic, while catalog
   choice arithmetic is isolated and cache-busted by the static build test.
+- 2026-07-05: Split Attached Units add-control rendering out of
+  `builder_roster_attachment_editor_view.js` into
+  `builder_roster_attachment_controls.js`. The editor view now composes the
+  section/list, while bodyguard/type/attached selects and the Add action remain
+  a small DOM module over local roster mutations.
 - 2026-07-05: Split grouped catalog rule indexes by domain into detachment,
   unit/composition, enhancement/allegiance, allied/restriction, and Wargear
   modules. `builder_catalog_group_indexes.js` now only merges those domain

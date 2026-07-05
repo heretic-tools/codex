@@ -872,6 +872,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(warlordCandidatesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
 
     const attachmentEditorSource = readFileSync(join(outDir, "static", "builder_roster_attachment_editor_view.js"), "utf8");
+    assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_roster_attachment_controls\\.js\\?v=${version}`));
     assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_roster_attachment_options\\.js\\?v=${version}`));
     assert.match(attachmentEditorSource, new RegExp(`\\.\\/builder_roster_attachment_rows\\.js\\?v=${version}`));
 
