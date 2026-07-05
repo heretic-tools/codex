@@ -1376,6 +1376,10 @@ browser smoke test.
   `builder_validation_message_list.js` into `builder_validation_summary.js`.
   The message-list module now owns grouped DOM rendering, while summary text is
   reusable without DOM code.
+- 2026-07-05: Split single-unit summary assembly out of
+  `builder_model_summary.js` into `builder_model_unit_summary.js`. The public
+  model summary facade now only aggregates roster summaries and points over the
+  per-unit summary helper.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

@@ -886,11 +886,16 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(modelCompositionEffectiveSource, new RegExp(`\\.\\/builder_model_composition_filters\\.js\\?v=${version}`));
 
     const modelSummarySource = readFileSync(join(outDir, "static", "builder_model_summary.js"), "utf8");
-    assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
+    assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_unit_summary\\.js\\?v=${version}`));
     assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_points\\.js\\?v=${version}`));
-    assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_summary_enhancements\\.js\\?v=${version}`));
-    assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_summary_keywords\\.js\\?v=${version}`));
-    assert.match(modelSummarySource, new RegExp(`\\.\\/builder_model_summary_points\\.js\\?v=${version}`));
+
+    const modelUnitSummarySource = readFileSync(join(outDir, "static", "builder_model_unit_summary.js"), "utf8");
+    assert.match(modelUnitSummarySource, new RegExp(`\\.\\/builder_model_core\\.js\\?v=${version}`));
+    assert.match(modelUnitSummarySource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
+    assert.match(modelUnitSummarySource, new RegExp(`\\.\\/builder_model_compositions\\.js\\?v=${version}`));
+    assert.match(modelUnitSummarySource, new RegExp(`\\.\\/builder_model_summary_enhancements\\.js\\?v=${version}`));
+    assert.match(modelUnitSummarySource, new RegExp(`\\.\\/builder_model_summary_keywords\\.js\\?v=${version}`));
+    assert.match(modelUnitSummarySource, new RegExp(`\\.\\/builder_model_summary_points\\.js\\?v=${version}`));
 
     const modelSummaryEnhancementsSource = readFileSync(join(outDir, "static", "builder_model_summary_enhancements.js"), "utf8");
     assert.match(modelSummaryEnhancementsSource, new RegExp(`\\.\\/builder_model_points\\.js\\?v=${version}`));
