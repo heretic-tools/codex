@@ -1171,6 +1171,11 @@ browser smoke test.
   `builder_enhancement_eligibility.js`. UI candidate filtering and roster
   validation now share the same focused keyword, target, wargear, detachment,
   attached-unit, and Warlord-blocking helpers.
+- 2026-07-05: Split selected Enhancement target collection out of
+  `builder_enhancement_rules.js` into `builder_enhancement_selection.js`.
+  Unit/model target hydration, model-count-zero diagnostics, and per-unit
+  multi-Enhancement diagnostics now sit apart from the per-target requirement
+  validator.
 - 2026-07-05: Split Enhancement selection limits into
   `builder_enhancement_limit_rules.js`. Battle-size Enhancement caps,
   per-Enhancement limits, and Combat Patrol default Enhancement enforcement are

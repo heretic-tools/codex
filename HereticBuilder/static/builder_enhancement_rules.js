@@ -1,9 +1,4 @@
 import { state } from "./builder_state.js";
-import {
-  miniatureKeywordIds,
-  selectedMiniatureEnhancements,
-  selectedUnitEnhancements,
-} from "./builder_model.js";
 import { keywordNameInIds, unitHasWargearItem } from "./builder_validation_core.js";
 import { unitValidationMessage } from "./builder_validation_messages.js";
 import { enhancementBodyguardRequirementSatisfied, validateAttachedUnitEnhancementLimits } from "./builder_attachment_rules.js";
@@ -18,39 +13,14 @@ import {
   validateCombatPatrolEnhancements,
   validateEnhancementSelectionLimits,
 } from "./builder_enhancement_limit_rules.js";
-
-function targetScope(miniature) {
-  const targetId = miniature?.rosterUnitMiniatureId || miniature?.id || miniature?.miniatureId || "";
-  return targetId ? { targetId } : {};
-}
+import {
+  selectedEnhancementTargets,
+  targetScope,
+} from "./builder_enhancement_selection.js";
 
 function validateEnhancements(roster, detachments, units, messages) {
   const detachmentIds = new Set(detachments.map((detachment) => detachment.id));
-  const selected = [];
-  for (const unit of units) {
-    const unitSelected = [];
-    for (const enhancement of selectedUnitEnhancements(unit)) {
-      selected.push({ unit, enhancement, keywordIds: new Set(unit.keywordIds || []), targetName: unit.name, miniature: null, targetKind: "unit" });
-      unitSelected.push(enhancement);
-    }
-    for (const enhancement of selectedMiniatureEnhancements(unit)) {
-      const miniature = (unit.miniatures || []).find((item) => item.rosterUnitMiniatureId === enhancement.targetId || item.id === enhancement.targetId);
-      const keywordIds = new Set(miniature
-        ? [...miniatureKeywordIds(miniature.miniatureId), ...(unit.conditionalKeywordIds || [])]
-        : unit.keywordIds || []);
-      const targetName = miniature?.name || unit.name;
-      selected.push({ unit, enhancement, keywordIds, targetName, miniature, targetKind: "miniature" });
-      unitSelected.push(enhancement);
-      if (miniature && miniature.count <= 0) {
-        messages.push(unitValidationMessage("enhancement.model_count_zero", unit, `${targetName} cannot take enhancements with a model count of 0.`, {
-          targetId: miniature.rosterUnitMiniatureId || miniature.id || miniature.miniatureId,
-        }));
-      }
-    }
-    if (unitSelected.length > 1) {
-      messages.push(unitValidationMessage("enhancement.unit_has_too_many_enhancements", unit, `${unit.name} has selected more than 1 Enhancement.`));
-    }
-  }
+  const selected = selectedEnhancementTargets(units, messages);
   validateEnhancementSelectionLimits(roster, selected, messages);
   for (const item of selected) {
     const { unit, enhancement, keywordIds, targetName, miniature, targetKind } = item;
