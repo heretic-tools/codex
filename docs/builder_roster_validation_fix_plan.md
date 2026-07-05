@@ -1014,6 +1014,11 @@ browser smoke test.
   `builder_model_composition_filters.js`. Effective composition selection now
   reads as a small orchestration layer over separately auditable static-catalog
   predicates.
+- 2026-07-05: Split composition choice/default selection and effective saved
+  composition repair out of `builder_model_composition_availability.js` into
+  `builder_model_composition_choices.js` and
+  `builder_model_composition_effective.js`. The availability module is now a
+  facade over catalog filters, selectable choices, and repair logic.
 - 2026-07-05: Split attachment member predicates out of
   `builder_roster_attachment_actions.js` into
   `builder_roster_attachment_members.js`. Unit removal can now depend on the
