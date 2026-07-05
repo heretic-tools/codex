@@ -993,6 +993,11 @@ browser smoke test.
   faction scope, row/id helpers, names, keywords, and set operations, while
   detachment costs/disposition badges and selected Allegiance/Enhancement rows
   are auditable separately.
+- 2026-07-05: Split selected-row normalization, composition faction scope, and
+  conditional keyword predicates out of `builder_model_selections.js` into
+  dedicated modules. The selection facade still exports the same Builder model
+  API while ally faction scope and conditional keyword requirements can be
+  audited independently.
 - 2026-07-05: Split unit-summary keyword/Warlord context and points helpers
   out of `builder_model_summary.js` into `builder_model_keywords.js` and
   `builder_model_points.js`. Unit summary now focuses on composing the final
