@@ -739,6 +739,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const unitDetailEditorsSource = readFileSync(join(outDir, "static", "builder_roster_unit_detail_editors.js"), "utf8");
     assert.match(unitDetailEditorsSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_editor\\.js\\?v=${version}`));
 
+    const unitEnhancementEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_editor.js"), "utf8");
+    assert.match(unitEnhancementEditorSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_options\\.js\\?v=${version}`));
+    assert.match(unitEnhancementEditorSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_select\\.js\\?v=${version}`));
+
+    const unitEnhancementSelectSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_select.js"), "utf8");
+    assert.match(unitEnhancementSelectSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_options\\.js\\?v=${version}`));
+
     const validationSource = readFileSync(join(outDir, "static", "builder_validation_view.js"), "utf8");
     assert.match(validationSource, new RegExp(`\\.\\/builder_validation_groups\\.js\\?v=${version}`));
     assert.match(validationSource, new RegExp(`\\.\\/builder_validation_scopes\\.js\\?v=${version}`));
