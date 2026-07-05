@@ -1134,6 +1134,10 @@ browser smoke test.
   `builder_validation_groups.js`. The validation view remains the DOM facade,
   while unit, detachment, attachment, model-target matching, and grouped
   message metadata can be audited independently.
+- 2026-07-05: Split attachment-specific validation scope matching out of
+  `builder_validation_scopes.js` into `builder_validation_attachment_scopes.js`.
+  Member unit IDs and model target IDs for attached-unit groups are now audited
+  separately from generic unit/detachment/target filtering.
 - 2026-07-05: Split Warlord validation into eligibility, candidate-status, and
   scope-helper modules. `builder_warlord_rules.js` still exports the same
   `validateWarlord` and `warlordCandidateStatus` API, while mandatory faction
