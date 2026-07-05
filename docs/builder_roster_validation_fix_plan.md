@@ -1338,6 +1338,10 @@ browser smoke test.
   `builder_roster_attachment_actions.js` into
   `builder_roster_attachment_add_actions.js`. The public attachment actions
   module is now a thin compatibility facade over add/remove/member helpers.
+- 2026-07-05: Split per-choice-set loadout generation out of
+  `builder_loadout_choices.js` into `builder_loadout_choice_set_loadouts.js`.
+  Single-set limit, duplicate, empty-choice, and combination handling are now
+  separate from composing regular/alternate loadout choice sets.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

@@ -790,8 +790,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(loadoutCountArithmeticSource, new RegExp(`\\.\\/builder_loadout_count_keys\\.js\\?v=${version}`));
 
     const loadoutChoicesSource = readFileSync(join(outDir, "static", "builder_loadout_choices.js"), "utf8");
+    assert.match(loadoutChoicesSource, new RegExp(`\\.\\/builder_loadout_choice_set_loadouts\\.js\\?v=${version}`));
     assert.match(loadoutChoicesSource, new RegExp(`\\.\\/builder_loadout_precomputed\\.js\\?v=${version}`));
     assert.match(loadoutChoicesSource, new RegExp(`\\.\\/builder_loadout_counts\\.js\\?v=${version}`));
+
+    const loadoutChoiceSetLoadoutsSource = readFileSync(join(outDir, "static", "builder_loadout_choice_set_loadouts.js"), "utf8");
+    assert.match(loadoutChoiceSetLoadoutsSource, new RegExp(`\\.\\/builder_loadout_counts\\.js\\?v=${version}`));
 
     const loadoutPrecomputedSource = readFileSync(join(outDir, "static", "builder_loadout_precomputed.js"), "utf8");
     assert.match(loadoutPrecomputedSource, new RegExp(`\\.\\/builder_loadout_precomputed_cache\\.js\\?v=${version}`));
