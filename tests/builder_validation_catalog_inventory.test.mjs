@@ -1016,6 +1016,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(allModelWargearRulesSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));
     assert.match(allModelWargearRulesSource, new RegExp(`\\.\\/builder_wargear_all_model_family_checks\\.js\\?v=${version}`));
 
+    const allModelFamilyChecksSource = readFileSync(join(outDir, "static", "builder_wargear_all_model_family_checks.js"), "utf8");
+    assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));
+    assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_family_counts\\.js\\?v=${version}`));
+
+    const allModelFamilyCountsSource = readFileSync(join(outDir, "static", "builder_wargear_all_model_family_counts.js"), "utf8");
+    assert.match(allModelFamilyCountsSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));
+
     const limitedWargearRulesSource = readFileSync(join(outDir, "static", "builder_wargear_limited_rules.js"), "utf8");
     assert.match(limitedWargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_choices\\.js\\?v=${version}`));
     assert.match(limitedWargearRulesSource, new RegExp(`\\.\\/builder_wargear_limited_cover\\.js\\?v=${version}`));

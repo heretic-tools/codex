@@ -1186,6 +1186,11 @@ browser smoke test.
   `builder_wargear_all_model_family_checks.js`. Family state, substitute-only
   rejection, mixed-base detection, and miniature target collection can now be
   audited independently from the catalog row traversal.
+- 2026-07-05: Split active-base and substitute occurrence counting out of
+  `builder_wargear_all_model_family_checks.js` into
+  `builder_wargear_all_model_family_counts.js`. The family checker now owns
+  only rule state transitions, while choice arithmetic is covered by the same
+  cache-busted static import inventory.
 - 2026-07-05: Split Attached Units add-control rendering out of
   `builder_roster_attachment_editor_view.js` into
   `builder_roster_attachment_controls.js`. The editor view now composes the
