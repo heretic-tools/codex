@@ -1273,6 +1273,11 @@ browser smoke test.
   `builder_allied_faction_rules.js`. The top-level allied validator now only
   groups allied units and delegates base faction rules plus the already-isolated
   keyword/allegiance/restricting-keyword families.
+- 2026-07-05: Split allied faction availability, Warlord, required-detachment,
+  datasheet whitelist, and points-cap checks out of
+  `builder_allied_faction_rules.js` into one module per subrule. This keeps
+  every allied-faction exception path independently auditable while preserving
+  the `validateAlliedFactionRules` facade.
 - 2026-07-05: Split keyword restriction group validation out of
   `builder_restriction_rules.js` into `builder_keyword_restriction_rules.js`.
   Detachment/unit composition checks now stay separate from faction and

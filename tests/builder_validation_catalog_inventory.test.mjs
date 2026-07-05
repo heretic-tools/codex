@@ -832,7 +832,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(alliedRulesSource, new RegExp(`\\.\\/builder_allied_rule_helpers\\.js\\?v=${version}`));
 
     const alliedFactionRulesSource = readFileSync(join(outDir, "static", "builder_allied_faction_rules.js"), "utf8");
-    assert.match(alliedFactionRulesSource, new RegExp(`\\.\\/builder_allied_rule_helpers\\.js\\?v=${version}`));
+    assert.match(alliedFactionRulesSource, new RegExp(`\\.\\/builder_allied_faction_availability_rules\\.js\\?v=${version}`));
+    assert.match(alliedFactionRulesSource, new RegExp(`\\.\\/builder_allied_faction_datasheet_rules\\.js\\?v=${version}`));
+    assert.match(alliedFactionRulesSource, new RegExp(`\\.\\/builder_allied_faction_detachment_rules\\.js\\?v=${version}`));
+    assert.match(alliedFactionRulesSource, new RegExp(`\\.\\/builder_allied_faction_points_rules\\.js\\?v=${version}`));
+    assert.match(alliedFactionRulesSource, new RegExp(`\\.\\/builder_allied_faction_warlord_rules\\.js\\?v=${version}`));
 
     const alliedKeywordRulesSource = readFileSync(join(outDir, "static", "builder_allied_keyword_rules.js"), "utf8");
     assert.match(alliedKeywordRulesSource, new RegExp(`\\.\\/builder_allied_allegiance_requirement_rules\\.js\\?v=${version}`));
