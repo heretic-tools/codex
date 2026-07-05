@@ -1148,6 +1148,10 @@ browser smoke test.
   `builder_validation_groups.js`. The validation view remains the DOM facade,
   while unit, detachment, attachment, model-target matching, and grouped
   message metadata can be audited independently.
+- 2026-07-05: Split validation scope label formatting out of
+  `builder_validation_groups.js` into `builder_validation_scope_labels.js`.
+  Message grouping now only accumulates grouped IDs/texts, while label
+  hydration from validation context is isolated.
 - 2026-07-05: Split validation message-list DOM rendering out of
   `builder_validation_view.js` into `builder_validation_message_list.js`.
   The validation view now composes the section/summary wrapper, while grouped
