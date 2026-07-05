@@ -1008,6 +1008,11 @@ browser smoke test.
   `builder_roster_attachment_failures.js` into
   `builder_roster_attachment_failure_messages.js`. Attachment pairing checks
   now keep catalog-derived failure reasons separate from UI-facing text.
+- 2026-07-05: Split Enhancement required/excluded keyword gates out of
+  `builder_enhancement_eligibility.js` into
+  `builder_enhancement_keyword_rules.js`. Candidate status and validation still
+  use the same static catalog rows, but keyword predicates are now isolated for
+  rule-by-rule audit.
 - 2026-07-05: Split model availability helpers into allied unit sources,
   datasheet availability, and detachment availability modules. The public
   `builder_model_availability.js` facade still exports the same Builder model
