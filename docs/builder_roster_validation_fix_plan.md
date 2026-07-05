@@ -1013,6 +1013,11 @@ browser smoke test.
   `builder_enhancement_eligibility.js`. UI candidate filtering and roster
   validation now share the same focused keyword, target, wargear, detachment,
   attached-unit, and Warlord-blocking helpers.
+- 2026-07-05: Split unit-detail enhancement controls out of
+  `builder_roster_unit_detail_editors.js` into
+  `builder_roster_unit_enhancement_editor.js`. Composition, Warlord, and
+  allegiance controls are now separate from enhancement option hydration and
+  eligibility-labelled selects.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
