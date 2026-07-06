@@ -44,6 +44,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUndoableUpdate
     validationContext,
   });
   const wargear = renderRosterUnitWargearSection({
+    onUndoableUpdate,
     onUpdate,
     roster,
     unit: summary,

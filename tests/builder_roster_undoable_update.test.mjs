@@ -49,6 +49,28 @@ test("undoable roster updates fall back to normal update without a handler", asy
   assert.equal(updated, nextRoster);
 });
 
+test("undoable roster updates ignore no-op roster actions", async () => {
+  const roster = { id: "roster-1" };
+  let updated = false;
+  let undoable = false;
+
+  const result = await applyRosterUpdate({
+    message: "No change",
+    nextRoster: roster,
+    onUndoableUpdate: () => {
+      undoable = true;
+    },
+    onUpdate: () => {
+      updated = true;
+    },
+    previousRoster: roster,
+  });
+
+  assert.equal(result, roster);
+  assert.equal(updated, false);
+  assert.equal(undoable, false);
+});
+
 test("detachment removal emits an undoable roster update", async () => {
   const roster = {
     attachments: [],

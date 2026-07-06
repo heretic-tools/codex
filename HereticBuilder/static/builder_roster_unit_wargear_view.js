@@ -16,7 +16,7 @@ function renderScopeHeader(heading, groupCount) {
   return header;
 }
 
-function renderScope({ groups, heading, onUpdate, roster, target, unit }) {
+function renderScope({ groups, heading, onUndoableUpdate = null, onUpdate, roster, target, unit }) {
   const wrap = document.createElement("section");
   wrap.className = "builder-section wargear-scope";
   wrap.appendChild(renderScopeHeader(heading, groups.length));
@@ -25,13 +25,23 @@ function renderScope({ groups, heading, onUpdate, roster, target, unit }) {
     return wrap;
   }
   for (const group of groups) {
-    wrap.appendChild(renderWargearGroup({ group, onUpdate, roster, target, unit }));
+    wrap.appendChild(renderWargearGroup({ group, onUndoableUpdate, onUpdate, roster, target, unit }));
   }
   return wrap;
 }
 
-function renderWargearScope({ groups, heading, onUpdate, roster, target, unit, validation, validationContext }) {
-  const scope = renderScope({ groups, heading, onUpdate, roster, target, unit });
+function renderWargearScope({
+  groups,
+  heading,
+  onUndoableUpdate = null,
+  onUpdate,
+  roster,
+  target,
+  unit,
+  validation,
+  validationContext,
+}) {
+  const scope = renderScope({ groups, heading, onUndoableUpdate, onUpdate, roster, target, unit });
   const targetId = targetIdForWargearScope(target);
   if (targetId) {
     scope.dataset.unitDetailTarget = `wargear:${targetId}`;

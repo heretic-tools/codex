@@ -21,6 +21,9 @@ import {
 import {
   resetWargearFromOverview,
 } from "../HereticBuilder/static/builder_roster_unit_overview_view.js";
+import {
+  updateWargearCountFromEditor,
+} from "../HereticBuilder/static/builder_roster_unit_wargear_options_view.js";
 
 function rosterWithMultiCompositionUnit() {
   state.catalog = realCatalog;
@@ -243,4 +246,35 @@ test("unit overview reset wargear emits undoable roster updates", async () => {
   assert.equal(event.message, `Wargear reset for ${datasheet.name}`);
   assert.equal(event.previousRoster, roster);
   assert.equal(event.nextRoster.units[0].id, unit.id);
+});
+
+test("unit wargear editor emits undoable roster updates", async () => {
+  const { datasheet, roster, unit } = rosterWithMultiCompositionUnit();
+  const group = (realCatalog.wargearGroupsByDatasheetId.get(datasheet.id) || [])
+    .find((row) => !row.miniatureId || unit.miniatures.some((miniature) => miniature.miniatureId === row.miniatureId));
+  assert.ok(group, "Expected a scoped wargear group");
+  const optionRow = (realCatalog.wargearOptionsByGroupId.get(group.id) || [])[0];
+  assert.ok(optionRow, "Expected a wargear option");
+  const target = group.miniatureId
+    ? unit.miniatures.find((miniature) => miniature.miniatureId === group.miniatureId)
+    : unit;
+  assert.ok(target, "Expected a wargear target");
+  const nextCount = Number((target.wargear || {})[optionRow.id] || 0) ? 0 : 1;
+  let event = null;
+
+  await updateWargearCountFromEditor(
+    roster,
+    unit,
+    target,
+    optionRow,
+    nextCount,
+    () => {},
+    (value) => {
+      event = value;
+    }
+  );
+
+  assert.equal(event.message, `Wargear changed for ${datasheet.name}`);
+  assert.equal(event.previousRoster, roster);
+  assert.notEqual(event.nextRoster, roster);
 });

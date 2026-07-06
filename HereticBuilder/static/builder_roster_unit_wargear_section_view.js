@@ -1,13 +1,14 @@
 import { wargearGroupsFor } from "./builder_roster_unit_wargear_groups.js";
 import { renderWargearScope } from "./builder_roster_unit_wargear_view.js";
 
-function renderRosterUnitWargearSection({ onUpdate, roster, unit, validation, validationContext }) {
+function renderRosterUnitWargearSection({ onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
   const wargear = document.createElement("section");
   wargear.className = "builder-section unit-wargear-section";
   wargear.dataset.unitDetailTarget = "wargear";
   wargear.appendChild(renderWargearScope({
     groups: wargearGroupsFor(unit),
     heading: "Unit Wargear",
+    onUndoableUpdate,
     onUpdate,
     roster,
     target: unit,
@@ -19,6 +20,7 @@ function renderRosterUnitWargearSection({ onUpdate, roster, unit, validation, va
     wargear.appendChild(renderWargearScope({
       groups: wargearGroupsFor(unit, miniature.miniatureId),
       heading: `${miniature.name} (${miniature.count || 0})`,
+      onUndoableUpdate,
       onUpdate,
       roster,
       target: miniature,
