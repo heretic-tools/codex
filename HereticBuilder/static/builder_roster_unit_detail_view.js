@@ -59,6 +59,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster
   if (otherIssueCount) {
     sidebar.appendChild(renderValidation(otherValidation, {
       context: validationContext,
+      groupAction: renderUnitValidationAction,
       title: "Roster Issues",
     }));
   }
