@@ -2,14 +2,39 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   groupedMessages,
+  validationMetaText,
   validationGroupBodyTexts,
   validationGroupTitle,
   validationScopeLabels,
+  validationStateClass,
   validationForAttachment,
   validationForDetachment,
   validationForTarget,
   validationForUnit,
 } from "../HereticBuilder/static/builder_validation_view.js";
+
+test("validation header helpers expose compact severity counts", () => {
+  assert.equal(validationStateClass({ messages: [] }), "ok");
+  assert.equal(validationMetaText({ messages: [] }), "No issues");
+
+  assert.equal(
+    validationStateClass({ messages: [{ level: "warning" }] }),
+    "warning"
+  );
+  assert.equal(
+    validationMetaText({ messages: [{ level: "warning" }, { level: "warning" }] }),
+    "2 warnings"
+  );
+
+  assert.equal(
+    validationStateClass({ messages: [{ level: "error" }, { level: "warning" }] }),
+    "error"
+  );
+  assert.equal(
+    validationMetaText({ messages: [{ level: "error" }, { level: "warning" }] }),
+    "1 error / 1 warning"
+  );
+});
 
 test("validationForUnit keeps only diagnostics scoped to the selected unit", () => {
   const validation = {

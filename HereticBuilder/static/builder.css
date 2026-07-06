@@ -280,6 +280,10 @@
   grid-template-columns: minmax(160px, 1fr) minmax(120px, 160px) minmax(160px, 1fr) auto;
 }
 
+.attachment-control-field {
+  min-width: 0;
+}
+
 .builder-control-row input,
 .builder-control-row select {
   min-width: 0;
@@ -294,6 +298,10 @@
 
 .add-button {
   min-width: 72px;
+}
+
+.attachment-control-row .add-button {
+  align-self: end;
 }
 
 .remove-button {
@@ -1027,9 +1035,18 @@
   font-size: 11px;
 }
 
+.validation-section-head {
+  align-items: center;
+}
+
+.validation-section-meta {
+  white-space: nowrap;
+}
+
 .validation-state-badge,
 .roster-status-pill,
 .validation-count,
+.validation-section-meta,
 .meta-badge,
 .disposition-badge {
   padding: 3px 7px;
@@ -1042,6 +1059,11 @@
 }
 
 .validation-state-badge {
+  background: var(--builder-panel);
+}
+
+.validation-section-meta,
+.validation-count {
   background: var(--builder-panel);
 }
 

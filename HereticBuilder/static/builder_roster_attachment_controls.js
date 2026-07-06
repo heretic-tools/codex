@@ -2,9 +2,16 @@ import {
   createAttachmentControlSelects,
   refreshAttachmentControlSelects,
 } from "./builder_roster_attachment_control_selects.js";
-import { button } from "./builder_dom.js";
+import { button, textNode } from "./builder_dom.js";
 import { ADD_ATTACHED_UNIT_LABEL, labelControl } from "./builder_roster_control_labels.js";
 import { rosterWithAddedAttachment } from "./builder_roster_actions.js";
+
+function attachmentControlField(label, control) {
+  const field = document.createElement("label");
+  field.className = "field attachment-control-field";
+  field.append(textNode("span", "", label), control);
+  return field;
+}
 
 function renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, unitsById }) {
   const { attached, bodyguard, type } = createAttachmentControlSelects();
@@ -36,11 +43,16 @@ function renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, 
     });
   };
 
-  controls.append(bodyguard, type, attached, add);
+  controls.append(
+    attachmentControlField("Bodyguard", bodyguard),
+    attachmentControlField("Role", type),
+    attachmentControlField("Attached Unit", attached),
+    add
+  );
   bodyguard.addEventListener("change", refreshControls);
   type.addEventListener("change", refreshControls);
   refreshControls();
   return controls;
 }
 
-export { renderAttachmentControls };
+export { attachmentControlField, renderAttachmentControls };

@@ -10,6 +10,9 @@ const {
 const {
   createAttachmentControlSelects,
 } = await import("../HereticBuilder/static/builder_roster_attachment_control_create.js");
+const {
+  attachmentControlField,
+} = await import("../HereticBuilder/static/builder_roster_attachment_controls.js");
 
 function attachmentCatalog() {
   return {
@@ -109,6 +112,32 @@ test("attached unit controls label their select controls", () => {
     assert.equal(controls.type.attributes.get("aria-label"), "Choose attachment type");
     assert.equal(controls.attached.title, "Choose attached unit");
     assert.equal(controls.attached.attributes.get("aria-label"), "Choose attached unit");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("attached unit control fields expose visible labels", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: (tagName) => ({
+      children: [],
+      className: "",
+      tagName,
+      textContent: "",
+      append(...nodes) {
+        this.children.push(...nodes);
+      },
+    }),
+  };
+
+  try {
+    const select = { tagName: "select" };
+    const field = attachmentControlField("Bodyguard", select);
+
+    assert.equal(field.className, "field attachment-control-field");
+    assert.equal(field.children[0].textContent, "Bodyguard");
+    assert.equal(field.children[1], select);
   } finally {
     global.document = previousDocument;
   }
