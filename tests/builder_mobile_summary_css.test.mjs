@@ -14,7 +14,8 @@ test("mobile roster summary is a bottom safe-area bar", () => {
   const source = builderCss();
   const mobileLayer = source.slice(source.indexOf("@media (max-width: 760px)"));
 
-  assert.ok(mobileLayer.includes("padding: 12px 12px calc(166px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes(".builder-panel-content:has(.roster-sticky-summary)"));
+  assert.ok(mobileLayer.includes("padding-bottom: calc(166px + env(safe-area-inset-bottom));"));
   assert.ok(mobileLayer.includes(".roster-detail-grid .roster-sticky-summary"));
   assert.ok(mobileLayer.includes("position: fixed;"));
   assert.ok(mobileLayer.includes("bottom: calc(70px + env(safe-area-inset-bottom));"));

@@ -1525,7 +1525,11 @@
 
 @media (max-width: 760px) {
   .builder-panel-content {
-    padding: 12px 12px calc(166px + env(safe-area-inset-bottom));
+    padding: 12px;
+  }
+
+  .builder-panel-content:has(.roster-sticky-summary) {
+    padding-bottom: calc(166px + env(safe-area-inset-bottom));
   }
 
   .builder-grid,
