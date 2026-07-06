@@ -14,7 +14,7 @@ function renderRosterDetailView({ newId, onDelete, onUnitOpen, onUpdate, roster,
   const units = rosterUnitSummaries(roster);
   const unitById = new Map(units.map((unit) => [unit.id, unit]));
   const root = document.createElement("section");
-  root.className = "builder-grid";
+  root.className = "builder-grid roster-detail-grid";
   const sidebar = document.createElement("section");
   sidebar.className = "builder-roster-sidebar";
   const overview = renderRosterOverview({ onDelete, onUpdate, roster, summary, validation: validationResult });
@@ -22,6 +22,7 @@ function renderRosterDetailView({ newId, onDelete, onUnitOpen, onUpdate, roster,
   const validationView = renderValidation(validationResult, {
     context: validationContextForRoster(roster),
     groupAction: (group) => renderValidationGroupAction(group, { onUnitOpen, roster, unitById }),
+    title: "Roster Validation",
   });
   sidebar.append(overview, validationView);
   root.append(sidebar, editor);

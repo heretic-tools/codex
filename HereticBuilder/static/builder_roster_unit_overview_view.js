@@ -15,15 +15,20 @@ function unitDisplayName(roster, unit) {
 
 function renderRosterUnitOverview({ onBack, onUpdate, roster, unit, validation, validationContext }) {
   const overview = document.createElement("section");
-  overview.className = "builder-section";
+  overview.className = "builder-section unit-overview-card";
   overview.appendChild(textNode("h2", "section-title", unit.name));
   const image = unitImageNode(unit.datasheetId, "unit-detail-art-frame");
   if (image) {
     overview.appendChild(image);
   }
-  overview.append(
+  const metrics = document.createElement("div");
+  metrics.className = "unit-overview-metrics";
+  metrics.append(
     metricLine("Points", String(unit.points || 0)),
-    metricLine("Models", String(unit.modelCount || 0)),
+    metricLine("Models", String(unit.modelCount || 0))
+  );
+  overview.append(
+    metrics,
     renderCompositionEditor({ onUpdate, roster, unit, validation, validationContext }),
     renderWarlordEditor({ onUpdate, roster, unit, validation, validationContext })
   );
@@ -31,13 +36,16 @@ function renderRosterUnitOverview({ onBack, onUpdate, roster, unit, validation, 
   if (allegianceEditor) {
     overview.appendChild(allegianceEditor);
   }
-  overview.append(
+  const actions = document.createElement("div");
+  actions.className = "unit-overview-actions";
+  actions.append(
     button("plain-button", "Reset Wargear", async () => {
       await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
       await onUpdate(rosterWithUnitDefaultWargear(roster, unit.id));
     }),
     button("plain-button", "Back", onBack)
   );
+  overview.appendChild(actions);
   return overview;
 }
 

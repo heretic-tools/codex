@@ -27,7 +27,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster
   const validationContext = validationContextForRoster(roster);
   const otherIssueCount = otherValidation.messages.length;
   const root = document.createElement("section");
-  root.className = "builder-grid";
+  root.className = "builder-grid unit-detail-grid";
 
   const sidebar = document.createElement("section");
   sidebar.className = "builder-roster-sidebar";

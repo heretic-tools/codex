@@ -6,10 +6,20 @@ import {
   validationForWargearScope,
 } from "./builder_roster_unit_wargear_validation_view.js";
 
+function renderScopeHeader(heading, groupCount) {
+  const header = document.createElement("div");
+  header.className = "builder-section-head wargear-scope-head";
+  header.appendChild(textNode("h2", "section-title", heading));
+  if (groupCount) {
+    header.appendChild(textNode("span", "section-meta", `${groupCount} group${groupCount === 1 ? "" : "s"}`));
+  }
+  return header;
+}
+
 function renderScope({ groups, heading, onUpdate, roster, target, unit }) {
   const wrap = document.createElement("section");
   wrap.className = "builder-section wargear-scope";
-  wrap.appendChild(textNode("h2", "section-title", heading));
+  wrap.appendChild(renderScopeHeader(heading, groups.length));
   if (!groups.length) {
     wrap.appendChild(textNode("p", "empty-list", "No wargear options"));
     return wrap;
@@ -28,8 +38,8 @@ function renderWargearScope({ groups, heading, onUpdate, roster, target, unit, v
   }
   const scopeValidation = renderScopeValidation(validationForWargearScope(validation, targetId), validationContext);
   if (scopeValidation) {
-    const title = scope.querySelector(".section-title");
-    title?.after(scopeValidation);
+    const header = scope.querySelector(".wargear-scope-head");
+    header?.after(scopeValidation);
   }
   return scope;
 }

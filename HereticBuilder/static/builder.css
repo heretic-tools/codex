@@ -453,6 +453,14 @@
   gap: 10px;
 }
 
+.roster-create-form {
+  width: min(520px, 100%);
+  padding: 12px;
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+}
+
 .field {
   display: grid;
   gap: 4px;
@@ -496,6 +504,17 @@
   display: flex;
   gap: 8px;
   margin-top: 4px;
+}
+
+.roster-create-form .form-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 2px;
+}
+
+.roster-create-form .plain-button,
+.roster-create-form .primary-button {
+  justify-content: center;
 }
 
 .plain-button,
@@ -765,12 +784,22 @@
   gap: 16px;
 }
 
+.roster-detail-grid {
+  align-items: start;
+}
+
+.unit-detail-grid {
+  align-items: start;
+}
+
 .builder-section {
   gap: 10px;
 }
 
 .roster-overview-card {
-  padding: 12px;
+  display: grid;
+  gap: 10px;
+  padding: 10px;
   background: var(--builder-paper);
   border: 1px solid var(--builder-border);
   border-radius: var(--builder-radius);
@@ -791,18 +820,21 @@
 .roster-overview-head {
   min-width: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .roster-overview-head .section-title {
+  flex: 1 1 160px;
   min-width: 0;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .roster-status-pill {
   flex: none;
+  margin-left: auto;
   padding: 3px 7px;
   background: var(--builder-panel);
   border: 1px solid var(--builder-border);
@@ -817,14 +849,14 @@
 .roster-overview-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  gap: 5px;
 }
 
 .roster-overview-metric {
   min-width: 0;
   display: grid;
   gap: 2px;
-  padding: 7px 8px;
+  padding: 6px 7px;
   background: var(--builder-panel);
   border: 1px solid var(--builder-border);
   border-radius: var(--builder-radius);
@@ -847,7 +879,52 @@
 
 .roster-overview-controls {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
   gap: 8px;
+}
+
+.roster-overview-controls .field {
+  min-width: 0;
+}
+
+.delete-roster-button {
+  white-space: nowrap;
+}
+
+.unit-overview-card {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+}
+
+.unit-overview-card .section-title {
+  min-width: 0;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.unit-overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.unit-overview-metrics .metric-line {
+  padding: 6px 7px;
+}
+
+.unit-overview-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.unit-overview-actions .plain-button {
+  justify-content: center;
 }
 
 .is-attention-target {
@@ -921,6 +998,33 @@
 
 .row-text strong {
   min-width: 0;
+}
+
+.roster-row {
+  align-items: start;
+  min-height: 58px;
+}
+
+.roster-row .row-text {
+  row-gap: 5px;
+}
+
+.roster-row .row-text strong {
+  flex-basis: 100%;
+  font-size: 15px;
+}
+
+.roster-row .row-text > span:not(.meta-badge):not(.disposition-badge) {
+  color: var(--app-muted, #697078);
+  font-size: 12px;
+}
+
+.roster-row .row-meta {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-family: var(--builder-mono);
+  font-size: 11px;
 }
 
 .validation-state-badge,
@@ -1030,6 +1134,17 @@
   gap: 8px;
 }
 
+.unit-wargear-section .wargear-scope {
+  padding: 10px;
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+}
+
+.wargear-scope-head {
+  min-height: 28px;
+}
+
 .wargear-group + .wargear-group {
   margin-top: 10px;
 }
@@ -1070,7 +1185,26 @@
     margin-top: 0;
   }
 
-  .roster-overview-metrics {
+  .roster-overview-controls {
     grid-template-columns: 1fr;
+  }
+
+  .unit-overview-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .roster-row .row-meta {
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 761px) {
+  .roster-detail-grid .builder-roster-sidebar,
+  .unit-detail-grid .builder-roster-sidebar {
+    position: sticky;
+    top: 0;
+    max-height: calc(100svh - 154px);
+    overflow: auto;
+    scrollbar-color: var(--builder-shadow) transparent;
   }
 }

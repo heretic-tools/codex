@@ -2,12 +2,14 @@ import { button, field, option, textNode } from "./builder_dom.js";
 
 function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFactionId, factions, onBack, onSubmit }) {
   const form = document.createElement("form");
-  form.className = "builder-form";
+  form.className = "builder-form roster-create-form";
   const name = document.createElement("input");
   name.name = "name";
   name.maxLength = 80;
   name.autocomplete = "off";
+  name.placeholder = "Roster name";
   name.value = "New Roster";
+  name.autofocus = true;
 
   const faction = document.createElement("select");
   faction.name = "factionKeywordId";
