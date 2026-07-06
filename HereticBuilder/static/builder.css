@@ -1277,7 +1277,8 @@
     grid-template-columns: 1fr;
   }
 
-  .roster-detail-grid .roster-sticky-summary {
+  .roster-detail-grid .roster-sticky-summary,
+  .unit-detail-grid .roster-sticky-summary {
     position: sticky;
     top: calc(8px + env(safe-area-inset-top));
     z-index: 3;
@@ -1291,11 +1292,13 @@
     box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
   }
 
-  .roster-detail-grid .roster-sticky-summary.has-validation-warning {
+  .roster-detail-grid .roster-sticky-summary.has-validation-warning,
+  .unit-detail-grid .roster-sticky-summary.has-validation-warning {
     border-left-color: var(--builder-warn);
   }
 
-  .roster-detail-grid .roster-sticky-summary.has-validation-error {
+  .roster-detail-grid .roster-sticky-summary.has-validation-error,
+  .unit-detail-grid .roster-sticky-summary.has-validation-error {
     border-left-color: var(--builder-error);
   }
 

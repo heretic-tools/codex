@@ -7,6 +7,7 @@ import {
   unitValidationActionTarget,
 } from "./builder_roster_unit_detail_actions.js";
 import { renderEnhancementsEditor } from "./builder_roster_unit_detail_editors.js";
+import { renderRosterStickySummary } from "./builder_roster_overview_view.js";
 import { renderRosterUnitOverview, unitDisplayName } from "./builder_roster_unit_overview_view.js";
 import { renderRosterUnitWargearSection } from "./builder_roster_unit_wargear_section_view.js";
 
@@ -28,6 +29,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster
   const otherIssueCount = otherValidation.messages.length;
   const root = document.createElement("section");
   root.className = "builder-grid unit-detail-grid";
+  const stickySummary = renderRosterStickySummary({ roster, validation });
 
   const sidebar = document.createElement("section");
   sidebar.className = "builder-roster-sidebar";
@@ -70,7 +72,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster
     validation: unitValidation,
     validationContext,
   }));
-  root.append(sidebar, wargear);
+  root.append(stickySummary, sidebar, wargear);
   if (focusTarget) {
     window.requestAnimationFrame(() => scrollToUnitDetailTarget(focusTarget));
   }
