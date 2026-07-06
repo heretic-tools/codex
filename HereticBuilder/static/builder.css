@@ -1525,7 +1525,7 @@
 
 @media (max-width: 760px) {
   .builder-panel-content {
-    padding: 12px;
+    padding: 12px 12px calc(166px + env(safe-area-inset-bottom));
   }
 
   .builder-grid,
@@ -1547,9 +1547,11 @@
 
   .roster-detail-grid .roster-sticky-summary,
   .unit-detail-grid .roster-sticky-summary {
-    position: sticky;
-    top: calc(8px + env(safe-area-inset-top));
-    z-index: 3;
+    position: fixed;
+    right: max(8px, env(safe-area-inset-right));
+    bottom: calc(70px + env(safe-area-inset-bottom));
+    left: max(8px, env(safe-area-inset-left));
+    z-index: 29;
     display: grid;
     gap: 8px;
     padding: 8px;
@@ -1557,7 +1559,7 @@
     border: 1px solid var(--builder-border);
     border-left: 4px solid var(--builder-ok);
     border-radius: var(--builder-radius);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
   }
 
   .roster-detail-grid .roster-sticky-summary.has-validation-warning,
@@ -1581,6 +1583,10 @@
 
   .roster-row .row-meta {
     justify-content: flex-start;
+  }
+
+  .builder-toast {
+    bottom: calc(158px + env(safe-area-inset-bottom));
   }
 }
 
