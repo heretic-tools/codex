@@ -1,18 +1,12 @@
 import { textNode } from "./builder_dom.js";
 import { rosterWithUnitWargearCount } from "./builder_roster_actions.js";
 import { countControl } from "./builder_roster_unit_wargear_count_control.js";
-import { state } from "./builder_state.js";
+import { wargearOptionRowsForGroup } from "./builder_roster_unit_wargear_options.js";
 
-function wargearOptionName(row) {
-  const item = state.catalog.wargearItemById.get(row.wargearItemId);
-  const points = row.points ? ` / ${row.points} pts` : "";
-  return `${item?.name || "Wargear"}${points}`;
-}
-
-function renderWargearOption({ group, onUpdate, optionRow, roster, target, unit }) {
+function renderWargearOption({ group, label, onUpdate, optionRow, roster, target, unit }) {
   const row = document.createElement("label");
   row.className = "wargear-option-row";
-  row.append(textNode("span", "", wargearOptionName(optionRow)));
+  row.append(textNode("span", "", label));
   row.appendChild(countControl({
     optionRow,
     target,
@@ -29,12 +23,19 @@ function renderWargearOption({ group, onUpdate, optionRow, roster, target, unit 
 }
 
 function renderWargearGroup({ group, onUpdate, roster, target, unit }) {
-  const rows = state.catalog.wargearOptionsByGroupId.get(group.id) || [];
   const wrap = document.createElement("div");
   wrap.className = "wargear-group";
   wrap.appendChild(textNode("h3", "wargear-group-title", group.instructionText || "Wargear"));
-  for (const optionRow of rows) {
-    wrap.appendChild(renderWargearOption({ group, onUpdate, optionRow, roster, target, unit }));
+  for (const row of wargearOptionRowsForGroup(group)) {
+    wrap.appendChild(renderWargearOption({
+      group,
+      label: row.label,
+      onUpdate,
+      optionRow: row.optionRow,
+      roster,
+      target,
+      unit,
+    }));
   }
   return wrap;
 }

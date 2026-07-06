@@ -12,6 +12,10 @@ import {
 import { allegianceEditorOptions } from "../HereticBuilder/static/builder_roster_unit_allegiance_options.js";
 import { compositionSelectModel } from "../HereticBuilder/static/builder_roster_unit_composition_options.js";
 import { enhancementSelectRows } from "../HereticBuilder/static/builder_roster_unit_enhancement_options.js";
+import {
+  wargearOptionLabel,
+  wargearOptionRowsForGroup,
+} from "../HereticBuilder/static/builder_roster_unit_wargear_options.js";
 import { wargearGroupsFor } from "../HereticBuilder/static/builder_roster_unit_wargear_groups.js";
 import { unitWarlordSelectModel } from "../HereticBuilder/static/builder_roster_unit_warlord_options.js";
 import { warlordPickerModel } from "../HereticBuilder/static/builder_roster_warlord_options.js";
@@ -180,6 +184,24 @@ test("wargear groups model filters unit and miniature scopes", () => {
     unitGroups.map((group) => group.displayOrder || 0),
     [...unitGroups].map((group) => group.displayOrder || 0).sort((left, right) => left - right)
   );
+});
+
+test("wargear option rows expose labels without DOM lookups", () => {
+  state.catalog = realCatalog;
+  const group = realCatalog.wargearGroups.find((item) => (
+    (realCatalog.wargearOptionsByGroupId.get(item.id) || []).some((optionRow) => optionRow.points)
+  ));
+  assert.ok(group, "Expected a wargear group with a paid option");
+  const paidOption = (realCatalog.wargearOptionsByGroupId.get(group.id) || [])
+    .find((optionRow) => optionRow.points);
+  assert.ok(paidOption, "Expected a paid wargear option");
+
+  const rows = wargearOptionRowsForGroup(group);
+  const paidRow = rows.find((row) => row.optionRow.id === paidOption.id);
+
+  assert.equal(rows.length, (realCatalog.wargearOptionsByGroupId.get(group.id) || []).length);
+  assert.equal(paidRow.label, wargearOptionLabel(paidOption));
+  assert.match(paidRow.label, / pts$/);
 });
 
 test("allegiance editor disables invalid non-current options", () => {
