@@ -9,6 +9,7 @@ export {
 } from "./builder_roster_detachment_actions.js";
 export {
   rosterWithAddedUnit,
+  unitCanBeAddedToRoster,
   rosterWithMiniatureEnhancement,
   rosterWithRemovedUnit,
   rosterWithUnitAllegianceAbility,

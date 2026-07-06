@@ -1,5 +1,6 @@
 export {
   rosterWithAddedUnit,
+  unitCanBeAddedToRoster,
   rosterWithRemovedUnit,
   rosterWithUnitComposition,
 } from "./builder_roster_unit_base_actions.js";

@@ -4,6 +4,7 @@ import {
   availableDatasheets,
   battleSizeNamed,
   factionNamed,
+  keywordIdsForDatasheet,
   realCatalog,
   state,
 } from "./builder_validation_helpers.mjs";
@@ -11,6 +12,20 @@ import {
   rosterWithAddedUnit,
   rosterWithWarlord,
 } from "../HereticBuilder/static/builder_roster_actions.js";
+
+function duplicateLimitedCharacterDatasheet(roster) {
+  const datasheet = availableDatasheets(roster, "native").find((row) => {
+    const keywordNames = keywordIdsForDatasheet(row.id)
+      .map((id) => realCatalog.keywordById.get(id)?.name)
+      .filter(Boolean);
+    return keywordNames.includes("Character")
+      && !keywordNames.includes("Epic Hero")
+      && !keywordNames.includes("Battleline")
+      && !keywordNames.includes("Dedicated Transport");
+  });
+  assert.ok(datasheet, "Expected a duplicate-limited Character datasheet");
+  return datasheet;
+}
 
 test("builder roster actions keep only one selected Warlord", () => {
   state.catalog = realCatalog;
@@ -23,8 +38,7 @@ test("builder roster actions keep only one selected Warlord", () => {
     units: [],
     attachments: [],
   };
-  const datasheet = availableDatasheets(roster, "native")[0];
-  assert.ok(datasheet, "Expected an available datasheet");
+  const datasheet = duplicateLimitedCharacterDatasheet(roster);
   const withFirstUnit = rosterWithAddedUnit(roster, {
     datasheetId: datasheet.id,
     unitId: "unit-1",

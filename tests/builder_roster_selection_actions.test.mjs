@@ -6,6 +6,7 @@ import {
   battleSizeNamed,
   datasheetIsCombatPatrol,
   factionNamed,
+  keywordIdsForDatasheet,
   realCatalog,
   state,
   validateRoster,
@@ -15,7 +16,21 @@ import {
   rosterWithAddedUnit,
   rosterWithRemovedDetachment,
   rosterWithRemovedUnit,
+  unitCanBeAddedToRoster,
 } from "../HereticBuilder/static/builder_roster_actions.js";
+
+function regularDuplicateLimitedDatasheet(roster) {
+  const datasheet = availableDatasheets(roster, "native").find((row) => {
+    const keywordNames = keywordIdsForDatasheet(row.id)
+      .map((id) => realCatalog.keywordById.get(id)?.name)
+      .filter(Boolean);
+    return !keywordNames.includes("Epic Hero")
+      && !keywordNames.includes("Battleline")
+      && !keywordNames.includes("Dedicated Transport");
+  });
+  assert.ok(datasheet, "Expected a non-Epic, non-Battleline, non-Transport native datasheet");
+  return datasheet;
+}
 
 test("builder roster actions add and remove detachments and default units", () => {
   state.catalog = realCatalog;
@@ -98,4 +113,61 @@ test("builder roster action rejects datasheets unavailable to the roster", () =>
     datasheetId: foreignDatasheet.id,
     unitId: "foreign-unit",
   }), roster);
+});
+
+test("builder roster action rejects duplicate-limit unit additions", () => {
+  state.catalog = realCatalog;
+  const roster = {
+    id: "duplicate-limit-action-roster",
+    name: "Duplicate Limit Action Roster",
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const datasheet = regularDuplicateLimitedDatasheet(roster);
+  let current = roster;
+  for (let index = 0; index < 3; index += 1) {
+    current = rosterWithAddedUnit(current, {
+      datasheetId: datasheet.id,
+      unitId: `duplicate-${index}`,
+    });
+  }
+
+  assert.equal(current.units.length, 3);
+  assert.equal(unitCanBeAddedToRoster(current, {
+    allyType: "native",
+    datasheetId: datasheet.id,
+    compositionId: current.units[0].compositionId,
+    miniatures: current.units[0].miniatures,
+    wargear: current.units[0].wargear,
+  }), false);
+  assert.equal(rosterWithAddedUnit(current, {
+    datasheetId: datasheet.id,
+    unitId: "duplicate-3",
+  }), current);
+});
+
+test("builder roster action still permits duplicate additions inside the limit", () => {
+  state.catalog = realCatalog;
+  const roster = {
+    id: "inside-duplicate-limit-action-roster",
+    name: "Inside Duplicate Limit Action Roster",
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const datasheet = regularDuplicateLimitedDatasheet(roster);
+  let current = roster;
+  for (let index = 0; index < 2; index += 1) {
+    current = rosterWithAddedUnit(current, {
+      datasheetId: datasheet.id,
+      unitId: `inside-limit-${index}`,
+    });
+  }
+
+  assert.equal(current.units.length, 2);
 });

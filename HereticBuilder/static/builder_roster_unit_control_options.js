@@ -12,7 +12,8 @@ function refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelec
     optgroup.label = group.source.label;
     optgroup.replaceChildren(...group.rows.map((row) => option(
       unitOptionValue(row.allyType, row.datasheet.id),
-      unitOptionText(roster, row.allyType, row.datasheet, row.status)
+      unitOptionText(roster, row.allyType, row.datasheet, row.status),
+      { disabled: row.status.severity === "error" }
     )));
     return optgroup;
   });
@@ -22,7 +23,7 @@ function refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelec
     nodes.push(empty);
   }
   unitSelect.replaceChildren(...nodes);
-  add.disabled = !groups.length;
+  add.disabled = !groups.some((group) => group.rows.some((row) => row.status.severity !== "error"));
   unitSelect.disabled = !groups.length;
   clearSearch.hidden = !search.value;
 }

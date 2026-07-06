@@ -1761,6 +1761,10 @@ browser smoke test.
   of `builder_roster_unit_wargear_options_view.js` into
   `builder_roster_unit_wargear_options.js`, keeping catalog item/point lookup
   out of the DOM renderer.
+- 2026-07-06: Added duplicate-limit safety to the add-unit roster action and
+  disabled duplicate-limit error rows in the unit picker while leaving
+  over-points warning rows selectable for intentionally invalid intermediate
+  rosters.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and
