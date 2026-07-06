@@ -18,6 +18,8 @@ import {
   rosterWithRemovedUnit,
   unitCanBeAddedToRoster,
 } from "../HereticBuilder/static/builder_roster_actions.js";
+import { addDetachmentFromControls } from "../HereticBuilder/static/builder_roster_detachment_editor_view.js";
+import { addUnitFromControls } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
 
 function regularDuplicateLimitedDatasheet(roster) {
   const datasheet = availableDatasheets(roster, "native").find((row) => {
@@ -81,6 +83,56 @@ test("builder roster actions add and remove detachments and default units", () =
   assert.deepEqual(removedUnit.units, []);
   const removedDetachment = rosterWithRemovedDetachment(removedUnit, 0);
   assert.deepEqual(removedDetachment.detachmentIds, []);
+});
+
+test("builder add controls emit undoable roster updates", async () => {
+  state.catalog = realCatalog;
+  const faction = factionNamed("Heretic Astartes");
+  const roster = {
+    id: "undoable-add-controls-roster",
+    name: "Action Roster",
+    factionKeywordId: faction.id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const detachment = availableDetachments(faction.id)[0];
+  assert.ok(detachment, "Expected an available detachment");
+  const datasheet = availableDatasheets(roster, "native")[0];
+  assert.ok(datasheet, "Expected an available datasheet");
+  let detachmentEvent = null;
+  let unitEvent = null;
+
+  await addDetachmentFromControls(
+    roster,
+    detachment.id,
+    detachment.name,
+    () => {},
+    (value) => {
+      detachmentEvent = value;
+    }
+  );
+  await addUnitFromControls({
+    label: datasheet.name,
+    onUndoableUpdate: (value) => {
+      unitEvent = value;
+    },
+    onUpdate: () => {},
+    roster,
+    selected: {
+      allyType: "native",
+      datasheetId: datasheet.id,
+    },
+    unitId: "unit-1",
+  });
+
+  assert.equal(detachmentEvent.message, `${detachment.name} added`);
+  assert.equal(detachmentEvent.previousRoster, roster);
+  assert.deepEqual(detachmentEvent.nextRoster.detachmentIds, [detachment.id]);
+  assert.equal(unitEvent.message, `${datasheet.name} added`);
+  assert.equal(unitEvent.previousRoster, roster);
+  assert.equal(unitEvent.nextRoster.units[0].datasheetId, datasheet.id);
 });
 
 test("builder roster action rejects datasheets unavailable to the roster", () => {

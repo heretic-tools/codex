@@ -7,13 +7,32 @@ import {
   searchControlLabel,
 } from "./builder_roster_control_labels.js";
 import { rosterWithAddedUnit } from "./builder_roster_actions.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import {
   parseUnitOptionValue,
 } from "./builder_roster_unit_candidates.js";
 import { ensurePrecomputedLoadoutsForDatasheets } from "./builder_precomputed_loadouts_runtime.js";
 import { refreshUnitControlOptions } from "./builder_roster_unit_control_options.js";
 
-function renderUnitControls({ newId, onUpdate, roster, validation }) {
+function addedUnitMessage(label) {
+  return `${label || "Unit"} added`;
+}
+
+function addUnitFromControls({ label = "", onUndoableUpdate = null, onUpdate, roster, selected, unitId }) {
+  return applyRosterUpdate({
+    message: addedUnitMessage(label),
+    nextRoster: rosterWithAddedUnit(roster, {
+      allyType: selected.allyType,
+      datasheetId: selected.datasheetId,
+      unitId,
+    }),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
+}
+
+function renderUnitControls({ newId, onUndoableUpdate = null, onUpdate, roster, validation }) {
   const search = document.createElement("input");
   search.type = "search";
   search.placeholder = "Search";
@@ -26,12 +45,16 @@ function renderUnitControls({ newId, onUpdate, roster, validation }) {
   labelControl(unitSelect, UNIT_SELECT_LABEL);
   const add = button("plain-button add-button", "Add", async () => {
     const selected = parseUnitOptionValue(unitSelect.value);
+    const label = unitSelect.selectedOptions?.[0]?.textContent || "";
     await ensurePrecomputedLoadoutsForDatasheets([selected.datasheetId]);
-    await onUpdate(rosterWithAddedUnit(roster, {
-      allyType: selected.allyType,
-      datasheetId: selected.datasheetId,
+    await addUnitFromControls({
+      label,
+      onUndoableUpdate,
+      onUpdate,
+      roster,
+      selected,
       unitId: newId(),
-    }));
+    });
   });
   labelControl(add, ADD_UNIT_LABEL);
   const refreshOptions = () => {
@@ -53,4 +76,4 @@ function renderUnitControls({ newId, onUpdate, roster, validation }) {
   return controls;
 }
 
-export { renderUnitControls };
+export { addUnitFromControls, addedUnitMessage, renderUnitControls };

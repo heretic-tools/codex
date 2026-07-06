@@ -5,7 +5,10 @@ import {
   unitCandidateStatus,
   unitOptionValue,
 } from "./builder_roster_unit_candidates.js";
-import { renderUnitControls } from "./builder_roster_unit_controls.js";
+import {
+  addUnitFromControls,
+  renderUnitControls,
+} from "./builder_roster_unit_controls.js";
 import {
   emptyMessage,
   sectionTitle,
@@ -38,12 +41,13 @@ function renderUnitEditor({ newId, onUndoableUpdate = null, onUpdate, onUnitOpen
   }
   root.appendChild(list);
 
-  root.appendChild(renderUnitControls({ newId, onUpdate, roster, validation }));
+  root.appendChild(renderUnitControls({ newId, onUndoableUpdate, onUpdate, roster, validation }));
   return root;
 }
 
 export {
   parseUnitOptionValue,
+  addUnitFromControls,
   removeUnitFromRow,
   renderUnitEditor,
   unitCandidateGroups,

@@ -45,7 +45,7 @@ function renderAttachmentEditor({ newId, onUndoableUpdate = null, onUnitOpen, on
   root.appendChild(list);
 
   if (attachmentControlsAvailable(bodyguards)) {
-    root.appendChild(renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, unitsById }));
+    root.appendChild(renderAttachmentControls({ bodyguards, newId, onUndoableUpdate, onUpdate, roster, units, unitsById }));
   }
   return root;
 }

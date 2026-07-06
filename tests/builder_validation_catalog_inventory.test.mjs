@@ -1398,6 +1398,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(unitEditorSource, new RegExp(`\\.\\/builder_roster_unit_rows\\.js\\?v=${version}`));
 
     const unitControlsSource = readFileSync(join(outDir, "static", "builder_roster_unit_controls.js"), "utf8");
+    assert.match(unitControlsSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
     assert.match(unitControlsSource, new RegExp(`\\.\\/builder_roster_unit_control_options\\.js\\?v=${version}`));
 
     const unitControlOptionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_control_options.js"), "utf8");
@@ -1426,6 +1427,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const detachmentControlsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_controls.js"), "utf8");
     assert.match(detachmentControlsSource, new RegExp(`\\.\\/builder_roster_detachment_candidates\\.js\\?v=${version}`));
+    assert.match(detachmentControlsSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
 
     const detachmentCandidatesSource = readFileSync(join(outDir, "static", "builder_roster_detachment_candidates.js"), "utf8");
     assert.match(detachmentCandidatesSource, new RegExp(`\\.\\/builder_roster_detachment_candidate_status\\.js\\?v=${version}`));
@@ -1660,6 +1662,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const attachmentControlsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_controls.js"), "utf8");
     assert.match(attachmentControlsSource, new RegExp(`\\.\\/builder_roster_attachment_control_selects\\.js\\?v=${version}`));
     assert.match(attachmentControlsSource, new RegExp(`\\.\\/builder_roster_actions\\.js\\?v=${version}`));
+    assert.match(attachmentControlsSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
 
     const attachmentControlSelectsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_control_selects.js"), "utf8");
     assert.match(attachmentControlSelectsSource, new RegExp(`\\.\\/builder_roster_attachment_control_create\\.js\\?v=${version}`));

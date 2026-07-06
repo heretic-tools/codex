@@ -1,5 +1,6 @@
 import { button, option } from "./builder_dom.js";
 import { rosterWithAddedDetachment } from "./builder_roster_actions.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import {
   detachmentCandidateRows,
   detachmentOptionText,
@@ -12,7 +13,21 @@ import {
   searchControlLabel,
 } from "./builder_roster_control_labels.js";
 
-function renderDetachmentControls({ onUpdate, roster, validation }) {
+function addedDetachmentMessage(label) {
+  return `${label || "Detachment"} added`;
+}
+
+function addDetachmentFromControls(roster, detachmentId, label, onUpdate, onUndoableUpdate = null) {
+  return applyRosterUpdate({
+    message: addedDetachmentMessage(label),
+    nextRoster: rosterWithAddedDetachment(roster, detachmentId),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
+}
+
+function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, validation }) {
   const search = document.createElement("input");
   search.type = "search";
   search.placeholder = "Search";
@@ -31,7 +46,13 @@ function renderDetachmentControls({ onUpdate, roster, validation }) {
   select.dataset.focusTarget = "true";
   labelControl(select, DETACHMENT_SELECT_LABEL);
   const add = button("plain-button add-button", "Add", async () => {
-    await onUpdate(rosterWithAddedDetachment(roster, select.value));
+    await addDetachmentFromControls(
+      roster,
+      select.value,
+      select.selectedOptions?.[0]?.textContent || "",
+      onUpdate,
+      onUndoableUpdate
+    );
   });
   labelControl(add, ADD_DETACHMENT_LABEL);
   const refreshOptions = () => {
@@ -58,4 +79,4 @@ function renderDetachmentControls({ onUpdate, roster, validation }) {
   return controls;
 }
 
-export { renderDetachmentControls };
+export { addDetachmentFromControls, addedDetachmentMessage, renderDetachmentControls };

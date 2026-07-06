@@ -2,7 +2,10 @@ import {
   detachmentCandidateRows,
   detachmentCandidateStatus,
 } from "./builder_roster_detachment_candidates.js";
-import { renderDetachmentControls } from "./builder_roster_detachment_controls.js";
+import {
+  addDetachmentFromControls,
+  renderDetachmentControls,
+} from "./builder_roster_detachment_controls.js";
 import { renderDetachmentRow } from "./builder_roster_detachment_rows.js";
 import {
   emptyMessage,
@@ -31,8 +34,13 @@ function renderDetachmentEditor({ onUndoableUpdate = null, onUpdate, roster, val
   }
   root.appendChild(list);
 
-  root.appendChild(renderDetachmentControls({ onUpdate, roster, validation }));
+  root.appendChild(renderDetachmentControls({ onUndoableUpdate, onUpdate, roster, validation }));
   return root;
 }
 
-export { detachmentCandidateRows, detachmentCandidateStatus, renderDetachmentEditor };
+export {
+  addDetachmentFromControls,
+  detachmentCandidateRows,
+  detachmentCandidateStatus,
+  renderDetachmentEditor,
+};

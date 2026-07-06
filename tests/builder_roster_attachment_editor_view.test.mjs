@@ -11,6 +11,7 @@ const {
   createAttachmentControlSelects,
 } = await import("../HereticBuilder/static/builder_roster_attachment_control_create.js");
 const {
+  addAttachmentFromControls,
   attachmentControlField,
 } = await import("../HereticBuilder/static/builder_roster_attachment_controls.js");
 const {
@@ -147,6 +148,44 @@ test("attached unit control fields expose visible labels", () => {
   } finally {
     global.document = previousDocument;
   }
+});
+
+test("attached unit add control emits an undoable roster update", async () => {
+  const roster = {
+    attachments: [],
+    detachmentIds: ["pactbound"],
+    factionKeywordId: "faction",
+  };
+  const units = [
+    { id: "leader", name: "Leader", datasheetId: "leader-datasheet", keywordIds: ["nurgle"] },
+    { id: "bodyguard", name: "Bodyguard", datasheetId: "bodyguard-datasheet", keywordIds: ["nurgle"] },
+  ];
+  let event = null;
+
+  await withCatalog(attachmentCatalog(), () => addAttachmentFromControls(
+    roster,
+    {
+      attachedUnitId: "leader",
+      attachmentId: "attachment-1",
+      attachmentType: "leader",
+      bodyguardUnitId: "bodyguard",
+      units,
+    },
+    () => {},
+    (value) => {
+      event = value;
+    }
+  ));
+
+  assert.equal(event.message, "Attached unit added");
+  assert.equal(event.previousRoster, roster);
+  assert.deepEqual(event.nextRoster.attachments, [{
+    id: "attachment-1",
+    members: [
+      { attachmentType: "leader", rosterUnitId: "leader" },
+      { attachmentType: "bodyguard", rosterUnitId: "bodyguard" },
+    ],
+  }]);
 });
 
 test("attached unit removal emits an undoable roster update", async () => {

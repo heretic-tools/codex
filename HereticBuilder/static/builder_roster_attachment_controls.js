@@ -5,6 +5,7 @@ import {
 import { button, textNode } from "./builder_dom.js";
 import { ADD_ATTACHED_UNIT_LABEL, labelControl } from "./builder_roster_control_labels.js";
 import { rosterWithAddedAttachment } from "./builder_roster_actions.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 
 function attachmentControlField(label, control) {
   const field = document.createElement("label");
@@ -13,19 +14,29 @@ function attachmentControlField(label, control) {
   return field;
 }
 
-function renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, unitsById }) {
+function addAttachmentFromControls(roster, values, onUpdate, onUndoableUpdate = null) {
+  return applyRosterUpdate({
+    message: "Attached unit added",
+    nextRoster: rosterWithAddedAttachment(roster, values),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
+}
+
+function renderAttachmentControls({ bodyguards, newId, onUndoableUpdate = null, onUpdate, roster, units, unitsById }) {
   const { attached, bodyguard, type } = createAttachmentControlSelects();
   const controls = document.createElement("div");
   controls.className = "builder-control-row attachment-control-row";
 
   const add = button("plain-button add-button", "Add", async () => {
-    await onUpdate(rosterWithAddedAttachment(roster, {
+    await addAttachmentFromControls(roster, {
       attachedUnitId: attached.value,
       attachmentId: newId(),
       attachmentType: type.value,
       bodyguardUnitId: bodyguard.value,
       units,
-    }));
+    }, onUpdate, onUndoableUpdate);
   });
   labelControl(add, ADD_ATTACHED_UNIT_LABEL);
 
@@ -55,4 +66,4 @@ function renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, 
   return controls;
 }
 
-export { attachmentControlField, renderAttachmentControls };
+export { addAttachmentFromControls, attachmentControlField, renderAttachmentControls };
