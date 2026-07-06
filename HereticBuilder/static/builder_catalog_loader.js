@@ -42,11 +42,8 @@ async function loadCatalogTables(tableDefinitions, manifest = null) {
   return Object.fromEntries(tableDefinitions.map(([key], index) => [key, rows[index]]));
 }
 
-async function loadPrecomputedLoadoutShards(datasheetIds, manifest = null) {
-  const resolvedManifest = manifest || await loadBuilderDataManifest();
-  const files = resolvedManifest?.files || [];
-  const requested = new Set((datasheetIds || []).filter(Boolean));
-  const entries = files.filter((file) => {
+function topLevelPrecomputedShardEntries(manifest, requested) {
+  return (manifest?.files || []).filter((file) => {
     const logicalPath = file.logicalPath || file.path || "";
     if (!logicalPath.startsWith("precomputed-loadouts/") || logicalPath === "precomputed-loadouts/manifest.json") {
       return false;
@@ -54,6 +51,27 @@ async function loadPrecomputedLoadoutShards(datasheetIds, manifest = null) {
     const datasheetId = logicalPath.replace(/^precomputed-loadouts\//, "").replace(/\.json$/, "");
     return !requested.size || requested.has(datasheetId);
   });
+}
+
+async function loadPrecomputedLoadoutManifest(manifest = null) {
+  try {
+    return await loadBuilderDataJson("precomputed-loadouts/manifest.json", manifest);
+  } catch {
+    return null;
+  }
+}
+
+async function loadPrecomputedLoadoutShards(datasheetIds, manifest = null) {
+  const resolvedManifest = manifest || await loadBuilderDataManifest();
+  const requested = new Set((datasheetIds || []).filter(Boolean));
+  const precomputedManifest = await loadPrecomputedLoadoutManifest(resolvedManifest);
+  const entries = (precomputedManifest?.shards || []).filter((entry) => (
+    !requested.size || requested.has(entry.datasheetId)
+  ));
+  if (!entries.length && !precomputedManifest?.shards?.length) {
+    return Promise.all(topLevelPrecomputedShardEntries(resolvedManifest, requested)
+      .map((entry) => fetchJson(`/builder-data/${entry.path}`)));
+  }
   return Promise.all(entries.map((entry) => fetchJson(`/builder-data/${entry.path}`)));
 }
 

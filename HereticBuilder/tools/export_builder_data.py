@@ -743,6 +743,7 @@ def export_builder_data(db_path, out_dir):
         version = data_version(conn)
         counts = {table: table_count(conn, table) for table in CATALOG_TABLES}
         files = []
+        unlisted_files = []
 
         aliases = wargear_aliases(conn)
 
@@ -758,13 +759,23 @@ def export_builder_data(db_path, out_dir):
             "skippedContextCount": loadouts["skippedContextCount"],
             "shardCount": len(precomputed_shards),
             "datasheetIds": list(precomputed_shards),
+            "shards": [],
         }
-        record = write_hashed_json(out_dir, "precomputed-loadouts/manifest.json", precomputed_manifest)
-        files.append(file_entry(out_dir, record, logical_path="precomputed-loadouts/manifest.json"))
         for datasheet_id, shard in precomputed_shards.items():
             logical_path = f"precomputed-loadouts/{datasheet_id}.json"
             record = write_hashed_json(out_dir, logical_path, shard)
-            files.append(file_entry(out_dir, record, len(shard["contexts"]), logical_path))
+            entry = file_entry(out_dir, record, len(shard["contexts"]), logical_path)
+            precomputed_manifest["shards"].append({
+                "bytes": entry["bytes"],
+                "datasheetId": datasheet_id,
+                "logicalPath": entry["logicalPath"],
+                "path": entry["path"],
+                "rows": entry["rows"],
+                "sha256": entry["sha256"],
+            })
+            unlisted_files.append(entry)
+        record = write_hashed_json(out_dir, "precomputed-loadouts/manifest.json", precomputed_manifest)
+        files.append(file_entry(out_dir, record, logical_path="precomputed-loadouts/manifest.json"))
 
         unit_images = unit_images_payload(conn)
         record = write_hashed_json(out_dir, "unit-images.json", unit_images)
@@ -802,7 +813,7 @@ def export_builder_data(db_path, out_dir):
     }
     manifest_record = write_json(out_dir / "manifest.json", manifest)
 
-    all_files = [*files, file_entry(out_dir, manifest_record)]
+    all_files = [*files, *unlisted_files, file_entry(out_dir, manifest_record)]
     return BuilderDataExportResult(
         out_dir=out_dir,
         data_version=version,

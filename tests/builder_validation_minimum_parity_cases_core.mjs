@@ -9,7 +9,7 @@ export const minimumParityCoreCases = [
       "static Builder data export audit has no unexpected roster tables",
       "audit.excludedTables.length, 43",
       "static Builder data manifest lists every exported rule file with matching rows and hashes",
-      "precomputedEntries.length > 1 || legacyPrecomputedEntryCount === 1",
+      "precomputedEntries.length >= 1 || legacyPrecomputedEntryCount === 1",
       "tableEntries.length, Object.keys(tableCounts).length",
       "entry.sha256",
       "static Builder rule table column lists stay pinned",

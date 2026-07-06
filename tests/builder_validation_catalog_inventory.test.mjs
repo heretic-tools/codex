@@ -1561,7 +1561,7 @@ test("static Builder data manifest lists every exported rule file with matching 
     Object.keys(tableCounts).length + 3 + legacyPrecomputedEntryCount + precomputedEntries.length
   );
   assert.equal(tableEntries.length, Object.keys(tableCounts).length);
-  assert.ok(precomputedEntries.length > 1 || legacyPrecomputedEntryCount === 1);
+  assert.ok(precomputedEntries.length >= 1 || legacyPrecomputedEntryCount === 1);
   assert.ok(files.has("bootstrap.json"));
   assert.ok(files.has("precomputed-loadouts/manifest.json") || legacyPrecomputedEntryCount === 1);
   assert.ok(files.has("unit-images.json"));
@@ -1608,10 +1608,7 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     const loadoutManifestEntry = builderDataEntry(manifest, "precomputed-loadouts/manifest.json");
     assert.ok(loadoutManifestEntry);
     const loadouts = JSON.parse(readFileSync(join(outDir, loadoutManifestEntry.path), "utf8"));
-    const shardEntries = manifest.files.filter((entry) => (
-      entry.logicalPath?.startsWith("precomputed-loadouts/")
-      && entry.logicalPath !== "precomputed-loadouts/manifest.json"
-    ));
+    const shardEntries = loadouts.shards || [];
     const shardContexts = shardEntries.flatMap((entry) => {
       const shard = JSON.parse(readFileSync(join(outDir, entry.path), "utf8"));
       assert.equal(entry.rows, shard.contexts.length);
@@ -1622,6 +1619,10 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     assert.ok(manifest.files.length > 0);
     assert.ok(manifest.files.every((entry) => entry.logicalPath));
     assert.ok(manifest.files.some((entry) => entry.logicalPath === "precomputed-loadouts/manifest.json" && entry.path !== entry.logicalPath));
+    assert.equal(
+      manifest.files.some((entry) => entry.logicalPath?.startsWith("precomputed-loadouts/") && entry.logicalPath !== "precomputed-loadouts/manifest.json"),
+      false
+    );
     assert.ok(shardEntries.every((entry) => entry.path !== entry.logicalPath));
     assert.ok(manifest.files.some((entry) => entry.logicalPath?.startsWith("tables/") && entry.path !== entry.logicalPath));
     assert.deepEqual(
