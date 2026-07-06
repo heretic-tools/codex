@@ -1744,6 +1744,11 @@ browser smoke test.
   `builder_roster_unit_enhancement_options.js`. The DOM renderer now only
   paints precomputed rows, while option-model tests prove invalid non-current
   Enhancement choices are disabled and current invalid choices stay visible.
+- 2026-07-06: Split unit-detail Warlord select row construction out of
+  `builder_roster_unit_warlord_editor.js` into
+  `builder_roster_unit_warlord_options.js`. The editor now renders a
+  precomputed model, and option-model tests cover invalid and current-invalid
+  unit-level Warlord choices.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and

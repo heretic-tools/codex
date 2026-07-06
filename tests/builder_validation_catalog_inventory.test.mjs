@@ -1467,8 +1467,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(rosterWarlordOptionsSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
 
     const unitWarlordEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_warlord_editor.js"), "utf8");
-    assert.match(unitWarlordEditorSource, new RegExp(`\\.\\/builder_roster_warlord_options\\.js\\?v=${version}`));
-    assert.match(unitWarlordEditorSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
+    assert.match(unitWarlordEditorSource, new RegExp(`\\.\\/builder_roster_unit_warlord_options\\.js\\?v=${version}`));
+
+    const unitWarlordOptionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_warlord_options.js"), "utf8");
+    assert.match(unitWarlordOptionsSource, new RegExp(`\\.\\/builder_roster_warlord_options\\.js\\?v=${version}`));
+    assert.match(unitWarlordOptionsSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
 
     const rosterValidationActionsSource = readFileSync(join(outDir, "static", "builder_roster_validation_actions.js"), "utf8");
     assert.match(rosterValidationActionsSource, new RegExp(`\\.\\/builder_roster_validation_action_scroll\\.js\\?v=${version}`));

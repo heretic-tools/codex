@@ -11,6 +11,7 @@ import {
 } from "./builder_validation_helpers.mjs";
 import { allegianceEditorOptions } from "../HereticBuilder/static/builder_roster_unit_allegiance_options.js";
 import { enhancementSelectRows } from "../HereticBuilder/static/builder_roster_unit_enhancement_options.js";
+import { unitWarlordSelectModel } from "../HereticBuilder/static/builder_roster_unit_warlord_options.js";
 import { warlordPickerModel } from "../HereticBuilder/static/builder_roster_warlord_options.js";
 
 function warlordValue(unit) {
@@ -85,6 +86,52 @@ test("warlord picker keeps the current invalid candidate visible and enabled", (
   const intercessorOption = model.options.find((row) => row.value === warlordValue(intercessor));
 
   assert.equal(model.currentValue, warlordValue(intercessor));
+  assert.equal(intercessorOption.disabled, false);
+  assert.match(intercessorOption.label, /not eligible/);
+});
+
+test("unit warlord select model disables invalid non-current candidates", () => {
+  state.catalog = realCatalog;
+  const intercessor = enhancementTargetUnit({
+    id: "unit-warlord-intercessor",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const roster = {
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [intercessor],
+  };
+
+  const model = unitWarlordSelectModel(roster, intercessor);
+  const intercessorOption = model.options.find((row) => row.value === intercessor.miniatures[0].rosterUnitMiniatureId);
+
+  assert.equal(intercessorOption.disabled, true);
+  assert.match(intercessorOption.label, /not eligible/);
+});
+
+test("unit warlord select model keeps the current invalid candidate visible and enabled", () => {
+  state.catalog = realCatalog;
+  const intercessor = enhancementTargetUnit({
+    id: "current-unit-warlord-intercessor",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+    isWarlord: true,
+  });
+  const roster = {
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [intercessor],
+  };
+
+  const model = unitWarlordSelectModel(roster, intercessor);
+  const intercessorOption = model.options.find((row) => row.value === intercessor.miniatures[0].rosterUnitMiniatureId);
+
+  assert.equal(model.currentId, intercessor.miniatures[0].rosterUnitMiniatureId);
   assert.equal(intercessorOption.disabled, false);
   assert.match(intercessorOption.label, /not eligible/);
 });
