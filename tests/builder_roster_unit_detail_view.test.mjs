@@ -8,6 +8,9 @@ const {
   validationWithoutMessages,
 } = await import("../HereticBuilder/static/builder_roster_unit_detail_view.js");
 const {
+  wargearScopeHasContent,
+} = await import("../HereticBuilder/static/builder_roster_unit_wargear_section_view.js");
+const {
   unitValidationActionLabel,
 } = await import("../HereticBuilder/static/builder_roster_unit_detail_actions.js");
 
@@ -89,4 +92,33 @@ test("unit detail separates current-unit validation from other roster issues", (
       state: "valid",
     }
   );
+});
+
+test("unit wargear section hides empty scopes unless they carry wargear validation", () => {
+  const emptyValidation = { messages: [] };
+  const modelTarget = { rosterUnitMiniatureId: "model-1" };
+
+  assert.equal(wargearScopeHasContent([], {}, emptyValidation), false);
+  assert.equal(wargearScopeHasContent([{ id: "group-1" }], {}, emptyValidation), true);
+  assert.equal(wargearScopeHasContent([], modelTarget, {
+    messages: [{
+      code: "wargear_loadout.invalid_miniature_wargear_loadout",
+      level: "error",
+      scope: { targetIds: ["model-1"] },
+    }],
+  }), true);
+  assert.equal(wargearScopeHasContent([], modelTarget, {
+    messages: [{
+      code: "enhancement.model_does_not_have_required_keywords",
+      level: "error",
+      scope: { targetIds: ["model-1"] },
+    }],
+  }), false);
+  assert.equal(wargearScopeHasContent([], {}, {
+    messages: [{
+      code: "wargear_loadout.invalid_wargear_requirement",
+      level: "error",
+      scope: {},
+    }],
+  }), true);
 });
