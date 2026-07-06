@@ -186,6 +186,25 @@ const PAYLOAD_EXCLUDED_COLUMNS = {
     "publicationId",
     "rules",
   ],
+  "detachment": [
+    "bannerImage",
+    "isFreeFromEntitlements",
+    "publicationId",
+    "rowImage",
+  ],
+  "publication": [
+    "combatPatrolName",
+    "displayOrder",
+    "errataDate",
+    "factionBackgroundImage",
+    "factionKeywordId",
+    "productId",
+  ],
+  "wargear_item": [
+    "noMultiProfileIcon",
+    "ruleText",
+    "wargearType",
+  ],
 };
 
 const BUILDER_PAYLOAD_TABLE_COLUMNS = Object.fromEntries(
