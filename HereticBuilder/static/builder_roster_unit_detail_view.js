@@ -80,7 +80,10 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
   if (enhancementsEditor) {
     sidebar.appendChild(enhancementsEditor);
   }
-  root.append(stickySummary, sidebar, wargear);
+  root.append(stickySummary, sidebar);
+  if (wargear) {
+    root.appendChild(wargear);
+  }
   if (focusTarget) {
     window.requestAnimationFrame(() => scrollToUnitDetailTarget(focusTarget));
   }

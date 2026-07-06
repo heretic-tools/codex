@@ -57,7 +57,7 @@ function renderRosterUnitWargearSection({ onUndoableUpdate = null, onUpdate, ros
     validation,
     validationContext,
   }) ? 1 : 0;
-  for (const miniature of unit.miniatures) {
+  for (const miniature of unit.miniatures || []) {
     renderedScopes += appendWargearScope(wargear, {
       groups: wargearGroupsFor(unit, miniature.miniatureId),
       heading: `${miniature.name} (${miniature.count || 0})`,
@@ -71,10 +71,7 @@ function renderRosterUnitWargearSection({ onUndoableUpdate = null, onUpdate, ros
     }) ? 1 : 0;
   }
   if (!renderedScopes) {
-    const empty = document.createElement("p");
-    empty.className = "empty-list";
-    empty.textContent = "No wargear options";
-    wargear.appendChild(empty);
+    return null;
   }
   return wargear;
 }

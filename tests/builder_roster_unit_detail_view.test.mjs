@@ -161,7 +161,7 @@ test("unit wargear section hides empty scopes unless they carry wargear validati
   }), true);
 });
 
-test("unit wargear renderer uses flat sections without nested builder-section cards", () => {
+test("unit wargear section hides when no scopes render", () => {
   const previousDocument = global.document;
   global.document = {
     createElement: createMockElement,
@@ -171,6 +171,31 @@ test("unit wargear renderer uses flat sections without nested builder-section ca
   state.catalog = {
     ...previousCatalog,
     wargearGroupsByDatasheetId: new Map(),
+  };
+
+  try {
+    assert.equal(renderRosterUnitWargearSection({
+      roster: {},
+      unit: { datasheetId: "datasheet-1", miniatures: [] },
+      validation: { messages: [] },
+      validationContext: {},
+    }), null);
+  } finally {
+    global.document = previousDocument;
+    state.catalog = previousCatalog;
+  }
+});
+
+test("unit wargear renderer uses flat sections without nested builder-section cards", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+    querySelector: () => null,
+  };
+  const previousCatalog = state.catalog;
+  state.catalog = {
+    ...previousCatalog,
+    wargearGroupsByDatasheetId: new Map([["datasheet-1", [{ id: "group-1", datasheetId: "datasheet-1" }]]]),
   };
 
   try {
