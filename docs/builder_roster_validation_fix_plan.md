@@ -1409,6 +1409,11 @@ browser smoke test.
   `builder_wargear_all_model_family_checks.js` into
   `builder_wargear_all_model_family_results.js`. Family mutation and final
   invalid/target-id projection are now separate.
+- 2026-07-06: Split unit picker select option rendering out of
+  `builder_roster_unit_controls.js` into
+  `builder_roster_unit_control_options.js`. The controls module now assembles
+  search/select/Add widgets while the helper refreshes optgroups and empty
+  states.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

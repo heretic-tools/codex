@@ -1,11 +1,9 @@
-import { button, option } from "./builder_dom.js";
+import { button } from "./builder_dom.js";
 import { rosterWithAddedUnit } from "./builder_roster_actions.js";
 import {
   parseUnitOptionValue,
-  unitCandidateGroups,
-  unitOptionText,
-  unitOptionValue,
 } from "./builder_roster_unit_candidates.js";
+import { refreshUnitControlOptions } from "./builder_roster_unit_control_options.js";
 
 function renderUnitControls({ newId, onUpdate, roster, validation }) {
   const search = document.createElement("input");
@@ -25,25 +23,7 @@ function renderUnitControls({ newId, onUpdate, roster, validation }) {
     }));
   });
   const refreshOptions = () => {
-    const groups = unitCandidateGroups(roster, validation, search.value);
-    const nodes = groups.map((group) => {
-      const optgroup = document.createElement("optgroup");
-      optgroup.label = group.source.label;
-      optgroup.replaceChildren(...group.rows.map((row) => option(
-        unitOptionValue(row.allyType, row.datasheet.id),
-        unitOptionText(roster, row.allyType, row.datasheet, row.status)
-      )));
-      return optgroup;
-    });
-    if (!nodes.length) {
-      const empty = option("", search.value.trim() ? "No matching units" : "No units available");
-      empty.disabled = true;
-      nodes.push(empty);
-    }
-    unitSelect.replaceChildren(...nodes);
-    add.disabled = !groups.length;
-    unitSelect.disabled = !groups.length;
-    clearSearch.hidden = !search.value;
+    refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelect, validation });
   };
   const clearSearch = button("remove-button search-clear-button", "x", () => {
     search.value = "";
