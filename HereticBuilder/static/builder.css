@@ -372,7 +372,7 @@
 
 .unit-detail-art-frame {
   width: 100%;
-  height: 92px;
+  height: 72px;
   flex-basis: auto;
   margin-bottom: 6px;
 }
@@ -1108,14 +1108,41 @@
   border-radius: var(--builder-radius);
 }
 
-.unit-overview-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 5px;
+.unit-overview-summary {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
 }
 
-.unit-overview-metrics .metric-line {
-  padding: 6px 7px;
+.unit-overview-metric {
+  min-width: 112px;
+  min-height: 32px;
+  flex: 1 1 112px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 8px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.unit-overview-metric + .unit-overview-metric {
+  border-left: 1px solid var(--builder-border);
+}
+
+.unit-overview-metric-label {
+  color: var(--app-muted, #697078);
+  font-weight: 760;
+}
+
+.unit-overview-metric strong {
+  font-family: var(--builder-mono);
+  font-size: 13px;
 }
 
 .unit-overview-actions {

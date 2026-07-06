@@ -1,4 +1,4 @@
-import { button, metricLine, textNode } from "./builder_dom.js";
+import { button, textNode } from "./builder_dom.js";
 import { unitSummary } from "./builder_model.js";
 import { rosterWithUnitDefaultWargear } from "./builder_roster_actions.js";
 import { ensurePrecomputedLoadoutsForDatasheets } from "./builder_precomputed_loadouts_runtime.js";
@@ -24,6 +24,16 @@ function resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate = nul
   });
 }
 
+function unitOverviewMetric(label, value) {
+  const metric = document.createElement("span");
+  metric.className = "unit-overview-metric";
+  metric.append(
+    textNode("span", "unit-overview-metric-label", label),
+    textNode("strong", "", value)
+  );
+  return metric;
+}
+
 function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
   const overview = document.createElement("section");
   overview.className = "builder-section unit-overview-card";
@@ -32,10 +42,10 @@ function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, u
     overview.appendChild(image);
   }
   const metrics = document.createElement("div");
-  metrics.className = "unit-overview-metrics";
+  metrics.className = "unit-overview-summary";
   metrics.append(
-    metricLine("Points", String(unit.points || 0)),
-    metricLine("Models", String(unit.modelCount || 0))
+    unitOverviewMetric("Points", String(unit.points || 0)),
+    unitOverviewMetric("Models", String(unit.modelCount || 0))
   );
   const compositionEditor = renderCompositionEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext });
   overview.appendChild(metrics);
@@ -62,4 +72,4 @@ function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, u
   return overview;
 }
 
-export { renderRosterUnitOverview, resetWargearFromOverview, unitDisplayName };
+export { renderRosterUnitOverview, resetWargearFromOverview, unitDisplayName, unitOverviewMetric };

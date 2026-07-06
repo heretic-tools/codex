@@ -22,6 +22,7 @@ import {
 import {
   renderRosterUnitOverview,
   resetWargearFromOverview,
+  unitOverviewMetric,
 } from "../HereticBuilder/static/builder_roster_unit_overview_view.js";
 import {
   updateWargearCountFromEditor,
@@ -283,6 +284,36 @@ test("unit overview keeps only local actions when breadcrumbs handle navigation"
 
     const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
     assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit overview metrics render as compact summary cells", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const metric = unitOverviewMetric("Points", "90");
+    assert.equal(metric.className, "unit-overview-metric");
+    assert.equal(metric.children[0].className, "unit-overview-metric-label");
+    assert.equal(metric.children[0].textContent, "Points");
+    assert.equal(metric.children[1].tagName, "strong");
+    assert.equal(metric.children[1].textContent, "90");
+
+    const { roster, unit } = rosterWithCompositionCount(1);
+    const overview = renderRosterUnitOverview({
+      onUpdate: () => {},
+      roster,
+      unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+    const summary = flatNodes(overview).find((node) => node.className === "unit-overview-summary");
+    assert.ok(summary);
+    assert.equal(summary.children.length, 2);
   } finally {
     global.document = previousDocument;
   }
