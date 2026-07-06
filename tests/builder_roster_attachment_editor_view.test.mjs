@@ -3,7 +3,10 @@ import test from "node:test";
 
 import { withCatalog } from "./builder_validation_helpers.mjs";
 
-const { attachmentUnavailableMessage } = await import("../HereticBuilder/static/builder_roster_attachment_editor_view.js");
+const {
+  attachmentControlsAvailable,
+  attachmentUnavailableMessage,
+} = await import("../HereticBuilder/static/builder_roster_attachment_editor_view.js");
 
 function attachmentCatalog() {
   return {
@@ -73,4 +76,9 @@ test("attached unit empty state stays terse when valid pairs exist", () => {
   withCatalog(attachmentCatalog(), () => {
     assert.equal(attachmentUnavailableMessage(roster, units), "No attached units");
   });
+});
+
+test("attached unit controls render only when a valid bodyguard exists", () => {
+  assert.equal(attachmentControlsAvailable([]), false);
+  assert.equal(attachmentControlsAvailable([{ id: "bodyguard" }]), true);
 });

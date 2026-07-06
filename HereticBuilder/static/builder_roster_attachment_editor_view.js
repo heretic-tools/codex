@@ -10,6 +10,10 @@ import {
   sectionTitle,
 } from "./builder_roster_editor_dom.js";
 
+function attachmentControlsAvailable(bodyguards) {
+  return Boolean(bodyguards.length);
+}
+
 function renderAttachmentEditor({ newId, onUnitOpen, onUpdate, roster, validation }) {
   const root = document.createElement("section");
   root.className = "builder-section";
@@ -31,8 +35,10 @@ function renderAttachmentEditor({ newId, onUnitOpen, onUpdate, roster, validatio
   }
   root.appendChild(list);
 
-  root.appendChild(renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, unitsById }));
+  if (attachmentControlsAvailable(bodyguards)) {
+    root.appendChild(renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, unitsById }));
+  }
   return root;
 }
 
-export { attachmentUnavailableMessage, renderAttachmentEditor };
+export { attachmentControlsAvailable, attachmentUnavailableMessage, renderAttachmentEditor };
