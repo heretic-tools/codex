@@ -969,6 +969,9 @@ browser smoke test.
   `builder_attachment_rules.js` into `builder_attachment_membership_rules.js`.
   The public validator now delegates repeated-unit membership diagnostics before
   checking incomplete groups, must-attach cases, and pair attachability.
+- 2026-07-06: Split attached-unit validation diagnostic construction out of
+  `builder_attachment_rules.js` into `builder_attachment_validation_messages.js`,
+  keeping the validator focused on group shape and pair attachability.
 - 2026-07-05: Split unit-detail Wargear rendering and scope-local validation
   display out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_wargear_view.js`, leaving the main detail view focused on
@@ -1090,6 +1093,10 @@ browser smoke test.
   `builder_datasheet_combat_patrol.js`. The availability list now composes
   native/allied filtering, detachment exclusions, Combat Patrol hiding, and
   composition availability through focused helpers.
+- 2026-07-06: Split datasheet faction/detachment exclusion predicates out of
+  `builder_datasheet_faction_filters.js` into `builder_datasheet_exclusions.js`,
+  preserving existing availability exports while separating native-faction
+  matching from explicit exclusion rows.
 - 2026-07-05: Split pure loadout count arithmetic out of
   `builder_loadout_math.js` into `builder_loadout_counts.js`. The public
   loadout exports stay unchanged while the rule-facing module is smaller and
@@ -1201,6 +1208,10 @@ browser smoke test.
   Rule-index construction still returns the same catalog shape, but by-id,
   grouped, precomputed-loadout, and unit-image maps can now be audited apart
   from the long list of official-rule indexes.
+- 2026-07-06: Split special catalog indexes for Wargear aliases, precomputed
+  loadouts, and unit images out of `builder_catalog_index_helpers.js` into
+  `builder_catalog_special_indexes.js`, leaving the helper module with only
+  generic `byId` and `groupBy` primitives.
 - 2026-07-05: Split catalog index construction into ID/precomputed indexes and
   grouped rule indexes. `builder_catalog_indexes.js` is now only a facade that
   composes `builder_catalog_id_indexes.js` and

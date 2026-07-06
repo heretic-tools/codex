@@ -672,6 +672,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const catalogIdIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_id_indexes.js"), "utf8");
     assert.match(catalogIdIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
+    assert.match(catalogIdIndexesSource, new RegExp(`\\.\\/builder_catalog_special_indexes\\.js\\?v=${version}`));
 
     const catalogGroupIndexesSource = readFileSync(join(outDir, "static", "builder_catalog_group_indexes.js"), "utf8");
     assert.match(catalogGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_allied_group_indexes\\.js\\?v=${version}`));
@@ -951,6 +952,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(datasheetAvailabilitySource, new RegExp(`\\.\\/builder_model_compositions\\.js\\?v=${version}`));
     assert.match(datasheetAvailabilitySource, new RegExp(`\\.\\/builder_allied_unit_sources\\.js\\?v=${version}`));
 
+    const datasheetFactionFiltersSource = readFileSync(join(outDir, "static", "builder_datasheet_faction_filters.js"), "utf8");
+    assert.match(datasheetFactionFiltersSource, new RegExp(`\\.\\/builder_datasheet_exclusions\\.js\\?v=${version}`));
+
+    const datasheetExclusionsSource = readFileSync(join(outDir, "static", "builder_datasheet_exclusions.js"), "utf8");
+    assert.match(datasheetExclusionsSource, new RegExp(`\\.\\/builder_model_core\\.js\\?v=${version}`));
+    assert.match(datasheetExclusionsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+
     const enhancementRulesSource = readFileSync(join(outDir, "static", "builder_enhancement_rules.js"), "utf8");
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_eligibility\\.js\\?v=${version}`));
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_limit_rules\\.js\\?v=${version}`));
@@ -999,6 +1007,10 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(attachmentRulesSource, new RegExp(`\\.\\/builder_attachment_matchers\\.js\\?v=${version}`));
     assert.match(attachmentRulesSource, new RegExp(`\\.\\/builder_attachment_enhancement_rules\\.js\\?v=${version}`));
     assert.match(attachmentRulesSource, new RegExp(`\\.\\/builder_attachment_membership_rules\\.js\\?v=${version}`));
+    assert.match(attachmentRulesSource, new RegExp(`\\.\\/builder_attachment_validation_messages\\.js\\?v=${version}`));
+
+    const attachmentValidationMessagesSource = readFileSync(join(outDir, "static", "builder_attachment_validation_messages.js"), "utf8");
+    assert.match(attachmentValidationMessagesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
 
     const attachmentEnhancementRulesSource = readFileSync(join(outDir, "static", "builder_attachment_enhancement_rules.js"), "utf8");
     assert.match(attachmentEnhancementRulesSource, new RegExp(`\\.\\/builder_attachment_matchers\\.js\\?v=${version}`));

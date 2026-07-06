@@ -1,9 +1,9 @@
+import { byId } from "./builder_catalog_index_helpers.js";
 import {
-  byId,
   precomputedLoadoutsByContext,
   unitImagesByDatasheetId,
   wargearAliasesByContext,
-} from "./builder_catalog_index_helpers.js";
+} from "./builder_catalog_special_indexes.js";
 
 function buildCatalogIdIndexes(bootstrap, tables) {
   const {
