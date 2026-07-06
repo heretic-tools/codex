@@ -12,7 +12,7 @@ function unitDisplayName(roster, unit) {
   return unitSummary(roster, unit).name || "Unit";
 }
 
-function renderRosterUnitOverview({ onBack, onUpdate, otherIssueCount, roster, unit, validation, validationContext }) {
+function renderRosterUnitOverview({ onBack, onUpdate, roster, unit, validation, validationContext }) {
   const overview = document.createElement("section");
   overview.className = "builder-section";
   overview.appendChild(textNode("h2", "section-title", unit.name));
@@ -29,9 +29,6 @@ function renderRosterUnitOverview({ onBack, onUpdate, otherIssueCount, roster, u
   const allegianceEditor = renderAllegianceEditor({ onUpdate, roster, unit, validation, validationContext });
   if (allegianceEditor) {
     overview.appendChild(allegianceEditor);
-  }
-  if (otherIssueCount) {
-    overview.appendChild(metricLine("Roster Issues", String(otherIssueCount)));
   }
   overview.append(
     button("plain-button", "Reset Wargear", async () => onUpdate(rosterWithUnitDefaultWargear(roster, unit.id))),

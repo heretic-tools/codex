@@ -10,11 +10,22 @@ import { renderEnhancementsEditor } from "./builder_roster_unit_detail_editors.j
 import { renderRosterUnitOverview, unitDisplayName } from "./builder_roster_unit_overview_view.js";
 import { renderRosterUnitWargearSection } from "./builder_roster_unit_wargear_section_view.js";
 
+function validationWithoutMessages(validation, excludedMessages) {
+  const excluded = new Set(excludedMessages || []);
+  const messages = (validation.messages || []).filter((message) => !excluded.has(message));
+  return {
+    ...validation,
+    messages,
+    state: messages.some((message) => message.level === "error") ? "invalid" : "valid",
+  };
+}
+
 function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster, unit, validation }) {
   const summary = unitSummary(roster, unit);
   const unitValidation = validationForUnit(validation, summary);
+  const otherValidation = validationWithoutMessages(validation, unitValidation.messages);
   const validationContext = validationContextForRoster(roster);
-  const otherIssueCount = Math.max(0, (validation.messages || []).length - unitValidation.messages.length);
+  const otherIssueCount = otherValidation.messages.length;
   const root = document.createElement("section");
   root.className = "builder-grid";
 
@@ -24,7 +35,6 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster
   const overview = renderRosterUnitOverview({
     onBack,
     onUpdate,
-    otherIssueCount,
     roster,
     unit: summary,
     validation: unitValidation,
@@ -44,15 +54,21 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster
       context: validationContext,
       groupAction: renderUnitValidationAction,
       title: "Unit Validation",
-    }),
-    renderEnhancementsEditor({
-      onUpdate,
-      roster,
-      unit: summary,
-      validation: unitValidation,
-      validationContext,
     })
   );
+  if (otherIssueCount) {
+    sidebar.appendChild(renderValidation(otherValidation, {
+      context: validationContext,
+      title: "Roster Issues",
+    }));
+  }
+  sidebar.appendChild(renderEnhancementsEditor({
+    onUpdate,
+    roster,
+    unit: summary,
+    validation: unitValidation,
+    validationContext,
+  }));
   root.append(sidebar, wargear);
   if (focusTarget) {
     window.requestAnimationFrame(() => scrollToUnitDetailTarget(focusTarget));
@@ -60,4 +76,9 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster
   return root;
 }
 
-export { renderRosterUnitDetailView, unitDisplayName, unitValidationActionTarget };
+export {
+  renderRosterUnitDetailView,
+  unitDisplayName,
+  unitValidationActionTarget,
+  validationWithoutMessages,
+};

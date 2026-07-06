@@ -882,6 +882,10 @@ browser smoke test.
   actions. Single-unit diagnostics can now navigate to `/unit/<id>/focus/<target>`
   and immediately highlight the matching Wargear, Enhancement, Warlord,
   Allegiance, or Composition control without adding route state outside the hash.
+- 2026-07-06: Added a read-only `Roster Issues` block to the unit-detail page.
+  Unit-scoped diagnostics still render under `Unit Validation`, while unrelated
+  roster/global diagnostics are visible without returning to the roster editor or
+  caching any extra validation state.
 - 2026-07-05: Added target-aware unit-detail Wargear navigation. Grouped
   diagnostics now carry `targetIds`, and model-scoped wargear messages can jump
   directly to the affected model's Wargear section instead of only the broad

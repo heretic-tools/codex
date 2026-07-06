@@ -3,7 +3,10 @@ import test from "node:test";
 
 global.document = { querySelector: () => null };
 
-const { unitValidationActionTarget } = await import("../HereticBuilder/static/builder_roster_unit_detail_view.js");
+const {
+  unitValidationActionTarget,
+  validationWithoutMessages,
+} = await import("../HereticBuilder/static/builder_roster_unit_detail_view.js");
 
 test("unit validation actions route diagnostics to unit detail editors", () => {
   const cases = [
@@ -44,5 +47,33 @@ test("unit validation actions route target-scoped enhancement diagnostics to the
       targetIds: ["model-1"],
     }),
     { target: "enhancement:model-1", text: "Enhancements" }
+  );
+});
+
+test("unit detail separates current-unit validation from other roster issues", () => {
+  const unitMessage = { code: "unit.issue", level: "error", text: "unit issue" };
+  const rosterWarning = { code: "roster.warning", level: "warning", text: "roster warning" };
+  const rosterError = { code: "roster.error", level: "error", text: "roster error" };
+
+  assert.deepEqual(
+    validationWithoutMessages({
+      messages: [unitMessage, rosterWarning, rosterError],
+      state: "invalid",
+    }, [unitMessage]),
+    {
+      messages: [rosterWarning, rosterError],
+      state: "invalid",
+    }
+  );
+
+  assert.deepEqual(
+    validationWithoutMessages({
+      messages: [unitMessage, rosterWarning],
+      state: "invalid",
+    }, [unitMessage]),
+    {
+      messages: [rosterWarning],
+      state: "valid",
+    }
   );
 });
