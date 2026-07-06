@@ -1,4 +1,4 @@
-import { formatAttachmentList } from "./builder_roster_attachment_types.js";
+import { formatAttachmentList } from "./builder_roster_attachment_list_format.js";
 
 function namesForFailures(failures, type) {
   return failures

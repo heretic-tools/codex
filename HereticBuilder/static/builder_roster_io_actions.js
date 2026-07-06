@@ -4,6 +4,7 @@ import {
   refreshRosters,
   rosterWithFreshListCache,
 } from "./builder_roster_runtime.js";
+import { newRosterDocument } from "./builder_roster_create_model.js";
 import { state } from "./builder_state.js";
 import { newId, removeRoster, saveRoster } from "./builder_storage.js";
 export {
@@ -13,23 +14,11 @@ export {
 
 async function createRoster(values) {
   const now = new Date().toISOString();
-  const roster = {
-    id: newId(),
-    name: values.name,
-    factionKeywordId: values.factionKeywordId,
-    battleSizeId: values.battleSizeId,
-    detachmentIds: [],
-    units: [],
-    attachments: [],
-    createdAt: now,
-    modifiedAt: now,
+  const roster = newRosterDocument(values, {
     dataVersion: state.catalog.bootstrap.dataVersion,
-    listSummary: {
-      detachmentPoints: 0,
-      pointsTotal: 0,
-      validationState: "invalid",
-    },
-  };
+    id: newId(),
+    now,
+  });
   await saveRoster(roster);
   await refreshRosters();
   navigate(`/roster/${encodeURIComponent(roster.id)}`);

@@ -644,12 +644,19 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const rosterIoSource = readFileSync(join(outDir, "static", "builder_roster_io_actions.js"), "utf8");
     assert.match(rosterIoSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
+    assert.match(rosterIoSource, new RegExp(`\\.\\/builder_roster_create_model\\.js\\?v=${version}`));
     assert.match(rosterIoSource, new RegExp(`\\.\\/builder_roster_transfer_actions\\.js\\?v=${version}`));
 
     const rosterTransferActionsSource = readFileSync(join(outDir, "static", "builder_roster_transfer_actions.js"), "utf8");
     assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
     assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_catalog_runtime\\.js\\?v=${version}`));
+    assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_roster_export_download\\.js\\?v=${version}`));
+    assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_roster_import_save\\.js\\?v=${version}`));
     assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
+
+    const rosterImportSaveSource = readFileSync(join(outDir, "static", "builder_roster_import_save.js"), "utf8");
+    assert.match(rosterImportSaveSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
+    assert.match(rosterImportSaveSource, new RegExp(`\\.\\/builder_storage\\.js\\?v=${version}`));
 
     const catalogRuntimeSource = readFileSync(join(outDir, "static", "builder_catalog_runtime.js"), "utf8");
     assert.match(catalogRuntimeSource, new RegExp(`\\.\\/builder_catalog\\.js\\?v=${version}`));
@@ -1319,9 +1326,15 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(attachmentFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_failure_messages\\.js\\?v=${version}`));
     assert.match(attachmentFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_rule_failures\\.js\\?v=${version}`));
 
+    const attachmentFailureMessagesSource = readFileSync(join(outDir, "static", "builder_roster_attachment_failure_messages.js"), "utf8");
+    assert.match(attachmentFailureMessagesSource, new RegExp(`\\.\\/builder_roster_attachment_list_format\\.js\\?v=${version}`));
+
+    const attachmentListFormatSource = readFileSync(join(outDir, "static", "builder_roster_attachment_list_format.js"), "utf8");
+    assert.match(attachmentListFormatSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+
     const attachmentRuleFailuresSource = readFileSync(join(outDir, "static", "builder_roster_attachment_rule_failures.js"), "utf8");
     assert.match(attachmentRuleFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_rule_catalog\\.js\\?v=${version}`));
-    assert.match(attachmentRuleFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_types\\.js\\?v=${version}`));
+    assert.match(attachmentRuleFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_list_format\\.js\\?v=${version}`));
 
     const attachmentRuleCatalogSource = readFileSync(join(outDir, "static", "builder_roster_attachment_rule_catalog.js"), "utf8");
     assert.match(attachmentRuleCatalogSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));

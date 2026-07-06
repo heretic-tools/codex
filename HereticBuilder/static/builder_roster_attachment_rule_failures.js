@@ -4,7 +4,7 @@ import {
   bodyguardKeywordIdsForRule,
   nameForId,
 } from "./builder_roster_attachment_rule_catalog.js";
-import { formatAttachmentList } from "./builder_roster_attachment_types.js";
+import { formatAttachmentList } from "./builder_roster_attachment_list_format.js";
 
 function attachmentRuleFailures(roster, detachmentIds, row, attachedUnit, bodyguardUnit) {
   const failures = [];

@@ -960,6 +960,10 @@ browser smoke test.
   `builder_roster_attachment_failures.js`. The options module is now a small UI
   candidate facade, while the rule diagnostics remain cache-busted for
   standalone GitHub Pages builds.
+- 2026-07-06: Split attached-unit list formatting out of
+  `builder_roster_attachment_types.js` into
+  `builder_roster_attachment_list_format.js`, so type labels/role helpers no
+  longer own failure-message list copy.
 - 2026-07-05: Split attached-unit validation matchers and attached-unit
   Enhancement restrictions out of `builder_attachment_rules.js`. The public
   attachment rule module still exports the same validation API, while
@@ -1136,6 +1140,14 @@ browser smoke test.
   `builder_roster_io_actions.js` into `builder_roster_transfer_actions.js`.
   Create/update/delete stay in the core roster action facade, while Export/Import
   keep their lazy transfer/rules/catalog loading in a focused module.
+- 2026-07-06: Split new-roster document construction out of
+  `builder_roster_io_actions.js` into `builder_roster_create_model.js`. Create
+  action now owns only timestamp/id assignment, save/refresh, and navigation.
+- 2026-07-06: Split roster transfer browser-download and import-save helpers out
+  of `builder_roster_transfer_actions.js` into
+  `builder_roster_export_download.js` and `builder_roster_import_save.js`. The
+  transfer action module now only orchestrates lazy parsing, catalog/rules
+  loading, and UI alert handling.
 - 2026-07-05: Removed the remaining attachment action fallback for old scalar
   membership fields (`leaderUnitId`, `bodyguardUnitId`, `attachedUnitId`,
   `targetUnitId`). Runtime attachment membership now reads only the current
