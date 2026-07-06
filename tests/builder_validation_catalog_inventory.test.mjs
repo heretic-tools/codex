@@ -809,9 +809,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const match = index.match(/\/builder\/static\/builder\.js\?v=([a-f0-9]{12})/);
     assert.ok(match, "Expected builder.js content hash in standalone HTML");
     const version = match[1];
+    assert.match(index, new RegExp(`/builder/static/theme\\.js\\?v=${version}`));
     assert.match(index, new RegExp(`/builder/static/builder\\.css\\?v=${version}`));
     assert.ok(existsSync(join(outDir, "static", "desktop.css")));
     assert.ok(existsSync(join(outDir, "static", "codex.css")));
+    assert.ok(existsSync(join(outDir, "static", "theme.js")));
     assert.ok(existsSync(join(outDir, "assets", "icons", "boosty.png")));
     assert.ok(existsSync(join(outDir, "assets", "unit-images")));
     assert.equal(existsSync(join(outDir, "static", "home.js")), false);

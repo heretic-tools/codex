@@ -28,6 +28,7 @@ from roster_builder_templates import render_template
 BUILDER_STATIC_SUPPORT_FILES = (
     "desktop.css",
     "codex.css",
+    "theme.js",
     "builder.css",
 )
 
@@ -80,7 +81,7 @@ def builder_asset_version():
         digest.update(path.name.encode("utf-8"))
         digest.update(path.read_bytes())
     for path in [
-        PROJECT_ROOT / "HereticBuilder" / "static" / "builder.css",
+        *(STATIC_ROOT / filename for filename in BUILDER_STATIC_SUPPORT_FILES),
         PROJECT_ROOT / "HereticBuilder" / "templates" / "builder.html",
     ]:
         digest.update(path.name.encode("utf-8"))

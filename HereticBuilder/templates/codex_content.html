@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ document_title }}</title>
+  <script src="/static/theme.js"></script>
   <link rel="stylesheet" href="/static/desktop.css">
   <link rel="stylesheet" href="/static/codex.css">
 </head>
@@ -12,6 +13,11 @@
     <section class="shell" aria-label="{{ title }}">
       <div class="title-bar {{ title_bar_class }}" role="button" tabindex="0" aria-label="{{ back_label }}" title="{{ back_label }}" data-up-href="{{ back_href }}"{{ title_bar_style_attr }}>
         <div class="title"><span class="window-title-text">{{ window_title }}</span></div>
+        <div class="title-actions">
+          <button class="theme-toggle" type="button" data-theme-toggle>
+            <span data-theme-toggle-label>Dark</span>
+          </button>
+        </div>
       </div>
 {{ breadcrumb_html }}
 

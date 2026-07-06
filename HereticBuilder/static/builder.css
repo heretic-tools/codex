@@ -10,6 +10,7 @@
   --builder-warn: var(--app-amber, #956b1f);
   --builder-border: var(--app-border, #d5d0c8);
   --builder-radius: var(--app-radius, 8px);
+  --builder-mono: var(--app-font-mono, monospace);
 }
 
 .builder-page {
@@ -285,7 +286,7 @@
   min-height: 34px;
   padding: 4px 6px;
   color: var(--builder-ink);
-  background: #fff;
+  background: var(--builder-paper);
   border-style: solid;
   border-width: 2px;
   border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
@@ -464,7 +465,7 @@
   min-height: 34px;
   padding: 4px 6px;
   color: var(--builder-ink);
-  background: #fff;
+  background: var(--builder-paper);
   border-style: solid;
   border-width: 2px;
   border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
@@ -591,7 +592,7 @@
   width: 58px;
   padding: 2px 4px;
   color: var(--builder-ink);
-  background: #fff;
+  background: var(--builder-paper);
   border-style: solid;
   border-width: 2px;
   border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
@@ -727,9 +728,10 @@
   min-width: 52px;
   padding: 5px 9px;
   color: var(--builder-blue);
-  background: rgba(40, 95, 159, .08);
-  border: 1px solid rgba(40, 95, 159, .18);
-  border-radius: 999px;
+  background: var(--builder-panel);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  font-family: var(--builder-mono);
   font-size: 12px;
   font-weight: 800;
 }
@@ -804,7 +806,8 @@
   padding: 3px 7px;
   background: var(--builder-panel);
   border: 1px solid var(--builder-border);
-  border-radius: 999px;
+  border-radius: 0;
+  font-family: var(--builder-mono);
   font-size: 11px;
   font-weight: 850;
   line-height: 1.1;
@@ -836,6 +839,7 @@
 
 .roster-overview-metric strong {
   min-width: 0;
+  font-family: var(--builder-mono);
   font-size: 13px;
   line-height: 1.15;
   overflow-wrap: anywhere;
@@ -871,7 +875,7 @@
   background: var(--builder-paper);
   border: 1px solid var(--builder-border);
   border-radius: var(--builder-radius);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, .78) inset;
+  box-shadow: none;
 }
 
 .builder-row {
@@ -926,7 +930,8 @@
 .disposition-badge {
   padding: 3px 7px;
   border: 1px solid var(--builder-border);
-  border-radius: 999px;
+  border-radius: 0;
+  font-family: var(--builder-mono);
   font-size: 11px;
   font-weight: 850;
   line-height: 1.1;
@@ -975,7 +980,7 @@
   min-height: 42px;
   padding: 8px 10px;
   color: var(--builder-ink);
-  background: #fff;
+  background: var(--builder-paper);
   border: 1px solid var(--builder-border);
   border-radius: var(--builder-radius);
   box-shadow: none;
@@ -987,21 +992,21 @@
 .field input:focus,
 .field select:focus,
 .wargear-option-row input[type="number"]:focus {
-  border-color: rgba(40, 95, 159, .68);
-  box-shadow: 0 0 0 3px rgba(40, 95, 159, .16);
+  border-color: var(--builder-blue);
+  box-shadow: none;
 }
 
 .remove-button {
   width: 32px;
   min-width: 32px;
   min-height: 32px;
-  border-radius: 50%;
+  border-radius: var(--builder-radius);
   font-size: 16px;
 }
 
 .roster-unit-art-frame {
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--builder-radius);
   background: var(--builder-panel);
 }
 
