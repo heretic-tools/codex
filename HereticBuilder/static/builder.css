@@ -470,10 +470,10 @@
 
 .roster-create-form {
   width: min(520px, 100%);
-  padding: 12px;
-  background: var(--builder-paper);
-  border: 1px solid var(--builder-border);
-  border-radius: var(--builder-radius);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
 .field {
