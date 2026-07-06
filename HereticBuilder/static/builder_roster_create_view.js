@@ -1,5 +1,16 @@
 import { button, field, option, textNode } from "./builder_dom.js";
 
+function rosterNameDate(value = new Date()) {
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
+}
+
+function defaultRosterName(factionName, value = new Date()) {
+  const name = String(factionName || "").trim() || "New";
+  const date = rosterNameDate(value);
+  return date ? `${name} Roster ${date}` : `${name} Roster`;
+}
+
 function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFactionId, factions, onBack, onSubmit }) {
   const form = document.createElement("form");
   form.className = "builder-form roster-create-form";
@@ -8,8 +19,11 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
   name.maxLength = 80;
   name.autocomplete = "off";
   name.placeholder = "Roster name";
-  name.value = "New Roster";
   name.autofocus = true;
+  let nameIsPristine = true;
+  name.addEventListener("input", () => {
+    nameIsPristine = false;
+  });
 
   const faction = document.createElement("select");
   faction.name = "factionKeywordId";
@@ -17,6 +31,13 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
     faction.appendChild(option(row.id, row.name));
   }
   faction.value = defaultFactionId || factions[0]?.id || "";
+  const factionName = () => factions.find((row) => row.id === faction.value)?.name || factions[0]?.name || "";
+  name.value = defaultRosterName(factionName());
+  faction.addEventListener("change", () => {
+    if (nameIsPristine) {
+      name.value = defaultRosterName(factionName());
+    }
+  });
 
   const battleSize = document.createElement("select");
   battleSize.name = "battleSizeId";
@@ -44,10 +65,10 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
     await onSubmit({
       battleSizeId: battleSize.value,
       factionKeywordId: faction.value,
-      name: name.value.trim() || "New Roster",
+      name: name.value.trim() || defaultRosterName(factionName()),
     });
   });
   return form;
 }
 
-export { renderRosterCreateView };
+export { defaultRosterName, renderRosterCreateView, rosterNameDate };
