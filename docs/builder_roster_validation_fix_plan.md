@@ -915,10 +915,11 @@ browser smoke test.
   payload. The full DB fingerprint still audits the source column, while the
   thin client keeps only the ids, names, ordering, group links, and required
   wargear flag used by validation and selection UI.
-- 2026-07-06: Slimmed the startup Builder data manifest by removing per-file
-  `bytes` and `sha256` from runtime entries. Integrity metadata now lives in
-  `audit.fileIntegrity`, so tests can still verify generated file bytes and
-  hashes without making GitHub Pages clients download audit-only fields.
+- 2026-07-06: Slimmed the startup Builder data manifest into a runtime path
+  map. Per-file `bytes`/`sha256`, DB source metadata, data version, generated
+  timestamp, and table-group audit metadata now live in `audit.json`, so tests
+  can still verify generated file bytes and hashes without making GitHub Pages
+  clients download audit-only fields.
 - 2026-07-06: Cached the hashed precomputed-loadout manifest promise in the
   Builder data loader. Repeated roster/unit editor actions can still fetch only
   the needed datasheet shards, but no longer re-read and re-parse the same

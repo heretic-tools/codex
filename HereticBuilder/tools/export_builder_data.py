@@ -917,9 +917,10 @@ def excluded_table_names(all_tables, exported_tables):
     return excluded
 
 
-def audit_payload(conn, all_tables, exported_tables, file_entries=()):
+def audit_payload(conn, all_tables, exported_tables, metadata, file_entries=()):
     excluded = excluded_table_names(all_tables, exported_tables)
     return {
+        **metadata,
         "integrityCheck": conn.execute("pragma integrity_check").fetchone()[0],
         "exportedTables": list(exported_tables),
         "excludedTables": [
@@ -956,6 +957,19 @@ def export_builder_data(db_path, out_dir):
             raise SystemExit("Missing client catalog audit tables: " + ", ".join(missing_client_tables))
 
         version = data_version(conn)
+        metadata = {
+            "exportSchemaVersion": EXPORT_SCHEMA_VERSION,
+            "dataVersion": version,
+            "generatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            "source": {
+                "database": db_path.name,
+                "sha256": db_sha256(db_path),
+            },
+            "tableGroups": {
+                "core": list(BUILDER_CLIENT_CORE_CATALOG_TABLES),
+                "factionHeavy": list(BUILDER_CLIENT_FACTION_HEAVY_CATALOG_TABLES),
+            },
+        }
         counts = {table: table_count(conn, table) for table in CATALOG_TABLES}
         files = []
         unlisted_files = []
@@ -1003,22 +1017,11 @@ def export_builder_data(db_path, out_dir):
             record = write_hashed_json(out_dir, logical_path, payload)
             files.append(file_entry(out_dir, record, len(rows), logical_path))
 
-        audit = audit_payload(conn, all_tables, set(CATALOG_TABLES), files)
+        audit = audit_payload(conn, all_tables, set(CATALOG_TABLES), metadata, files)
         record = write_json(out_dir / "audit.json", audit)
         files.append(file_entry(out_dir, record))
 
     manifest = {
-        "exportSchemaVersion": EXPORT_SCHEMA_VERSION,
-        "dataVersion": version,
-        "generatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "source": {
-            "database": db_path.name,
-            "sha256": db_sha256(db_path),
-        },
-        "tableGroups": {
-            "core": list(BUILDER_CLIENT_CORE_CATALOG_TABLES),
-            "factionHeavy": list(BUILDER_CLIENT_FACTION_HEAVY_CATALOG_TABLES),
-        },
         "files": [
             manifest_file_entry(item)
             for item in sorted(files, key=lambda item: item["path"])

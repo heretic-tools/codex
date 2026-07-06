@@ -743,6 +743,11 @@ test("static Builder data export audit has no unexpected roster tables", async (
   assert.equal(response.ok, true);
 
   const audit = await response.json();
+  assert.equal(audit.exportSchemaVersion, realCatalog.bootstrap.exportSchemaVersion);
+  assert.equal(audit.dataVersion, realCatalog.bootstrap.dataVersion);
+  assert.match(audit.generatedAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(audit.source.database, "heretic_db.sqlite");
+  assert.equal(audit.source.sha256.length, 64);
   assert.equal(audit.integrityCheck, "ok");
   assert.equal(audit.exportedTables.length, Object.keys(realCatalog.bootstrap.tableCounts).length);
   assert.equal(audit.excludedTables.length, 43);
@@ -1702,8 +1707,7 @@ test("static Builder data manifest lists every exported rule file without audit-
   ));
   const legacyPrecomputedEntryCount = files.has("precomputed-loadouts.json") ? 1 : 0;
 
-  assert.equal(manifest.exportSchemaVersion, realCatalog.bootstrap.exportSchemaVersion);
-  assert.equal(manifest.dataVersion, realCatalog.bootstrap.dataVersion);
+  assert.deepEqual(Object.keys(manifest).sort(), ["files"]);
   assert.equal(
     manifest.files.length,
     exportedTableNames.length + 2 + legacyPrecomputedEntryCount + precomputedEntries.length
@@ -1777,6 +1781,7 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     );
     const bootstrap = JSON.parse(readFileSync(join(outDir, "bootstrap.json"), "utf8"));
     const manifest = JSON.parse(readFileSync(join(outDir, "manifest.json"), "utf8"));
+    const audit = JSON.parse(readFileSync(join(outDir, "audit.json"), "utf8"));
     const exportedTableNames = exportedBuilderRuleTableNames();
     const loadoutManifestEntry = builderDataEntry(manifest, "precomputed-loadouts/manifest.json");
     assert.ok(loadoutManifestEntry);
@@ -1805,7 +1810,7 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     assert.ok(shardEntries.every((entry) => entry.path !== entry.logicalPath));
     assert.ok(manifest.files.some((entry) => entry.logicalPath?.startsWith("tables/") && entry.path !== entry.logicalPath));
     assert.deepEqual(
-      [...manifest.tableGroups.core, ...manifest.tableGroups.factionHeavy].sort(),
+      [...audit.tableGroups.core, ...audit.tableGroups.factionHeavy].sort(),
       exportedTableNames
     );
     assert.ok(Object.keys(bootstrap.tableCounts).length > exportedTableNames.length);
@@ -1818,7 +1823,7 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
       false
     );
     assert.deepEqual(
-      manifest.tableGroups.core.filter((table) => manifest.tableGroups.factionHeavy.includes(table)),
+      audit.tableGroups.core.filter((table) => audit.tableGroups.factionHeavy.includes(table)),
       []
     );
     assert.equal(loadouts.maxLoadoutsPerContext, 1000);
