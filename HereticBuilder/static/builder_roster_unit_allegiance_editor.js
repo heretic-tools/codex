@@ -14,7 +14,11 @@ function renderAllegianceEditor({ onUpdate, roster, unit }) {
   select.value = model.currentId;
   select.dataset.focusTarget = "true";
   select.addEventListener("change", async () => {
-    await onUpdate(rosterWithUnitAllegianceAbility(roster, unit.id, select.value));
+    await onUpdate(rosterWithUnitAllegianceAbility(roster, unit.id, select.value, {
+      detachments: model.detachments,
+      unit,
+      units: model.units,
+    }));
   });
 
   const wrap = document.createElement("label");

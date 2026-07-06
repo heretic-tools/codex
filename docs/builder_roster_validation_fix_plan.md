@@ -1222,6 +1222,12 @@ browser smoke test.
   mutations now require the option to belong to the unit datasheet and to match
   unit-level versus model-level target scope, while zero-count writes remain
   available for cleanup.
+- 2026-07-06: Added an optional `allegianceAbilityCanBeSelected` guard to
+  `builder_roster_unit_upgrade_actions.js`. Low-level calls without context
+  preserve legacy mutation behavior, while the unit-detail Allegiance editor now
+  passes current unit summaries and detachments so detachment-gated,
+  mandatory-faction, required-Wargear, and roster-limit candidate checks are
+  applied before writing the selection.
 - 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
   enhancement editors out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a

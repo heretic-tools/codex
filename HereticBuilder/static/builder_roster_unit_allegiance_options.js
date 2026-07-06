@@ -11,7 +11,9 @@ function allegianceEditorOptions(roster, unit) {
   if (!group) {
     return null;
   }
-  const detachments = (roster.detachmentIds || []).map((id) => ({ id, ...state.catalog.detachmentById.get(id) }));
+  const detachments = (roster.detachmentIds || [])
+    .map((id) => state.catalog.detachmentById.get(id))
+    .filter(Boolean);
   const units = rosterUnitSummaries(roster);
   const abilities = sortAllegianceAbilities(state.catalog.allegianceAbilitiesByGroupId.get(group.id) || []);
   const rows = abilities.map((ability, index) => ({
@@ -24,6 +26,7 @@ function allegianceEditorOptions(roster, unit) {
     : group.name;
   return {
     currentId: unit.allegianceAbilities?.find((ability) => ability.groupId === group.id)?.id || "",
+    detachments,
     label,
     options: [
       { label: group.isMandatory ? `Select ${group.name}` : `No ${group.name}`, value: "" },
@@ -32,6 +35,7 @@ function allegianceEditorOptions(roster, unit) {
         value: row.ability.id,
       })),
     ],
+    units,
   };
 }
 
