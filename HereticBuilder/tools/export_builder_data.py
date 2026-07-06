@@ -280,6 +280,19 @@ def write_hashed_json(out_dir, logical_path, payload):
     }
 
 
+def precomputed_loadout_shards(loadouts):
+    shards = {}
+    for row in loadouts.get("contexts", []):
+        shards.setdefault(row["datasheetId"], []).append(row)
+    return {
+        datasheet_id: {
+            "datasheetId": datasheet_id,
+            "contexts": contexts,
+        }
+        for datasheet_id, contexts in sorted(shards.items())
+    }
+
+
 def file_entry(out_dir, record, row_count=None, logical_path=None):
     path = record["path"].relative_to(out_dir).as_posix()
     entry = {
@@ -738,8 +751,20 @@ def export_builder_data(db_path, out_dir):
         files.append(file_entry(out_dir, record))
 
         loadouts = precomputed_loadouts(conn, aliases)
-        record = write_hashed_json(out_dir, "precomputed-loadouts.json", loadouts)
-        files.append(file_entry(out_dir, record, logical_path="precomputed-loadouts.json"))
+        precomputed_shards = precomputed_loadout_shards(loadouts)
+        precomputed_manifest = {
+            "maxLoadoutsPerContext": loadouts["maxLoadoutsPerContext"],
+            "contextCount": loadouts["contextCount"],
+            "skippedContextCount": loadouts["skippedContextCount"],
+            "shardCount": len(precomputed_shards),
+            "datasheetIds": list(precomputed_shards),
+        }
+        record = write_hashed_json(out_dir, "precomputed-loadouts/manifest.json", precomputed_manifest)
+        files.append(file_entry(out_dir, record, logical_path="precomputed-loadouts/manifest.json"))
+        for datasheet_id, shard in precomputed_shards.items():
+            logical_path = f"precomputed-loadouts/{datasheet_id}.json"
+            record = write_hashed_json(out_dir, logical_path, shard)
+            files.append(file_entry(out_dir, record, len(shard["contexts"]), logical_path))
 
         unit_images = unit_images_payload(conn)
         record = write_hashed_json(out_dir, "unit-images.json", unit_images)

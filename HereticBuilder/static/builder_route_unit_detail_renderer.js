@@ -6,6 +6,10 @@ import {
   currentRoster,
   saveRosterCacheIfStale,
 } from "./builder_roster_runtime.js";
+import {
+  ensurePrecomputedLoadoutsForDatasheets,
+  rosterDatasheetIds,
+} from "./builder_precomputed_loadouts_runtime.js";
 import { updateRoster } from "./builder_roster_io_actions.js";
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
 
@@ -20,6 +24,7 @@ async function renderUnit(render) {
     loadUnitView(),
     loadRules(),
   ]);
+  await ensurePrecomputedLoadoutsForDatasheets(rosterDatasheetIds(roster));
   const validation = validateRoster(roster);
   await saveRosterCacheIfStale(roster, validation);
   el.title.textContent = unitDisplayName(roster, unit);

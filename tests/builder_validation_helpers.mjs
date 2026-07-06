@@ -66,7 +66,7 @@ const { validateWargearLoadouts } = await import("../HereticBuilder/static/build
 const { validateWarlord, warlordCandidateStatus } = await import("../HereticBuilder/static/builder_warlord_rules.js");
 const { canonicalWargearKey } = await import("../HereticBuilder/static/builder_loadout_math.js");
 
-const realCatalog = await loadCatalog();
+const realCatalog = await loadCatalog({ preloadPrecomputedLoadouts: true });
 state.catalog = realCatalog;
 
 function withCatalog(catalog, callback) {

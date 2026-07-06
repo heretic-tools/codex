@@ -9,7 +9,7 @@ export const minimumParityCoreCases = [
       "static Builder data export audit has no unexpected roster tables",
       "audit.excludedTables.length, 43",
       "static Builder data manifest lists every exported rule file with matching rows and hashes",
-      "manifest.files.length, 106",
+      "precomputedEntries.length > 1 || legacyPrecomputedEntryCount === 1",
       "tableEntries.length, Object.keys(tableCounts).length",
       "entry.sha256",
       "static Builder rule table column lists stay pinned",
@@ -100,7 +100,7 @@ export const minimumParityCoreCases = [
       "thin client catalog loading keeps path and fetch failure behavior explicit",
       "relative/path",
       "//cdn.example/builder-data/bootstrap.json",
-      "\\/builder-data\\/(bootstrap|precomputed-loadouts|unit-images|tables\\/[^/]+)\\.json: 503"
+      "\\/builder-data\\/(bootstrap|unit-images|tables\\/[^/]+)\\.json: 503"
     ],
     "codes": []
   },

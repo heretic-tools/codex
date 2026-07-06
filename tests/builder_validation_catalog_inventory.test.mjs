@@ -327,7 +327,7 @@ test("thin client catalog loading keeps path and fetch failure behavior explicit
   try {
     await assert.rejects(
       loadCatalog(),
-      /\/builder-data\/(bootstrap|precomputed-loadouts|unit-images|tables\/[^/]+)\.json: 503/
+      /\/builder-data\/(bootstrap|unit-images|tables\/[^/]+)\.json: 503/
     );
   } finally {
     global.fetch = previousFetch;
@@ -1549,13 +1549,21 @@ test("static Builder data manifest lists every exported rule file with matching 
   const tableCounts = realCatalog.bootstrap.tableCounts;
   const files = new Map(manifest.files.map((entry) => [entry.logicalPath || entry.path, entry]));
   const tableEntries = manifest.files.filter((entry) => (entry.logicalPath || entry.path).startsWith("tables/"));
+  const precomputedEntries = manifest.files.filter((entry) => (
+    (entry.logicalPath || entry.path).startsWith("precomputed-loadouts/")
+  ));
+  const legacyPrecomputedEntryCount = files.has("precomputed-loadouts.json") ? 1 : 0;
 
   assert.equal(manifest.exportSchemaVersion, realCatalog.bootstrap.exportSchemaVersion);
   assert.equal(manifest.dataVersion, realCatalog.bootstrap.dataVersion);
-  assert.equal(manifest.files.length, 106);
+  assert.equal(
+    manifest.files.length,
+    Object.keys(tableCounts).length + 3 + legacyPrecomputedEntryCount + precomputedEntries.length
+  );
   assert.equal(tableEntries.length, Object.keys(tableCounts).length);
+  assert.ok(precomputedEntries.length > 1 || legacyPrecomputedEntryCount === 1);
   assert.ok(files.has("bootstrap.json"));
-  assert.ok(files.has("precomputed-loadouts.json"));
+  assert.ok(files.has("precomputed-loadouts/manifest.json") || legacyPrecomputedEntryCount === 1);
   assert.ok(files.has("unit-images.json"));
   assert.ok(files.has("audit.json"));
 
@@ -1597,14 +1605,24 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     );
     const bootstrap = JSON.parse(readFileSync(join(outDir, "bootstrap.json"), "utf8"));
     const manifest = JSON.parse(readFileSync(join(outDir, "manifest.json"), "utf8"));
-    const loadoutEntry = builderDataEntry(manifest, "precomputed-loadouts.json");
-    assert.ok(loadoutEntry);
-    const loadouts = JSON.parse(readFileSync(join(outDir, loadoutEntry.path), "utf8"));
+    const loadoutManifestEntry = builderDataEntry(manifest, "precomputed-loadouts/manifest.json");
+    assert.ok(loadoutManifestEntry);
+    const loadouts = JSON.parse(readFileSync(join(outDir, loadoutManifestEntry.path), "utf8"));
+    const shardEntries = manifest.files.filter((entry) => (
+      entry.logicalPath?.startsWith("precomputed-loadouts/")
+      && entry.logicalPath !== "precomputed-loadouts/manifest.json"
+    ));
+    const shardContexts = shardEntries.flatMap((entry) => {
+      const shard = JSON.parse(readFileSync(join(outDir, entry.path), "utf8"));
+      assert.equal(entry.rows, shard.contexts.length);
+      return shard.contexts;
+    });
 
     assert.equal(bootstrap.precomputedLoadouts, undefined);
     assert.ok(manifest.files.length > 0);
     assert.ok(manifest.files.every((entry) => entry.logicalPath));
-    assert.ok(manifest.files.some((entry) => entry.logicalPath === "precomputed-loadouts.json" && entry.path !== entry.logicalPath));
+    assert.ok(manifest.files.some((entry) => entry.logicalPath === "precomputed-loadouts/manifest.json" && entry.path !== entry.logicalPath));
+    assert.ok(shardEntries.every((entry) => entry.path !== entry.logicalPath));
     assert.ok(manifest.files.some((entry) => entry.logicalPath?.startsWith("tables/") && entry.path !== entry.logicalPath));
     assert.deepEqual(
       [...manifest.tableGroups.core, ...manifest.tableGroups.factionHeavy].sort(),
@@ -1617,12 +1635,14 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     assert.equal(loadouts.maxLoadoutsPerContext, 1000);
     assert.equal(loadouts.contextCount, 1578);
     assert.equal(loadouts.skippedContextCount, 2);
+    assert.equal(loadouts.shardCount, shardEntries.length);
+    assert.equal(shardContexts.length, loadouts.contextCount);
     assert.equal(
-      loadouts.contexts.reduce((total, row) => total + row.fingerprints.length, 0),
+      shardContexts.reduce((total, row) => total + row.fingerprints.length, 0),
       9082
     );
     assert.equal(
-      loadouts.contexts.filter((row) => row.loadoutChoiceSetIds?.length).length,
+      shardContexts.filter((row) => row.loadoutChoiceSetIds?.length).length,
       loadouts.contextCount
     );
   } finally {

@@ -7,6 +7,10 @@ import {
   saveRosterCacheIfStale,
 } from "./builder_roster_runtime.js";
 import {
+  ensurePrecomputedLoadoutsForDatasheets,
+  rosterDatasheetIds,
+} from "./builder_precomputed_loadouts_runtime.js";
+import {
   deleteRoster,
   updateRoster,
 } from "./builder_roster_io_actions.js";
@@ -22,6 +26,7 @@ async function renderRoster(render) {
     loadDetailView(),
     loadRules(),
   ]);
+  await ensurePrecomputedLoadoutsForDatasheets(rosterDatasheetIds(roster));
   const validation = validateRoster(roster);
   await saveRosterCacheIfStale(roster, validation);
   el.title.textContent = roster.name || "New Roster";

@@ -1,5 +1,6 @@
 import { option, textNode } from "./builder_dom.js";
 import { rosterWithUnitComposition } from "./builder_roster_actions.js";
+import { ensurePrecomputedLoadoutsForDatasheets } from "./builder_precomputed_loadouts_runtime.js";
 import { compositionSelectModel } from "./builder_roster_unit_composition_options.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 
@@ -12,6 +13,7 @@ function renderCompositionEditor({ onUpdate, roster, unit, validation = null, va
   select.value = model.currentId;
   select.dataset.focusTarget = "true";
   select.addEventListener("change", async () => {
+    await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
     await onUpdate(rosterWithUnitComposition(roster, unit.id, select.value));
   });
   const wrap = document.createElement("label");

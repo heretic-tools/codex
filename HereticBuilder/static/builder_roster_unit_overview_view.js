@@ -1,6 +1,7 @@
 import { button, metricLine, textNode } from "./builder_dom.js";
 import { unitSummary } from "./builder_model.js";
 import { rosterWithUnitDefaultWargear } from "./builder_roster_actions.js";
+import { ensurePrecomputedLoadoutsForDatasheets } from "./builder_precomputed_loadouts_runtime.js";
 import {
   renderAllegianceEditor,
   renderCompositionEditor,
@@ -31,7 +32,10 @@ function renderRosterUnitOverview({ onBack, onUpdate, roster, unit, validation, 
     overview.appendChild(allegianceEditor);
   }
   overview.append(
-    button("plain-button", "Reset Wargear", async () => onUpdate(rosterWithUnitDefaultWargear(roster, unit.id))),
+    button("plain-button", "Reset Wargear", async () => {
+      await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
+      await onUpdate(rosterWithUnitDefaultWargear(roster, unit.id));
+    }),
     button("plain-button", "Back", onBack)
   );
   return overview;

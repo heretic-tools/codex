@@ -10,6 +10,7 @@ import { rosterWithAddedUnit } from "./builder_roster_actions.js";
 import {
   parseUnitOptionValue,
 } from "./builder_roster_unit_candidates.js";
+import { ensurePrecomputedLoadoutsForDatasheets } from "./builder_precomputed_loadouts_runtime.js";
 import { refreshUnitControlOptions } from "./builder_roster_unit_control_options.js";
 
 function renderUnitControls({ newId, onUpdate, roster, validation }) {
@@ -25,6 +26,7 @@ function renderUnitControls({ newId, onUpdate, roster, validation }) {
   labelControl(unitSelect, UNIT_SELECT_LABEL);
   const add = button("plain-button add-button", "Add", async () => {
     const selected = parseUnitOptionValue(unitSelect.value);
+    await ensurePrecomputedLoadoutsForDatasheets([selected.datasheetId]);
     await onUpdate(rosterWithAddedUnit(roster, {
       allyType: selected.allyType,
       datasheetId: selected.datasheetId,

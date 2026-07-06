@@ -10,9 +10,13 @@ async function fetchJson(path) {
   return response.json();
 }
 
-function builderDataPath(manifest, logicalPath) {
+function builderDataEntry(manifest, logicalPath) {
   const files = manifest?.files || [];
-  const entry = files.find((file) => (file.logicalPath || file.path) === logicalPath);
+  return files.find((file) => (file.logicalPath || file.path) === logicalPath);
+}
+
+function builderDataPath(manifest, logicalPath) {
+  const entry = builderDataEntry(manifest, logicalPath);
   return `/builder-data/${entry?.path || logicalPath}`;
 }
 
@@ -28,14 +32,37 @@ async function loadTable(name, manifest = null) {
   return payload.rows || [];
 }
 
+async function loadBuilderDataJson(logicalPath, manifest = null) {
+  const resolvedManifest = manifest || await loadBuilderDataManifest();
+  return fetchJson(builderDataPath(resolvedManifest, logicalPath));
+}
+
 async function loadCatalogTables(tableDefinitions, manifest = null) {
   const rows = await Promise.all(tableDefinitions.map(([, tableName]) => loadTable(tableName, manifest)));
   return Object.fromEntries(tableDefinitions.map(([key], index) => [key, rows[index]]));
 }
 
+async function loadPrecomputedLoadoutShards(datasheetIds, manifest = null) {
+  const resolvedManifest = manifest || await loadBuilderDataManifest();
+  const files = resolvedManifest?.files || [];
+  const requested = new Set((datasheetIds || []).filter(Boolean));
+  const entries = files.filter((file) => {
+    const logicalPath = file.logicalPath || file.path || "";
+    if (!logicalPath.startsWith("precomputed-loadouts/") || logicalPath === "precomputed-loadouts/manifest.json") {
+      return false;
+    }
+    const datasheetId = logicalPath.replace(/^precomputed-loadouts\//, "").replace(/\.json$/, "");
+    return !requested.size || requested.has(datasheetId);
+  });
+  return Promise.all(entries.map((entry) => fetchJson(`/builder-data/${entry.path}`)));
+}
+
 export {
+  builderDataEntry,
   builderDataPath,
   fetchJson,
   loadBuilderDataManifest,
+  loadBuilderDataJson,
   loadCatalogTables,
+  loadPrecomputedLoadoutShards,
 };
