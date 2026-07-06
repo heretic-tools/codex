@@ -4,12 +4,44 @@ import {
   rosterWithMiniatureEnhancement,
   rosterWithUnitEnhancement,
 } from "./builder_roster_actions.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 import { enhancementSelectModels } from "./builder_roster_unit_enhancement_models.js";
 import { renderEnhancementSelect } from "./builder_roster_unit_enhancement_select.js";
 import { state } from "./builder_state.js";
 
-function renderEnhancementsEditor({ onUpdate, roster, unit, validation = null, validationContext = {} }) {
+function enhancementChangeMessage(unit) {
+  return `Enhancement changed for ${unit.name || "Unit"}`;
+}
+
+function rosterWithEnhancementFromEditor(roster, unit, model, enhancementId, context) {
+  return model.targetKind === "unit"
+    ? rosterWithUnitEnhancement(roster, unit.id, enhancementId, context)
+    : rosterWithMiniatureEnhancement(roster, unit.id, {
+      enhancementId,
+      ...context,
+      rosterUnitMiniatureId: model.targetId,
+    });
+}
+
+function updateEnhancementFromEditor(roster, unit, model, enhancementId, context, onUpdate, onUndoableUpdate = null) {
+  return applyRosterUpdate({
+    message: enhancementChangeMessage(unit),
+    nextRoster: rosterWithEnhancementFromEditor(roster, unit, model, enhancementId, context),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
+}
+
+function renderEnhancementsEditor({
+  onUndoableUpdate = null,
+  onUpdate,
+  roster,
+  unit,
+  validation = null,
+  validationContext = {},
+}) {
   const wrap = document.createElement("section");
   wrap.className = "builder-section unit-enhancements-section";
   wrap.dataset.unitDetailTarget = "enhancements";
@@ -39,13 +71,15 @@ function renderEnhancementsEditor({ onUpdate, roster, unit, validation = null, v
     };
     wrap.appendChild(renderEnhancementSelect({
       ...model,
-      onChange: async (enhancementId) => onUpdate(model.targetKind === "unit"
-        ? rosterWithUnitEnhancement(roster, unit.id, enhancementId, context)
-        : rosterWithMiniatureEnhancement(roster, unit.id, {
-          enhancementId,
-          ...context,
-          rosterUnitMiniatureId: model.targetId,
-        })),
+      onChange: async (enhancementId) => updateEnhancementFromEditor(
+        roster,
+        unit,
+        model,
+        enhancementId,
+        context,
+        onUpdate,
+        onUndoableUpdate
+      ),
       roster,
       unit,
       units,
@@ -56,4 +90,9 @@ function renderEnhancementsEditor({ onUpdate, roster, unit, validation = null, v
   return wrap;
 }
 
-export { renderEnhancementsEditor };
+export {
+  enhancementChangeMessage,
+  renderEnhancementsEditor,
+  rosterWithEnhancementFromEditor,
+  updateEnhancementFromEditor,
+};

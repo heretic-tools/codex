@@ -13,6 +13,9 @@ import {
   rosterWithMiniatureEnhancement,
   rosterWithUnitEnhancement,
 } from "../HereticBuilder/static/builder_roster_actions.js";
+import {
+  updateEnhancementFromEditor,
+} from "../HereticBuilder/static/builder_roster_unit_enhancement_editor.js";
 
 const ENHANCEMENT_FIXTURES = {
   miniature: {
@@ -68,6 +71,27 @@ test("builder roster actions write compact enhancement selections", () => {
     enhancementId: "",
     rosterUnitMiniatureId: targetMiniature.rosterUnitMiniatureId,
   }).units[0].miniatureEnhancements, []);
+});
+
+test("unit enhancement editor emits undoable roster updates", async () => {
+  const { roster, unit } = rosterWithFixtureUnit(ENHANCEMENT_FIXTURES.unit);
+  let event = null;
+
+  await updateEnhancementFromEditor(
+    roster,
+    { ...unit, name: "Captain" },
+    { targetKind: "unit", targetId: unit.id },
+    ENHANCEMENT_FIXTURES.unit.enhancementId,
+    {},
+    () => {},
+    (value) => {
+      event = value;
+    }
+  );
+
+  assert.equal(event.message, "Enhancement changed for Captain");
+  assert.equal(event.previousRoster, roster);
+  assert.deepEqual(event.nextRoster.units[0].unitEnhancements, [{ id: ENHANCEMENT_FIXTURES.unit.enhancementId }]);
 });
 
 test("builder roster action derives enhancement context when omitted", () => {

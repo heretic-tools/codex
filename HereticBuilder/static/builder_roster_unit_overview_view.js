@@ -41,9 +41,9 @@ function renderRosterUnitOverview({ onBack, onUndoableUpdate = null, onUpdate, r
   overview.append(
     metrics,
     renderCompositionEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext }),
-    renderWarlordEditor({ onUpdate, roster, unit, validation, validationContext })
+    renderWarlordEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext })
   );
-  const allegianceEditor = renderAllegianceEditor({ onUpdate, roster, unit, validation, validationContext });
+  const allegianceEditor = renderAllegianceEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext });
   if (allegianceEditor) {
     overview.appendChild(allegianceEditor);
   }

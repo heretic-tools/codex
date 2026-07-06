@@ -1,9 +1,31 @@
 import { option, textNode } from "./builder_dom.js";
 import { rosterWithUnitAllegianceAbility } from "./builder_roster_actions.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { allegianceEditorOptions } from "./builder_roster_unit_allegiance_options.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 
-function renderAllegianceEditor({ onUpdate, roster, unit, validation = null, validationContext = {} }) {
+function allegianceChangeMessage(unit) {
+  return `Allegiance changed for ${unit.name || "Unit"}`;
+}
+
+function updateUnitAllegianceFromEditor(roster, unit, allegianceAbilityId, context, onUpdate, onUndoableUpdate = null) {
+  return applyRosterUpdate({
+    message: allegianceChangeMessage(unit),
+    nextRoster: rosterWithUnitAllegianceAbility(roster, unit.id, allegianceAbilityId, context),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
+}
+
+function renderAllegianceEditor({
+  onUndoableUpdate = null,
+  onUpdate,
+  roster,
+  unit,
+  validation = null,
+  validationContext = {},
+}) {
   const model = allegianceEditorOptions(roster, unit);
   if (!model) {
     return null;
@@ -15,11 +37,11 @@ function renderAllegianceEditor({ onUpdate, roster, unit, validation = null, val
   select.value = model.currentId;
   select.dataset.focusTarget = "true";
   select.addEventListener("change", async () => {
-    await onUpdate(rosterWithUnitAllegianceAbility(roster, unit.id, select.value, {
+    await updateUnitAllegianceFromEditor(roster, unit, select.value, {
       detachments: model.detachments,
       unit,
       units: model.units,
-    }));
+    }, onUpdate, onUndoableUpdate);
   });
 
   const wrap = document.createElement("label");
@@ -33,4 +55,4 @@ function renderAllegianceEditor({ onUpdate, roster, unit, validation = null, val
   return wrap;
 }
 
-export { renderAllegianceEditor };
+export { allegianceChangeMessage, renderAllegianceEditor, updateUnitAllegianceFromEditor };

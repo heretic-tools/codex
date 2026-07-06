@@ -7,6 +7,7 @@ import {
   withCatalog,
 } from "./builder_validation_helpers.mjs";
 import { rosterWithUnitAllegianceAbility } from "../HereticBuilder/static/builder_roster_actions.js";
+import { updateUnitAllegianceFromEditor } from "../HereticBuilder/static/builder_roster_unit_allegiance_editor.js";
 
 function firstDetachmentGatedAllegianceSelection() {
   for (const datasheet of realCatalog.datasheets) {
@@ -49,6 +50,40 @@ test("builder roster actions write compact allegiance ability selections", () =>
 
   const cleared = rosterWithUnitAllegianceAbility(selected, "unit-1", "");
   assert.deepEqual(cleared.units[0].allegianceAbilities, []);
+});
+
+test("unit allegiance editor emits undoable roster updates", async () => {
+  state.catalog = realCatalog;
+  const { ability, datasheet, factionKeywordId, group } = firstDetachmentGatedAllegianceSelection();
+  const roster = {
+    id: "allegiance-editor-undo-roster",
+    detachmentIds: [group.detachmentId],
+    factionKeywordId,
+    units: [{
+      id: "unit-1",
+      allegianceAbilities: [],
+      datasheetId: datasheet.id,
+      miniatures: [],
+      name: datasheet.name,
+      wargear: {},
+    }],
+  };
+  let event = null;
+
+  await updateUnitAllegianceFromEditor(
+    roster,
+    roster.units[0],
+    ability.id,
+    {},
+    () => {},
+    (value) => {
+      event = value;
+    }
+  );
+
+  assert.equal(event.message, `Allegiance changed for ${datasheet.name}`);
+  assert.equal(event.previousRoster, roster);
+  assert.deepEqual(event.nextRoster.units[0].allegianceAbilities, [{ id: ability.id }]);
 });
 
 test("builder roster action derives allegiance context when omitted", () => {

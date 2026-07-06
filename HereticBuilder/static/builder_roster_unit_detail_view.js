@@ -68,6 +68,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUndoableUpdate
     }));
   }
   sidebar.appendChild(renderEnhancementsEditor({
+    onUndoableUpdate,
     onUpdate,
     roster,
     unit: summary,

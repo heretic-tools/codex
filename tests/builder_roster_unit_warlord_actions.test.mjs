@@ -13,6 +13,7 @@ import {
   rosterWithAddedUnit,
   rosterWithWarlord,
 } from "../HereticBuilder/static/builder_roster_actions.js";
+import { updateUnitWarlordFromEditor } from "../HereticBuilder/static/builder_roster_unit_warlord_editor.js";
 
 function duplicateLimitedCharacterDatasheet(roster) {
   const datasheet = availableDatasheets(roster, "native").find((row) => {
@@ -69,6 +70,42 @@ test("builder roster actions keep only one selected Warlord", () => {
 
   const noWarlord = rosterWithWarlord(secondWarlord, {});
   assert.equal(noWarlord.units.some((row) => row.miniatures.some((miniature) => miniature.isWarlord)), false);
+});
+
+test("unit warlord editor emits undoable roster updates", async () => {
+  state.catalog = realCatalog;
+  const roster = {
+    id: "warlord-editor-undo-roster",
+    name: "Action Roster",
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const datasheet = duplicateLimitedCharacterDatasheet(roster);
+  const withUnit = rosterWithAddedUnit(roster, {
+    datasheetId: datasheet.id,
+    unitId: "unit-1",
+  });
+  const unit = { ...withUnit.units[0], name: datasheet.name };
+  const targetId = unit.miniatures[0].rosterUnitMiniatureId;
+  let event = null;
+
+  await updateUnitWarlordFromEditor(
+    withUnit,
+    unit,
+    targetId,
+    {},
+    () => {},
+    (value) => {
+      event = value;
+    }
+  );
+
+  assert.equal(event.message, `Warlord changed for ${datasheet.name}`);
+  assert.equal(event.previousRoster, withUnit);
+  assert.equal(event.nextRoster.units[0].miniatures[0].isWarlord, true);
 });
 
 test("builder roster action rejects invalid Warlord targets when context is supplied", () => {
