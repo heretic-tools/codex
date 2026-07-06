@@ -1767,6 +1767,11 @@ browser smoke test.
   rosters. Unit picker previews now build candidate summaries without going
   through the guarded mutation path, so duplicate-limit rows still display
   their exact `limit reached` reason.
+- 2026-07-06: Split default roster-unit construction out of
+  `builder_roster_unit_add_actions.js` into
+  `builder_roster_unit_default_unit.js`, so picker previews and guarded add
+  mutations share the same default-unit model without the preview importing a
+  mutation module.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and

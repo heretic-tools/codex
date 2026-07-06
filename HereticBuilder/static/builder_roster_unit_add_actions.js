@@ -1,13 +1,9 @@
 import {
-  compositionFactionIds,
-  datasheetAvailableToRoster,
-  defaultComposition,
-  defaultWargear,
   rosterUnitSummaries,
   unitSummary,
 } from "./builder_model.js";
 import { withModifiedRoster } from "./builder_roster_action_helpers.js";
-import { defaultRosterMiniatures } from "./builder_roster_unit_default_rows.js";
+import { defaultRosterUnitForDatasheet } from "./builder_roster_unit_default_unit.js";
 import { state } from "./builder_state.js";
 import { duplicateLimitForUnit } from "./builder_validation_core.js";
 
@@ -19,30 +15,6 @@ function unitCanBeAddedToRoster(roster, unit) {
     .filter((row) => row.datasheetId === candidate.datasheetId)
     .length;
   return currentCount < duplicateLimit;
-}
-
-function defaultRosterUnitForDatasheet(roster, { allyType = "native", datasheetId, unitId }) {
-  if (!datasheetId || !unitId) {
-    return null;
-  }
-  if (!datasheetAvailableToRoster(roster, allyType, datasheetId)) {
-    return null;
-  }
-  const factionIds = compositionFactionIds(roster, allyType);
-  const composition = defaultComposition(datasheetId, factionIds, roster.detachmentIds || []);
-  if (!composition) {
-    return null;
-  }
-  return {
-    id: unitId,
-    allyType,
-    datasheetId,
-    compositionId: composition.id,
-    wargear: defaultWargear(datasheetId, composition.id),
-    unitEnhancements: [],
-    miniatureEnhancements: [],
-    miniatures: defaultRosterMiniatures(unitId, datasheetId, composition.id),
-  };
 }
 
 function rosterWithAddedUnit(roster, { allyType = "native", datasheetId, unitId }) {
@@ -59,7 +31,6 @@ function rosterWithAddedUnit(roster, { allyType = "native", datasheetId, unitId 
 }
 
 export {
-  defaultRosterUnitForDatasheet,
   rosterWithAddedUnit,
   unitCanBeAddedToRoster,
 };
