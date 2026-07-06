@@ -767,6 +767,85 @@
   gap: 10px;
 }
 
+.roster-overview-card {
+  padding: 12px;
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+}
+
+.roster-overview-card.has-validation-ok {
+  border-left: 4px solid var(--builder-ok);
+}
+
+.roster-overview-card.has-validation-warning {
+  border-left: 4px solid var(--builder-warn);
+}
+
+.roster-overview-card.has-validation-error {
+  border-left: 4px solid var(--builder-error);
+}
+
+.roster-overview-head {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.roster-overview-head .section-title {
+  min-width: 0;
+  font-size: 15px;
+}
+
+.roster-status-pill {
+  flex: none;
+  padding: 3px 7px;
+  background: var(--builder-panel);
+  border: 1px solid var(--builder-border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.roster-overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.roster-overview-metric {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 7px 8px;
+  background: var(--builder-panel);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+}
+
+.roster-overview-metric span {
+  color: var(--app-muted, #697078);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.1;
+}
+
+.roster-overview-metric strong {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.roster-overview-controls {
+  display: grid;
+  gap: 8px;
+}
+
 .is-attention-target {
   outline: 3px solid rgba(40, 95, 159, .28);
   outline-offset: 3px;
@@ -841,6 +920,7 @@
 }
 
 .validation-state-badge,
+.roster-status-pill,
 .validation-count,
 .meta-badge,
 .disposition-badge {
@@ -983,5 +1063,9 @@
 
   .transfer-button + .transfer-button {
     margin-top: 0;
+  }
+
+  .roster-overview-metrics {
+    grid-template-columns: 1fr;
   }
 }

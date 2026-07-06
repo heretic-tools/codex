@@ -28,7 +28,6 @@ from roster_builder_templates import render_template
 BUILDER_STATIC_SUPPORT_FILES = (
     "desktop.css",
     "codex.css",
-    "win-scrollbars.js",
     "builder.css",
 )
 

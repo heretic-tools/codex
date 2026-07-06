@@ -30,7 +30,6 @@ async function render() {
   } else {
     await renderList(render);
   }
-  window.requestAnimationFrame(() => window.setupWinScrollbars?.());
 }
 
 export {

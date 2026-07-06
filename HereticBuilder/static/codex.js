@@ -211,6 +211,4 @@
     activeButton.setAttribute("aria-pressed", "true");
   }
 
-  window.setupWinScrollbars?.();
-  window.addEventListener("load", () => window.setupWinScrollbars?.());
 })();

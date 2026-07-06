@@ -1,17 +1,74 @@
-import { button, metricLine, textNode } from "./builder_dom.js";
+import { button, textNode } from "./builder_dom.js";
 import { labelControl } from "./builder_roster_control_labels.js";
 import { renderWarlordPicker } from "./builder_roster_warlord_picker.js";
+import { validationCounts, validationSummary } from "./builder_validation_summary.js";
+
+function rosterOverviewStateClass(validation) {
+  if ((validation.messages || []).some((message) => message.level === "error")) {
+    return "error";
+  }
+  if ((validation.messages || []).some((message) => message.level === "warning")) {
+    return "warning";
+  }
+  return "ok";
+}
+
+function rosterOverviewStatusLabel(validation) {
+  const counts = validationCounts(validation.messages || []);
+  const parts = [];
+  if (counts.error) {
+    parts.push(`${counts.error} error${counts.error === 1 ? "" : "s"}`);
+  }
+  if (counts.warning) {
+    parts.push(`${counts.warning} warning${counts.warning === 1 ? "" : "s"}`);
+  }
+  return parts.length ? parts.join(" / ") : "Valid";
+}
+
+function overviewMetric(label, value) {
+  const node = document.createElement("div");
+  node.className = "roster-overview-metric";
+  node.append(textNode("span", "", label), textNode("strong", "", value));
+  return node;
+}
+
+function validationPill(validation) {
+  const stateClass = rosterOverviewStateClass(validation);
+  const label = rosterOverviewStatusLabel(validation);
+  return textNode("span", `roster-status-pill state-${stateClass}`, label);
+}
 
 function renderRosterOverview({ onDelete, onUpdate, roster, summary, validation }) {
   const overview = document.createElement("section");
-  overview.className = "builder-section";
-  overview.append(
+  overview.className = `builder-section roster-overview-card has-validation-${rosterOverviewStateClass(validation)}`;
+  const head = document.createElement("div");
+  head.className = "roster-overview-head";
+  head.append(
     textNode("h2", "section-title", `${summary.factionName} / ${summary.battleSizeName}`),
-    metricLine("Points", `${validation.points.total} / ${validation.points.limit}`),
-    renderWarlordPicker({ onUpdate, roster }),
-    labelControl(button("plain-button", "Delete Roster", async () => onDelete(roster)), "Delete roster")
+    validationPill(validation)
   );
+  const metrics = document.createElement("div");
+  metrics.className = "roster-overview-metrics";
+  const detachmentLimit = validation.points.detachmentLimit || 0;
+  metrics.append(
+    overviewMetric("Points", `${validation.points.total} / ${validation.points.limit}`),
+    overviewMetric("DP", `${validation.points.detachmentPoints || 0} / ${detachmentLimit}`),
+    overviewMetric("Units", String((roster.units || []).length))
+  );
+  const controls = document.createElement("div");
+  controls.className = "roster-overview-controls";
+  controls.append(
+    renderWarlordPicker({ onUpdate, roster }),
+    labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), "Delete roster")
+  );
+  overview.append(
+    head,
+    metrics,
+    controls
+  );
+  overview.dataset.validationSummary = validationSummary(validation);
+  overview.setAttribute("aria-label", `Roster overview: ${validationSummary(validation)}`);
   return overview;
 }
 
-export { renderRosterOverview };
+export { renderRosterOverview, rosterOverviewStateClass, rosterOverviewStatusLabel };

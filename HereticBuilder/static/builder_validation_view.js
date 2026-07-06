@@ -19,7 +19,7 @@ import {
 
 function renderValidation(validation, { context = {}, groupAction = null, title = "Validation" } = {}) {
   const wrap = document.createElement("section");
-  wrap.className = "builder-section";
+  wrap.className = "builder-section validation-section";
   wrap.appendChild(textNode("h2", "section-title", title));
   const list = document.createElement("div");
   list.className = "validation-list";

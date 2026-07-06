@@ -812,7 +812,6 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(index, new RegExp(`/builder/static/builder\\.css\\?v=${version}`));
     assert.ok(existsSync(join(outDir, "static", "desktop.css")));
     assert.ok(existsSync(join(outDir, "static", "codex.css")));
-    assert.ok(existsSync(join(outDir, "static", "win-scrollbars.js")));
     assert.ok(existsSync(join(outDir, "assets", "icons", "boosty.png")));
     assert.ok(existsSync(join(outDir, "assets", "unit-images")));
     assert.equal(existsSync(join(outDir, "static", "home.js")), false);
@@ -1704,6 +1703,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const rosterOverviewSource = readFileSync(join(outDir, "static", "builder_roster_overview_view.js"), "utf8");
     assert.match(rosterOverviewSource, new RegExp(`\\.\\/builder_roster_warlord_picker\\.js\\?v=${version}`));
+    assert.match(rosterOverviewSource, new RegExp(`\\.\\/builder_validation_summary\\.js\\?v=${version}`));
 
     const rosterWarlordPickerSource = readFileSync(join(outDir, "static", "builder_roster_warlord_picker.js"), "utf8");
     assert.match(rosterWarlordPickerSource, new RegExp(`\\.\\/builder_roster_warlord_options\\.js\\?v=${version}`));
