@@ -1,5 +1,6 @@
 import { button } from "./builder_dom.js";
 import { unitValidationActionTarget } from "./builder_roster_unit_validation_targets.js";
+import { labelValidationAction, validationActionLabel } from "./builder_validation_action_labels.js";
 
 function scrollToUnitDetailTarget(target) {
   const selectorValue = window.CSS?.escape ? CSS.escape(target) : String(target).replace(/"/g, "");
@@ -20,8 +21,16 @@ function scrollToUnitDetailTarget(target) {
 function renderUnitValidationAction(group) {
   const action = unitValidationActionTarget(group);
   return action
-    ? button("validation-action-button", action.text, () => scrollToUnitDetailTarget(action.target))
+    ? labelValidationAction(
+      button("validation-action-button", action.text, () => scrollToUnitDetailTarget(action.target)),
+      validationActionLabel(action, group)
+    )
     : null;
 }
 
-export { renderUnitValidationAction, scrollToUnitDetailTarget, unitValidationActionTarget };
+export {
+  renderUnitValidationAction,
+  scrollToUnitDetailTarget,
+  validationActionLabel as unitValidationActionLabel,
+  unitValidationActionTarget,
+};

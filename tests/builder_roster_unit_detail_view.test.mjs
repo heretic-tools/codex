@@ -7,6 +7,9 @@ const {
   unitValidationActionTarget,
   validationWithoutMessages,
 } = await import("../HereticBuilder/static/builder_roster_unit_detail_view.js");
+const {
+  unitValidationActionLabel,
+} = await import("../HereticBuilder/static/builder_roster_unit_detail_actions.js");
 
 test("unit validation actions route diagnostics to unit detail editors", () => {
   const cases = [
@@ -28,6 +31,16 @@ test("unit validation actions route diagnostics to unit detail editors", () => {
 test("unit validation actions ignore diagnostics without a local editor", () => {
   assert.equal(unitValidationActionTarget({ code: "roster.unit_limit_exceeded" }), null);
   assert.equal(unitValidationActionTarget({ code: "attached_unit.must_be_attached" }), null);
+});
+
+test("unit validation action labels include the validation issue text", () => {
+  assert.equal(
+    unitValidationActionLabel(
+      { target: "wargear", text: "Wargear" },
+      { texts: ["Chosen has invalid wargear."] }
+    ),
+    "Wargear: Chosen has invalid wargear."
+  );
 });
 
 test("unit validation actions route target-scoped wargear diagnostics to the model section", () => {

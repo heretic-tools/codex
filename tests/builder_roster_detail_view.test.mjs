@@ -4,6 +4,7 @@ import test from "node:test";
 global.document = { querySelector: () => null };
 
 const { rosterValidationActionTarget } = await import("../HereticBuilder/static/builder_roster_detail_view.js");
+const { validationActionLabel } = await import("../HereticBuilder/static/builder_roster_validation_actions.js");
 
 test("roster validation actions prefer exact scoped editor targets", () => {
   assert.deepEqual(
@@ -34,6 +35,32 @@ test("roster validation actions prefer exact scoped editor targets", () => {
       unitIds: [],
     }),
     { attribute: "attachment-id", kind: "row", text: "Show", value: "attachment-1" }
+  );
+});
+
+test("roster validation action labels include the destination context", () => {
+  assert.equal(
+    validationActionLabel(
+      { kind: "unit", text: "Open Unit" },
+      { texts: ["Chosen has too many models."] },
+      { unit: { name: "Chosen" } }
+    ),
+    "Open unit: Chosen"
+  );
+  assert.equal(
+    validationActionLabel(
+      { kind: "unitSearch", text: "Find" },
+      { texts: ["Add a required Warlord."] },
+      { query: "Abaddon the Despoiler" }
+    ),
+    "Find unit: Abaddon the Despoiler"
+  );
+  assert.equal(
+    validationActionLabel(
+      { kind: "target", text: "Detachments" },
+      { texts: ["Pick a detachment."] }
+    ),
+    "Detachments: Pick a detachment."
   );
 });
 
