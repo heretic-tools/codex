@@ -6,10 +6,12 @@ import {
 import {
   appendGroupedMessages,
   renderValidationMessages,
+  validationCountLabel,
   validationGroupBodyTexts,
   validationGroupTitle,
   validationSeverityLabel,
   validationSeverityMarker,
+  validationSeveritySymbol,
   validationSummary,
 } from "./builder_validation_message_list.js";
 import { validationCounts } from "./builder_validation_summary.js";
@@ -63,11 +65,14 @@ function renderValidation(validation, { context = {}, groupAction = null, title 
   wrap.appendChild(renderValidationHeader(title, validation));
   const list = document.createElement("div");
   list.className = "validation-list";
-  list.appendChild(textNode(
+  list.setAttribute("role", "list");
+  const summary = textNode(
     "div",
     `validation-item validation-summary ${validationStateClass(validation)}`,
     validationSummary(validation)
-  ));
+  );
+  summary.setAttribute("role", "listitem");
+  list.appendChild(summary);
   appendGroupedMessages(list, validationMessages(validation), context, groupAction);
   wrap.appendChild(list);
   return wrap;
@@ -77,11 +82,13 @@ export {
   groupedMessages,
   renderValidation,
   renderValidationMessages,
+  validationCountLabel,
   validationMetaText,
   validationGroupBodyTexts,
   validationGroupTitle,
   validationSeverityLabel,
   validationSeverityMarker,
+  validationSeveritySymbol,
   validationScopeLabels,
   validationStateClass,
   validationForAttachment,

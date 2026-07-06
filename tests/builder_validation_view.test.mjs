@@ -2,18 +2,45 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   groupedMessages,
+  renderValidationMessages,
+  validationCountLabel,
   validationMetaText,
   validationGroupBodyTexts,
   validationGroupTitle,
   validationScopeLabels,
   validationSeverityLabel,
   validationSeverityMarker,
+  validationSeveritySymbol,
   validationStateClass,
   validationForAttachment,
   validationForDetachment,
   validationForTarget,
   validationForUnit,
 } from "../HereticBuilder/static/builder_validation_view.js";
+
+function createMockElement(tagName) {
+  return {
+    attributes: new Map(),
+    children: [],
+    className: "",
+    tagName,
+    textContent: "",
+    title: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      this.textContent += node.textContent || "";
+      return node;
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    },
+  };
+}
 
 test("validation header helpers expose compact severity counts", () => {
   assert.equal(validationStateClass({ messages: [] }), "ok");
@@ -41,16 +68,7 @@ test("validation header helpers expose compact severity counts", () => {
 test("validation severity markers expose compact visual and accessible labels", () => {
   const previousDocument = global.document;
   global.document = {
-    createElement: (tagName) => ({
-      attributes: new Map(),
-      className: "",
-      tagName,
-      textContent: "",
-      title: "",
-      setAttribute(name, value) {
-        this.attributes.set(name, value);
-      },
-    }),
+    createElement: createMockElement,
   };
 
   try {
@@ -59,12 +77,60 @@ test("validation severity markers expose compact visual and accessible labels", 
 
     assert.equal(validationSeverityLabel("error"), "Error");
     assert.equal(validationSeverityLabel("warning"), "Warning");
+    assert.equal(validationSeveritySymbol("error"), "X");
+    assert.equal(validationSeveritySymbol("warning"), "!");
     assert.equal(error.className, "validation-severity-marker error");
-    assert.equal(error.textContent, "X");
+    assert.equal(error.textContent, "");
+    assert.equal(error.attributes.get("data-marker"), "X");
     assert.equal(error.attributes.get("aria-label"), "Error");
     assert.equal(warning.className, "validation-severity-marker warning");
-    assert.equal(warning.textContent, "!");
+    assert.equal(warning.textContent, "");
+    assert.equal(warning.attributes.get("data-marker"), "!");
     assert.equal(warning.attributes.get("aria-label"), "Warning");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("validation message list separates status, title, count, and action", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const list = renderValidationMessages([
+      { level: "error", code: "roster.detachment_not_selected", text: "Pick a detachment." },
+    ], {
+      groupAction: () => {
+        const action = createMockElement("button");
+        action.className = "validation-action-button";
+        action.textContent = "Fix";
+        return action;
+      },
+    });
+
+    assert.equal(validationCountLabel(1), "1 issue");
+    assert.equal(validationCountLabel(2), "2 issues");
+    assert.equal(list.attributes.get("role"), "list");
+    assert.equal(list.children.length, 1);
+
+    const item = list.children[0];
+    assert.equal(item.attributes.get("role"), "listitem");
+    assert.equal(item.attributes.get("aria-label"), "Error: Pick a detachment. (1 issue)");
+    assert.equal(item.children.length, 1);
+
+    const head = item.children[0];
+    assert.equal(head.className, "validation-row-head");
+    assert.equal(head.children[0].className, "validation-severity-marker error");
+    assert.equal(head.children[0].textContent, "");
+    assert.equal(head.children[0].attributes.get("data-marker"), "X");
+    assert.equal(head.children[1].className, "validation-title-wrap");
+    assert.equal(head.children[1].children[0].textContent, "Pick a detachment.");
+    assert.equal(head.children[2].className, "validation-row-meta");
+    assert.equal(head.children[2].children[0].className, "validation-count");
+    assert.equal(head.children[2].children[0].attributes.get("aria-label"), "1 issue");
+    assert.equal(head.children[2].children[1].className, "validation-action-button");
   } finally {
     global.document = previousDocument;
   }
