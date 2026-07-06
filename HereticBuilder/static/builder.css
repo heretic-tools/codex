@@ -109,6 +109,13 @@
   gap: 12px;
 }
 
+.builder-roster-editor {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
 .builder-section {
   min-width: 0;
   display: grid;

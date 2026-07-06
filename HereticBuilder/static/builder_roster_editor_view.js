@@ -4,7 +4,7 @@ import { renderUnitEditor } from "./builder_roster_unit_editor_view.js";
 
 function renderRosterEditor({ newId, onUndoableUpdate = null, onUnitOpen, onUpdate, roster, validation }) {
   const root = document.createElement("section");
-  root.className = "builder-section";
+  root.className = "builder-roster-editor";
   root.append(
     renderDetachmentEditor({ onUndoableUpdate, onUpdate, roster, validation }),
     renderUnitEditor({ newId, onUndoableUpdate, onUnitOpen, onUpdate, roster, validation }),
