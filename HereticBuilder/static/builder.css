@@ -1,13 +1,15 @@
 :root {
-  --builder-ink: #111;
-  --builder-paper: #d8d8d8;
-  --builder-panel: #c7c7c7;
-  --builder-shadow: #6d6d6d;
-  --builder-light: #f4f4f4;
-  --builder-blue: #001f8f;
-  --builder-error: #8e2525;
-  --builder-ok: #11705a;
-  --builder-warn: #8a6b1f;
+  --builder-ink: var(--app-ink, #1d1f23);
+  --builder-paper: var(--app-surface, #ffffff);
+  --builder-panel: var(--app-surface-2, #ebe7df);
+  --builder-shadow: var(--app-border-strong, #b8b1a6);
+  --builder-light: var(--app-surface, #ffffff);
+  --builder-blue: var(--app-blue, #285f9f);
+  --builder-error: var(--app-red, #a13b3b);
+  --builder-ok: var(--app-green, #237254);
+  --builder-warn: var(--app-amber, #956b1f);
+  --builder-border: var(--app-border, #d5d0c8);
+  --builder-radius: var(--app-radius, 8px);
 }
 
 .builder-page {
@@ -708,5 +710,278 @@
 
   .row-meta {
     justify-content: space-between;
+  }
+}
+
+/* Modern app layer. Keeps the existing Builder DOM contract while replacing the
+   old bevel-control look with compact mobile-first product UI. */
+.builder-shell {
+  width: min(1120px, 100%);
+}
+
+.builder-title-bar {
+  min-height: 58px;
+}
+
+.builder-status {
+  min-width: 52px;
+  padding: 5px 9px;
+  color: var(--builder-blue);
+  background: rgba(40, 95, 159, .08);
+  border: 1px solid rgba(40, 95, 159, .18);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.builder-breadcrumb-row {
+  min-height: auto;
+  padding: 0;
+  background: transparent;
+  border-bottom: 0;
+}
+
+.builder-panel,
+.builder-panel-content {
+  background: var(--builder-paper);
+}
+
+.builder-panel-content {
+  padding: 16px;
+}
+
+.builder-stack,
+.builder-list,
+.builder-form,
+.builder-grid,
+.validation-list {
+  gap: 10px;
+}
+
+.builder-grid {
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.builder-section {
+  gap: 10px;
+}
+
+.is-attention-target {
+  outline: 3px solid rgba(40, 95, 159, .28);
+  outline-offset: 3px;
+}
+
+.section-title {
+  margin: 0;
+  padding: 0;
+  color: var(--builder-ink);
+  background: transparent;
+  font-size: 17px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.builder-row,
+.plain-button,
+.primary-button,
+.remove-button,
+.validation-action-button {
+  min-height: 44px;
+  color: var(--builder-ink);
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .78) inset;
+}
+
+.builder-row {
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.builder-row + .builder-row,
+.builder-list + .create-roster-button,
+.create-roster-button + .builder-transfer-row,
+.editor-row + .editor-row,
+.builder-control-row + .editor-list,
+.editor-list + .builder-control-row,
+.enhancement-field + .enhancement-field,
+.validation-item + .validation-item {
+  margin-top: 0;
+}
+
+.builder-row:hover,
+.plain-button:hover,
+.primary-button:hover,
+.remove-button:hover,
+.validation-action-button:hover {
+  border-color: var(--builder-shadow);
+  filter: none;
+}
+
+.builder-row:active,
+.plain-button:active,
+.primary-button:active,
+.remove-button:active,
+.validation-action-button:active {
+  background: var(--builder-panel);
+  border-color: var(--builder-shadow);
+}
+
+.plain-button:disabled,
+.primary-button:disabled,
+.remove-button:disabled {
+  color: var(--app-muted, #697078);
+  background: var(--builder-panel);
+}
+
+.row-text strong {
+  min-width: 0;
+}
+
+.validation-state-badge,
+.validation-count,
+.meta-badge,
+.disposition-badge {
+  padding: 3px 7px;
+  border: 1px solid var(--builder-border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.validation-state-badge {
+  background: var(--builder-panel);
+}
+
+.state-ok,
+.validation-item.ok {
+  color: var(--builder-ok);
+}
+
+.state-error,
+.validation-item.error {
+  color: var(--builder-error);
+}
+
+.state-warning,
+.validation-item.warning {
+  color: var(--builder-warn);
+}
+
+.builder-transfer-row {
+  gap: 10px;
+}
+
+.transfer-button + .transfer-button {
+  margin-left: 0;
+}
+
+.builder-section-head {
+  min-height: 32px;
+}
+
+.builder-control-row {
+  gap: 8px;
+}
+
+.builder-control-row input,
+.builder-control-row select,
+.field input,
+.field select,
+.wargear-option-row input[type="number"] {
+  min-height: 42px;
+  padding: 8px 10px;
+  color: var(--builder-ink);
+  background: #fff;
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  box-shadow: none;
+  outline: none;
+}
+
+.builder-control-row input:focus,
+.builder-control-row select:focus,
+.field input:focus,
+.field select:focus,
+.wargear-option-row input[type="number"]:focus {
+  border-color: rgba(40, 95, 159, .68);
+  box-shadow: 0 0 0 3px rgba(40, 95, 159, .16);
+}
+
+.remove-button {
+  width: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+
+.roster-unit-art-frame {
+  border: 0;
+  border-radius: 6px;
+  background: var(--builder-panel);
+}
+
+.empty-list,
+.metric-line,
+.validation-item,
+.wargear-group-title,
+.wargear-option-row {
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+}
+
+.validation-item {
+  border-left-width: 4px;
+}
+
+.wargear-group,
+.editor-list,
+.wargear-scope {
+  gap: 8px;
+}
+
+.wargear-group + .wargear-group {
+  margin-top: 10px;
+}
+
+.wargear-option-row {
+  margin-top: 0;
+}
+
+.search-clear-button {
+  margin-left: 0;
+}
+
+.primary-button {
+  color: var(--builder-ink);
+  background: var(--builder-panel);
+  border-color: var(--builder-shadow);
+}
+
+.primary-button:hover {
+  border-color: var(--builder-shadow);
+}
+
+@media (max-width: 760px) {
+  .builder-panel-content {
+    padding: 12px;
+  }
+
+  .builder-grid,
+  .builder-row,
+  .builder-transfer-row,
+  .attachment-control-row,
+  .detachment-control-row,
+  .unit-control-row {
+    grid-template-columns: 1fr;
+  }
+
+  .transfer-button + .transfer-button {
+    margin-top: 0;
   }
 }

@@ -12,9 +12,6 @@
     <section class="shell" aria-label="{{ title }}">
       <div class="title-bar {{ title_bar_class }}" role="button" tabindex="0" aria-label="{{ back_label }}" title="{{ back_label }}" data-up-href="{{ back_href }}"{{ title_bar_style_attr }}>
         <div class="title"><span class="window-title-text">{{ window_title }}</span></div>
-        <div class="title-controls" aria-hidden="true">
-          <span class="title-control">x</span>
-        </div>
       </div>
 {{ breadcrumb_html }}
 
@@ -40,7 +37,6 @@
     </footer>
   </main>
 
-  <script src="/static/win-scrollbars.js" defer></script>
   <script src="/static/taskbar-search.js" defer></script>
   <script src="/static/codex.js" defer></script>
 </body>

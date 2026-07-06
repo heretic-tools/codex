@@ -607,7 +607,7 @@
       text-shadow: 1px 1px 0 var(--ink);
     }
 
-    /* Force-disposition badge — retro VGA palette with a raised Win95 bevel. */
+    /* Force-disposition badge palette. */
     .disposition-badge {
       flex: 0 0 auto;
       justify-self: start;
@@ -1559,3 +1559,164 @@
         font-size: 8px;
       }
     }
+
+/* Modern Codex layer. Generated pages keep their class names, but the visual
+   surface is no longer a faux desktop window. */
+.codex-page .breadcrumb-menu-item {
+  text-decoration: none;
+}
+
+.codex-page .shell,
+.unit-detail-page .shell {
+  width: min(1120px, 100%);
+}
+
+.codex-page .title-bar {
+  cursor: pointer;
+}
+
+.codex-page .title-bar:focus-visible {
+  outline: 3px solid rgba(40, 95, 159, .28);
+  outline-offset: -3px;
+}
+
+.codex-page .title-bar.faction-hero-title {
+  min-height: 128px;
+  align-items: end;
+  padding: 18px;
+  border-bottom: 0;
+  border-radius: var(--app-radius) var(--app-radius) 0 0;
+  text-shadow: none;
+  background:
+    linear-gradient(180deg, rgba(18, 21, 24, .08) 0%, rgba(18, 21, 24, .34) 56%, rgba(18, 21, 24, .72) 100%),
+    var(--faction-hero-image, linear-gradient(135deg, #245c4f, #285f9f));
+  background-position: top center;
+  background-size: cover;
+}
+
+.codex-page .title-bar.faction-hero-title .title {
+  max-width: min(720px, 100%);
+  padding-bottom: 0;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1.08;
+  text-shadow: none;
+}
+
+.codex-page .launch-grid {
+  gap: 10px;
+}
+
+.codex-page .launcher {
+  min-height: 104px;
+  padding: 16px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.codex-page .launcher:hover {
+  border-color: var(--app-border-strong);
+  background: #fbfaf7;
+}
+
+.codex-page .launcher:active,
+.codex-page .launcher[aria-pressed="true"] {
+  background: rgba(36, 92, 79, .08);
+  border-color: rgba(36, 92, 79, .42);
+  box-shadow: none;
+  transform: none;
+}
+
+.codex-page .launcher:focus-visible {
+  outline: 3px solid rgba(40, 95, 159, .28);
+  outline-offset: 2px;
+}
+
+.codex-page .label {
+  font-size: 21px;
+  line-height: 1.12;
+}
+
+.codex-page .section-tag,
+.unit-card-tag,
+.unit-keyword-tag,
+.weapon-ability-tag,
+.unit-meta-item,
+.meta-badge,
+.disposition-badge {
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.codex-page .section-tag {
+  min-height: 26px;
+  color: var(--app-accent);
+  background: rgba(36, 92, 79, .1);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.codex-root-page .launcher.has-faction-image,
+.faction-list-page .launcher.has-faction-image {
+  border: 0;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.codex-root-page .launcher.has-faction-image::after,
+.faction-list-page .launcher.has-faction-image::after {
+  background: linear-gradient(180deg, rgba(18, 21, 24, .02) 0%, rgba(18, 21, 24, .24) 48%, rgba(18, 21, 24, .72) 100%);
+}
+
+.rule-card,
+.unit-info-card,
+.unit-table-card,
+.lore-flavor-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  box-shadow: none;
+}
+
+.rule-card h2,
+.rule-card h3 {
+  color: var(--app-ink);
+}
+
+.unit-table-wrap {
+  border-radius: var(--app-radius);
+  overflow: auto;
+}
+
+.unit-stat-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--app-surface);
+}
+
+.unit-stat-table th,
+.unit-stat-table td {
+  border-color: var(--app-border);
+  box-shadow: none;
+}
+
+.unit-stat-table thead th {
+  color: var(--app-ink);
+  background: var(--app-surface-2);
+}
+
+.unit-stat-table tbody th,
+.unit-stat-table tbody td {
+  background: var(--app-surface);
+}
+
+.unit-reference-stack,
+.unit-rules-grid,
+.unit-quick-stack {
+  gap: 12px;
+}

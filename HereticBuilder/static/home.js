@@ -35,6 +35,6 @@
     selectLauncher(activeButton);
   }
 
-  window.setupWinScrollbars();
-  window.addEventListener("load", window.setupWinScrollbars);
+  window.setupWinScrollbars?.();
+  window.addEventListener("load", () => window.setupWinScrollbars?.());
 })();
