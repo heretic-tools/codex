@@ -3,13 +3,15 @@ import { attachmentTypeLabel } from "./builder_roster_attachment_options.js";
 import { rosterWithRemovedAttachmentMember } from "./builder_roster_actions.js";
 import { attachmentTitle } from "./builder_roster_attachment_row_model.js";
 import { removeButton } from "./builder_roster_editor_dom.js";
+import { labelControl } from "./builder_roster_control_labels.js";
 import { unitImageNode } from "./builder_unit_images.js";
+import { unitOpenLabel } from "./builder_unit_open_labels.js";
 
 function renderAttachmentMember(roster, attachment, member, unit, onUpdate, onUnitOpen = null) {
   const node = document.createElement("span");
   node.className = "attachment-member";
   const unitName = onUnitOpen
-    ? button("attachment-unit-link", unit.name || "Unit", () => onUnitOpen(unit))
+    ? labelControl(button("attachment-unit-link", unit.name || "Unit", () => onUnitOpen(unit)), unitOpenLabel(unit))
     : textNode("span", "", unit.name || "Unit");
   const image = unitImageNode(unit.datasheetId, "attachment-unit-art-frame");
   if (image) {
@@ -28,7 +30,11 @@ function renderAttachmentMember(roster, attachment, member, unit, onUpdate, onUn
 function attachmentTitleNode(members, index, onUnitOpen) {
   const bodyguards = members.filter((member) => member.attachmentType === "bodyguard");
   if (bodyguards.length === 1 && onUnitOpen) {
-    return button("attachment-title-button", bodyguards[0].unit.name || "Bodyguard", () => onUnitOpen(bodyguards[0].unit));
+    const unit = bodyguards[0].unit;
+    return labelControl(
+      button("attachment-title-button", unit.name || "Bodyguard", () => onUnitOpen(unit)),
+      unitOpenLabel(unit)
+    );
   }
   return textNode("strong", "", attachmentTitle(members, index));
 }

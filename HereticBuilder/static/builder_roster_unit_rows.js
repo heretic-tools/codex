@@ -4,10 +4,7 @@ import { removeButton } from "./builder_roster_editor_dom.js";
 import { unitSourceBadgeNode, unitSourceBadgeText } from "./builder_roster_unit_badges.js";
 import { unitValidationStatus } from "./builder_roster_unit_validation_status.js";
 import { unitImageNode } from "./builder_unit_images.js";
-
-function unitOpenLabel(summary) {
-  return `Open unit: ${summary.name || "Unit"}`;
-}
+import { unitOpenLabel } from "./builder_unit_open_labels.js";
 
 function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen) {
   const row = document.createElement("div");
