@@ -1502,6 +1502,10 @@ browser smoke test.
   `builder_roster_unit_candidate_status.js`. Query/source grouping now stays
   separate from default-composition hydration, duplicate-limit checks, and
   points-over-limit labels.
+- 2026-07-06: Split unit picker option label/text formatting out of
+  `builder_roster_unit_candidate_status.js` into
+  `builder_roster_unit_option_labels.js`, leaving candidate status focused on
+  duplicate-limit and points-over-limit checks.
 - 2026-07-05: Split enhancement eligibility and candidate-status predicates
   out of `builder_enhancement_rules.js` into
   `builder_enhancement_eligibility.js`. UI candidate filtering and roster
@@ -1580,6 +1584,10 @@ browser smoke test.
   `builder_keyword_restriction_groups.js`. The validator now focuses on roster
   and detachment limit messages while group catalog lookup remains auditable
   separately.
+- 2026-07-06: Split keyword restriction group catalog hydration out of
+  `builder_keyword_restriction_groups.js` into
+  `builder_keyword_restriction_group_hydration.js`, leaving the group module for
+  active-state and unit-matching predicates.
 - 2026-07-05: Split the remaining detachment datasheet/unique-keyword, unit
   composition, and Successor Chapter Epic Hero restrictions out of
   `builder_restriction_rules.js` into focused rule modules. The public
@@ -1645,6 +1653,10 @@ browser smoke test.
   into `builder_model_wargear_default_options.js` and
   `builder_model_wargear_default_search.js`. The public default-loadout module
   is now a facade while option mapping and scoring are independently auditable.
+- 2026-07-06: Split preferred default-Wargear option-count hydration out of
+  `builder_model_wargear_default_options.js` into
+  `builder_model_wargear_option_counts.js`, leaving default options focused on
+  option IDs and option-key lookup.
 - 2026-07-05: Split closest-valid default Wargear candidate scoring and
   multi-model expansion out of `builder_model_wargear_default_search.js` into
   `builder_model_wargear_default_scores.js` and

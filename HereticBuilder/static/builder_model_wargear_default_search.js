@@ -1,9 +1,7 @@
 import { loadoutChoiceSets, validLoadoutsFromChoiceSets } from "./builder_loadout_math.js";
 import { rankedDefaultCandidates } from "./builder_model_wargear_default_candidates.js";
-import {
-  addWargearCount,
-  optionItemCounts,
-} from "./builder_model_wargear_default_options.js";
+import { addWargearCount } from "./builder_model_wargear_default_options.js";
+import { optionItemCounts } from "./builder_model_wargear_option_counts.js";
 import { compareScores, defaultLoadoutScore } from "./builder_model_wargear_default_scores.js";
 
 function closestValidDefaultLoadout(datasheetId, miniatureId, preferredOptions, modelCount, optionByKey) {

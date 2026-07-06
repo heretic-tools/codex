@@ -870,7 +870,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const modelWargearDefaultSearchSource = readFileSync(join(outDir, "static", "builder_model_wargear_default_search.js"), "utf8");
     assert.match(modelWargearDefaultSearchSource, new RegExp(`\\.\\/builder_model_wargear_default_candidates\\.js\\?v=${version}`));
     assert.match(modelWargearDefaultSearchSource, new RegExp(`\\.\\/builder_model_wargear_default_options\\.js\\?v=${version}`));
+    assert.match(modelWargearDefaultSearchSource, new RegExp(`\\.\\/builder_model_wargear_option_counts\\.js\\?v=${version}`));
     assert.match(modelWargearDefaultSearchSource, new RegExp(`\\.\\/builder_model_wargear_default_scores\\.js\\?v=${version}`));
+
+    const modelWargearOptionCountsSource = readFileSync(join(outDir, "static", "builder_model_wargear_option_counts.js"), "utf8");
+    assert.match(modelWargearOptionCountsSource, new RegExp(`\\.\\/builder_loadout_math\\.js\\?v=${version}`));
+    assert.match(modelWargearOptionCountsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const modelWargearDefaultCandidatesSource = readFileSync(
       join(outDir, "static", "builder_model_wargear_default_candidates.js"),
@@ -1077,6 +1082,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(keywordRestrictionRulesSource, new RegExp(`\\.\\/builder_keyword_restriction_groups\\.js\\?v=${version}`));
     assert.match(keywordRestrictionRulesSource, new RegExp(`\\.\\/builder_keyword_restriction_messages\\.js\\?v=${version}`));
 
+    const keywordRestrictionGroupsSource = readFileSync(join(outDir, "static", "builder_keyword_restriction_groups.js"), "utf8");
+    assert.match(keywordRestrictionGroupsSource, new RegExp(`\\.\\/builder_keyword_restriction_group_hydration\\.js\\?v=${version}`));
+
+    const keywordRestrictionGroupHydrationSource = readFileSync(join(outDir, "static", "builder_keyword_restriction_group_hydration.js"), "utf8");
+    assert.match(keywordRestrictionGroupHydrationSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(keywordRestrictionGroupHydrationSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+
     const keywordRestrictionMessagesSource = readFileSync(join(outDir, "static", "builder_keyword_restriction_messages.js"), "utf8");
     assert.match(keywordRestrictionMessagesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
 
@@ -1094,7 +1106,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const unitCandidatesSource = readFileSync(join(outDir, "static", "builder_roster_unit_candidates.js"), "utf8");
     assert.match(unitCandidatesSource, new RegExp(`\\.\\/builder_roster_unit_candidate_status\\.js\\?v=${version}`));
+    assert.match(unitCandidatesSource, new RegExp(`\\.\\/builder_roster_unit_option_labels\\.js\\?v=${version}`));
     assert.match(unitCandidatesSource, new RegExp(`\\.\\/builder_roster_unit_option_values\\.js\\?v=${version}`));
+
+    const unitOptionLabelsSource = readFileSync(join(outDir, "static", "builder_roster_unit_option_labels.js"), "utf8");
+    assert.match(unitOptionLabelsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
 
     const unitRowsSource = readFileSync(join(outDir, "static", "builder_roster_unit_rows.js"), "utf8");
     assert.match(unitRowsSource, new RegExp(`\\.\\/builder_roster_unit_badges\\.js\\?v=${version}`));

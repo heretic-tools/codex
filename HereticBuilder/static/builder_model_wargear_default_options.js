@@ -1,8 +1,5 @@
 import { state } from "./builder_state.js";
-import {
-  cleanCounts,
-  wargearOptionKey,
-} from "./builder_loadout_math.js";
+import { wargearOptionKey } from "./builder_loadout_math.js";
 
 function addWargearCount(result, optionId, count) {
   const value = Math.max(0, Number(count || 0));
@@ -10,18 +7,6 @@ function addWargearCount(result, optionId, count) {
     return;
   }
   result[optionId] = (result[optionId] || 0) + value;
-}
-
-function optionItemCounts(optionCounts) {
-  const result = {};
-  for (const [optionId, count] of Object.entries(optionCounts || {})) {
-    const optionRow = state.catalog.wargearOptionById.get(optionId);
-    const key = wargearOptionKey(optionRow);
-    if (key) {
-      result[key] = (result[key] || 0) + Number(count || 0);
-    }
-  }
-  return cleanCounts(result);
 }
 
 function defaultWargearOptionsByKey(datasheetId, miniatureId) {
@@ -53,5 +38,4 @@ function defaultWargearOptionsByKey(datasheetId, miniatureId) {
 export {
   addWargearCount,
   defaultWargearOptionsByKey,
-  optionItemCounts,
 };

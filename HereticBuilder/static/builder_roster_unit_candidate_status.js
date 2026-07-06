@@ -1,19 +1,10 @@
 import {
-  compositionFactionIds,
-  defaultComposition,
   rosterUnitSummaries,
   unitSummary,
 } from "./builder_model.js";
 import { rosterWithAddedUnit } from "./builder_roster_actions.js";
 import { state } from "./builder_state.js";
 import { duplicateLimitForUnit } from "./builder_validation_core.js";
-
-function unitOptionLabel(roster, allyType, datasheet) {
-  const factionIds = compositionFactionIds(roster, allyType);
-  const composition = defaultComposition(datasheet.id, factionIds, roster.detachmentIds || []);
-  const points = composition ? `${composition.points || 0} pts` : "no composition";
-  return `${datasheet.name} (${points})`;
-}
 
 function candidateSummary(roster, allyType, datasheet) {
   const unitId = `candidate:${allyType}:${datasheet.id}`;
@@ -44,13 +35,7 @@ function unitCandidateStatus(roster, validation, candidate, currentUnits = roste
   return { severity: "ok", reason: "" };
 }
 
-function unitOptionText(roster, allyType, datasheet, status) {
-  const label = unitOptionLabel(roster, allyType, datasheet);
-  return status.reason ? `${label} / ${status.reason}` : label;
-}
-
 export {
   candidateSummary,
   unitCandidateStatus,
-  unitOptionText,
 };

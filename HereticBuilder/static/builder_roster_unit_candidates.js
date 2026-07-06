@@ -6,8 +6,8 @@ import {
 import {
   candidateSummary,
   unitCandidateStatus,
-  unitOptionText,
 } from "./builder_roster_unit_candidate_status.js";
+export { unitOptionText } from "./builder_roster_unit_option_labels.js";
 export { parseUnitOptionValue, unitOptionValue } from "./builder_roster_unit_option_values.js";
 
 function unitCandidateGroups(roster, validation, query = "") {
@@ -42,5 +42,4 @@ function unitCandidateGroups(roster, validation, query = "") {
 export {
   unitCandidateGroups,
   unitCandidateStatus,
-  unitOptionText,
 };
