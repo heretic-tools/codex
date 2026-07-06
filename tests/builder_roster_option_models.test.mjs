@@ -10,6 +10,7 @@ import {
   state,
 } from "./builder_validation_helpers.mjs";
 import { allegianceEditorOptions } from "../HereticBuilder/static/builder_roster_unit_allegiance_options.js";
+import { compositionSelectModel } from "../HereticBuilder/static/builder_roster_unit_composition_options.js";
 import { enhancementSelectRows } from "../HereticBuilder/static/builder_roster_unit_enhancement_options.js";
 import { unitWarlordSelectModel } from "../HereticBuilder/static/builder_roster_unit_warlord_options.js";
 import { warlordPickerModel } from "../HereticBuilder/static/builder_roster_warlord_options.js";
@@ -134,6 +135,28 @@ test("unit warlord select model keeps the current invalid candidate visible and 
   assert.equal(model.currentId, intercessor.miniatures[0].rosterUnitMiniatureId);
   assert.equal(intercessorOption.disabled, false);
   assert.match(intercessorOption.label, /not eligible/);
+});
+
+test("composition select model exposes current composition labels", () => {
+  state.catalog = realCatalog;
+  const captain = enhancementTargetUnit({
+    id: "composition-captain",
+    datasheetName: "Captain",
+    miniatureName: "Captain",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const roster = {
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [captain],
+  };
+
+  const model = compositionSelectModel(roster, captain);
+
+  assert.ok(model.currentId);
+  assert.ok(model.options.length);
+  assert.equal(model.options[0].value, model.currentId);
+  assert.match(model.options[0].label, /pts\)$/);
 });
 
 test("allegiance editor disables invalid non-current options", () => {

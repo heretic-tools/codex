@@ -1,20 +1,15 @@
 import { option, textNode } from "./builder_dom.js";
-import {
-  availableCompositions,
-  compositionFactionIds,
-  compositionLabel,
-} from "./builder_model.js";
 import { rosterWithUnitComposition } from "./builder_roster_actions.js";
+import { compositionSelectModel } from "./builder_roster_unit_composition_options.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 
 function renderCompositionEditor({ onUpdate, roster, unit, validation = null, validationContext = {} }) {
-  const factionIds = compositionFactionIds(roster, unit.allyType || "native");
-  const compositions = availableCompositions(unit.datasheetId, factionIds, roster.detachmentIds || []);
+  const model = compositionSelectModel(roster, unit);
   const select = document.createElement("select");
-  for (const row of compositions) {
-    select.appendChild(option(row.id, `${compositionLabel(row)} (${row.points || 0} pts)`));
+  for (const row of model.options) {
+    select.appendChild(option(row.value, row.label));
   }
-  select.value = unit.compositionId || compositions[0]?.id || "";
+  select.value = model.currentId;
   select.dataset.focusTarget = "true";
   select.addEventListener("change", async () => {
     await onUpdate(rosterWithUnitComposition(roster, unit.id, select.value));
