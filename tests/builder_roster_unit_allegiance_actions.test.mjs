@@ -1,13 +1,51 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  battleSizeNamed,
   factionNamed,
   realCatalog,
   state,
+  unitSummary,
   withCatalog,
 } from "./builder_validation_helpers.mjs";
-import { rosterWithUnitAllegianceAbility } from "../HereticBuilder/static/builder_roster_actions.js";
-import { updateUnitAllegianceFromEditor } from "../HereticBuilder/static/builder_roster_unit_allegiance_editor.js";
+import {
+  rosterWithAddedUnit,
+  rosterWithUnitAllegianceAbility,
+} from "../HereticBuilder/static/builder_roster_actions.js";
+import {
+  renderAllegianceEditor,
+  updateUnitAllegianceFromEditor,
+} from "../HereticBuilder/static/builder_roster_unit_allegiance_editor.js";
+
+function createMockElement(tagName) {
+  return {
+    attributes: new Map(),
+    children: [],
+    className: "",
+    dataset: {},
+    disabled: false,
+    listeners: new Map(),
+    tagName,
+    textContent: "",
+    value: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      this.textContent += node.textContent || "";
+      return node;
+    },
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    },
+  };
+}
 
 function firstDetachmentGatedAllegianceSelection() {
   for (const datasheet of realCatalog.datasheets) {
@@ -27,6 +65,61 @@ function firstDetachmentGatedAllegianceSelection() {
   }
   assert.fail("Expected a detachment-gated allegiance selection");
 }
+
+function rosterWithAllegianceUnit(detachmentIds = []) {
+  state.catalog = realCatalog;
+  const { datasheet, factionKeywordId, group } = firstDetachmentGatedAllegianceSelection();
+  const roster = {
+    id: "allegiance-editor-render-roster",
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds,
+    factionKeywordId,
+    units: [],
+    attachments: [],
+  };
+  const withUnit = rosterWithAddedUnit(roster, {
+    datasheetId: datasheet.id,
+    unitId: "unit-1",
+  });
+  return {
+    group,
+    roster: withUnit,
+    unit: unitSummary(withUnit, withUnit.units[0]),
+  };
+}
+
+test("unit allegiance editor hides controls until an actionable option exists", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const hidden = rosterWithAllegianceUnit();
+    assert.equal(renderAllegianceEditor({
+      onUpdate: () => {},
+      roster: hidden.roster,
+      unit: hidden.unit,
+      validation: { messages: [] },
+      validationContext: {},
+    }), null);
+
+    const visible = rosterWithAllegianceUnit([hidden.group.detachmentId]);
+    const node = renderAllegianceEditor({
+      onUpdate: () => {},
+      roster: visible.roster,
+      unit: visible.unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    assert.equal(node.tagName, "label");
+    assert.equal(node.dataset.unitDetailTarget, "allegiance");
+    assert.equal(node.children[1].tagName, "select");
+  } finally {
+    global.document = previousDocument;
+  }
+});
 
 test("builder roster actions write compact allegiance ability selections", () => {
   state.catalog = realCatalog;

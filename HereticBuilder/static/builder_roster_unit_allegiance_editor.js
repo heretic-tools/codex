@@ -30,6 +30,11 @@ function renderAllegianceEditor({
   if (!model) {
     return null;
   }
+  const validationNode = renderUnitEditorValidation(validation, validationContext, "allegiance");
+  const hasSelectableOption = model.options.some((row) => row.value && !row.disabled);
+  if (!model.currentId && !hasSelectableOption && !validationNode) {
+    return null;
+  }
   const select = document.createElement("select");
   for (const row of model.options) {
     select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
@@ -48,7 +53,6 @@ function renderAllegianceEditor({
   wrap.className = "field";
   wrap.dataset.unitDetailTarget = "allegiance";
   wrap.append(textNode("span", "", model.label), select);
-  const validationNode = renderUnitEditorValidation(validation, validationContext, "allegiance");
   if (validationNode) {
     wrap.appendChild(validationNode);
   }
