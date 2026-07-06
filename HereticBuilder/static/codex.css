@@ -1704,6 +1704,41 @@
   background: var(--app-surface);
 }
 
+.unit-statline-card .unit-stat-table tbody th,
+.unit-statline-card .unit-stat-table tbody td,
+.unit-points-table tbody th,
+.unit-points-table tbody td,
+.unit-weapon-table tbody tr:nth-child(odd) th,
+.unit-weapon-table tbody tr:nth-child(odd) td {
+  background: var(--app-surface);
+}
+
+.unit-weapon-table tbody tr:nth-child(even) th,
+.unit-weapon-table tbody tr:nth-child(even) td {
+  background: var(--app-surface-2);
+}
+
+.rule-table {
+  background: var(--app-surface);
+}
+
+.rule-table th,
+.rule-table td {
+  color: var(--app-ink);
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  box-shadow: none;
+}
+
+.rule-table th,
+.rule-table.has-header td[data-label=""] {
+  background: var(--app-surface-2);
+}
+
+.rule-table.has-header td[data-label]::before {
+  color: var(--app-muted);
+}
+
 .unit-reference-stack,
 .unit-rules-grid,
 .unit-quick-stack {
