@@ -1206,12 +1206,12 @@ browser smoke test.
   unit summaries and roster detachments when explicit context is omitted, while
   the roster picker and unit-detail Warlord control can still pass precomputed
   context. Ineligible Warlord targets cannot be written by direct action calls.
-- 2026-07-06: Added optional Enhancement candidate-status guards to
-  `builder_roster_unit_upgrade_actions.js`. Low-level calls without context
-  preserve legacy mutation behavior, while the unit-detail Enhancement editor
-  now passes current unit summaries, detachments, target keywords, and model
-  context so ineligible unit/model Enhancement selections cannot be written by
-  the mutation layer.
+- 2026-07-06: Added Enhancement candidate-status guards to
+  `builder_roster_unit_upgrade_actions.js`. The mutation layer now derives
+  current unit summaries, roster detachments, target keywords, and model
+  context when explicit context is omitted, while the unit-detail Enhancement
+  editor can still pass precomputed context. Ineligible unit/model Enhancement
+  selections cannot be written by direct action calls.
 - 2026-07-05: Split base unit add/remove/composition mutations out of the
   `builder_roster_unit_actions.js` facade into
   `builder_roster_unit_base_actions.js`. The public action API is unchanged,

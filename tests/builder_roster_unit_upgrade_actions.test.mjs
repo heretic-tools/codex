@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  availableDatasheets,
   battleSizeNamed,
   factionNamed,
   keywordNamed,
@@ -15,49 +14,84 @@ import {
   rosterWithUnitEnhancement,
 } from "../HereticBuilder/static/builder_roster_actions.js";
 
-function rosterWithNativeUnit() {
+const ENHANCEMENT_FIXTURES = {
+  miniature: {
+    datasheetId: "9bc4c7d0-d4dd-4fa4-b77d-d3512b36eae2",
+    detachmentId: "12492ec7-0f2c-46fa-822a-80b0c2e8bfd6",
+    enhancementId: "994771ac-14b5-40c7-8ade-01bae240edae",
+    factionName: "Heretic Astartes",
+  },
+  unit: {
+    datasheetId: "eff3e091-a068-49b7-9a0a-6eb02e546be4",
+    detachmentId: "0bb425be-1dff-4825-96ba-704523da27c4",
+    enhancementId: "6bb394ee-ecc3-4447-bead-f3d003753b0b",
+    factionName: "Adeptus Astartes",
+  },
+};
+
+function rosterWithFixtureUnit(fixture, detachmentIds = [fixture.detachmentId]) {
   state.catalog = realCatalog;
   const roster = {
     id: "action-roster-upgrades",
     name: "Action Roster",
-    factionKeywordId: factionNamed("Heretic Astartes").id,
+    factionKeywordId: factionNamed(fixture.factionName).id,
     battleSizeId: battleSizeNamed("Strike Force").id,
-    detachmentIds: [],
+    detachmentIds,
     units: [],
     attachments: [],
   };
-  const datasheet = availableDatasheets(roster, "native")[0];
-  assert.ok(datasheet, "Expected an available datasheet");
   const withUnit = rosterWithAddedUnit(roster, {
-    datasheetId: datasheet.id,
+    datasheetId: fixture.datasheetId,
     unitId: "unit-1",
   });
+  assert.equal(withUnit.units.length, 1, "Expected fixture datasheet to be available");
   return { roster: withUnit, unit: withUnit.units[0] };
 }
 
 test("builder roster actions write compact enhancement selections", () => {
-  const { roster, unit } = rosterWithNativeUnit();
-  const unitEnhancement = realCatalog.enhancements.find((row) => row.enhancementType !== "miniature");
-  assert.ok(unitEnhancement, "Expected a unit enhancement");
-  const withUnitEnhancement = rosterWithUnitEnhancement(roster, unit.id, unitEnhancement.id);
-  assert.deepEqual(withUnitEnhancement.units[0].unitEnhancements, [{ id: unitEnhancement.id }]);
+  const { roster, unit } = rosterWithFixtureUnit(ENHANCEMENT_FIXTURES.unit);
+  const withUnitEnhancement = rosterWithUnitEnhancement(roster, unit.id, ENHANCEMENT_FIXTURES.unit.enhancementId);
+  assert.deepEqual(withUnitEnhancement.units[0].unitEnhancements, [{ id: ENHANCEMENT_FIXTURES.unit.enhancementId }]);
   assert.deepEqual(rosterWithUnitEnhancement(withUnitEnhancement, unit.id, "").units[0].unitEnhancements, []);
 
-  const miniatureEnhancement = realCatalog.enhancements.find((row) => row.enhancementType === "miniature");
-  assert.ok(miniatureEnhancement, "Expected a miniature enhancement");
-  const targetMiniature = unit.miniatures[0];
-  const withMiniatureEnhancement = rosterWithMiniatureEnhancement(roster, unit.id, {
-    enhancementId: miniatureEnhancement.id,
+  const miniatureRoster = rosterWithFixtureUnit(ENHANCEMENT_FIXTURES.miniature);
+  const targetMiniature = miniatureRoster.unit.miniatures[0];
+  const withMiniatureEnhancement = rosterWithMiniatureEnhancement(miniatureRoster.roster, miniatureRoster.unit.id, {
+    enhancementId: ENHANCEMENT_FIXTURES.miniature.enhancementId,
     rosterUnitMiniatureId: targetMiniature.rosterUnitMiniatureId,
   });
   assert.deepEqual(withMiniatureEnhancement.units[0].miniatureEnhancements, [{
-    id: miniatureEnhancement.id,
+    id: ENHANCEMENT_FIXTURES.miniature.enhancementId,
     targetId: targetMiniature.rosterUnitMiniatureId,
   }]);
-  assert.deepEqual(rosterWithMiniatureEnhancement(withMiniatureEnhancement, unit.id, {
+  assert.deepEqual(rosterWithMiniatureEnhancement(withMiniatureEnhancement, miniatureRoster.unit.id, {
     enhancementId: "",
     rosterUnitMiniatureId: targetMiniature.rosterUnitMiniatureId,
   }).units[0].miniatureEnhancements, []);
+});
+
+test("builder roster action derives enhancement context when omitted", () => {
+  const unitFixture = ENHANCEMENT_FIXTURES.unit;
+  const withoutUnitDetachment = rosterWithFixtureUnit(unitFixture, []);
+  const rejectedUnitEnhancement = rosterWithUnitEnhancement(
+    withoutUnitDetachment.roster,
+    withoutUnitDetachment.unit.id,
+    unitFixture.enhancementId
+  );
+  assert.equal(rejectedUnitEnhancement, withoutUnitDetachment.roster);
+
+  const miniatureFixture = ENHANCEMENT_FIXTURES.miniature;
+  const withoutMiniatureDetachment = rosterWithFixtureUnit(miniatureFixture, []);
+  const targetMiniature = withoutMiniatureDetachment.unit.miniatures[0];
+  const rejectedMiniatureEnhancement = rosterWithMiniatureEnhancement(
+    withoutMiniatureDetachment.roster,
+    withoutMiniatureDetachment.unit.id,
+    {
+      enhancementId: miniatureFixture.enhancementId,
+      rosterUnitMiniatureId: targetMiniature.rosterUnitMiniatureId,
+    }
+  );
+  assert.equal(rejectedMiniatureEnhancement, withoutMiniatureDetachment.roster);
 });
 
 test("builder roster action rejects invalid enhancement targets when context is supplied", () => {
