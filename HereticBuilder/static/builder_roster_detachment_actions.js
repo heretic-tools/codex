@@ -1,7 +1,11 @@
+import { detachmentAvailableToRoster } from "./builder_model.js";
 import { withModifiedRoster } from "./builder_roster_action_helpers.js";
 
 function rosterWithAddedDetachment(roster, detachmentId) {
   if (!detachmentId || (roster.detachmentIds || []).includes(detachmentId)) {
+    return roster;
+  }
+  if (!detachmentAvailableToRoster(detachmentId, roster.factionKeywordId)) {
     return roster;
   }
   return withModifiedRoster(roster, {

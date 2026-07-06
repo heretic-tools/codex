@@ -12,4 +12,5 @@ export {
 export {
   availableDetachments,
   detachmentAllowed,
+  detachmentAvailableToRoster,
 } from "./builder_detachment_availability.js";

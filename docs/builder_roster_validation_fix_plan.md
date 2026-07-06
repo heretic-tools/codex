@@ -1208,6 +1208,11 @@ browser smoke test.
   Unit picker rows and direct add-unit mutations now share Combat Patrol,
   native/allied availability, detachment exclusion, and default-composition
   checks, so unavailable datasheet ids cannot be written by the mutation layer.
+- 2026-07-06: Split detachment availability into a reusable
+  `detachmentAvailableToRoster` predicate and wired `rosterWithAddedDetachment`
+  to it. Detachment picker rows and direct add-detachment mutations now share
+  faction availability and Combat Patrol hiding, so unavailable detachment ids
+  cannot be written by the mutation layer.
 - 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
   enhancement editors out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a

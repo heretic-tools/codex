@@ -39,6 +39,7 @@ export {
   datasheetIsCombatPatrol,
   datasheetIsNativeToFaction,
   detachmentAllowed,
+  detachmentAvailableToRoster,
   factionExcludesDatasheet,
 } from "./builder_model_availability.js";
 

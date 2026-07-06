@@ -192,6 +192,18 @@ test("builder roster actions add and remove detachments and default units", () =
   const withDetachment = rosterWithAddedDetachment(roster, detachment.id);
   assert.deepEqual(withDetachment.detachmentIds, [detachment.id]);
   assert.equal(rosterWithAddedDetachment(withDetachment, detachment.id).detachmentIds.length, 1);
+  const combatPatrolDetachmentRow = realCatalog.detachmentFactionKeywords
+    .find((row) => realCatalog.detachmentById.get(row.detachmentId)?.isCombatPatrol);
+  assert.ok(combatPatrolDetachmentRow, "Expected a Combat Patrol detachment row");
+  assert.equal(rosterWithAddedDetachment({
+    ...roster,
+    factionKeywordId: combatPatrolDetachmentRow.factionKeywordId,
+  }, combatPatrolDetachmentRow.detachmentId).detachmentIds.length, 0);
+  const factionDetachmentIds = new Set(availableDetachments(faction.id).map((row) => row.id));
+  const foreignDetachment = availableDetachments(factionNamed("Adeptus Astartes").id)
+    .find((row) => !factionDetachmentIds.has(row.id));
+  assert.ok(foreignDetachment, "Expected a detachment unavailable to Heretic Astartes");
+  assert.equal(rosterWithAddedDetachment(roster, foreignDetachment.id), roster);
 
   const datasheet = availableDatasheets(withDetachment, "native")[0];
   assert.ok(datasheet, "Expected an available datasheet");
