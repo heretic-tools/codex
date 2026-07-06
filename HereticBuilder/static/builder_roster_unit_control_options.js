@@ -7,6 +7,9 @@ import {
 
 function refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelect, validation }) {
   const groups = unitCandidateGroups(roster, validation, search.value);
+  const firstEnabled = groups
+    .flatMap((group) => group.rows)
+    .find((row) => row.status.severity !== "error");
   const nodes = groups.map((group) => {
     const optgroup = document.createElement("optgroup");
     optgroup.label = group.source.label;
@@ -23,7 +26,10 @@ function refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelec
     nodes.push(empty);
   }
   unitSelect.replaceChildren(...nodes);
-  add.disabled = !groups.some((group) => group.rows.some((row) => row.status.severity !== "error"));
+  if (firstEnabled) {
+    unitSelect.value = unitOptionValue(firstEnabled.allyType, firstEnabled.datasheet.id);
+  }
+  add.disabled = !firstEnabled;
   unitSelect.disabled = !groups.length;
   clearSearch.hidden = !search.value;
 }
