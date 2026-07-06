@@ -20,6 +20,7 @@ import {
   updateUnitCompositionFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_composition_editor.js";
 import {
+  renderRosterUnitOverview,
   resetWargearFromOverview,
 } from "../HereticBuilder/static/builder_roster_unit_overview_view.js";
 import {
@@ -65,6 +66,10 @@ function createMockElement(tagName) {
       this.attributes.set(name, String(value));
     },
   };
+}
+
+function flatNodes(node) {
+  return [node, ...(node.children || []).flatMap((child) => flatNodes(child))];
 }
 
 function rosterWithMultiCompositionUnit() {
@@ -218,6 +223,30 @@ test("unit composition editor renders read-only value when only one composition 
     assert.equal(multiNode.className, "field");
     assert.equal(multiNode.children[1].tagName, "select");
     assert.ok(multiNode.children[1].children.length > 1);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit overview does not duplicate the unit title from the app header", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithCompositionCount(1);
+    const overview = renderRosterUnitOverview({
+      onBack: () => {},
+      onUpdate: () => {},
+      roster,
+      unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    const titles = flatNodes(overview).filter((node) => node.className === "section-title");
+    assert.equal(titles.length, 0);
   } finally {
     global.document = previousDocument;
   }

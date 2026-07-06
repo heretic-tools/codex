@@ -27,7 +27,6 @@ function resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate = nul
 function renderRosterUnitOverview({ onBack, onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
   const overview = document.createElement("section");
   overview.className = "builder-section unit-overview-card";
-  overview.appendChild(textNode("h2", "section-title", unit.name));
   const image = unitImageNode(unit.datasheetId, "unit-detail-art-frame");
   if (image) {
     overview.appendChild(image);
