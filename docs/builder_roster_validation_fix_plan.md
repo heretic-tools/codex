@@ -1233,6 +1233,10 @@ browser smoke test.
   `builder_roster_unit_allegiance_actions.js` and
   `builder_roster_unit_enhancement_actions.js`. The upgrade actions module is
   now only a public facade over the two guarded mutation families plus Warlord.
+- 2026-07-06: Removed the remaining legacy scalar attachment fixture from
+  action tests. Old attachment fields now appear only in transfer-boundary
+  rejection tests, while roster mutation tests cover the current
+  `attachments[].members[]` shape.
 - 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
   enhancement editors out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a

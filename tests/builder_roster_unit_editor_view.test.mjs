@@ -82,8 +82,8 @@ test("unit option values round-trip ally type and datasheet id", () => {
     { allyType: "chaos-knights", datasheetId: "war-dog" }
   );
   assert.deepEqual(
-    parseUnitOptionValue("legacy-datasheet"),
-    { allyType: "native", datasheetId: "legacy-datasheet" }
+    parseUnitOptionValue("plain-datasheet-id"),
+    { allyType: "native", datasheetId: "plain-datasheet-id" }
   );
 });
 
