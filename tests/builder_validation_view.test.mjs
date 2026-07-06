@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   groupedMessages,
+  validationGroupBodyTexts,
+  validationGroupTitle,
   validationScopeLabels,
   validationForAttachment,
   validationForDetachment,
@@ -201,4 +203,21 @@ test("groupedMessages carries detachment ids for validation badges and actions",
 
   assert.equal(groups.length, 1);
   assert.deepEqual(groups[0].detachmentIds, ["detachment-1", "detachment-2"]);
+});
+
+test("validation message groups present readable titles without duplicate body text", () => {
+  const [single] = groupedMessages([
+    { level: "error", code: "roster.detachment_not_selected", text: "Pick a detachment." },
+  ]);
+  assert.equal(validationGroupTitle(single), "Pick a detachment.");
+  assert.deepEqual(validationGroupBodyTexts(single), []);
+
+  const [multi] = groupedMessages([
+    { level: "error", code: "roster.unit_limit_exceeded", text: "Traitor Guardsmen Squad has 4 units; limit is 3." },
+    { level: "error", code: "roster.unit_limit_exceeded", text: "Accursed Cultists has 4 units; limit is 3." },
+  ]);
+  assert.equal(validationGroupTitle(multi), "Traitor Guardsmen Squad has 4 units; limit is 3.");
+  assert.deepEqual(validationGroupBodyTexts(multi), [
+    "Accursed Cultists has 4 units; limit is 3.",
+  ]);
 });

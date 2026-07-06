@@ -6,6 +6,8 @@ import {
 import {
   appendGroupedMessages,
   renderValidationMessages,
+  validationGroupBodyTexts,
+  validationGroupTitle,
   validationSummary,
 } from "./builder_validation_message_list.js";
 import {
@@ -35,6 +37,8 @@ export {
   groupedMessages,
   renderValidation,
   renderValidationMessages,
+  validationGroupBodyTexts,
+  validationGroupTitle,
   validationScopeLabels,
   validationForAttachment,
   validationForDetachment,

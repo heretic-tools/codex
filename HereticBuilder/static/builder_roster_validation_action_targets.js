@@ -22,7 +22,7 @@ function rosterValidationActionTarget(group) {
     return {
       focusTarget: unitTarget?.target || "",
       kind: "unit",
-      text: "Open",
+      text: "Open Unit",
       unitId: unitIds[0],
     };
   }

@@ -2,14 +2,34 @@ import { textNode } from "./builder_dom.js";
 import { groupedMessages } from "./builder_validation_groups.js";
 export { validationSummary } from "./builder_validation_summary.js";
 
+function validationGroupTitle(group) {
+  return group.texts?.[0] || group.code || "Validation issue";
+}
+
+function validationGroupBodyTexts(group) {
+  const title = validationGroupTitle(group);
+  return (group.texts || []).filter((text, index) => index > 0 || text !== title);
+}
+
+function setValidationCode(node, code) {
+  if (node.dataset) {
+    node.dataset.validationCode = code;
+  } else if (node.setAttribute) {
+    node.setAttribute("data-validation-code", code);
+  }
+}
+
 function appendGroupedMessages(list, messages, context = {}, groupAction = null) {
   for (const group of groupedMessages(messages, context)) {
     const item = textNode("div", `validation-item ${group.level}`, "");
+    setValidationCode(item, group.code);
     const head = document.createElement("div");
     head.className = "validation-row-head";
     const action = groupAction?.(group);
+    const title = textNode("strong", "", validationGroupTitle(group));
+    title.title = group.code;
     head.append(
-      textNode("strong", "", group.code),
+      title,
       textNode("span", "validation-count", String(group.count))
     );
     if (action) {
@@ -24,7 +44,7 @@ function appendGroupedMessages(list, messages, context = {}, groupAction = null)
       }
       item.appendChild(scopes);
     }
-    for (const text of group.texts) {
+    for (const text of validationGroupBodyTexts(group)) {
       item.appendChild(textNode("p", "", text));
     }
     list.appendChild(item);
@@ -41,4 +61,6 @@ function renderValidationMessages(messages, { context = {}, groupAction = null }
 export {
   appendGroupedMessages,
   renderValidationMessages,
+  validationGroupBodyTexts,
+  validationGroupTitle,
 };
