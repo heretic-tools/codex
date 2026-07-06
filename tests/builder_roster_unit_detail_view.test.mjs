@@ -5,6 +5,7 @@ global.document = { querySelector: () => null };
 
 const {
   unitValidationActionTarget,
+  validationHasMessages,
   validationWithoutMessages,
 } = await import("../HereticBuilder/static/builder_roster_unit_detail_view.js");
 const {
@@ -123,6 +124,12 @@ test("unit detail separates current-unit validation from other roster issues", (
       state: "valid",
     }
   );
+});
+
+test("unit detail validation sections render only when messages exist", () => {
+  assert.equal(validationHasMessages(null), false);
+  assert.equal(validationHasMessages({ messages: [] }), false);
+  assert.equal(validationHasMessages({ messages: [{ code: "unit.issue", level: "error" }] }), true);
 });
 
 test("unit wargear section hides empty scopes unless they carry wargear validation", () => {

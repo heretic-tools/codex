@@ -21,12 +21,15 @@ function validationWithoutMessages(validation, excludedMessages) {
   };
 }
 
+function validationHasMessages(validation) {
+  return Boolean((validation?.messages || []).length);
+}
+
 function renderRosterUnitDetailView({ focusTarget = "", onBack, onUndoableUpdate = null, onUpdate, roster, unit, validation }) {
   const summary = unitSummary(roster, unit);
   const unitValidation = validationForUnit(validation, summary);
   const otherValidation = validationWithoutMessages(validation, unitValidation.messages);
   const validationContext = validationContextForRoster(roster);
-  const otherIssueCount = otherValidation.messages.length;
   const root = document.createElement("section");
   root.className = "builder-grid unit-detail-grid";
   const stickySummary = renderRosterStickySummary({ roster, validation });
@@ -52,15 +55,15 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUndoableUpdate
     validationContext,
   });
 
-  sidebar.append(
-    overview,
-    renderValidation(unitValidation, {
+  sidebar.appendChild(overview);
+  if (validationHasMessages(unitValidation)) {
+    sidebar.appendChild(renderValidation(unitValidation, {
       context: validationContext,
       groupAction: renderUnitValidationAction,
       title: "Unit Validation",
-    })
-  );
-  if (otherIssueCount) {
+    }));
+  }
+  if (validationHasMessages(otherValidation)) {
     sidebar.appendChild(renderValidation(otherValidation, {
       context: validationContext,
       groupAction: renderUnitValidationAction,
@@ -89,5 +92,6 @@ export {
   renderRosterUnitDetailView,
   unitDisplayName,
   unitValidationActionTarget,
+  validationHasMessages,
   validationWithoutMessages,
 };
