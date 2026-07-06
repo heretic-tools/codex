@@ -1,4 +1,5 @@
 import { withModifiedRoster } from "./builder_roster_action_helpers.js";
+import { rosterUnitSummaries } from "./builder_model.js";
 import { attachmentPairFailures } from "./builder_roster_attachment_failures.js";
 import {
   attachmentWithAddedMember,
@@ -14,11 +15,9 @@ function attachmentPairCanBeAdded(roster, units, {
   attachmentType,
   bodyguardUnitId,
 }) {
-  if (!units) {
-    return true;
-  }
-  const attachedUnit = units.find((unit) => unit.id === attachedUnitId);
-  const bodyguardUnit = units.find((unit) => unit.id === bodyguardUnitId);
+  const resolvedUnits = units ?? rosterUnitSummaries(roster);
+  const attachedUnit = resolvedUnits.find((unit) => unit.id === attachedUnitId);
+  const bodyguardUnit = resolvedUnits.find((unit) => unit.id === bodyguardUnitId);
   if (!attachedUnit || !bodyguardUnit) {
     return false;
   }
