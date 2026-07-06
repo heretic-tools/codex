@@ -4,6 +4,7 @@ import { removeButton } from "./builder_roster_editor_dom.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { unitSourceBadgeNode, unitSourceBadgeText } from "./builder_roster_unit_badges.js";
 import { unitValidationStatus } from "./builder_roster_unit_validation_status.js";
+import { enableSwipeAction } from "./builder_swipe_action.js";
 import { unitImageNode } from "./builder_unit_images.js";
 import { unitOpenLabel } from "./builder_unit_open_labels.js";
 
@@ -20,6 +21,8 @@ function removeUnitFromRow(roster, summary, onUpdate, onUndoableUpdate = null) {
 function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndoableUpdate = null) {
   const row = document.createElement("div");
   row.className = "builder-row editor-row unit-editor-row";
+  const removeUnit = () => removeUnitFromRow(roster, summary, onUpdate, onUndoableUpdate);
+  enableSwipeAction(row, removeUnit);
   const validationStatus = unitValidationStatus(validation, summary);
   if (validationStatus) {
     row.classList.add(`has-validation-${validationStatus.className}`);
@@ -51,7 +54,7 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
   meta.className = "row-meta";
   meta.append(
     textNode("span", "", `${summary.points || 0} pts`),
-    removeButton("Remove unit", async () => removeUnitFromRow(roster, summary, onUpdate, onUndoableUpdate))
+    removeButton("Remove unit", removeUnit)
   );
   row.append(text, meta);
   return row;

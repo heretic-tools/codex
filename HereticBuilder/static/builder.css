@@ -1001,6 +1001,21 @@
   padding: 10px 12px;
 }
 
+.unit-editor-row {
+  touch-action: pan-y;
+  transition: transform 120ms ease, border-color 120ms ease;
+  will-change: transform;
+}
+
+.unit-editor-row.is-swiping {
+  transition: none;
+}
+
+.unit-editor-row.is-swipe-ready {
+  border-color: var(--builder-error);
+  box-shadow: inset 4px 0 0 var(--builder-error);
+}
+
 .builder-row + .builder-row,
 .builder-list + .create-roster-button,
 .create-roster-button + .builder-transfer-row,
