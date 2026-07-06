@@ -32,3 +32,16 @@ test("modern Codex table surfaces override legacy light backgrounds", () => {
   assert.ok(modernLayer.includes("background: var(--app-surface);"));
   assert.ok(modernLayer.includes("background: var(--app-surface-2);"));
 });
+
+test("modern Codex weapon tables use a mobile frozen weapon column", () => {
+  const source = codexCss();
+  const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
+
+  assert.ok(modernLayer.includes("@media (max-width: 760px)"));
+  assert.ok(modernLayer.includes(".unit-weapons-card .unit-weapon-group"));
+  assert.ok(modernLayer.includes("overflow-x: auto;"));
+  assert.ok(modernLayer.includes(".unit-weapon-table thead th:first-child"));
+  assert.ok(modernLayer.includes("position: sticky;"));
+  assert.ok(modernLayer.includes("left: 0;"));
+  assert.ok(modernLayer.includes("min-width: 640px;"));
+});

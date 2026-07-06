@@ -99,7 +99,7 @@ def builder_asset_version():
 
 def write_builder_page(out_dir, base_path, asset_version):
     html = render_template("builder.html").replace("__BUILDER_ASSET_VERSION__", asset_version)
-    html = inject_static_config(html, base_path)
+    html = inject_static_config(html, base_path, asset_version=asset_version)
     (out_dir / "index.html").write_text(html, encoding="utf-8")
     (out_dir / "404.html").write_text(html, encoding="utf-8")
 

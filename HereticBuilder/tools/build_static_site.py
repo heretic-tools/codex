@@ -72,6 +72,20 @@ ROOT_STATIC_FILES = (
     "manifest.webmanifest",
     "service-worker.js",
 )
+STATIC_ASSET_FILES = (
+    "desktop.css",
+    "codex.css",
+    "theme.js",
+    "pwa.js",
+    "app-search.js",
+    "codex.js",
+    "home.js",
+)
+STATIC_ASSET_TEMPLATES = (
+    "home.html",
+    "codex.html",
+    "codex_content.html",
+)
 
 
 @dataclass(frozen=True)
@@ -91,6 +105,7 @@ class StaticBuildResult:
     page_count: int
     base_path: str
     mount_codex_at_root: bool
+    asset_version: str
 
 
 def normalize_base_path(value):
@@ -193,7 +208,30 @@ def codex_root_href(path):
     return path
 
 
-def inject_static_config(html, base_path, mount_codex_at_root=False):
+def static_asset_version():
+    digest = hashlib.sha256()
+    for filename in STATIC_ASSET_FILES:
+        path = STATIC_ROOT / filename
+        if not path.exists():
+            continue
+        digest.update(filename.encode("utf-8"))
+        digest.update(path.read_bytes())
+    for filename in STATIC_ASSET_TEMPLATES:
+        path = HERETIC_BUILDER_ROOT / "templates" / filename
+        digest.update(filename.encode("utf-8"))
+        digest.update(path.read_bytes())
+    return digest.hexdigest()[:12]
+
+
+def versioned_static_url(url, asset_version):
+    if not asset_version or "?" in url or not url.startswith("/static/"):
+        return url
+    if not (url.endswith(".css") or url.endswith(".js")):
+        return url
+    return f"{url}?v={asset_version}"
+
+
+def inject_static_config(html, base_path, mount_codex_at_root=False, asset_version=""):
     config = (
         f'  <meta name="heretic-base-path" content="{escape(base_path, quote=True)}">\n'
         f'  <meta name="heretic-search-index" content="{escape(site_url("/search-index/manifest.json", base_path), quote=True)}">'
@@ -203,6 +241,7 @@ def inject_static_config(html, base_path, mount_codex_at_root=False):
 
     def replace_attr(match):
         prefix, url, suffix = match.groups()
+        url = versioned_static_url(url, asset_version)
         if mount_codex_at_root:
             url = codex_root_site_url(url, base_path)
         else:
@@ -233,10 +272,10 @@ def route_to_file(out_dir, route, mount_codex_at_root=False):
     return out_dir / path / "index.html"
 
 
-def write_route(out_dir, route, html, base_path, mount_codex_at_root=False):
+def write_route(out_dir, route, html, base_path, mount_codex_at_root=False, asset_version=""):
     target = route_to_file(out_dir, route, mount_codex_at_root)
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(inject_static_config(html, base_path, mount_codex_at_root), encoding="utf-8")
+    target.write_text(inject_static_config(html, base_path, mount_codex_at_root, asset_version), encoding="utf-8")
 
 
 def copy_dir(src, dest):
@@ -388,12 +427,12 @@ def datasheet_routes(builder):
     return routes
 
 
-def write_static_pages(builder, out_dir, base_path, mount_codex_at_root=False):
+def write_static_pages(builder, out_dir, base_path, mount_codex_at_root=False, asset_version=""):
     count = 0
 
     def write(route, html):
         nonlocal count
-        write_route(out_dir, route, html, base_path, mount_codex_at_root)
+        write_route(out_dir, route, html, base_path, mount_codex_at_root, asset_version)
         count += 1
 
     if not mount_codex_at_root:
@@ -465,9 +504,16 @@ def build_static_site(config):
 
     out_dir = prepare_out_dir(config.out, protected_dirs=(config.source,))
     builder = HereticBuilder(config.db)
+    asset_version = static_asset_version()
 
     copy_assets(out_dir)
-    page_count = write_static_pages(builder, out_dir, config.base_path, config.mount_codex_at_root)
+    page_count = write_static_pages(
+        builder,
+        out_dir,
+        config.base_path,
+        config.mount_codex_at_root,
+        asset_version,
+    )
     write_search_index(builder, out_dir, config.mount_codex_at_root)
 
     return StaticBuildResult(
@@ -475,6 +521,7 @@ def build_static_site(config):
         page_count=page_count,
         base_path=config.base_path,
         mount_codex_at_root=config.mount_codex_at_root,
+        asset_version=asset_version,
     )
 
 
@@ -487,6 +534,7 @@ def print_build_result(result):
     print(f"Pages: {result.page_count}")
     print(f"Base path: {result.base_path or '/'}")
     print(f"Codex mount: {'root' if result.mount_codex_at_root else '/codex'}")
+    print(f"Asset version: {result.asset_version}")
 
 
 def main():

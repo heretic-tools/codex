@@ -839,6 +839,8 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(index, /<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">/);
     assert.match(index, /<link rel="manifest" href="\/builder\/manifest\.webmanifest">/);
     assert.match(index, new RegExp(`/builder/static/theme\\.js\\?v=${version}`));
+    assert.match(index, new RegExp(`/builder/static/desktop\\.css\\?v=${version}`));
+    assert.match(index, new RegExp(`/builder/static/codex\\.css\\?v=${version}`));
     assert.match(index, new RegExp(`/builder/static/pwa\\.js\\?v=${version}`));
     assert.match(index, new RegExp(`/builder/static/builder\\.css\\?v=${version}`));
     assert.ok(existsSync(join(outDir, "manifest.webmanifest")));
