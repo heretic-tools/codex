@@ -1426,6 +1426,10 @@ browser smoke test.
   `builder_roster_detachment_rows.js` into
   `builder_roster_detachment_validation_status.js`. Detachment row rendering now
   consumes a precomputed error/warning badge model.
+- 2026-07-06: Split unit picker option value serialization/parsing out of
+  `builder_roster_unit_candidates.js` into
+  `builder_roster_unit_option_values.js`. Candidate grouping now stays separate
+  from select-value compatibility parsing.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

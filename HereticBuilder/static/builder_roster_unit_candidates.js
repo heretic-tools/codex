@@ -8,22 +8,7 @@ import {
   unitCandidateStatus,
   unitOptionText,
 } from "./builder_roster_unit_candidate_status.js";
-
-function unitOptionValue(allyType, datasheetId) {
-  return JSON.stringify({ allyType, datasheetId });
-}
-
-function parseUnitOptionValue(value) {
-  try {
-    const parsed = JSON.parse(value);
-    return {
-      allyType: parsed.allyType || "native",
-      datasheetId: parsed.datasheetId || "",
-    };
-  } catch {
-    return { allyType: "native", datasheetId: value || "" };
-  }
-}
+export { parseUnitOptionValue, unitOptionValue } from "./builder_roster_unit_option_values.js";
 
 function unitCandidateGroups(roster, validation, query = "") {
   const normalizedQuery = String(query || "").trim().toLocaleLowerCase();
@@ -55,9 +40,7 @@ function unitCandidateGroups(roster, validation, query = "") {
 }
 
 export {
-  parseUnitOptionValue,
   unitCandidateGroups,
   unitCandidateStatus,
   unitOptionText,
-  unitOptionValue,
 };

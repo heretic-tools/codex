@@ -1058,6 +1058,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const unitCandidatesSource = readFileSync(join(outDir, "static", "builder_roster_unit_candidates.js"), "utf8");
     assert.match(unitCandidatesSource, new RegExp(`\\.\\/builder_roster_unit_candidate_status\\.js\\?v=${version}`));
+    assert.match(unitCandidatesSource, new RegExp(`\\.\\/builder_roster_unit_option_values\\.js\\?v=${version}`));
 
     const unitRowsSource = readFileSync(join(outDir, "static", "builder_roster_unit_rows.js"), "utf8");
     assert.match(unitRowsSource, new RegExp(`\\.\\/builder_roster_unit_badges\\.js\\?v=${version}`));
