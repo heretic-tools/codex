@@ -244,6 +244,12 @@ PAYLOAD_EXCLUDED_COLUMNS = {
         "rowImage",
         "unitComposition",
     },
+    "enhancement": {
+        "displayOrder",
+        "lore",
+        "publicationId",
+        "rules",
+    },
 }
 
 

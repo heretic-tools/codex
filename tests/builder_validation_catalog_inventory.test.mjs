@@ -180,6 +180,12 @@ const PAYLOAD_EXCLUDED_COLUMNS = {
     "rowImage",
     "unitComposition",
   ],
+  "enhancement": [
+    "displayOrder",
+    "lore",
+    "publicationId",
+    "rules",
+  ],
 };
 
 const BUILDER_PAYLOAD_TABLE_COLUMNS = Object.fromEntries(
