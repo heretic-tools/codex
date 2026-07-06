@@ -292,6 +292,18 @@ PAYLOAD_EXCLUDED_COLUMNS = {
     },
 }
 
+PAYLOAD_EXTRA_COLUMNS = {
+    "datasheet": (
+        {
+            "name": "unitImageFilename",
+            "type": "TEXT",
+            "notNull": False,
+            "defaultValue": None,
+            "primaryKeyPosition": 0,
+        },
+    ),
+}
+
 
 @dataclass(frozen=True)
 class BuilderDataExportResult:
@@ -867,6 +879,21 @@ def prune_payload_columns(table, columns, rows):
     return filtered_columns, rows
 
 
+def payload_columns(table, columns):
+    return [
+        *columns,
+        *PAYLOAD_EXTRA_COLUMNS.get(table, ()),
+    ]
+
+
+def rows_as_arrays(columns, rows):
+    names = [column["name"] for column in columns]
+    return [
+        [row.get(name) for name in names]
+        for row in rows
+    ]
+
+
 def excluded_table_names(all_tables, exported_tables):
     excluded = []
     for table in all_tables:
@@ -951,10 +978,12 @@ def export_builder_data(db_path, out_dir):
             columns = table_columns(conn, table)
             rows = attach_unit_image_filenames(table, table_rows(conn, table, columns))
             columns, rows = prune_payload_columns(table, columns, rows)
+            columns = payload_columns(table, columns)
             payload = {
                 "table": table,
+                "rowFormat": "array",
                 "columns": columns,
-                "rows": rows,
+                "rows": rows_as_arrays(columns, rows),
             }
             logical_path = f"tables/{table}.json"
             record = write_hashed_json(out_dir, logical_path, payload)

@@ -29,12 +29,23 @@ async function loadBuilderDataManifest() {
 
 async function loadTable(name, manifest = null) {
   const payload = await fetchJson(builderDataPath(manifest, `tables/${name}.json`));
-  return payload.rows || [];
+  return tableRows(payload);
 }
 
 async function loadBuilderDataJson(logicalPath, manifest = null) {
   const resolvedManifest = manifest || await loadBuilderDataManifest();
   return fetchJson(builderDataPath(resolvedManifest, logicalPath));
+}
+
+function tableRows(payload) {
+  const rows = payload?.rows || [];
+  if (payload?.rowFormat !== "array") {
+    return rows;
+  }
+  const columnNames = (payload.columns || []).map((column) => column.name);
+  return rows.map((values) => Object.fromEntries(
+    columnNames.map((name, index) => [name, values[index]])
+  ));
 }
 
 async function loadCatalogTables(tableDefinitions, manifest = null) {
@@ -83,4 +94,5 @@ export {
   loadBuilderDataJson,
   loadCatalogTables,
   loadPrecomputedLoadoutShards,
+  tableRows,
 };

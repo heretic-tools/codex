@@ -9,7 +9,10 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { realCatalog } from "./builder_validation_helpers.mjs";
 import { loadBootstrap, loadCatalog } from "../HereticBuilder/static/builder_catalog.js";
-import { builderDataPath as builderDataUrlPath } from "../HereticBuilder/static/builder_catalog_loader.js";
+import {
+  builderDataPath as builderDataUrlPath,
+  tableRows,
+} from "../HereticBuilder/static/builder_catalog_loader.js";
 import { siteHref } from "../HereticBuilder/static/builder_state.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -228,10 +231,19 @@ const PAYLOAD_EXCLUDED_COLUMNS = {
   ],
 };
 
+const PAYLOAD_EXTRA_COLUMNS = {
+  "datasheet": [
+    "unitImageFilename",
+  ],
+};
+
 const BUILDER_PAYLOAD_TABLE_COLUMNS = Object.fromEntries(
   Object.entries(BUILDER_RULE_TABLE_COLUMNS).map(([tableName, columns]) => [
     tableName,
-    columns.filter((columnName) => !(PAYLOAD_EXCLUDED_COLUMNS[tableName] || []).includes(columnName)),
+    [
+      ...columns.filter((columnName) => !(PAYLOAD_EXCLUDED_COLUMNS[tableName] || []).includes(columnName)),
+      ...(PAYLOAD_EXTRA_COLUMNS[tableName] || []),
+    ],
   ])
 );
 
@@ -1765,13 +1777,18 @@ test("static Builder rule table column lists stay pinned", async () => {
   for (const tableName of exportedBuilderRuleTableNames()) {
     const expectedColumns = BUILDER_PAYLOAD_TABLE_COLUMNS[tableName];
     const payload = await fetchBuilderDataJson(`tables/${tableName}.json`);
+    const rows = tableRows(payload);
+    assert.equal(payload.rowFormat, "array", `${tableName} rows should be array-encoded`);
+    if ((payload.rows || []).length) {
+      assert.ok(Array.isArray(payload.rows[0]), `${tableName} raw rows should be arrays`);
+    }
     assert.deepEqual(
       payload.columns.map((column) => column.name),
       expectedColumns,
       `${tableName} column list changed`
     );
 
-    const rowsMissingColumns = (payload.rows || [])
+    const rowsMissingColumns = rows
       .map((row, index) => [
         index,
         expectedColumns.filter((columnName) => !Object.hasOwn(row, columnName)),
@@ -1781,7 +1798,7 @@ test("static Builder rule table column lists stay pinned", async () => {
     assert.deepEqual(rowsMissingColumns, [], `${tableName} rows should carry all exported columns`);
 
     const excludedColumns = PAYLOAD_EXCLUDED_COLUMNS[tableName] || [];
-    const rowsWithExcludedColumns = (payload.rows || [])
+    const rowsWithExcludedColumns = rows
       .map((row, index) => [
         index,
         excludedColumns.filter((columnName) => Object.hasOwn(row, columnName)),

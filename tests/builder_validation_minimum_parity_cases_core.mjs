@@ -17,6 +17,7 @@ export const minimumParityCoreCases = [
       "Object.keys(BUILDER_RULE_TABLE_COLUMNS).length, 73",
       "PAYLOAD_EXCLUDED_COLUMNS",
       "rows should omit pruned thin-client columns",
+      "payload.rowFormat, \"array\"",
       "\"requiresAllUnitsHaveKeywordId\"",
       "\"isCombatPatrolDefault\"",
       "\"duplicateLimit\"",
