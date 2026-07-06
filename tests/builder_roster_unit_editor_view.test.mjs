@@ -172,7 +172,7 @@ test("unit row removal can delegate to an undo-aware handler", async () => {
   );
 
   assert.equal(fallbackCalled, false);
+  assert.equal(removeEvent.message, "Chosen removed");
   assert.equal(removeEvent.previousRoster, roster);
-  assert.equal(removeEvent.unit, summary);
   assert.deepEqual(removeEvent.nextRoster.units.map((unit) => unit.id), ["unit-2"]);
 });

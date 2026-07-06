@@ -9,7 +9,7 @@ import {
   sectionTitle,
 } from "./builder_roster_editor_dom.js";
 
-function renderDetachmentEditor({ onUpdate, roster, validation }) {
+function renderDetachmentEditor({ onUndoableUpdate = null, onUpdate, roster, validation }) {
   const root = document.createElement("section");
   root.className = "builder-section";
   root.dataset.editorTarget = "detachments";
@@ -24,7 +24,7 @@ function renderDetachmentEditor({ onUpdate, roster, validation }) {
   list.className = "editor-list";
   if ((roster.detachmentIds || []).length) {
     (roster.detachmentIds || []).forEach((detachmentId, index) => {
-      list.appendChild(renderDetachmentRow(roster, detachmentId, index, validation, onUpdate));
+      list.appendChild(renderDetachmentRow(roster, detachmentId, index, validation, onUpdate, onUndoableUpdate));
     });
   } else {
     list.appendChild(emptyMessage("No detachments"));

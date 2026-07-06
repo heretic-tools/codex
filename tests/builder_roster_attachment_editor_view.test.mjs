@@ -13,6 +13,12 @@ const {
 const {
   attachmentControlField,
 } = await import("../HereticBuilder/static/builder_roster_attachment_controls.js");
+const {
+  removeAttachmentFromRow,
+} = await import("../HereticBuilder/static/builder_roster_attachment_rows.js");
+const {
+  removeAttachmentMemberFromRow,
+} = await import("../HereticBuilder/static/builder_roster_attachment_member_view.js");
 
 function attachmentCatalog() {
   return {
@@ -141,4 +147,70 @@ test("attached unit control fields expose visible labels", () => {
   } finally {
     global.document = previousDocument;
   }
+});
+
+test("attached unit removal emits an undoable roster update", async () => {
+  const roster = {
+    attachments: [
+      {
+        id: "attachment-1",
+        members: [
+          { attachmentType: "bodyguard", rosterUnitId: "bodyguard-1" },
+          { attachmentType: "leader", rosterUnitId: "leader-1" },
+        ],
+      },
+    ],
+    units: [],
+  };
+  const members = [
+    { attachmentType: "bodyguard", unit: { name: "Chosen" } },
+    { attachmentType: "leader", unit: { name: "Lord" } },
+  ];
+  let event = null;
+
+  await removeAttachmentFromRow(
+    roster,
+    roster.attachments[0],
+    members,
+    0,
+    () => {},
+    (value) => {
+      event = value;
+    }
+  );
+
+  assert.equal(event.message, "Chosen removed");
+  assert.equal(event.previousRoster, roster);
+  assert.deepEqual(event.nextRoster.attachments, []);
+});
+
+test("attached unit member removal emits an undoable roster update", async () => {
+  const roster = {
+    attachments: [
+      {
+        id: "attachment-1",
+        members: [
+          { attachmentType: "bodyguard", rosterUnitId: "bodyguard-1" },
+          { attachmentType: "leader", rosterUnitId: "leader-1" },
+        ],
+      },
+    ],
+    units: [],
+  };
+  let event = null;
+
+  await removeAttachmentMemberFromRow(
+    roster,
+    roster.attachments[0],
+    { attachmentType: "leader", rosterUnitId: "leader-1" },
+    { name: "Lord" },
+    () => {},
+    (value) => {
+      event = value;
+    }
+  );
+
+  assert.equal(event.message, "Lord removed from attached unit");
+  assert.equal(event.previousRoster, roster);
+  assert.deepEqual(event.nextRoster.attachments, []);
 });

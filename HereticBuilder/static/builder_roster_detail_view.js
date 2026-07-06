@@ -11,8 +11,8 @@ import { renderValidation } from "./builder_validation_view.js";
 function renderRosterDetailView({
   newId,
   onDelete,
+  onUndoableUpdate = null,
   onUnitOpen,
-  onUnitRemove = null,
   onUpdate,
   roster,
   summarizeRoster,
@@ -30,7 +30,7 @@ function renderRosterDetailView({
   const overview = renderRosterOverview({ onDelete, onUpdate, roster, summary, validation: validationResult });
   const editor = renderRosterEditor({
     newId,
-    onUnitRemove,
+    onUndoableUpdate,
     onUnitOpen,
     onUpdate,
     roster,

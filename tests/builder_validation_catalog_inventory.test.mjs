@@ -1409,6 +1409,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const unitRowsSource = readFileSync(join(outDir, "static", "builder_roster_unit_rows.js"), "utf8");
     assert.match(unitRowsSource, new RegExp(`\\.\\/builder_roster_unit_badges\\.js\\?v=${version}`));
+    assert.match(unitRowsSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
     assert.match(unitRowsSource, new RegExp(`\\.\\/builder_roster_unit_validation_status\\.js\\?v=${version}`));
     assert.match(unitRowsSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
 
@@ -1433,6 +1434,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const detachmentRowsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_rows.js"), "utf8");
     assert.match(detachmentRowsSource, new RegExp(`\\.\\/builder_codex_links\\.js\\?v=${version}`));
     assert.match(detachmentRowsSource, new RegExp(`\\.\\/builder_roster_detachment_validation_status\\.js\\?v=${version}`));
+    assert.match(detachmentRowsSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
 
     const detachmentValidationStatusSource = readFileSync(join(outDir, "static", "builder_roster_detachment_validation_status.js"), "utf8");
     assert.match(detachmentValidationStatusSource, new RegExp(`\\.\\/builder_validation_view\\.js\\?v=${version}`));
@@ -1665,11 +1667,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const attachmentRowsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_rows.js"), "utf8");
     assert.match(attachmentRowsSource, new RegExp(`\\.\\/builder_roster_attachment_member_view\\.js\\?v=${version}`));
     assert.match(attachmentRowsSource, new RegExp(`\\.\\/builder_roster_attachment_row_model\\.js\\?v=${version}`));
+    assert.match(attachmentRowsSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
     assert.match(attachmentRowsSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
 
     const attachmentMemberViewSource = readFileSync(join(outDir, "static", "builder_roster_attachment_member_view.js"), "utf8");
     assert.match(attachmentMemberViewSource, new RegExp(`\\.\\/builder_roster_attachment_options\\.js\\?v=${version}`));
     assert.match(attachmentMemberViewSource, new RegExp(`\\.\\/builder_roster_attachment_row_model\\.js\\?v=${version}`));
+    assert.match(attachmentMemberViewSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
     assert.match(attachmentMemberViewSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
 
     const attachmentRowModelSource = readFileSync(join(outDir, "static", "builder_roster_attachment_row_model.js"), "utf8");

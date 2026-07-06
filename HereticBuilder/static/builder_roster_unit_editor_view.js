@@ -17,7 +17,7 @@ import {
   unitSourceBadgeText,
 } from "./builder_roster_unit_rows.js";
 
-function renderUnitEditor({ newId, onUnitRemove = null, onUpdate, onUnitOpen, roster, validation }) {
+function renderUnitEditor({ newId, onUndoableUpdate = null, onUpdate, onUnitOpen, roster, validation }) {
   const root = document.createElement("section");
   root.className = "builder-section";
   root.dataset.editorTarget = "units";
@@ -31,7 +31,7 @@ function renderUnitEditor({ newId, onUnitRemove = null, onUpdate, onUnitOpen, ro
   const summaries = rosterUnitSummaries(roster);
   if (summaries.length) {
     for (const summary of summaries) {
-      list.appendChild(renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUnitRemove));
+      list.appendChild(renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndoableUpdate));
     }
   } else {
     list.appendChild(emptyMessage("No units"));

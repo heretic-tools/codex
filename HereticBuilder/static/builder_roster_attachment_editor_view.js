@@ -14,7 +14,7 @@ function attachmentControlsAvailable(bodyguards) {
   return Boolean(bodyguards.length);
 }
 
-function renderAttachmentEditor({ newId, onUnitOpen, onUpdate, roster, validation }) {
+function renderAttachmentEditor({ newId, onUndoableUpdate = null, onUnitOpen, onUpdate, roster, validation }) {
   const root = document.createElement("section");
   root.className = "builder-section";
   root.dataset.editorTarget = "attachments";
@@ -28,7 +28,16 @@ function renderAttachmentEditor({ newId, onUnitOpen, onUpdate, roster, validatio
   list.className = "editor-list";
   if ((roster.attachments || []).length) {
     (roster.attachments || []).forEach((attachment, index) => {
-      list.appendChild(renderAttachmentRow(roster, attachment, index, unitsById, validation, onUpdate, onUnitOpen));
+      list.appendChild(renderAttachmentRow(
+        roster,
+        attachment,
+        index,
+        unitsById,
+        validation,
+        onUpdate,
+        onUnitOpen,
+        onUndoableUpdate
+      ));
     });
   } else {
     list.appendChild(emptyMessage(attachmentUnavailableMessage(roster, units, bodyguards)));

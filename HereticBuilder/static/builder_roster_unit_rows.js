@@ -1,24 +1,23 @@
 import { button, textNode } from "./builder_dom.js";
 import { rosterWithRemovedUnit } from "./builder_roster_actions.js";
 import { removeButton } from "./builder_roster_editor_dom.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { unitSourceBadgeNode, unitSourceBadgeText } from "./builder_roster_unit_badges.js";
 import { unitValidationStatus } from "./builder_roster_unit_validation_status.js";
 import { unitImageNode } from "./builder_unit_images.js";
 import { unitOpenLabel } from "./builder_unit_open_labels.js";
 
-function removeUnitFromRow(roster, summary, onUpdate, onUnitRemove = null) {
-  const nextRoster = rosterWithRemovedUnit(roster, summary.id);
-  if (onUnitRemove) {
-    return onUnitRemove({
-      nextRoster,
-      previousRoster: roster,
-      unit: summary,
-    });
-  }
-  return onUpdate(nextRoster);
+function removeUnitFromRow(roster, summary, onUpdate, onUndoableUpdate = null) {
+  return applyRosterUpdate({
+    message: `${summary.name || "Unit"} removed`,
+    nextRoster: rosterWithRemovedUnit(roster, summary.id),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
 }
 
-function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUnitRemove = null) {
+function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndoableUpdate = null) {
   const row = document.createElement("div");
   row.className = "builder-row editor-row unit-editor-row";
   const validationStatus = unitValidationStatus(validation, summary);
@@ -52,7 +51,7 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUnit
   meta.className = "row-meta";
   meta.append(
     textNode("span", "", `${summary.points || 0} pts`),
-    removeButton("Remove unit", async () => removeUnitFromRow(roster, summary, onUpdate, onUnitRemove))
+    removeButton("Remove unit", async () => removeUnitFromRow(roster, summary, onUpdate, onUndoableUpdate))
   );
   row.append(text, meta);
   return row;

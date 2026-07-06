@@ -4,13 +4,34 @@ import {
 } from "./builder_roster_actions.js";
 import {
   attachmentMembersForRow,
+  attachmentTitle,
   attachmentValidationStatus,
 } from "./builder_roster_attachment_row_model.js";
 import { attachmentTitleNode, renderAttachmentMember } from "./builder_roster_attachment_member_view.js";
 import { removeButton } from "./builder_roster_editor_dom.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { unitImageNode } from "./builder_unit_images.js";
 
-function renderAttachmentRow(roster, attachment, index, unitsById, validation, onUpdate, onUnitOpen = null) {
+function removeAttachmentFromRow(roster, attachment, members, index, onUpdate, onUndoableUpdate = null) {
+  return applyRosterUpdate({
+    message: `${attachmentTitle(members, index)} removed`,
+    nextRoster: rosterWithRemovedAttachment(roster, attachment.id),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
+}
+
+function renderAttachmentRow(
+  roster,
+  attachment,
+  index,
+  unitsById,
+  validation,
+  onUpdate,
+  onUnitOpen = null,
+  onUndoableUpdate = null
+) {
   const members = attachmentMembersForRow(attachment, unitsById);
 
   const row = document.createElement("div");
@@ -32,7 +53,7 @@ function renderAttachmentRow(roster, attachment, index, unitsById, validation, o
     if (member.attachmentType === "bodyguard") {
       continue;
     }
-    text.append(renderAttachmentMember(roster, attachment, member, member.unit, onUpdate, onUnitOpen));
+    text.append(renderAttachmentMember(roster, attachment, member, member.unit, onUpdate, onUnitOpen, onUndoableUpdate));
   }
   if (validationStatus) {
     text.append(textNode("span", `validation-state-badge state-${validationStatus.className}`, validationStatus.text));
@@ -41,10 +62,12 @@ function renderAttachmentRow(roster, attachment, index, unitsById, validation, o
   meta.className = "row-meta";
   meta.append(
     textNode("span", "", `${attachment.members?.length || 0} units`),
-    removeButton("Remove attached unit", async () => onUpdate(rosterWithRemovedAttachment(roster, attachment.id)))
+    removeButton("Remove attached unit", async () => (
+      removeAttachmentFromRow(roster, attachment, members, index, onUpdate, onUndoableUpdate)
+    ))
   );
   row.append(text, meta);
   return row;
 }
 
-export { renderAttachmentRow };
+export { removeAttachmentFromRow, renderAttachmentRow };

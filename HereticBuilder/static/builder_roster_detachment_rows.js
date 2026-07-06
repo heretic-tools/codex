@@ -11,9 +11,20 @@ import {
   removeButton,
 } from "./builder_roster_editor_dom.js";
 import { detachmentValidationStatus } from "./builder_roster_detachment_validation_status.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { state } from "./builder_state.js";
 
-function renderDetachmentRow(roster, detachmentId, index, validation, onUpdate) {
+function removeDetachmentFromRow(roster, detachment, index, onUpdate, onUndoableUpdate = null) {
+  return applyRosterUpdate({
+    message: `${detachment?.name || "Detachment"} removed`,
+    nextRoster: rosterWithRemovedDetachment(roster, index),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
+}
+
+function renderDetachmentRow(roster, detachmentId, index, validation, onUpdate, onUndoableUpdate = null) {
   const detachment = state.catalog.detachmentById.get(detachmentId)
     || availableDetachments(roster.factionKeywordId).find((item) => item.id === detachmentId);
   const row = document.createElement("div");
@@ -41,10 +52,12 @@ function renderDetachmentRow(roster, detachmentId, index, validation, onUpdate) 
   meta.className = "row-meta";
   meta.append(
     textNode("span", "", `${detachment ? costForDetachment(detachment.id, roster.factionKeywordId) : 0} DP`),
-    removeButton("Remove detachment", async () => onUpdate(rosterWithRemovedDetachment(roster, index)))
+    removeButton("Remove detachment", async () => (
+      removeDetachmentFromRow(roster, detachment, index, onUpdate, onUndoableUpdate)
+    ))
   );
   row.append(text, meta);
   return row;
 }
 
-export { renderDetachmentRow };
+export { removeDetachmentFromRow, renderDetachmentRow };

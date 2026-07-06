@@ -13,10 +13,10 @@ import {
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
 import { showUndoToast } from "./builder_toast.js";
 
-async function updateRosterWithUndo({ nextRoster, previousRoster, render, unit }) {
+async function updateRosterWithUndo({ message, nextRoster, previousRoster, render }) {
   await updateRoster(nextRoster, render);
   showUndoToast({
-    message: `${unit?.name || "Unit"} removed`,
+    message,
     onUndo: () => updateRoster(previousRoster, render),
   });
 }
@@ -45,11 +45,11 @@ async function renderRoster(render) {
     roster,
     onDelete: deleteRoster,
     onUpdate: (nextRoster) => updateRoster(nextRoster, render),
-    onUnitRemove: ({ nextRoster, previousRoster, unit }) => updateRosterWithUndo({
+    onUndoableUpdate: ({ message, nextRoster, previousRoster }) => updateRosterWithUndo({
+      message,
       nextRoster,
       previousRoster,
       render,
-      unit,
     }),
     onUnitOpen: (unit, focusTarget = "") => {
       const unitPath = `/roster/${encodeURIComponent(roster.id)}/unit/${encodeURIComponent(unit.id)}`;
