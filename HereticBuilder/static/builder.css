@@ -1222,6 +1222,39 @@
   border-color: var(--builder-shadow);
 }
 
+.builder-toast {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 30;
+  width: min(420px, calc(100vw - 32px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  color: var(--builder-ink);
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-left: 4px solid var(--builder-blue);
+  border-radius: var(--builder-radius);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .16);
+}
+
+.toast-message {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 760;
+  line-height: 1.2;
+}
+
+.toast-action {
+  flex: none;
+  min-height: 34px;
+  padding: 5px 10px;
+}
+
 @media (max-width: 760px) {
   .builder-panel-content {
     padding: 12px;

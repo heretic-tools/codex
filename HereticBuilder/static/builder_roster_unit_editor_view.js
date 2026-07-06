@@ -10,9 +10,14 @@ import {
   emptyMessage,
   sectionTitle,
 } from "./builder_roster_editor_dom.js";
-import { renderUnitRow, unitOpenLabel, unitSourceBadgeText } from "./builder_roster_unit_rows.js";
+import {
+  removeUnitFromRow,
+  renderUnitRow,
+  unitOpenLabel,
+  unitSourceBadgeText,
+} from "./builder_roster_unit_rows.js";
 
-function renderUnitEditor({ newId, onUpdate, onUnitOpen, roster, validation }) {
+function renderUnitEditor({ newId, onUnitRemove = null, onUpdate, onUnitOpen, roster, validation }) {
   const root = document.createElement("section");
   root.className = "builder-section";
   root.dataset.editorTarget = "units";
@@ -26,7 +31,7 @@ function renderUnitEditor({ newId, onUpdate, onUnitOpen, roster, validation }) {
   const summaries = rosterUnitSummaries(roster);
   if (summaries.length) {
     for (const summary of summaries) {
-      list.appendChild(renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen));
+      list.appendChild(renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUnitRemove));
     }
   } else {
     list.appendChild(emptyMessage("No units"));
@@ -39,6 +44,7 @@ function renderUnitEditor({ newId, onUpdate, onUnitOpen, roster, validation }) {
 
 export {
   parseUnitOptionValue,
+  removeUnitFromRow,
   renderUnitEditor,
   unitCandidateGroups,
   unitCandidateStatus,

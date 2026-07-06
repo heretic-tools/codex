@@ -11,6 +11,7 @@ import {
 import { rosterWithAddedUnit } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
   parseUnitOptionValue,
+  removeUnitFromRow,
   unitCandidateGroups,
   unitCandidateStatus,
   unitOpenLabel,
@@ -145,4 +146,33 @@ test("unit source badge names selected allied unit source", () => {
 test("unit row open label names the row action", () => {
   assert.equal(unitOpenLabel({ name: "Chosen" }), "Open unit: Chosen");
   assert.equal(unitOpenLabel({}), "Open unit: Unit");
+});
+
+test("unit row removal can delegate to an undo-aware handler", async () => {
+  const roster = {
+    attachments: [],
+    units: [
+      { id: "unit-1", datasheetId: "chosen" },
+      { id: "unit-2", datasheetId: "cultists" },
+    ],
+  };
+  const summary = { id: "unit-1", name: "Chosen" };
+  let fallbackCalled = false;
+  let removeEvent = null;
+
+  await removeUnitFromRow(
+    roster,
+    summary,
+    () => {
+      fallbackCalled = true;
+    },
+    (event) => {
+      removeEvent = event;
+    }
+  );
+
+  assert.equal(fallbackCalled, false);
+  assert.equal(removeEvent.previousRoster, roster);
+  assert.equal(removeEvent.unit, summary);
+  assert.deepEqual(removeEvent.nextRoster.units.map((unit) => unit.id), ["unit-2"]);
 });

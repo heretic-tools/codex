@@ -6,7 +6,19 @@ import { unitValidationStatus } from "./builder_roster_unit_validation_status.js
 import { unitImageNode } from "./builder_unit_images.js";
 import { unitOpenLabel } from "./builder_unit_open_labels.js";
 
-function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen) {
+function removeUnitFromRow(roster, summary, onUpdate, onUnitRemove = null) {
+  const nextRoster = rosterWithRemovedUnit(roster, summary.id);
+  if (onUnitRemove) {
+    return onUnitRemove({
+      nextRoster,
+      previousRoster: roster,
+      unit: summary,
+    });
+  }
+  return onUpdate(nextRoster);
+}
+
+function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUnitRemove = null) {
   const row = document.createElement("div");
   row.className = "builder-row editor-row unit-editor-row";
   const validationStatus = unitValidationStatus(validation, summary);
@@ -40,13 +52,14 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen) {
   meta.className = "row-meta";
   meta.append(
     textNode("span", "", `${summary.points || 0} pts`),
-    removeButton("Remove unit", async () => onUpdate(rosterWithRemovedUnit(roster, summary.id)))
+    removeButton("Remove unit", async () => removeUnitFromRow(roster, summary, onUpdate, onUnitRemove))
   );
   row.append(text, meta);
   return row;
 }
 
 export {
+  removeUnitFromRow,
   renderUnitRow,
   unitOpenLabel,
   unitSourceBadgeText,

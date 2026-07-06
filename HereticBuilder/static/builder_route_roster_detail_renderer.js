@@ -11,6 +11,15 @@ import {
   updateRoster,
 } from "./builder_roster_io_actions.js";
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
+import { showUndoToast } from "./builder_toast.js";
+
+async function updateRosterWithUndo({ nextRoster, previousRoster, render, unit }) {
+  await updateRoster(nextRoster, render);
+  showUndoToast({
+    message: `${unit?.name || "Unit"} removed`,
+    onUndo: () => updateRoster(previousRoster, render),
+  });
+}
 
 async function renderRoster(render) {
   const roster = currentRoster();
@@ -36,6 +45,12 @@ async function renderRoster(render) {
     roster,
     onDelete: deleteRoster,
     onUpdate: (nextRoster) => updateRoster(nextRoster, render),
+    onUnitRemove: ({ nextRoster, previousRoster, unit }) => updateRosterWithUndo({
+      nextRoster,
+      previousRoster,
+      render,
+      unit,
+    }),
     onUnitOpen: (unit, focusTarget = "") => {
       const unitPath = `/roster/${encodeURIComponent(roster.id)}/unit/${encodeURIComponent(unit.id)}`;
       navigate(focusTarget ? `${unitPath}/focus/${encodeURIComponent(focusTarget)}` : unitPath);
@@ -46,4 +61,4 @@ async function renderRoster(render) {
   }));
 }
 
-export { renderRoster };
+export { renderRoster, updateRosterWithUndo };

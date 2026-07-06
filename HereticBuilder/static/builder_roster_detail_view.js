@@ -8,7 +8,17 @@ import {
 import { validationContextForRoster } from "./builder_validation_context.js";
 import { renderValidation } from "./builder_validation_view.js";
 
-function renderRosterDetailView({ newId, onDelete, onUnitOpen, onUpdate, roster, summarizeRoster, validation, validateRoster }) {
+function renderRosterDetailView({
+  newId,
+  onDelete,
+  onUnitOpen,
+  onUnitRemove = null,
+  onUpdate,
+  roster,
+  summarizeRoster,
+  validation,
+  validateRoster,
+}) {
   const summary = summarizeRoster(roster);
   const validationResult = validation || validateRoster(roster);
   const units = rosterUnitSummaries(roster);
@@ -18,7 +28,14 @@ function renderRosterDetailView({ newId, onDelete, onUnitOpen, onUpdate, roster,
   const sidebar = document.createElement("section");
   sidebar.className = "builder-roster-sidebar";
   const overview = renderRosterOverview({ onDelete, onUpdate, roster, summary, validation: validationResult });
-  const editor = renderRosterEditor({ newId, onUnitOpen, onUpdate, roster, validation: validationResult });
+  const editor = renderRosterEditor({
+    newId,
+    onUnitRemove,
+    onUnitOpen,
+    onUpdate,
+    roster,
+    validation: validationResult,
+  });
   const stickySummary = renderRosterStickySummary({ roster, validation: validationResult });
   const validationView = renderValidation(validationResult, {
     context: validationContextForRoster(roster),
