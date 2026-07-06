@@ -51,6 +51,7 @@ const {
 const { allegianceAbilityCandidateStatus, validateAllegianceAbilities } = await import("../HereticBuilder/static/builder_allegiance_rules.js");
 const { validateAlliedUnits } = await import("../HereticBuilder/static/builder_allied_rules.js");
 const { validateAttachedUnits } = await import("../HereticBuilder/static/builder_attachment_rules.js");
+const { attachmentPairFailures } = await import("../HereticBuilder/static/builder_roster_attachment_failures.js");
 const { enhancementCandidateStatus, validateEnhancements } = await import("../HereticBuilder/static/builder_enhancement_rules.js");
 const {
   validateDetachmentDatasheets,
@@ -417,6 +418,7 @@ export {
   validateAllegianceAbilities,
   validateAlliedUnits,
   validateAttachedUnits,
+  attachmentPairFailures,
   validateEnhancements,
   validateDetachmentDatasheets,
   validateDetachmentUniqueKeywords,

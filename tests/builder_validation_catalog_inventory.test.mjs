@@ -1060,6 +1060,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(attachmentEnhancementBodyguardAllowedSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
     assert.match(attachmentEnhancementBodyguardAllowedSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
+    const attachmentMatchersSource = readFileSync(join(outDir, "static", "builder_attachment_matchers.js"), "utf8");
+    assert.match(attachmentMatchersSource, new RegExp(`\\.\\/builder_attachment_rule_conditions\\.js\\?v=${version}`));
+
+    const attachmentRuleConditionsSource = readFileSync(join(outDir, "static", "builder_attachment_rule_conditions.js"), "utf8");
+    assert.match(attachmentRuleConditionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(attachmentRuleConditionsSource, new RegExp(`\\.\\/builder_roster_attachment_rule_catalog\\.js\\?v=${version}`));
+
     const alliedRulesSource = readFileSync(join(outDir, "static", "builder_allied_rules.js"), "utf8");
     assert.match(alliedRulesSource, new RegExp(`\\.\\/builder_allied_faction_rules\\.js\\?v=${version}`));
     assert.match(alliedRulesSource, new RegExp(`\\.\\/builder_allied_keyword_rules\\.js\\?v=${version}`));
@@ -1408,6 +1415,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(attachmentListFormatSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
 
     const attachmentRuleFailuresSource = readFileSync(join(outDir, "static", "builder_roster_attachment_rule_failures.js"), "utf8");
+    assert.match(attachmentRuleFailuresSource, new RegExp(`\\.\\/builder_attachment_rule_conditions\\.js\\?v=${version}`));
     assert.match(attachmentRuleFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_rule_catalog\\.js\\?v=${version}`));
     assert.match(attachmentRuleFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_list_format\\.js\\?v=${version}`));
 

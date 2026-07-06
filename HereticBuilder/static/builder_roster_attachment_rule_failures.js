@@ -1,53 +1,42 @@
-import { setIntersects } from "./builder_model.js";
-import {
-  bodyguardDatasheetIdsForRule,
-  bodyguardKeywordIdsForRule,
-  nameForId,
-} from "./builder_roster_attachment_rule_catalog.js";
+import { attachmentRuleConditionFailures } from "./builder_attachment_rule_conditions.js";
+import { nameForId } from "./builder_roster_attachment_rule_catalog.js";
 import { formatAttachmentList } from "./builder_roster_attachment_list_format.js";
 
 function attachmentRuleFailures(roster, detachmentIds, row, attachedUnit, bodyguardUnit) {
-  const failures = [];
-  if (row.factionKeywordId && row.factionKeywordId !== roster.factionKeywordId) {
-    failures.push({
-      type: "faction",
-      name: nameForId("factionKeywordById", row.factionKeywordId, "required faction"),
-    });
-  }
-  if (row.excludedDetachmentId && detachmentIds.has(row.excludedDetachmentId)) {
-    failures.push({
-      type: "excluded-detachment",
-      name: nameForId("detachmentById", row.excludedDetachmentId, "selected detachment"),
-    });
-  }
-  if (row.requiredDetachmentId && !detachmentIds.has(row.requiredDetachmentId)) {
-    failures.push({
-      type: "required-detachment",
-      name: nameForId("detachmentById", row.requiredDetachmentId, "required detachment"),
-    });
-  }
-  const allowedDatasheets = bodyguardDatasheetIdsForRule(row);
-  if (allowedDatasheets.size && !allowedDatasheets.has(bodyguardUnit.datasheetId)) {
-    failures.push({ type: "bodyguard-datasheet", name: bodyguardUnit.name || "bodyguard" });
-  }
-  const allowedKeywordIds = bodyguardKeywordIdsForRule(row);
-  if (allowedKeywordIds.size && !setIntersects(new Set(bodyguardUnit.keywordIds || []), allowedKeywordIds)) {
-    failures.push({
-      type: "bodyguard-keyword",
-      name: formatAttachmentList([...allowedKeywordIds].map((id) => nameForId("keywordById", id, "required keyword"))),
-    });
-  }
-  if (row.requiresAllUnitsHaveKeywordId) {
-    const attachedHasKeyword = (attachedUnit.keywordIds || []).includes(row.requiresAllUnitsHaveKeywordId);
-    const bodyguardHasKeyword = (bodyguardUnit.keywordIds || []).includes(row.requiresAllUnitsHaveKeywordId);
-    if (!attachedHasKeyword || !bodyguardHasKeyword) {
-      failures.push({
+  return attachmentRuleConditionFailures(roster, detachmentIds, row, attachedUnit, bodyguardUnit)
+    .map((failure) => {
+      if (failure.type === "faction") {
+        return {
+          type: "faction",
+          name: nameForId("factionKeywordById", failure.id, "required faction"),
+        };
+      }
+      if (failure.type === "excluded-detachment") {
+        return {
+          type: "excluded-detachment",
+          name: nameForId("detachmentById", failure.id, "selected detachment"),
+        };
+      }
+      if (failure.type === "required-detachment") {
+        return {
+          type: "required-detachment",
+          name: nameForId("detachmentById", failure.id, "required detachment"),
+        };
+      }
+      if (failure.type === "bodyguard-datasheet") {
+        return { type: "bodyguard-datasheet", name: bodyguardUnit.name || "bodyguard" };
+      }
+      if (failure.type === "bodyguard-keyword") {
+        return {
+          type: "bodyguard-keyword",
+          name: formatAttachmentList((failure.ids || []).map((id) => nameForId("keywordById", id, "required keyword"))),
+        };
+      }
+      return {
         type: "shared-keyword",
-        name: nameForId("keywordById", row.requiresAllUnitsHaveKeywordId, "required keyword"),
-      });
-    }
-  }
-  return failures;
+        name: nameForId("keywordById", failure.id, "required keyword"),
+      };
+    });
 }
 
 export { attachmentRuleFailures };

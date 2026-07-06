@@ -9,6 +9,7 @@ import {
   validateAllegianceAbilities,
   validateAlliedUnits,
   validateAttachedUnits,
+  attachmentPairFailures,
   validateEnhancements,
   validateDetachmentDatasheets,
   validateDetachmentUniqueKeywords,
@@ -165,6 +166,29 @@ function validateDatasheetBodyguardGroup(group, options = {}) {
     validateAttachedUnits(fixture.roster, fixture.detachments, fixture.units, messages);
   });
   return messageCodes(messages);
+}
+
+function attachmentPairFailuresForGroup(group, options = {}) {
+  const fixture = attachmentFixtureForGroup(group, options);
+  let failures = [];
+  withCatalog(catalogWithOnlyDatasheetBodyguardGroup(group), () => {
+    failures = attachmentPairFailures({
+      ...fixture.roster,
+      detachmentIds: fixture.detachments.map((detachment) => detachment.id),
+    }, fixture.units[0], fixture.units[1], options.attachmentType || group.bodyguardType);
+  });
+  return failures;
+}
+
+function assertAttachmentPathParity(group, options = {}) {
+  const validatorBlocks = validateDatasheetBodyguardGroup(group, options)
+    .includes("attached_unit.missing_requirements");
+  const pickerBlocks = attachmentPairFailuresForGroup(group, options).length > 0;
+  assert.equal(
+    pickerBlocks,
+    validatorBlocks,
+    `Expected validator and picker failures to match for bodyguard group ${group.id} with ${JSON.stringify(options)}`
+  );
 }
 
 test("all live datasheet bodyguard rule tables stay pinned to explicit coverage counts", () => {
@@ -341,6 +365,34 @@ test("all live datasheet bodyguard detachment and shared-keyword conditions reje
   }
 });
 
+test("attachment validator and picker failure paths stay in parity for live bodyguard rows", () => {
+  state.catalog = realCatalog;
+
+  for (const group of realCatalog.datasheetBodyguardGroups) {
+    assertAttachmentPathParity(group);
+    assertAttachmentPathParity(group, {
+      attachmentType: group.bodyguardType === "leader" ? "support" : "leader",
+    });
+
+    if ((realCatalog.datasheetBodyguardGroupDatasheetsByGroupId.get(group.id) || []).length) {
+      assertAttachmentPathParity(group, { wrongDatasheet: true });
+    }
+    if ((realCatalog.datasheetBodyguardGroupKeywordsByGroupId.get(group.id) || []).length) {
+      assertAttachmentPathParity(group, { missingBodyguardKeyword: true });
+    }
+    if (group.requiredDetachmentId) {
+      assertAttachmentPathParity(group, { missingRequiredDetachment: true });
+    }
+    if (group.excludedDetachmentId) {
+      assertAttachmentPathParity(group, { withExcludedDetachment: true });
+    }
+    if (group.requiresAllUnitsHaveKeywordId) {
+      assertAttachmentPathParity(group, { missingSharedKeywordOnAttached: true });
+      assertAttachmentPathParity(group, { missingSharedKeywordOnBodyguard: true });
+    }
+  }
+});
+
 test("data-empty datasheet bodyguard faction gates stay covered", () => {
   assert.equal(realCatalog.datasheetBodyguardGroups.filter((group) => group.factionKeywordId).length, 0);
 
@@ -359,6 +411,8 @@ test("data-empty datasheet bodyguard faction gates stay covered", () => {
 
   const blockedCodes = validateDatasheetBodyguardGroup(group, { wrongFaction: true });
   assert.ok(blockedCodes.includes("attached_unit.missing_requirements"));
+  assertAttachmentPathParity(group);
+  assertAttachmentPathParity(group, { wrongFaction: true });
 });
 
 test("attachment groups validate incomplete, duplicate, and invalid pairings", () => {

@@ -1087,6 +1087,12 @@ browser smoke test.
   `builder_roster_attachment_rule_catalog.js`. The rule-failure loop now stays
   focused on applying faction, detachment, datasheet, keyword, and shared
   keyword gates.
+- 2026-07-06: Unified attachment validator and picker failure bodyguard-rule
+  condition checks in `builder_attachment_rule_conditions.js`. The validator now
+  treats an empty condition-failure list as allowed, while UI diagnostics map the
+  same condition failures to names; live-row parity tests compare both paths for
+  type, datasheet, keyword, required/excluded detachment, shared-keyword, and
+  faction-gated cases.
 - 2026-07-05: Split Enhancement required/excluded keyword gates out of
   `builder_enhancement_eligibility.js` into
   `builder_enhancement_keyword_rules.js`. Candidate status and validation still
