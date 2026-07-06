@@ -15,18 +15,20 @@
 возвращаемся к payload/chunking-оптимизациям.
 
 Дизайн-исследование от 2026-07-06 сохранено в
-`docs/gemini_design_research.md`. Целевое направление: **Grimdark Tactical
-Mono** — плотный тактический интерфейс с тёмным OLED-first режимом, 1px
-границами, минимальными скруглениями, mono-числами и янтарным акцентом.
-Пользовательское уточнение поверх исследования: светлый/тёмный режим нужен на
-раннем этапе, поэтому themeable tokens входят в P0, а dark остаётся дефолтом.
+`docs/gemini_design_research.md`. Целевое направление: **dark-first Grimdark
+Tactical Mono** — плотный тактический интерфейс с тёмным режимом как
+основным tabletop/default сценарием, 1px границами, минимальными
+скруглениями, mono-числами и янтарным акцентом. Пользовательское уточнение
+поверх исследования: это не dark-only продукт; светлый/тёмный режим нужен на
+раннем этапе, поэтому themeable tokens входят в P0, а light theme является
+полноценным override тех же tokens.
 
 ## Актуальный порядок и статус (2026-07-06)
 
 | Приоритет | Направление | Статус | Уже сделано | Осталось |
 | --- | --- | --- | --- | --- |
 | P0 | Продуктовый скелет | Сделано | Основные маршруты и флоу уже существуют: Home, Codex, Builder list, Builder create, roster detail, unit detail/wargear/upgrades. GitHub Pages constraint и local-cache подход зафиксированы в этом плане. Проверяемый продуктовый контракт записан в `docs/product_skeleton.md`. | Поддерживать документ актуальным при изменении экранов или главных действий. |
-| P0 | Современный app shell вместо Windows shell | Основной срез сделан | Коммит `7a4fc6e` убрал активные fake window controls из пользовательских шаблонов, ввёл modern shell/tokens для цветов, отступов, кнопок, badges, lists и panels, проверен на Builder/Codex mobile screenshots. `win-scrollbars.js` и optional `setupWinScrollbars` удалены из кода и Builder build. | Перевести shell tokens на Grimdark Tactical Mono, добавить ранний dark/light режим, затем удалить/переименовать оставшиеся legacy DOM/CSS контракты вроде `taskbar`, `title-bar` и search-specific `win-scrollbar` классы. |
+| P0 | Современный app shell вместо Windows shell | Основной срез сделан | Коммит `7a4fc6e` убрал активные fake window controls из пользовательских шаблонов, ввёл modern shell/tokens для цветов, отступов, кнопок, badges, lists и panels, проверен на Builder/Codex mobile screenshots. `win-scrollbars.js` и optional `setupWinScrollbars` удалены из кода и Builder build. Ранний dark-first/light theme foundation добавлен через общие tokens и browser preference. | Удалить/переименовать оставшиеся legacy DOM/CSS контракты вроде `taskbar`, `title-bar` и search-specific `win-scrollbar` классы. |
 | P0/P1 | Builder в новом стиле | Частично сделано | Список ростеров, создание ростера, базовый roster detail и validation surfaces уже переведены на новый shell; roster list получил detachment badges. | Довести roster detail, unit detail, wargear/upgrades и validation messages до полноценного UX в новой системе. |
 | P1 | Codex в новом стиле | Частично сделано | Базовые Codex surfaces, cards, badges и таблицы получили modern override вместе с app shell. | Довести faction list, datasheets, detachment/rules pages и мобильную читаемость таблиц отдельным проходом. |
 | P1 | PWA/offline | Не начато | Подтверждено, что Builder остаётся статическим GitHub Pages приложением без backend, а пользовательские данные хранятся локально. | Добавить manifest, service worker, offline/cache стратегию и проверить, что не кэшируем старую UI-архитектуру. |
@@ -62,9 +64,9 @@ Mono** — плотный тактический интерфейс с тёмн�
 3. **Хэш-роутинг Builder не трогаем.** Он уже корректно решает классическую проблему "GitHub Pages 404 на прямой ссылке" — не заменять на History API routing.
 4. **Каждая фаза — рабочий, тестируемый срез.** `npm test` должен проходить и статическая сборка должна успешно строиться после каждой фазы, не только в конце.
 5. **Именование файлов = контракт кэширования.** Там, где вводится чанкинг (данные каталога, поисковый индекс), файлы получают контент-хэш в имени — не полагаемся на непроверенное поведение CDN GitHub Pages по `?v=` query-string.
-6. **Themeable с первого редизайн-среза.** Dark theme — дефолт и основной
-   игровой режим; light theme — ранний override на тех же tokens, preference
-   хранится только как tiny UI setting в browser storage.
+6. **Dark-first, не dark-only.** Dark theme — дефолт и основной игровой
+   режим; light theme — полноценный ранний override на тех же tokens,
+   preference хранится только как tiny UI setting в browser storage.
 
 ## Фаза 0 — Измерительная защитная сетка
 
