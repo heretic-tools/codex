@@ -1766,6 +1766,10 @@ browser smoke test.
   Export/import envelope parsing, serialization, and collision-safe IDs now
   sit apart from strict current-shape roster/unit/miniature/attachment
   normalization and legacy-field rejection.
+- 2026-07-06: Split the monolithic Builder roster action test into focused
+  attachment, selection, allegiance, loadout, enhancement, and Warlord suites so
+  future guarded action parity checks can be added without sharing one oversized
+  context.
 - 2026-07-02: Tightened the minimum parity manifest and allied tests so the
   Heretic Astartes daemon ally fixture explicitly covers under-cap and over-cap
   points, plus Khorne, Nurgle, Slaanesh, and Tzeentch Battleline outnumbering
