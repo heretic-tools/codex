@@ -1187,6 +1187,11 @@ browser smoke test.
   `builder_roster_unit_upgrade_actions.js` into
   `builder_roster_warlord_actions.js`, leaving upgrade actions as the compact
   Enhancement/Allegiance mutation facade while preserving the public exports.
+- 2026-07-06: Added an optional Warlord candidate-status guard to
+  `builder_roster_warlord_actions.js`. Low-level calls without context preserve
+  legacy mutation behavior, while the roster picker and unit-detail Warlord
+  control now pass current unit summaries and detachments so ineligible Warlord
+  targets cannot be written by the mutation layer.
 - 2026-07-05: Split base unit add/remove/composition mutations out of the
   `builder_roster_unit_actions.js` facade into
   `builder_roster_unit_base_actions.js`. The public action API is unchanged,
@@ -1673,6 +1678,10 @@ browser smoke test.
   `builder_roster_warlord_picker.js` into
   `builder_roster_warlord_options.js`, leaving the picker as DOM select wiring
   over the same candidate ordering and eligibility labels.
+- 2026-07-06: Reused the roster Warlord picker context in the unit-detail
+  Warlord control. The unit-detail select now uses the same candidate status
+  reasons as the roster-level picker and passes the same context to the guarded
+  Warlord action.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and

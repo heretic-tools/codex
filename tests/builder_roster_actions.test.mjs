@@ -327,3 +327,55 @@ test("builder roster actions update unit composition and scoped wargear", () => 
   const noWarlord = rosterWithWarlord(secondWarlord, {});
   assert.equal(noWarlord.units.some((row) => row.miniatures.some((miniature) => miniature.isWarlord)), false);
 });
+
+test("builder roster action rejects invalid Warlord targets when context is supplied", () => {
+  state.catalog = realCatalog;
+  const roster = {
+    id: "warlord-guard-roster",
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    detachmentIds: [],
+    units: [{
+      id: "unit-1",
+      miniatures: [{
+        miniatureId: "non-character-miniature",
+        rosterUnitMiniatureId: "model-1",
+      }],
+    }],
+  };
+  const baseUnit = {
+    id: "unit-1",
+    datasheetId: "non-character-datasheet",
+    keywordIds: [],
+    miniatures: [{
+      count: 1,
+      miniatureId: "non-character-miniature",
+      name: "Line Model",
+      rosterUnitMiniatureId: "model-1",
+    }],
+  };
+
+  const rejected = rosterWithWarlord(roster, {
+    detachments: [],
+    rosterUnitMiniatureId: "model-1",
+    unitId: "unit-1",
+    units: [baseUnit],
+  });
+  assert.equal(rejected, roster);
+
+  const accepted = rosterWithWarlord(roster, {
+    detachments: [],
+    rosterUnitMiniatureId: "model-1",
+    unitId: "unit-1",
+    units: [{
+      ...baseUnit,
+      miniatures: [{
+        ...baseUnit.miniatures[0],
+        canBeNonCharacterWarlord: true,
+      }],
+    }],
+  });
+  assert.equal(accepted.units[0].miniatures[0].isWarlord, true);
+
+  const cleared = rosterWithWarlord(accepted, {});
+  assert.equal(cleared.units[0].miniatures[0].isWarlord, false);
+});

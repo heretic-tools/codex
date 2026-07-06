@@ -807,6 +807,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const rosterWarlordActionsSource = readFileSync(join(outDir, "static", "builder_roster_warlord_actions.js"), "utf8");
     assert.match(rosterWarlordActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(rosterWarlordActionsSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
 
     const loadoutMathSource = readFileSync(join(outDir, "static", "builder_loadout_math.js"), "utf8");
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_catalog\\.js\\?v=${version}`));
@@ -1438,6 +1439,10 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(rosterWarlordOptionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
     assert.match(rosterWarlordOptionsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
     assert.match(rosterWarlordOptionsSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
+
+    const unitWarlordEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_warlord_editor.js"), "utf8");
+    assert.match(unitWarlordEditorSource, new RegExp(`\\.\\/builder_roster_warlord_options\\.js\\?v=${version}`));
+    assert.match(unitWarlordEditorSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
 
     const rosterValidationActionsSource = readFileSync(join(outDir, "static", "builder_roster_validation_actions.js"), "utf8");
     assert.match(rosterValidationActionsSource, new RegExp(`\\.\\/builder_roster_validation_action_scroll\\.js\\?v=${version}`));

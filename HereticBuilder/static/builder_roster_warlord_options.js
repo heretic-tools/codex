@@ -19,9 +19,14 @@ function selectedWarlordValue(units) {
   return "";
 }
 
-function warlordPickerModel(roster) {
+function warlordSelectionContext(roster) {
   const units = rosterUnitSummaries(roster);
   const detachments = (roster.detachmentIds || []).map((id) => ({ id, ...state.catalog.detachmentById.get(id) }));
+  return { detachments, units };
+}
+
+function warlordPickerModel(roster) {
+  const { detachments, units } = warlordSelectionContext(roster);
   const rows = units.flatMap((unit) => (unit.miniatures || [])
     .filter((miniature) => (miniature.count || 0) > 0)
     .map((miniature) => ({
@@ -34,6 +39,7 @@ function warlordPickerModel(roster) {
       || String(left.miniature.name || "").localeCompare(String(right.miniature.name || "")));
   return {
     currentValue: selectedWarlordValue(units),
+    detachments,
     disabled: !units.length,
     options: [
       { label: units.length ? "No Warlord selected" : "Add units first", value: "" },
@@ -45,7 +51,8 @@ function warlordPickerModel(roster) {
         };
       }),
     ],
+    units,
   };
 }
 
-export { warlordPickerModel };
+export { warlordPickerModel, warlordSelectionContext };

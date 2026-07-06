@@ -12,7 +12,11 @@ function renderWarlordPicker({ onUpdate, roster }) {
   select.value = model.currentValue;
   select.disabled = model.disabled;
   select.addEventListener("change", async () => {
-    await onUpdate(select.value ? rosterWithWarlord(roster, JSON.parse(select.value)) : rosterWithWarlord(roster, {}));
+    await onUpdate(select.value ? rosterWithWarlord(roster, {
+      ...JSON.parse(select.value),
+      detachments: model.detachments,
+      units: model.units,
+    }) : rosterWithWarlord(roster, {}));
   });
 
   const wrap = document.createElement("label");
