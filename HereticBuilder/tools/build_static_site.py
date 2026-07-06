@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -191,7 +192,7 @@ def codex_root_href(path):
 def inject_static_config(html, base_path, mount_codex_at_root=False):
     config = (
         f'  <meta name="heretic-base-path" content="{escape(base_path, quote=True)}">\n'
-        f'  <meta name="heretic-search-index" content="{escape(site_url("/search-index.json", base_path), quote=True)}">'
+        f'  <meta name="heretic-search-index" content="{escape(site_url("/search-index/manifest.json", base_path), quote=True)}">'
     )
     if "</head>" in html:
         html = html.replace("</head>", f"{config}\n</head>", 1)
@@ -288,13 +289,43 @@ def search_index_items(builder, mount_codex_at_root=False):
     return normalized
 
 
+def search_index_shard_slug(item_type):
+    slug = re.sub(r"[^a-z0-9]+", "-", compact_text(item_type).lower()).strip("-")
+    return slug or "results"
+
+
 def write_search_index(builder, out_dir, mount_codex_at_root=False):
-    payload = {
-        "version": 1,
-        "items": search_index_items(builder, mount_codex_at_root),
+    search_dir = out_dir / "search-index"
+    search_dir.mkdir(parents=True, exist_ok=True)
+    items_by_type = {}
+    for item in search_index_items(builder, mount_codex_at_root):
+        items_by_type.setdefault(item["type"], []).append(item)
+
+    shards = []
+    for item_type, items in sorted(items_by_type.items()):
+        body = json.dumps(
+            {"version": 1, "type": item_type, "items": items},
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        digest = hashlib.sha256(body).hexdigest()
+        filename = f"{search_index_shard_slug(item_type)}-{digest[:12]}.json"
+        (search_dir / filename).write_bytes(body)
+        shards.append({
+            "bytes": len(body),
+            "itemCount": len(items),
+            "path": f"/search-index/{filename}",
+            "sha256": digest,
+            "type": item_type,
+        })
+
+    manifest = {
+        "version": 2,
+        "itemCount": sum(shard["itemCount"] for shard in shards),
+        "shards": shards,
     }
-    (out_dir / "search-index.json").write_text(
-        json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
+    (search_dir / "manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
 

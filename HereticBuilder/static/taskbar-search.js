@@ -40,7 +40,7 @@
 
   const TASKBAR_GAP = 54;
   const basePath = normalizeBasePath(document.querySelector('meta[name="heretic-base-path"]')?.content || "");
-  const staticSearchIndexUrl = document.querySelector('meta[name="heretic-search-index"]')?.content || siteHref("/search-index.json");
+  const staticSearchIndexUrl = document.querySelector('meta[name="heretic-search-index"]')?.content || siteHref("/search-index/manifest.json");
 
   function normalizeBasePath(value) {
     const path = String(value || "").trim().replace(/\/+$/, "");
@@ -170,14 +170,37 @@
     return matched.slice(0, limit).map(({ score: _score, ...item }) => item);
   }
 
+  function searchIndexHref(path) {
+    if (!path || !path.startsWith("/") || path.startsWith("//")) {
+      return path;
+    }
+    return siteHref(path);
+  }
+
+  async function fetchSearchIndexPayload(url) {
+    const response = await fetch(url, { cache: "force-cache" });
+    if (!response.ok) {
+      throw new Error(`Search index failed: ${response.status}`);
+    }
+    return response.json();
+  }
+
+  async function loadSearchIndexPayload() {
+    const payload = await fetchSearchIndexPayload(staticSearchIndexUrl);
+    if (Array.isArray(payload.items)) {
+      return payload.items;
+    }
+    const shards = Array.isArray(payload.shards) ? payload.shards : [];
+    const shardItems = await Promise.all(shards.map(async (shard) => {
+      const shardPayload = await fetchSearchIndexPayload(searchIndexHref(shard.path));
+      return shardPayload.items || [];
+    }));
+    return shardItems.flat();
+  }
+
   function loadStaticSearchIndex() {
     if (!staticSearchIndexPromise) {
-      staticSearchIndexPromise = fetch(staticSearchIndexUrl).then((response) => {
-        if (!response.ok) {
-          throw new Error(`Search index failed: ${response.status}`);
-        }
-        return response.json();
-      }).then((payload) => payload.items || []);
+      staticSearchIndexPromise = loadSearchIndexPayload();
     }
     return staticSearchIndexPromise;
   }
