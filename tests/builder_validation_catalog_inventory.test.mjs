@@ -1013,7 +1013,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
       join(outDir, "static", "builder_enhancement_combat_patrol_rules.js"),
       "utf8",
     );
+    assert.match(enhancementCombatPatrolSource, new RegExp(`\\.\\/builder_enhancement_combat_patrol_defaults\\.js\\?v=${version}`));
     assert.match(enhancementCombatPatrolSource, new RegExp(`\\.\\/builder_enhancement_limit_scopes\\.js\\?v=${version}`));
+
+    const enhancementCombatPatrolDefaultsSource = readFileSync(join(outDir, "static", "builder_enhancement_combat_patrol_defaults.js"), "utf8");
+    assert.match(enhancementCombatPatrolDefaultsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const allegianceRulesSource = readFileSync(join(outDir, "static", "builder_allegiance_rules.js"), "utf8");
     assert.match(allegianceRulesSource, new RegExp(`\\.\\/builder_allegiance_candidates\\.js\\?v=${version}`));
@@ -1257,9 +1261,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(allModelWargearRulesSource, new RegExp(`\\.\\/builder_wargear_all_model_family_checks\\.js\\?v=${version}`));
 
     const allModelFamilyChecksSource = readFileSync(join(outDir, "static", "builder_wargear_all_model_family_checks.js"), "utf8");
-    assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));
     assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_family_counts\\.js\\?v=${version}`));
     assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_family_results\\.js\\?v=${version}`));
+    assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_family_state\\.js\\?v=${version}`));
+
+    const allModelFamilyStateSource = readFileSync(join(outDir, "static", "builder_wargear_all_model_family_state.js"), "utf8");
+    assert.match(allModelFamilyStateSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));
+    assert.match(allModelFamilyStateSource, new RegExp(`\\.\\/builder_wargear_selection\\.js\\?v=${version}`));
 
     const allModelFamilyCountsSource = readFileSync(join(outDir, "static", "builder_wargear_all_model_family_counts.js"), "utf8");
     assert.match(allModelFamilyCountsSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));

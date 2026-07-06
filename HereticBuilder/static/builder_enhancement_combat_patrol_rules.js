@@ -1,5 +1,8 @@
 import { unitIdsScope } from "./builder_enhancement_limit_scopes.js";
-import { state } from "./builder_state.js";
+import {
+  combatPatrolDefaultEnhancements,
+  selectedEnhancementTargetsById,
+} from "./builder_enhancement_combat_patrol_defaults.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
 function validateCombatPatrolEnhancements(detachments, selected, messages) {
@@ -7,17 +10,9 @@ function validateCombatPatrolEnhancements(detachments, selected, messages) {
   if (!combatPatrols.length) {
     return;
   }
-  const selectedById = new Map();
-  for (const item of selected) {
-    if (!selectedById.has(item.enhancement.id)) {
-      selectedById.set(item.enhancement.id, []);
-    }
-    selectedById.get(item.enhancement.id).push(item);
-  }
+  const selectedById = selectedEnhancementTargetsById(selected);
   for (const detachment of combatPatrols) {
-    const defaults = state.catalog.enhancements.filter((enhancement) => (
-      enhancement.detachmentId === detachment.id && enhancement.isCombatPatrolDefault
-    ));
+    const defaults = combatPatrolDefaultEnhancements(detachment);
     const defaultIds = new Set(defaults.map((enhancement) => enhancement.id));
     for (const enhancement of defaults) {
       const selectedDefaults = selectedById.get(enhancement.id) || [];

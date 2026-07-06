@@ -1248,6 +1248,11 @@ browser smoke test.
   `builder_wargear_all_model_family_counts.js`. The family checker now owns
   only rule state transitions, while choice arithmetic is covered by the same
   cache-busted static import inventory.
+- 2026-07-06: Split all-model Wargear family state creation and miniature target
+  collection out of `builder_wargear_all_model_family_checks.js` into
+  `builder_wargear_all_model_family_state.js`. The checker facade keeps the
+  same exports while state-key construction and target-id collection are
+  independently auditable.
 - 2026-07-05: Split Attached Units add-control rendering out of
   `builder_roster_attachment_editor_view.js` into
   `builder_roster_attachment_controls.js`. The editor view now composes the
@@ -1555,6 +1560,10 @@ browser smoke test.
   `builder_enhancement_combat_patrol_rules.js`, with shared unit-scope metadata
   in `builder_enhancement_limit_scopes.js`. Roster caps, duplicate limits, and
   Combat Patrol defaults are now independently auditable.
+- 2026-07-06: Split Combat Patrol default Enhancement lookup and selected-target
+  indexing out of `builder_enhancement_combat_patrol_rules.js` into
+  `builder_enhancement_combat_patrol_defaults.js`. The rule module now only
+  emits required, duplicate, and not-allowed Combat Patrol diagnostics.
 - 2026-07-05: Split unit-detail enhancement controls out of
   `builder_roster_unit_detail_editors.js` into
   `builder_roster_unit_enhancement_editor.js`. Composition, Warlord, and
