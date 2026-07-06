@@ -13,7 +13,6 @@ from build_static_site import (
     HERETIC_BUILDER_ROOT,
     PROJECT_ROOT,
     STATIC_ROOT,
-    copy_dir,
     inject_static_config,
     load_toml_config,
     merge_profile_config,
@@ -31,10 +30,6 @@ BUILDER_STATIC_SUPPORT_FILES = (
     "codex.css",
     "win-scrollbars.js",
     "builder.css",
-)
-
-BUILDER_ASSET_DIRS = (
-    "unit-images",
 )
 
 BUILDER_ICON_FILES = (
@@ -114,8 +109,9 @@ def copy_builder_assets(out_dir):
         copy_file(STATIC_ROOT / filename, static_dir / filename)
 
     source_assets = HERETIC_BUILDER_ROOT / "assets"
-    for dirname in BUILDER_ASSET_DIRS:
-        copy_dir(source_assets / dirname, out_dir / "assets" / dirname)
+    unit_images_dir = source_assets / "unit-images"
+    for path in sorted(unit_images_dir.glob("*.png")):
+        copy_file(path, out_dir / "assets" / "unit-images" / path.name)
     for filename in BUILDER_ICON_FILES:
         copy_file(source_assets / "icons" / filename, out_dir / "assets" / "icons" / filename)
     (out_dir / ".nojekyll").write_text("", encoding="utf-8")

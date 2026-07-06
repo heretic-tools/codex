@@ -638,6 +638,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.ok(existsSync(join(outDir, "assets", "unit-images")));
     assert.equal(existsSync(join(outDir, "static", "home.js")), false);
     assert.equal(existsSync(join(outDir, "assets", "faction-images")), false);
+    assert.equal(existsSync(join(outDir, "assets", "unit-images", "manifest.csv")), false);
 
     const builderSource = readFileSync(join(outDir, "static", "builder.js"), "utf8");
     assert.match(builderSource, new RegExp(`\\.\\/builder_catalog\\.js\\?v=${version}`));
