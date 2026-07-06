@@ -1536,6 +1536,12 @@ browser smoke test.
   The top-level validator now composes selection targets and limit checks,
   while detachment, target type, allied, keyword, Wargear, attached-unit, and
   Warlord-blocking diagnostics live in a focused rule module.
+- 2026-07-06: Split selected Enhancement per-target validation out of
+  `builder_enhancement_selected_rules.js` into base target checks and
+  requirement checks. Detachment/target/allied/model/Epic/Character messages now
+  sit in `builder_enhancement_selected_base_rules.js`, while keyword, Wargear,
+  attached-unit, and Warlord-blocking messages sit in
+  `builder_enhancement_selected_requirement_rules.js`.
 - 2026-07-05: Split required-Wargear Enhancement checks into
   `builder_enhancement_wargear_rules.js`. Candidate availability and roster
   validation now share the same missing-Wargear lookup, keeping UI reasons and

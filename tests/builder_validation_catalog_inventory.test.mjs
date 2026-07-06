@@ -978,10 +978,22 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(enhancementRulesSource, new RegExp(`\\.\\/builder_enhancement_selected_rules\\.js\\?v=${version}`));
 
     const enhancementSelectedRulesSource = readFileSync(join(outDir, "static", "builder_enhancement_selected_rules.js"), "utf8");
-    assert.match(enhancementSelectedRulesSource, new RegExp(`\\.\\/builder_attachment_rules\\.js\\?v=${version}`));
-    assert.match(enhancementSelectedRulesSource, new RegExp(`\\.\\/builder_enhancement_eligibility\\.js\\?v=${version}`));
-    assert.match(enhancementSelectedRulesSource, new RegExp(`\\.\\/builder_enhancement_selection\\.js\\?v=${version}`));
-    assert.match(enhancementSelectedRulesSource, new RegExp(`\\.\\/builder_enhancement_wargear_rules\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedRulesSource, new RegExp(`\\.\\/builder_enhancement_selected_base_rules\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedRulesSource, new RegExp(`\\.\\/builder_enhancement_selected_requirement_rules\\.js\\?v=${version}`));
+
+    const enhancementSelectedBaseRulesSource = readFileSync(join(outDir, "static", "builder_enhancement_selected_base_rules.js"), "utf8");
+    assert.match(enhancementSelectedBaseRulesSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedBaseRulesSource, new RegExp(`\\.\\/builder_validation_core\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedBaseRulesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedBaseRulesSource, new RegExp(`\\.\\/builder_enhancement_eligibility\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedBaseRulesSource, new RegExp(`\\.\\/builder_enhancement_selection\\.js\\?v=${version}`));
+
+    const enhancementSelectedRequirementRulesSource = readFileSync(join(outDir, "static", "builder_enhancement_selected_requirement_rules.js"), "utf8");
+    assert.match(enhancementSelectedRequirementRulesSource, new RegExp(`\\.\\/builder_attachment_rules\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedRequirementRulesSource, new RegExp(`\\.\\/builder_enhancement_eligibility\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedRequirementRulesSource, new RegExp(`\\.\\/builder_enhancement_selection\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedRequirementRulesSource, new RegExp(`\\.\\/builder_enhancement_wargear_rules\\.js\\?v=${version}`));
+    assert.match(enhancementSelectedRequirementRulesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
 
     const enhancementEligibilitySource = readFileSync(join(outDir, "static", "builder_enhancement_eligibility.js"), "utf8");
     assert.match(enhancementEligibilitySource, new RegExp(`\\.\\/builder_enhancement_base_target_status\\.js\\?v=${version}`));
