@@ -122,7 +122,6 @@ CATALOG_TABLES = (
 )
 
 BUILDER_CLIENT_CORE_CATALOG_TABLES = (
-    "battle_size",
     "detachment",
     "detachment_faction_keyword",
     "detachment_faction_detachment_points_cost",

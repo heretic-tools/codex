@@ -179,6 +179,10 @@ const DATA_EMPTY_RULE_TABLES = [
   ["keyword_ally_restricting_keyword", "keywordAllyRestrictingKeywords"],
 ];
 
+const BOOTSTRAP_BUILDER_RULE_TABLES = new Set([
+  "battle_size",
+]);
+
 const OFFICIAL_SEED_DUMP_REFERENCE_OR_GAME_TABLES = [
   "amendment",
   "army_rule",
@@ -251,6 +255,11 @@ async function builderDataManifest() {
 
 function loadedBuilderRuleTableNames() {
   return LOADED_BUILDER_RULE_TABLES.map(([tableName]) => tableName).sort();
+}
+
+function exportedBuilderRuleTableNames() {
+  return loadedBuilderRuleTableNames()
+    .filter((tableName) => !BOOTSTRAP_BUILDER_RULE_TABLES.has(tableName));
 }
 
 function builderDataEntry(manifest, logicalPath) {
@@ -1559,7 +1568,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 test("static Builder data manifest lists every exported rule file with matching rows and hashes", async () => {
   const manifest = await builderDataManifest();
   const tableCounts = realCatalog.bootstrap.tableCounts;
-  const exportedTableNames = loadedBuilderRuleTableNames();
+  const exportedTableNames = exportedBuilderRuleTableNames();
   const files = new Map(manifest.files.map((entry) => [entry.logicalPath || entry.path, entry]));
   const tableEntries = manifest.files.filter((entry) => (entry.logicalPath || entry.path).startsWith("tables/"));
   const precomputedEntries = manifest.files.filter((entry) => (
@@ -1585,6 +1594,8 @@ test("static Builder data manifest lists every exported rule file with matching 
     exportedTableNames
   );
   assert.ok(Object.keys(tableCounts).length > exportedTableNames.length);
+  assert.ok(tableCounts.battle_size > 0);
+  assert.equal(files.has("tables/battle_size.json"), false, "battle_size should stay bootstrap-only");
   for (const tableName of ["stratagem", "datasheet_ability", "rule_container_component", "wargear_item_profile"]) {
     assert.ok(tableCounts[tableName] > 0, `${tableName} should remain audited through bootstrap counts`);
     assert.equal(files.has(`tables/${tableName}.json`), false, `${tableName} should stay out of thin-client table files`);
@@ -1596,7 +1607,7 @@ test("static Builder data manifest lists every exported rule file with matching 
     assert.equal(entry.sha256, sha256(fileBuffer), `${entry.path} sha256 changed`);
   }
 
-  for (const [tableName] of LOADED_BUILDER_RULE_TABLES) {
+  for (const tableName of exportedTableNames) {
     const entry = files.get(`tables/${tableName}.json`);
     assert.ok(entry, `${tableName} should be listed in manifest`);
     assert.equal(entry.rows, tableCounts[tableName], `${tableName} manifest rows should match tableCounts`);
@@ -1623,7 +1634,7 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     );
     const bootstrap = JSON.parse(readFileSync(join(outDir, "bootstrap.json"), "utf8"));
     const manifest = JSON.parse(readFileSync(join(outDir, "manifest.json"), "utf8"));
-    const exportedTableNames = loadedBuilderRuleTableNames();
+    const exportedTableNames = exportedBuilderRuleTableNames();
     const loadoutManifestEntry = builderDataEntry(manifest, "precomputed-loadouts/manifest.json");
     assert.ok(loadoutManifestEntry);
     const loadouts = JSON.parse(readFileSync(join(outDir, loadoutManifestEntry.path), "utf8"));
@@ -1653,6 +1664,10 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
       manifest.files.some((entry) => entry.logicalPath === "tables/stratagem.json"),
       false
     );
+    assert.equal(
+      manifest.files.some((entry) => entry.logicalPath === "tables/battle_size.json"),
+      false
+    );
     assert.deepEqual(
       manifest.tableGroups.core.filter((table) => manifest.tableGroups.factionHeavy.includes(table)),
       []
@@ -1678,7 +1693,8 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
 test("static Builder rule table column lists stay pinned", async () => {
   assert.equal(Object.keys(BUILDER_RULE_TABLE_COLUMNS).length, 73);
 
-  for (const [tableName, expectedColumns] of Object.entries(BUILDER_RULE_TABLE_COLUMNS)) {
+  for (const tableName of exportedBuilderRuleTableNames()) {
+    const expectedColumns = BUILDER_RULE_TABLE_COLUMNS[tableName];
     const payload = await fetchBuilderDataJson(`tables/${tableName}.json`);
     assert.deepEqual(
       payload.columns.map((column) => column.name),
