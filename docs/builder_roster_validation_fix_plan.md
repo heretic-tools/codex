@@ -1345,6 +1345,12 @@ browser smoke test.
   `builder_allegiance_unit_rules.js` and
   `builder_allegiance_mandatory_rules.js`. The top-level validator now composes
   unit selection checks, roster-wide group limits, and faction mandatory rows.
+- 2026-07-06: Split per-unit Allegiance Ability selection validation out of
+  `builder_allegiance_unit_rules.js` into
+  `builder_allegiance_unit_selection_rules.js`. The unit-rule module now owns
+  only group/unit accounting while detachment gates, wrong-group selections,
+  mandatory/multiple selections, and required-wargear checks are auditable
+  together.
 - 2026-07-05: Split loadout catalog/key helpers and precomputed fingerprint
   cache out of `builder_loadout_math.js` into `builder_loadout_catalog.js` and
   `builder_loadout_precomputed.js`. Canonical wargear alias resolution,
@@ -1383,6 +1389,11 @@ browser smoke test.
   `builder_wargear_limited_choices.js` into
   `builder_wargear_limited_count_filters.js`, so cover-vector construction no
   longer imports the full choice hydration module.
+- 2026-07-06: Split limited-Wargear upgrade-key discovery out of
+  `builder_wargear_limited_choices.js` into
+  `builder_wargear_limited_upgrade_keys.js`. Choice hydration now consumes an
+  explicit key set while default-value option scanning stays independently
+  auditable.
 - 2026-07-05: Split roster-list row rendering out of
   `builder_roster_list_view.js` into `builder_roster_list_rows.js`. The list
   view now owns screen assembly and import/export controls, while the roster

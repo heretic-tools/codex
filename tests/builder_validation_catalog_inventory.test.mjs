@@ -1009,6 +1009,14 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(allegianceRulesSource, new RegExp(`\\.\\/builder_allegiance_mandatory_rules\\.js\\?v=${version}`));
     assert.match(allegianceRulesSource, new RegExp(`\\.\\/builder_allegiance_unit_rules\\.js\\?v=${version}`));
 
+    const allegianceUnitRulesSource = readFileSync(join(outDir, "static", "builder_allegiance_unit_rules.js"), "utf8");
+    assert.match(allegianceUnitRulesSource, new RegExp(`\\.\\/builder_allegiance_unit_selection_rules\\.js\\?v=${version}`));
+
+    const allegianceUnitSelectionRulesSource = readFileSync(join(outDir, "static", "builder_allegiance_unit_selection_rules.js"), "utf8");
+    assert.match(allegianceUnitSelectionRulesSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+    assert.match(allegianceUnitSelectionRulesSource, new RegExp(`\\.\\/builder_validation_core\\.js\\?v=${version}`));
+    assert.match(allegianceUnitSelectionRulesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
+
     const allegianceCandidatesSource = readFileSync(join(outDir, "static", "builder_allegiance_candidates.js"), "utf8");
     assert.match(allegianceCandidatesSource, new RegExp(`\\.\\/builder_allegiance_helpers\\.js\\?v=${version}`));
 
@@ -1250,7 +1258,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const limitedWargearChoicesSource = readFileSync(join(outDir, "static", "builder_wargear_limited_choices.js"), "utf8");
     assert.match(limitedWargearChoicesSource, new RegExp(`\\.\\/builder_wargear_limited_limits\\.js\\?v=${version}`));
+    assert.match(limitedWargearChoicesSource, new RegExp(`\\.\\/builder_wargear_limited_upgrade_keys\\.js\\?v=${version}`));
     assert.match(limitedWargearChoicesSource, new RegExp(`\\.\\/builder_wargear_limited_count_filters\\.js\\?v=${version}`));
+
+    const limitedWargearUpgradeKeysSource = readFileSync(join(outDir, "static", "builder_wargear_limited_upgrade_keys.js"), "utf8");
+    assert.match(limitedWargearUpgradeKeysSource, new RegExp(`\\.\\/builder_loadout_math\\.js\\?v=${version}`));
+    assert.match(limitedWargearUpgradeKeysSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const limitedWargearCountFiltersSource = readFileSync(join(outDir, "static", "builder_wargear_limited_count_filters.js"), "utf8");
     assert.match(limitedWargearCountFiltersSource, new RegExp(`\\.\\/builder_loadout_math\\.js\\?v=${version}`));
