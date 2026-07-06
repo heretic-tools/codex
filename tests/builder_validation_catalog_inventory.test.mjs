@@ -1029,7 +1029,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(attachmentEnhancementRulesSource, new RegExp(`\\.\\/builder_attachment_enhancement_bodyguard_rules\\.js\\?v=${version}`));
 
     const attachmentEnhancementBodyguardRulesSource = readFileSync(join(outDir, "static", "builder_attachment_enhancement_bodyguard_rules.js"), "utf8");
+    assert.match(attachmentEnhancementBodyguardRulesSource, new RegExp(`\\.\\/builder_attachment_enhancement_bodyguard_allowed\\.js\\?v=${version}`));
     assert.match(attachmentEnhancementBodyguardRulesSource, new RegExp(`\\.\\/builder_attachment_matchers\\.js\\?v=${version}`));
+
+    const attachmentEnhancementBodyguardAllowedSource = readFileSync(join(outDir, "static", "builder_attachment_enhancement_bodyguard_allowed.js"), "utf8");
+    assert.match(attachmentEnhancementBodyguardAllowedSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(attachmentEnhancementBodyguardAllowedSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const alliedRulesSource = readFileSync(join(outDir, "static", "builder_allied_rules.js"), "utf8");
     assert.match(alliedRulesSource, new RegExp(`\\.\\/builder_allied_faction_rules\\.js\\?v=${version}`));
@@ -1047,6 +1052,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(alliedKeywordRulesSource, new RegExp(`\\.\\/builder_allied_allegiance_requirement_rules\\.js\\?v=${version}`));
     assert.match(alliedKeywordRulesSource, new RegExp(`\\.\\/builder_allied_keyword_limit_rules\\.js\\?v=${version}`));
     assert.match(alliedKeywordRulesSource, new RegExp(`\\.\\/builder_allied_restricting_keyword_rules\\.js\\?v=${version}`));
+
+    const alliedRestrictingKeywordRulesSource = readFileSync(join(outDir, "static", "builder_allied_restricting_keyword_rules.js"), "utf8");
+    assert.match(alliedRestrictingKeywordRulesSource, new RegExp(`\\.\\/builder_allied_restricting_keyword_rows\\.js\\?v=${version}`));
+
+    const alliedRestrictingKeywordRowsSource = readFileSync(join(outDir, "static", "builder_allied_restricting_keyword_rows.js"), "utf8");
+    assert.match(alliedRestrictingKeywordRowsSource, new RegExp(`\\.\\/builder_allied_rule_helpers\\.js\\?v=${version}`));
+    assert.match(alliedRestrictingKeywordRowsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const alliedKeywordLimitRulesSource = readFileSync(join(outDir, "static", "builder_allied_keyword_limit_rules.js"), "utf8");
     assert.match(alliedKeywordLimitRulesSource, new RegExp(`\\.\\/builder_allied_keyword_slotless_rules\\.js\\?v=${version}`));

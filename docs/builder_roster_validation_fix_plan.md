@@ -1263,6 +1263,10 @@ browser smoke test.
   `builder_attachment_enhancement_bodyguard_rules.js`. Datasheet/keyword
   matching for enhancement bodyguard groups is now separate from the attached
   unit enhancement-count validator.
+- 2026-07-06: Split Enhancement bodyguard datasheet/keyword allowed predicate
+  out of `builder_attachment_enhancement_bodyguard_rules.js` into
+  `builder_attachment_enhancement_bodyguard_allowed.js`, leaving the requirement
+  loop focused on attached-group membership and faction gates.
 - 2026-07-05: Split Attached Units control option factories out of
   `builder_roster_attachment_control_selects.js` into
   `builder_roster_attachment_control_options.js`. The select refresher now
@@ -1564,6 +1568,10 @@ browser smoke test.
   restricting-keyword checks out of `builder_allied_keyword_rules.js` into
   dedicated modules. The allied keyword module is now a facade while the three
   allied subrule families can be audited independently.
+- 2026-07-06: Split allied restricting-keyword row hydration out of
+  `builder_allied_restricting_keyword_rules.js` into
+  `builder_allied_restricting_keyword_rows.js`, keeping old-table rows and
+  keyword-column fallback rows scoped through the same allied parent matcher.
 - 2026-07-05: Split allied faction availability/Warlord/detachment/datasheet/
   points checks out of `builder_allied_rules.js` into
   `builder_allied_faction_rules.js`. The top-level allied validator now only

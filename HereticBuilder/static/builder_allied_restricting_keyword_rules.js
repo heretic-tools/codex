@@ -1,31 +1,11 @@
-import {
-  alliedFactionParentMatches,
-  unitIdsScope,
-} from "./builder_allied_rule_helpers.js";
+import { unitIdsScope } from "./builder_allied_rule_helpers.js";
+import { allyRestrictingKeywordRows } from "./builder_allied_restricting_keyword_rows.js";
 import { state } from "./builder_state.js";
 import { validationMessage } from "./builder_validation_messages.js";
 
 function validateAllyRestrictingKeywords(alliedFactionId, label, units, messages) {
-  const rows = [];
-  for (const row of state.catalog.keywordAllyRestrictingKeywords || []) {
-    const keyword = state.catalog.keywordById.get(row.keywordId);
-    if (alliedFactionParentMatches(alliedFactionId, keyword?.allyRestrictingFactionKeywordId)) {
-      rows.push(row);
-    }
-  }
-  for (const keyword of state.catalog.keywords || []) {
-    if (!keyword.allyRestrictingKeywordId) {
-      continue;
-    }
-    if (alliedFactionParentMatches(alliedFactionId, keyword.allyRestrictingFactionKeywordId)) {
-      rows.push({
-        keywordId: keyword.id,
-        restrictingKeywordId: keyword.allyRestrictingKeywordId,
-      });
-    }
-  }
   const seen = new Set();
-  for (const row of rows) {
+  for (const row of allyRestrictingKeywordRows(alliedFactionId)) {
     const key = `${row.keywordId}:${row.restrictingKeywordId}`;
     if (seen.has(key)) {
       continue;
