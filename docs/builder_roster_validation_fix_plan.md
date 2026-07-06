@@ -1422,6 +1422,10 @@ browser smoke test.
   `builder_warlord_rules.js` into
   `builder_warlord_mandatory_presence_rules.js`. `validateWarlord` now delegates
   faction mandatory-model presence checks before generic selected-Warlord flow.
+- 2026-07-06: Split detachment row validation badge calculation out of
+  `builder_roster_detachment_rows.js` into
+  `builder_roster_detachment_validation_status.js`. Detachment row rendering now
+  consumes a precomputed error/warning badge model.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,
