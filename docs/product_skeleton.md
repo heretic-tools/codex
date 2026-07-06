@@ -64,11 +64,11 @@ Builder не должен иметь старую совместимость с�
 
 | Экран | Route family | Главные действия | Что видно на мобильном |
 | --- | --- | --- | --- |
-| Home | `/` | Выбрать Codex или Builder. | Два главных входа без marketing layer. |
+| Home | `/` | Выбрать Codex или Builder, открыть сохранённые/недавние Codex pages. | Два главных входа без marketing layer, локальные Favorites/Recent с empty states. |
 | Codex root / faction list | `/codex` or `/` when mounted at root | Выбрать faction/faction group, открыть core rules/search. | Сканируемый список фракций и групп; поиск доступен тапом и через Cmd/Ctrl+K, результаты сгруппированы по типу. |
 | Faction overview | faction route | Перейти в datasheets, detachments, army rules. | Название фракции, основные разделы, быстрый возврат назад. |
 | Datasheet list | faction datasheets route | Найти и открыть datasheet. | Список datasheets с понятными badges/points where available. |
-| Datasheet detail | datasheet route | Читать профиль, weapons, abilities, keywords. | Название юнита, ключевые stats, таблицы с контролируемым horizontal scroll только там, где таблица действительно шире экрана; длинные ability/rule/wargear cards на мобильном раскрываются по намеренному тапу. |
+| Datasheet detail | datasheet route | Читать профиль, weapons, abilities, keywords, сохранить страницу в Favorites. | Название юнита, ключевые stats, Save/Saved favorite state, таблицы с контролируемым horizontal scroll только там, где таблица действительно шире экрана; длинные ability/rule/wargear cards на мобильном раскрываются по намеренному тапу. |
 | Detachments list | faction detachments route | Выбрать detachment. | Список detachments с disposition/cost badges. |
 | Detachment/rules detail | detachment/rules routes | Читать rule, enhancements, stratagems, restrictions. | Заголовок, badges, читаемые правила без desktop-only таблиц. |
 | Core rules / FAQ | core rules routes | Читать базовые правила и FAQ. | Текстовые разделы с удобным скроллом и breadcrumbs назад. |
@@ -77,6 +77,8 @@ Builder не должен иметь старую совместимость с�
 
 - Клиент может хранить только пользовательский state и ephemeral UI state.
 - Theme preference допустим как tiny local UI preference.
+- Codex Favorites/Recent допустимы как tiny local UI state: сохраняются только
+  title/type/href, а не rule payload.
 - Catalog/rule data должны приходить из build-time артефактов в `dist/`.
 - Новая логика правил должна жить в проверяемых JS validator/model modules,
   покрываться `node:test` и не зависеть от backend.

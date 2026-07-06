@@ -273,6 +273,24 @@
     }
   }
 
+  function setupCodexLocalLibrary() {
+    const library = window.HereticCodexLocal;
+    if (!library) {
+      return;
+    }
+    const record = library.currentPageRecord();
+    if (!record) {
+      return;
+    }
+    library.rememberRecent(record);
+    const actions = document.querySelector(".app-header-actions");
+    if (!actions) {
+      return;
+    }
+    const themeToggle = actions.querySelector("[data-theme-toggle]");
+    actions.insertBefore(library.favoriteButton(record), themeToggle || null);
+  }
+
   appHeader?.addEventListener("click", (event) => {
     if (isInteractiveTarget(event)) {
       return;
@@ -296,5 +314,6 @@
   }
 
   setupMobileUnitInfoCards();
+  setupCodexLocalLibrary();
 
 })();

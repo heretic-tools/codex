@@ -35,4 +35,6 @@
     selectLauncher(activeButton);
   }
 
+  window.HereticCodexLocal?.renderLocalLibrary(document.querySelector("[data-local-library]"));
+
 })();

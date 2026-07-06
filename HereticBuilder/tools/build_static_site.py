@@ -77,6 +77,7 @@ STATIC_ASSET_FILES = (
     "codex.css",
     "theme.js",
     "pwa.js",
+    "codex-local.js",
     "app-search.js",
     "codex.js",
     "home.js",

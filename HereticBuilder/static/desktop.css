@@ -161,6 +161,45 @@ a {
   gap: 8px;
 }
 
+.favorite-toggle {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  color: var(--app-ink);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.favorite-toggle::before {
+  content: "+";
+  width: 14px;
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--app-mono);
+}
+
+.favorite-toggle.is-favorite {
+  border-color: var(--app-accent);
+}
+
+.favorite-toggle.is-favorite::before {
+  content: "*";
+  color: var(--app-accent);
+}
+
+.favorite-toggle:hover,
+.favorite-toggle:focus-visible {
+  border-color: var(--app-border-strong);
+  outline: none;
+}
+
 .title {
   min-width: 0;
   overflow: hidden;
@@ -337,6 +376,76 @@ h1 {
 .launcher:focus-visible {
   outline: 2px solid var(--app-accent);
   outline-offset: 2px;
+}
+
+.local-library {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.local-library-section {
+  display: grid;
+  gap: 7px;
+}
+
+.local-library-title {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.local-library-list {
+  display: grid;
+  gap: 0;
+}
+
+.local-library-link,
+.local-library-empty {
+  min-height: 42px;
+  display: grid;
+  gap: 2px;
+  align-content: center;
+  margin: 0;
+  padding: 9px 11px;
+  color: var(--app-ink);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  text-decoration: none;
+}
+
+.local-library-link + .local-library-link,
+.local-library-empty + .local-library-link,
+.local-library-link + .local-library-empty {
+  border-top: 0;
+}
+
+.local-library-link:hover,
+.local-library-link:focus-visible {
+  background: var(--app-surface-2);
+  border-color: var(--app-border-strong);
+  outline: none;
+}
+
+.local-library-link-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.local-library-link-meta,
+.local-library-empty {
+  color: var(--app-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .icon {
