@@ -43,12 +43,22 @@ function renderRosterDetailView({
     roster,
     validation: validationResult,
   });
-  const stickySummary = renderRosterStickySummary({ roster, validation: validationResult });
+  const stickySummary = renderRosterStickySummary({
+    actions: [
+      { label: "Validation", target: "validation" },
+      { label: "Detachments", target: "detachments" },
+      { label: "Units", target: "units" },
+      { label: "Attached", target: "attachments" },
+    ],
+    roster,
+    validation: validationResult,
+  });
   const validationView = renderValidation(validationResult, {
     context: validationContextForRoster(roster),
     groupAction: (group) => renderValidationGroupAction(group, { onUnitOpen, roster, unitById }),
     title: "Roster Validation",
   });
+  validationView.dataset.editorTarget = "validation";
   sidebar.append(overview, validationView);
   root.append(stickySummary, sidebar, editor);
   return root;

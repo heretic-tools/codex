@@ -1087,6 +1087,35 @@
   gap: 5px;
 }
 
+.roster-sticky-summary-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.roster-sticky-summary-action {
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 6px;
+  overflow: hidden;
+  color: var(--builder-ink);
+  background: var(--builder-panel);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  font-family: var(--builder-mono);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roster-sticky-summary-action:hover,
+.roster-sticky-summary-action:focus-visible {
+  border-color: var(--builder-shadow);
+  outline: none;
+}
+
 .roster-overview-metric {
   min-width: 0;
   display: grid;
@@ -1529,7 +1558,7 @@
   }
 
   .builder-panel-content:has(.roster-sticky-summary) {
-    padding-bottom: calc(166px + env(safe-area-inset-bottom));
+    padding-bottom: calc(214px + env(safe-area-inset-bottom));
   }
 
   .builder-grid,
@@ -1590,7 +1619,7 @@
   }
 
   .builder-toast {
-    bottom: calc(158px + env(safe-area-inset-bottom));
+    bottom: calc(206px + env(safe-area-inset-bottom));
   }
 }
 

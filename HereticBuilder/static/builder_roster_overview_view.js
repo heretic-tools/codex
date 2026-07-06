@@ -1,5 +1,6 @@
 import { button, textNode } from "./builder_dom.js";
 import { labelControl } from "./builder_roster_control_labels.js";
+import { scrollToEditorTarget } from "./builder_roster_validation_action_scroll.js";
 import { renderWarlordPicker } from "./builder_roster_warlord_picker.js";
 import { validationCounts, validationSummary } from "./builder_validation_summary.js";
 
@@ -47,7 +48,7 @@ function appendRosterMetrics(metrics, roster, validation) {
   );
 }
 
-function renderRosterStickySummary({ roster, validation }) {
+function renderRosterStickySummary({ actions = [], roster, validation }) {
   const summary = document.createElement("aside");
   summary.className = `roster-sticky-summary has-validation-${rosterOverviewStateClass(validation)}`;
   const metrics = document.createElement("div");
@@ -57,9 +58,24 @@ function renderRosterStickySummary({ roster, validation }) {
     validationPill(validation),
     metrics
   );
+  if (actions.length) {
+    summary.appendChild(renderStickySummaryActions(actions));
+  }
   summary.dataset.validationSummary = validationSummary(validation);
   summary.setAttribute("aria-label", `Roster sticky summary: ${validationSummary(validation)}`);
   return summary;
+}
+
+function renderStickySummaryActions(actions = []) {
+  const wrap = document.createElement("div");
+  wrap.className = "roster-sticky-summary-actions";
+  actions.forEach((action) => {
+    const node = button("roster-sticky-summary-action", action.label, () => scrollToEditorTarget(action.target));
+    node.dataset.summaryTarget = action.target;
+    node.setAttribute("aria-label", `Go to ${action.label}`);
+    wrap.appendChild(node);
+  });
+  return wrap;
 }
 
 function renderRosterOverview({ onDelete, onUndoableUpdate = null, onUpdate, roster, summary, validation }) {

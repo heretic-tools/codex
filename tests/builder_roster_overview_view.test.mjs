@@ -49,6 +49,13 @@ test("roster sticky summary exposes compact points and validation state", () => 
       append(...nodes) {
         this.children.push(...nodes);
       },
+      appendChild(node) {
+        this.children.push(node);
+      },
+      addEventListener(name, handler) {
+        this.listeners ||= new Map();
+        this.listeners.set(name, handler);
+      },
       setAttribute(name, value) {
         this.attributes.set(name, value);
       },
@@ -76,6 +83,66 @@ test("roster sticky summary exposes compact points and validation state", () => 
     assert.equal(summary.children[1].children[0].children[1].textContent, "465 / 2000");
     assert.equal(summary.children[1].children[1].children[1].textContent, "1 / 3");
     assert.equal(summary.children[1].children[2].children[1].textContent, "2");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("roster sticky summary can expose mobile section jump actions", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: (tagName) => ({
+      attributes: new Map(),
+      children: [],
+      className: "",
+      dataset: {},
+      tagName,
+      textContent: "",
+      type: "",
+      append(...nodes) {
+        this.children.push(...nodes);
+      },
+      appendChild(node) {
+        this.children.push(node);
+      },
+      addEventListener(name, handler) {
+        this.listeners ||= new Map();
+        this.listeners.set(name, handler);
+      },
+      setAttribute(name, value) {
+        this.attributes.set(name, value);
+      },
+    }),
+  };
+
+  try {
+    const summary = renderRosterStickySummary({
+      actions: [
+        { label: "Validation", target: "validation" },
+        { label: "Units", target: "units" },
+      ],
+      roster: { units: [] },
+      validation: {
+        messages: [],
+        points: {
+          detachmentLimit: 3,
+          detachmentPoints: 0,
+          limit: 2000,
+          total: 0,
+        },
+        state: "valid",
+      },
+    });
+
+    const actions = summary.children[2];
+    assert.equal(actions.className, "roster-sticky-summary-actions");
+    assert.equal(actions.children.length, 2);
+    assert.equal(actions.children[0].className, "roster-sticky-summary-action");
+    assert.equal(actions.children[0].textContent, "Validation");
+    assert.equal(actions.children[0].dataset.summaryTarget, "validation");
+    assert.equal(actions.children[0].attributes.get("aria-label"), "Go to Validation");
+    assert.equal(actions.children[1].textContent, "Units");
+    assert.equal(actions.children[1].dataset.summaryTarget, "units");
   } finally {
     global.document = previousDocument;
   }
