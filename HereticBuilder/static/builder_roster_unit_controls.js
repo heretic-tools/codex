@@ -1,5 +1,11 @@
 import { button } from "./builder_dom.js";
-import { SEARCH_CLEAR_LABEL, searchControlLabel } from "./builder_roster_control_labels.js";
+import {
+  ADD_UNIT_LABEL,
+  SEARCH_CLEAR_LABEL,
+  UNIT_SELECT_LABEL,
+  labelControl,
+  searchControlLabel,
+} from "./builder_roster_control_labels.js";
 import { rosterWithAddedUnit } from "./builder_roster_actions.js";
 import {
   parseUnitOptionValue,
@@ -11,13 +17,12 @@ function renderUnitControls({ newId, onUpdate, roster, validation }) {
   search.type = "search";
   search.placeholder = "Search";
   search.autocomplete = "off";
-  const searchLabel = searchControlLabel("units");
-  search.title = searchLabel;
-  search.setAttribute("aria-label", searchLabel);
+  labelControl(search, searchControlLabel("units"));
   search.dataset.focusTarget = "true";
   const searchWrap = document.createElement("span");
   searchWrap.className = "builder-search-field";
   const unitSelect = document.createElement("select");
+  labelControl(unitSelect, UNIT_SELECT_LABEL);
   const add = button("plain-button add-button", "Add", async () => {
     const selected = parseUnitOptionValue(unitSelect.value);
     await onUpdate(rosterWithAddedUnit(roster, {
@@ -26,6 +31,7 @@ function renderUnitControls({ newId, onUpdate, roster, validation }) {
       unitId: newId(),
     }));
   });
+  labelControl(add, ADD_UNIT_LABEL);
   const refreshOptions = () => {
     refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelect, validation });
   };
@@ -34,8 +40,7 @@ function renderUnitControls({ newId, onUpdate, roster, validation }) {
     refreshOptions();
     search.focus();
   });
-  clearSearch.title = SEARCH_CLEAR_LABEL;
-  clearSearch.setAttribute("aria-label", SEARCH_CLEAR_LABEL);
+  labelControl(clearSearch, SEARCH_CLEAR_LABEL);
   searchWrap.append(search, clearSearch);
   search.addEventListener("input", refreshOptions);
   refreshOptions();

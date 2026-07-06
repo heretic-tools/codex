@@ -7,6 +7,9 @@ const {
   attachmentControlsAvailable,
   attachmentUnavailableMessage,
 } = await import("../HereticBuilder/static/builder_roster_attachment_editor_view.js");
+const {
+  createAttachmentControlSelects,
+} = await import("../HereticBuilder/static/builder_roster_attachment_control_create.js");
 
 function attachmentCatalog() {
   return {
@@ -81,4 +84,32 @@ test("attached unit empty state stays terse when valid pairs exist", () => {
 test("attached unit controls render only when a valid bodyguard exists", () => {
   assert.equal(attachmentControlsAvailable([]), false);
   assert.equal(attachmentControlsAvailable([{ id: "bodyguard" }]), true);
+});
+
+test("attached unit controls label their select controls", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: (tagName) => ({
+      attributes: new Map(),
+      dataset: {},
+      setAttribute(name, value) {
+        this.attributes.set(name, value);
+      },
+      tagName,
+      title: "",
+    }),
+  };
+
+  try {
+    const controls = createAttachmentControlSelects();
+
+    assert.equal(controls.bodyguard.title, "Choose bodyguard unit");
+    assert.equal(controls.bodyguard.attributes.get("aria-label"), "Choose bodyguard unit");
+    assert.equal(controls.type.title, "Choose attachment type");
+    assert.equal(controls.type.attributes.get("aria-label"), "Choose attachment type");
+    assert.equal(controls.attached.title, "Choose attached unit");
+    assert.equal(controls.attached.attributes.get("aria-label"), "Choose attached unit");
+  } finally {
+    global.document = previousDocument;
+  }
 });

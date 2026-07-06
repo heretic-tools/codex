@@ -3,6 +3,7 @@ import {
   refreshAttachmentControlSelects,
 } from "./builder_roster_attachment_control_selects.js";
 import { button } from "./builder_dom.js";
+import { ADD_ATTACHED_UNIT_LABEL, labelControl } from "./builder_roster_control_labels.js";
 import { rosterWithAddedAttachment } from "./builder_roster_actions.js";
 
 function renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, unitsById }) {
@@ -19,6 +20,7 @@ function renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, 
       units,
     }));
   });
+  labelControl(add, ADD_ATTACHED_UNIT_LABEL);
 
   const refreshControls = () => {
     refreshAttachmentControlSelects({
