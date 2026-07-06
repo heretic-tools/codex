@@ -71,6 +71,30 @@ async function networkFirst(request) {
   }
 }
 
+function sameOriginUrls(urls) {
+  return [...new Set((urls || []).filter((url) => {
+    try {
+      return new URL(url).origin === self.location.origin;
+    } catch (_error) {
+      return false;
+    }
+  }))];
+}
+
+async function cacheUrls(urls) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  await Promise.all(sameOriginUrls(urls).map(async (url) => {
+    try {
+      const response = await fetch(url, { cache: "force-cache" });
+      if (response && response.ok) {
+        await cache.put(url, response.clone());
+      }
+    } catch (_error) {
+      // Cache priming is opportunistic; failed URLs still load normally online.
+    }
+  }));
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(SHELL_CACHE)
@@ -90,6 +114,13 @@ self.addEventListener("activate", (event) => {
       ))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "CACHE_URLS" || !Array.isArray(event.data.urls)) {
+    return;
+  }
+  event.waitUntil(cacheUrls(event.data.urls));
 });
 
 self.addEventListener("fetch", (event) => {

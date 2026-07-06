@@ -869,10 +869,18 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const pwaSource = readFileSync(join(outDir, "static", "pwa.js"), "utf8");
     assert.match(pwaSource, /serviceWorker/);
     assert.match(pwaSource, /data-offline-status/);
+    assert.match(pwaSource, /primeOfflineShell/);
+    assert.match(pwaSource, /shellAssetUrls/);
+    assert.match(pwaSource, /link\[rel="stylesheet"\]\[href\], link\[rel="manifest"\]\[href\]/);
+    assert.match(pwaSource, /type: "CACHE_URLS"/);
 
     const serviceWorkerSource = readFileSync(join(outDir, "service-worker.js"), "utf8");
     assert.match(serviceWorkerSource, /builder-data/);
     assert.match(serviceWorkerSource, /isBuilderDataMetadataPath/);
+    assert.match(serviceWorkerSource, /self\.addEventListener\("message"/);
+    assert.match(serviceWorkerSource, /sameOriginUrls/);
+    assert.match(serviceWorkerSource, /fetch\(url, \{ cache: "force-cache" \}\)/);
+    assert.match(serviceWorkerSource, /CACHE_URLS/);
     assert.match(serviceWorkerSource, /request\.mode === "navigate"/);
     assert.match(serviceWorkerSource, /fetch\(request, \{ cache: "no-cache" \}\)/);
     assert.doesNotMatch(serviceWorkerSource, /localStorage|indexedDB|sessionStorage/);
