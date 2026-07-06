@@ -197,9 +197,17 @@
     return `${collapsed ? "Show" : "Hide"} ${title}`;
   }
 
-  function setUnitInfoCardCollapsed(card, collapsed) {
-    const button = card.querySelector(".unit-info-card-collapse-button");
-    const body = card.querySelector(".unit-info-card-collapsible-body");
+  const collapsibleCardSelectors = [
+    ".unit-detail-page .unit-rules-grid > .unit-info-card",
+    ".detachment-detail-page article.codex-content > .rule-card",
+    ".detachment-detail-page .detachment-card-grid > .detachment-detail-card:not(.detachment-summary-card)",
+    ".detachment-detail-page .detachment-card-grid > .detachment-feature-card",
+    ".detachment-detail-page .faq-section > .rule-card",
+  ];
+
+  function setCodexCollapsibleCardCollapsed(card, collapsed) {
+    const button = card.querySelector(".codex-collapsible-card-button");
+    const body = card.querySelector(".codex-collapsible-card-body");
     if (!button || !body) {
       return;
     }
@@ -211,52 +219,54 @@
     button.setAttribute("aria-label", collapseButtonLabel(collapsed, title));
   }
 
-  function enhanceUnitInfoCard(card, index) {
+  function enhanceCodexCollapsibleCard(card, index) {
     if (card.dataset.collapsibleReady === "true") {
       return;
     }
-    const heading = card.querySelector(":scope > .unit-card-heading, :scope > h2, :scope > h3");
+    const heading = card.querySelector(":scope > .unit-card-heading, :scope > .rule-card-heading, :scope > h2, :scope > h3");
     if (!heading) {
       return;
     }
     const body = document.createElement("div");
-    body.className = "unit-info-card-collapsible-body";
-    body.id = `unit-info-card-body-${index + 1}`;
+    body.className = "unit-info-card-collapsible-body codex-collapsible-card-body";
+    body.id = `codex-collapsible-card-body-${index + 1}`;
     while (heading.nextSibling) {
       body.appendChild(heading.nextSibling);
     }
     const button = document.createElement("button");
-    button.className = "unit-info-card-collapse-button";
+    button.className = "unit-info-card-collapse-button codex-collapsible-card-button";
     button.type = "button";
     button.setAttribute("aria-controls", body.id);
     button.addEventListener("click", () => {
       card.dataset.collapsibleTouched = "true";
-      setUnitInfoCardCollapsed(card, !body.hidden);
+      setCodexCollapsibleCardCollapsed(card, !body.hidden);
     });
-    heading.classList.add("unit-info-card-toggle-row");
+    heading.classList.add("unit-info-card-toggle-row", "codex-collapsible-card-toggle-row");
     heading.appendChild(button);
     card.appendChild(body);
     card.dataset.collapsibleReady = "true";
   }
 
-  function setupMobileUnitInfoCards() {
-    const cards = Array.from(document.querySelectorAll(".unit-detail-page .unit-rules-grid > .unit-info-card"));
+  function setupMobileCodexCollapsibleCards() {
+    const cards = Array.from(new Set(collapsibleCardSelectors.flatMap((selector) => (
+      Array.from(document.querySelectorAll(selector))
+    ))));
     if (!cards.length || !window.matchMedia) {
       return;
     }
     const media = window.matchMedia("(max-width: 760px)");
     const applyMode = () => {
       cards.forEach((card, index) => {
-        enhanceUnitInfoCard(card, index);
-        const button = card.querySelector(".unit-info-card-collapse-button");
-        const body = card.querySelector(".unit-info-card-collapsible-body");
+        enhanceCodexCollapsibleCard(card, index);
+        const button = card.querySelector(".codex-collapsible-card-button");
+        const body = card.querySelector(".codex-collapsible-card-body");
         if (!button || !body) {
           return;
         }
         button.hidden = !media.matches;
         if (media.matches) {
           if (card.dataset.collapsibleTouched !== "true") {
-            setUnitInfoCardCollapsed(card, true);
+            setCodexCollapsibleCardCollapsed(card, true);
           }
           return;
         }
@@ -313,7 +323,7 @@
     activeButton.setAttribute("aria-pressed", "true");
   }
 
-  setupMobileUnitInfoCards();
+  setupMobileCodexCollapsibleCards();
   setupCodexLocalLibrary();
 
 })();

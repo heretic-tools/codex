@@ -1729,8 +1729,27 @@
   gap: 8px;
 }
 
+.unit-info-card-toggle-row h2,
 .unit-info-card-toggle-row h3 {
   min-width: 0;
+}
+
+.rule-card-heading.codex-collapsible-card-toggle-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.rule-card-heading.codex-collapsible-card-toggle-row .rule-card-title,
+.rule-card-heading.codex-collapsible-card-toggle-row .rule-card-subtitle {
+  min-width: 0;
+  grid-column: 1;
+}
+
+.rule-card-heading.codex-collapsible-card-toggle-row .codex-collapsible-card-button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  justify-self: end;
 }
 
 .unit-info-card-collapse-button {
@@ -1755,12 +1774,14 @@
   outline-offset: 2px;
 }
 
-.unit-info-card-collapsible-body {
+.unit-info-card-collapsible-body,
+.codex-collapsible-card-body {
   display: grid;
   gap: 7px;
 }
 
-.unit-info-card-collapsible-body[hidden] {
+.unit-info-card-collapsible-body[hidden],
+.codex-collapsible-card-body[hidden] {
   display: none;
 }
 

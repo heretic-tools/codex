@@ -70,7 +70,7 @@ Builder не должен иметь старую совместимость с�
 | Datasheet list | faction datasheets route | Найти и открыть datasheet. | Список datasheets с группами и count badges, понятными badges/points where available. |
 | Datasheet detail | datasheet route | Читать профиль, weapons, abilities, keywords, сохранить страницу в Favorites. | Название юнита, ключевые stats, Save/Saved favorite state, таблицы с контролируемым horizontal scroll только там, где таблица действительно шире экрана; длинные ability/rule/wargear cards на мобильном раскрываются по намеренному тапу. |
 | Detachments list | faction detachments route | Выбрать detachment. | Список detachments с disposition/cost badges. |
-| Detachment/rules detail | detachment/rules routes | Читать rule, enhancements, stratagems, restrictions. | Заголовок, badges, читаемые правила без desktop-only таблиц. |
+| Detachment/rules detail | detachment/rules routes | Читать rule, enhancements, stratagems, restrictions. | Заголовок, badges, collapsible rule/enhancement/stratagem/FAQ cards, читаемые правила без desktop-only таблиц. |
 | Core rules / FAQ | core rules routes | Читать базовые правила и FAQ. | Текстовые разделы с удобным скроллом и breadcrumbs назад. |
 
 ## Thin-client boundary
