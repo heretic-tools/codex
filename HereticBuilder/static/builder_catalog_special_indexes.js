@@ -25,8 +25,10 @@ function precomputedLoadoutsByContext(rows) {
   return map;
 }
 
-function unitImagesByDatasheetId(payload) {
-  return new Map(Object.entries(payload?.imagesByDatasheetId || {}));
+function unitImagesByDatasheetId(datasheets) {
+  return new Map((datasheets || [])
+    .filter((row) => row.unitImageFilename)
+    .map((row) => [row.id, row.unitImageFilename]));
 }
 
 export {

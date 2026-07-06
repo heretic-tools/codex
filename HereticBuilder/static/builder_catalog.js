@@ -50,23 +50,18 @@ async function loadCatalog(optionsOrBootstrap = null) {
     { buildCatalogIndexes },
     { CATALOG_TABLES },
     resolvedBootstrap,
-    unitImages,
     precomputedLoadoutsByContextMap,
   ] = await Promise.all([
     import("./builder_catalog_indexes.js"),
     import("./builder_catalog_tables.js"),
     options.bootstrap ? Promise.resolve(options.bootstrap) : fetchJson(builderDataPath(manifest, "bootstrap.json")),
-    fetchJson(builderDataPath(manifest, "unit-images.json")),
     precomputedLoadoutsMap(manifest, options.preloadPrecomputedLoadouts),
   ]);
   const tables = await loadCatalogTables(CATALOG_TABLES, manifest);
   return {
     ...catalogFromBootstrap(resolvedBootstrap),
     ...tables,
-    ...buildCatalogIndexes(resolvedBootstrap, {
-      ...tables,
-      unitImages,
-    }),
+    ...buildCatalogIndexes(resolvedBootstrap, tables),
     precomputedLoadoutsByContext: precomputedLoadoutsByContextMap,
   };
 }

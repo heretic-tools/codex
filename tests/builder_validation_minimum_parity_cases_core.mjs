@@ -101,7 +101,7 @@ export const minimumParityCoreCases = [
       "thin client catalog loading keeps path and fetch failure behavior explicit",
       "relative/path",
       "//cdn.example/builder-data/bootstrap.json",
-      "\\/builder-data\\/(bootstrap|unit-images|tables\\/[^/]+)\\.json: 503"
+      "\\/builder-data\\/(bootstrap|tables\\/[^/]+)\\.json: 503"
     ],
     "codes": []
   },

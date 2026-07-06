@@ -340,7 +340,7 @@ test("thin client catalog loading keeps path and fetch failure behavior explicit
   try {
     await assert.rejects(
       loadCatalog(),
-      /\/builder-data\/(bootstrap|unit-images|tables\/[^/]+)\.json: 503/
+      /\/builder-data\/(bootstrap|tables\/[^/]+)\.json: 503/
     );
   } finally {
     global.fetch = previousFetch;
@@ -1580,14 +1580,14 @@ test("static Builder data manifest lists every exported rule file with matching 
   assert.equal(manifest.dataVersion, realCatalog.bootstrap.dataVersion);
   assert.equal(
     manifest.files.length,
-    exportedTableNames.length + 3 + legacyPrecomputedEntryCount + precomputedEntries.length
+    exportedTableNames.length + 2 + legacyPrecomputedEntryCount + precomputedEntries.length
   );
   assert.equal(tableEntries.length, exportedTableNames.length);
   assert.ok(precomputedEntries.length >= 1 || legacyPrecomputedEntryCount === 1);
   assert.ok(files.has("bootstrap.json"));
   assert.ok(files.has("precomputed-loadouts/manifest.json") || legacyPrecomputedEntryCount === 1);
-  assert.ok(files.has("unit-images.json"));
   assert.ok(files.has("audit.json"));
+  assert.equal(files.has("unit-images.json"), false);
 
   assert.deepEqual(
     tableEntries.map((entry) => (entry.logicalPath || entry.path).replace(/^tables\/|\.json$/g, "")).sort(),
@@ -1614,13 +1614,13 @@ test("static Builder data manifest lists every exported rule file with matching 
   }
 });
 
-test("static Builder data exports compact unit image map", async () => {
-  const payload = await fetchBuilderDataJson("unit-images.json");
+test("static Builder data keeps unit image filenames on datasheet rows", async () => {
   const abaddon = realCatalog.datasheets.find((datasheet) => datasheet.name === "Abaddon the Despoiler");
   assert.ok(abaddon);
-  const filename = payload.imagesByDatasheetId[abaddon.id];
+  const filename = abaddon.unitImageFilename;
 
   assert.match(filename, /^abaddon-the-despoiler__[a-f0-9]+__banner\.png$/);
+  assert.equal(realCatalog.unitImagesByDatasheetId.get(abaddon.id), filename);
   assert.ok(existsSync(join(projectRoot, "HereticBuilder", "assets", "unit-images", filename)));
 });
 

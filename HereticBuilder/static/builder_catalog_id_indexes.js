@@ -23,7 +23,6 @@ function buildCatalogIdIndexes(bootstrap, tables) {
     wargearOptions,
     wargearItems,
     precomputedLoadouts,
-    unitImages,
   } = tables;
 
   return {
@@ -31,7 +30,7 @@ function buildCatalogIdIndexes(bootstrap, tables) {
     wargearAliasesByContext: wargearAliasesByContext(bootstrap.wargearAliases || []),
     precomputedLoadouts: precomputedLoadouts || null,
     precomputedLoadoutsByContext: precomputedLoadoutsByContext(precomputedLoadouts?.contexts || []),
-    unitImagesByDatasheetId: unitImagesByDatasheetId(unitImages),
+    unitImagesByDatasheetId: unitImagesByDatasheetId(datasheets),
     factionById: byId(bootstrap.factions || []),
     battleSizeById: byId(bootstrap.battleSizes || []),
     detachmentById: byId(detachments),

@@ -908,9 +908,9 @@ browser smoke test.
   datasheets first and allied datasheets after them, while option values still
   carry `allyType` plus `datasheetId` for thin-client roster updates.
 - 2026-07-05: Added compact roster unit thumbnails from local Codex unit-image
-  assets. The static exporter now writes `unit-images.json` as a datasheet-id to
-  filename map, full catalog load indexes it as `unitImagesByDatasheetId`, and
-  bootstrap/list startup remains image-free.
+  assets. The static exporter now attaches `unitImageFilename` to datasheet rows,
+  full catalog load indexes it as `unitImagesByDatasheetId`, and bootstrap/list
+  startup remains image-free without a separate unit-image data request.
 - 2026-07-05: Reused the same local unit thumbnail helper in attached-unit rows,
   so bodyguard and attached leader/support entries now share the roster unit
   list's visual language without adding runtime fetches or cached UI state.

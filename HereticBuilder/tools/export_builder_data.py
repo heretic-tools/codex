@@ -778,18 +778,22 @@ def bootstrap_payload(conn, version, counts, aliases):
     }
 
 
-def unit_images_payload(conn):
-    images_by_datasheet_id = {}
-    for row in conn.execute("select id, name from datasheet order by id"):
-        image = UNIT_IMAGES_BY_ID.get(row["id"]) or UNIT_IMAGES_BY_NAME.get(str(row["name"] or "").lower())
-        if not image:
-            continue
-        filename = image.get("filename") or ""
-        if filename and (UNIT_IMAGE_ROOT / filename).exists():
-            images_by_datasheet_id[row["id"]] = filename
-    return {
-        "imagesByDatasheetId": images_by_datasheet_id,
-    }
+def unit_image_filename(datasheet_id, name):
+    image = UNIT_IMAGES_BY_ID.get(datasheet_id) or UNIT_IMAGES_BY_NAME.get(str(name or "").lower())
+    filename = image.get("filename") if image else ""
+    if filename and (UNIT_IMAGE_ROOT / filename).exists():
+        return filename
+    return ""
+
+
+def attach_unit_image_filenames(table, rows):
+    if table != "datasheet":
+        return rows
+    for row in rows:
+        filename = unit_image_filename(row.get("id"), row.get("name"))
+        if filename:
+            row["unitImageFilename"] = filename
+    return rows
 
 
 def excluded_table_names(all_tables, exported_tables):
@@ -872,13 +876,9 @@ def export_builder_data(db_path, out_dir):
         record = write_hashed_json(out_dir, "precomputed-loadouts/manifest.json", precomputed_manifest)
         files.append(file_entry(out_dir, record, logical_path="precomputed-loadouts/manifest.json"))
 
-        unit_images = unit_images_payload(conn)
-        record = write_hashed_json(out_dir, "unit-images.json", unit_images)
-        files.append(file_entry(out_dir, record, len(unit_images["imagesByDatasheetId"]), "unit-images.json"))
-
         for table in BUILDER_CLIENT_CATALOG_TABLES:
             columns = table_columns(conn, table)
-            rows = table_rows(conn, table, columns)
+            rows = attach_unit_image_filenames(table, table_rows(conn, table, columns))
             payload = {
                 "table": table,
                 "columns": columns,

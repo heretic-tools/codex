@@ -52,7 +52,7 @@ DB audit result:
 - Audited catalog tables: 102
 - Published Builder rule table JSON files: 72
 - Unexpected unexported tables: 0
-- Builder data files: 1216 total, with 76 manifest-listed startup/reachable files and hashed loadout shards kept behind the precomputed loadout manifest.
+- Builder data files: 1215 total, with 75 manifest-listed startup/reachable files and hashed loadout shards kept behind the precomputed loadout manifest.
 
 ## Validation Pipeline Trace
 
