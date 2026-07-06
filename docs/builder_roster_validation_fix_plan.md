@@ -919,6 +919,10 @@ browser smoke test.
   `bytes` and `sha256` from runtime entries. Integrity metadata now lives in
   `audit.fileIntegrity`, so tests can still verify generated file bytes and
   hashes without making GitHub Pages clients download audit-only fields.
+- 2026-07-06: Cached the hashed precomputed-loadout manifest promise in the
+  Builder data loader. Repeated roster/unit editor actions can still fetch only
+  the needed datasheet shards, but no longer re-read and re-parse the same
+  170 KB precomputed manifest in a single browser session.
 - 2026-07-05: Reused the same local unit thumbnail helper in attached-unit rows,
   so bodyguard and attached leader/support entries now share the roster unit
   list's visual language without adding runtime fetches or cached UI state.

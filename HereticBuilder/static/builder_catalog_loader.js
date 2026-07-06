@@ -1,6 +1,7 @@
 import { siteHref } from "./builder_state.js";
 
 let manifestPromise = null;
+let precomputedManifestPromise = null;
 
 async function fetchJson(path) {
   const response = await fetch(siteHref(path), { cache: "force-cache" });
@@ -65,11 +66,11 @@ function topLevelPrecomputedShardEntries(manifest, requested) {
 }
 
 async function loadPrecomputedLoadoutManifest(manifest = null) {
-  try {
-    return await loadBuilderDataJson("precomputed-loadouts/manifest.json", manifest);
-  } catch {
-    return null;
+  if (!precomputedManifestPromise) {
+    precomputedManifestPromise = loadBuilderDataJson("precomputed-loadouts/manifest.json", manifest)
+      .catch(() => null);
   }
+  return precomputedManifestPromise;
 }
 
 async function loadPrecomputedLoadoutShards(datasheetIds, manifest = null) {

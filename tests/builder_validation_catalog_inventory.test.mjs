@@ -462,6 +462,52 @@ test("Builder data paths prefer manifest logical paths with old-manifest fallbac
   assert.equal(builderDataUrlPath(null, "bootstrap.json"), "/builder-data/bootstrap.json");
 });
 
+test("precomputed loadout manifest is cached across shard requests", async () => {
+  const previousFetch = global.fetch;
+  const paths = [];
+  const payloads = new Map([
+    ["/builder-data/manifest.json", {
+      files: [
+        {
+          logicalPath: "precomputed-loadouts/manifest.json",
+          path: "precomputed-loadouts/manifest.testhash.json",
+        },
+      ],
+    }],
+    ["/builder-data/precomputed-loadouts/manifest.testhash.json", {
+      shards: [
+        { datasheetId: "datasheet-a", path: "precomputed-loadouts/datasheet-a.testhash.json", rows: 0 },
+        { datasheetId: "datasheet-b", path: "precomputed-loadouts/datasheet-b.testhash.json", rows: 0 },
+      ],
+    }],
+    ["/builder-data/precomputed-loadouts/datasheet-a.testhash.json", { contexts: [] }],
+    ["/builder-data/precomputed-loadouts/datasheet-b.testhash.json", { contexts: [] }],
+  ]);
+  global.fetch = async (path) => {
+    paths.push(String(path));
+    const payload = payloads.get(String(path));
+    return {
+      ok: Boolean(payload),
+      status: payload ? 200 : 404,
+      json: async () => payload,
+    };
+  };
+  try {
+    const loader = await import(
+      `../HereticBuilder/static/builder_catalog_loader.js?precomputed-cache=${Date.now()}`
+    );
+    await loader.loadPrecomputedLoadoutShards(["datasheet-a"]);
+    await loader.loadPrecomputedLoadoutShards(["datasheet-b"]);
+  } finally {
+    global.fetch = previousFetch;
+  }
+
+  assert.deepEqual(
+    paths.filter((path) => path.includes("precomputed-loadouts/manifest")),
+    ["/builder-data/precomputed-loadouts/manifest.testhash.json"]
+  );
+});
+
 test("Builder roster storage stays browser-local and serverless", () => {
   const source = [
     readFileSync(join(projectRoot, "HereticBuilder", "static", "builder_storage.js"), "utf8"),
