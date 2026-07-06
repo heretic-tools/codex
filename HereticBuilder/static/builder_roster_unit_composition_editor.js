@@ -29,6 +29,10 @@ function renderCompositionEditor({
 }) {
   const model = compositionSelectModel(roster, unit);
   const hasChoices = model.options.length > 1;
+  const validationNode = renderUnitEditorValidation(validation, validationContext, "composition");
+  if (!hasChoices && model.options.length === 1 && !validationNode) {
+    return null;
+  }
   const wrap = document.createElement(hasChoices ? "label" : "div");
   wrap.className = "field";
   wrap.dataset.unitDetailTarget = "composition";
@@ -53,7 +57,6 @@ function renderCompositionEditor({
       model.options[0]?.label || "No valid composition"
     ));
   }
-  const validationNode = renderUnitEditorValidation(validation, validationContext, "composition");
   if (validationNode) {
     wrap.appendChild(validationNode);
   }

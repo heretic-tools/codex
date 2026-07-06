@@ -37,11 +37,12 @@ function renderRosterUnitOverview({ onBack, onUndoableUpdate = null, onUpdate, r
     metricLine("Points", String(unit.points || 0)),
     metricLine("Models", String(unit.modelCount || 0))
   );
-  overview.append(
-    metrics,
-    renderCompositionEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext }),
-    renderWarlordEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext })
-  );
+  const compositionEditor = renderCompositionEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext });
+  overview.appendChild(metrics);
+  if (compositionEditor) {
+    overview.appendChild(compositionEditor);
+  }
+  overview.appendChild(renderWarlordEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext }));
   const allegianceEditor = renderAllegianceEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext });
   if (allegianceEditor) {
     overview.appendChild(allegianceEditor);

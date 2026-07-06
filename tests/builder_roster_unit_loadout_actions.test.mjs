@@ -191,7 +191,7 @@ test("unit wargear count control exposes a mobile stepper", async () => {
   }
 });
 
-test("unit composition editor renders read-only value when only one composition is available", () => {
+test("unit composition editor hides read-only value when only one valid composition is available", () => {
   const previousDocument = global.document;
   global.document = {
     createElement: createMockElement,
@@ -205,12 +205,25 @@ test("unit composition editor renders read-only value when only one composition 
       unit: single.unit,
     });
 
-    assert.equal(singleNode.tagName, "div");
-    assert.equal(singleNode.className, "field field-readonly");
-    assert.equal(singleNode.dataset.unitDetailTarget, "composition");
-    assert.equal(singleNode.children[0].textContent, "Composition");
-    assert.equal(singleNode.children[1].className, "field-readonly-value");
-    assert.match(singleNode.children[1].textContent, /pts\)$/);
+    assert.equal(singleNode, null);
+
+    const invalidSingleNode = renderCompositionEditor({
+      onUpdate: () => {},
+      roster: single.roster,
+      unit: single.unit,
+      validation: {
+        messages: [{ code: "unit_composition.unavailable", level: "error", text: "Invalid composition" }],
+      },
+      validationContext: {},
+    });
+
+    assert.equal(invalidSingleNode.tagName, "div");
+    assert.equal(invalidSingleNode.className, "field field-readonly");
+    assert.equal(invalidSingleNode.dataset.unitDetailTarget, "composition");
+    assert.equal(invalidSingleNode.children[0].textContent, "Composition");
+    assert.equal(invalidSingleNode.children[1].className, "field-readonly-value");
+    assert.match(invalidSingleNode.children[1].textContent, /pts\)$/);
+    assert.equal(invalidSingleNode.children[2].className, "scope-validation unit-editor-validation");
 
     const multi = rosterWithMultiCompositionUnit();
     const multiNode = renderCompositionEditor({
