@@ -1393,6 +1393,10 @@ browser smoke test.
   `builder_warlord_conditional_keywords.js`. `canBeWarlord` now delegates
   conditional `Character` keyword row matching before applying generic Warlord
   eligibility.
+- 2026-07-06: Split mandatory Warlord faction/detachment row lookup out of
+  `builder_warlord_eligibility.js` into `builder_warlord_mandatory_rows.js`.
+  Warlord eligibility now focuses on per-miniature eligibility and re-exports
+  mandatory-row helpers for existing callers.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

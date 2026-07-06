@@ -1165,10 +1165,15 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const warlordEligibilitySource = readFileSync(join(outDir, "static", "builder_warlord_eligibility.js"), "utf8");
     assert.match(warlordEligibilitySource, new RegExp(`\\.\\/builder_warlord_conditional_keywords\\.js\\?v=${version}`));
+    assert.match(warlordEligibilitySource, new RegExp(`\\.\\/builder_warlord_mandatory_rows\\.js\\?v=${version}`));
 
     const warlordConditionalKeywordsSource = readFileSync(join(outDir, "static", "builder_warlord_conditional_keywords.js"), "utf8");
     assert.match(warlordConditionalKeywordsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
     assert.match(warlordConditionalKeywordsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+
+    const warlordMandatoryRowsSource = readFileSync(join(outDir, "static", "builder_warlord_mandatory_rows.js"), "utf8");
+    assert.match(warlordMandatoryRowsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(warlordMandatoryRowsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const warlordSelectedRulesSource = readFileSync(join(outDir, "static", "builder_warlord_selected_rules.js"), "utf8");
     assert.match(warlordSelectedRulesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
