@@ -1147,6 +1147,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const allModelFamilyChecksSource = readFileSync(join(outDir, "static", "builder_wargear_all_model_family_checks.js"), "utf8");
     assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));
     assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_family_counts\\.js\\?v=${version}`));
+    assert.match(allModelFamilyChecksSource, new RegExp(`\\.\\/builder_wargear_all_model_family_results\\.js\\?v=${version}`));
 
     const allModelFamilyCountsSource = readFileSync(join(outDir, "static", "builder_wargear_all_model_family_counts.js"), "utf8");
     assert.match(allModelFamilyCountsSource, new RegExp(`\\.\\/builder_wargear_all_model_choices\\.js\\?v=${version}`));

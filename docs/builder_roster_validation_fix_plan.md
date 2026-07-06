@@ -1405,6 +1405,10 @@ browser smoke test.
   `builder_model_keywords.js` into `builder_model_conditional_keyword_rows.js`.
   Unit keyword resolution now consumes prefiltered conditional keyword rows from
   a dedicated helper.
+- 2026-07-06: Split all-model Wargear family result helpers out of
+  `builder_wargear_all_model_family_checks.js` into
+  `builder_wargear_all_model_family_results.js`. Family mutation and final
+  invalid/target-id projection are now separate.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

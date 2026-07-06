@@ -4,6 +4,10 @@ import {
   allModelSubstituteCount,
 } from "./builder_wargear_all_model_family_counts.js";
 import { targetIdForMiniature } from "./builder_wargear_selection.js";
+export {
+  allModelFamilyTargetIds,
+  hasInvalidAllModelFamilies,
+} from "./builder_wargear_all_model_family_results.js";
 
 function allModelFamilyCheck(checksByFamily, allModelSet, substituteChoices) {
   const familyKey = substituteFamilyKey(allModelSet, substituteChoices);
@@ -43,22 +47,8 @@ function applyAllModelFamilyCheck(family, baseChoices, choices, selected, modelC
   }
 }
 
-function hasInvalidAllModelFamilies(checksByFamily) {
-  return [...checksByFamily.values()].some((family) => (
-    family.hasHardInvalid || (family.hasSubstituteWithoutBase && !family.hasValidBaseLine)
-  ));
-}
-
-function allModelFamilyTargetIds(checksByFamily) {
-  return [...checksByFamily.values()]
-    .flatMap((family) => family.targetIds || [])
-    .filter(Boolean);
-}
-
 export {
   addAllModelFamilyTarget,
   allModelFamilyCheck,
-  allModelFamilyTargetIds,
   applyAllModelFamilyCheck,
-  hasInvalidAllModelFamilies,
 };
