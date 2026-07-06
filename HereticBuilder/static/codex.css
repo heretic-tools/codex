@@ -1608,13 +1608,13 @@
 
 .codex-page .launcher:hover {
   border-color: var(--app-border-strong);
-  background: #fbfaf7;
+  background: var(--app-surface-2);
 }
 
 .codex-page .launcher:active,
 .codex-page .launcher[aria-pressed="true"] {
-  background: rgba(36, 92, 79, .08);
-  border-color: rgba(36, 92, 79, .42);
+  background: var(--app-surface-2);
+  border-color: var(--app-accent);
   box-shadow: none;
   transform: none;
 }
