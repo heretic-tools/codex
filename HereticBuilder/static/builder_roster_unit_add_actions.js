@@ -1,5 +1,6 @@
 import {
   compositionFactionIds,
+  datasheetAvailableToRoster,
   defaultComposition,
   defaultWargear,
 } from "./builder_model.js";
@@ -8,6 +9,9 @@ import { defaultRosterMiniatures } from "./builder_roster_unit_default_rows.js";
 
 function rosterWithAddedUnit(roster, { allyType = "native", datasheetId, unitId }) {
   if (!datasheetId || !unitId) {
+    return roster;
+  }
+  if (!datasheetAvailableToRoster(roster, allyType, datasheetId)) {
     return roster;
   }
   const factionIds = compositionFactionIds(roster, allyType);

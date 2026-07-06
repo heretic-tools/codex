@@ -4,6 +4,7 @@ import {
   availableDatasheets,
   availableDetachments,
   battleSizeNamed,
+  datasheetIsCombatPatrol,
   factionNamed,
   keywordNamed,
   realCatalog,
@@ -210,6 +211,38 @@ test("builder roster actions add and remove detachments and default units", () =
   assert.deepEqual(removedUnit.units, []);
   const removedDetachment = rosterWithRemovedDetachment(removedUnit, 0);
   assert.deepEqual(removedDetachment.detachmentIds, []);
+});
+
+test("builder roster action rejects datasheets unavailable to the roster", () => {
+  state.catalog = realCatalog;
+  const roster = {
+    id: "unavailable-datasheet-action-roster",
+    name: "Unavailable Datasheet Action Roster",
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const combatPatrolDatasheet = realCatalog.datasheets.find((datasheet) => datasheetIsCombatPatrol(datasheet));
+  assert.ok(combatPatrolDatasheet, "Expected a Combat Patrol datasheet");
+  assert.equal(rosterWithAddedUnit(roster, {
+    datasheetId: combatPatrolDatasheet.id,
+    unitId: "combat-patrol-unit",
+  }), roster);
+
+  const nativeIds = new Set(availableDatasheets(roster, "native").map((datasheet) => datasheet.id));
+  const otherRoster = {
+    ...roster,
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+  };
+  const foreignDatasheet = availableDatasheets(otherRoster, "native")
+    .find((datasheet) => !nativeIds.has(datasheet.id));
+  assert.ok(foreignDatasheet, "Expected a datasheet unavailable to Heretic Astartes");
+  assert.equal(rosterWithAddedUnit(roster, {
+    datasheetId: foreignDatasheet.id,
+    unitId: "foreign-unit",
+  }), roster);
 });
 
 test("builder roster actions update unit composition and scoped wargear", () => {

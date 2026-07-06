@@ -35,6 +35,7 @@ export {
   availableDatasheets,
   availableDetachments,
   availableUnitSources,
+  datasheetAvailableToRoster,
   datasheetIsCombatPatrol,
   datasheetIsNativeToFaction,
   detachmentAllowed,

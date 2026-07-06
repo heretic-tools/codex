@@ -4,6 +4,7 @@ export {
 } from "./builder_allied_unit_sources.js";
 export {
   availableDatasheets,
+  datasheetAvailableToRoster,
   datasheetIsCombatPatrol,
   datasheetIsNativeToFaction,
   factionExcludesDatasheet,

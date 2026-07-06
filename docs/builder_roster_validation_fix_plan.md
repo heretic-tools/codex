@@ -1203,6 +1203,11 @@ browser smoke test.
   `builder_roster_unit_base_actions.js`. The public action API is unchanged,
   while attachment cleanup, default composition, Wargear reset, and miniature
   row regeneration now sit in a dedicated mutation module.
+- 2026-07-06: Split datasheet availability into a reusable
+  `datasheetAvailableToRoster` predicate and wired `rosterWithAddedUnit` to it.
+  Unit picker rows and direct add-unit mutations now share Combat Patrol,
+  native/allied availability, detachment exclusion, and default-composition
+  checks, so unavailable datasheet ids cannot be written by the mutation layer.
 - 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
   enhancement editors out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a
