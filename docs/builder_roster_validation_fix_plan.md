@@ -1338,6 +1338,11 @@ browser smoke test.
   `builder_roster_attachment_actions.js` into
   `builder_roster_attachment_add_actions.js`. The public attachment actions
   module is now a thin compatibility facade over add/remove/member helpers.
+- 2026-07-06: Split attachment add record construction out of
+  `builder_roster_attachment_add_actions.js` into
+  `builder_roster_attachment_add_model.js`, keeping guard order and membership
+  checks inside the action while making the current-shape attachment records
+  independently cache-busted.
 - 2026-07-05: Split per-choice-set loadout generation out of
   `builder_loadout_choices.js` into `builder_loadout_choice_set_loadouts.js`.
   Single-set limit, duplicate, empty-choice, and combination handling are now
@@ -1815,6 +1820,14 @@ Done when:
 - A 25-case executable WH app parity manifest covers the high-risk wargear
   shapes and expected Builder codes/concepts, including Cthonian Beserks twin
   concussion gauntlet valid and over-limit states.
+- 2026-07-06: Split multi-model loadout exact-cover partitioning out of
+  `builder_loadout_matcher.js` into `builder_loadout_partition.js`, keeping the
+  public matcher as a thin orchestration layer and cache-busting the new static
+  import in the Builder inventory test.
+- 2026-07-06: Split allegiance ability select option preparation out of
+  `builder_roster_unit_allegiance_editor.js` into
+  `builder_roster_unit_allegiance_options.js`, leaving the editor as a DOM-only
+  wrapper around precomputed eligibility labels.
 
 ### 7. Improve message parity - done for Builder, WH app comparison remains
 

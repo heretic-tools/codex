@@ -1,7 +1,10 @@
 import { withModifiedRoster } from "./builder_roster_action_helpers.js";
 import {
+  attachmentWithAddedMember,
+  newAttachmentGroup,
+} from "./builder_roster_attachment_add_model.js";
+import {
   attachmentHasBodyguard,
-  attachmentMembers,
   unitHasAttachmentMembership,
 } from "./builder_roster_attachment_members.js";
 
@@ -29,13 +32,7 @@ function rosterWithAddedAttachment(roster, {
         if (attachment.id !== bodyguardGroup.id) {
           return attachment;
         }
-        return {
-          ...attachment,
-          members: [
-            ...attachmentMembers(attachment),
-            { rosterUnitId: attachedUnitId, attachmentType },
-          ],
-        };
+        return attachmentWithAddedMember(attachment, attachedUnitId, attachmentType);
       }),
     });
   }
@@ -48,13 +45,7 @@ function rosterWithAddedAttachment(roster, {
   return withModifiedRoster(roster, {
     attachments: [
       ...attachments,
-      {
-        id: attachmentId,
-        members: [
-          { rosterUnitId: attachedUnitId, attachmentType },
-          { rosterUnitId: bodyguardUnitId, attachmentType: "bodyguard" },
-        ],
-      },
+      newAttachmentGroup({ attachedUnitId, attachmentId, attachmentType, bodyguardUnitId }),
     ],
   });
 }

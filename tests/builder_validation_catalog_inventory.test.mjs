@@ -746,7 +746,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const attachmentAddActionsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_add_actions.js"), "utf8");
     assert.match(attachmentAddActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(attachmentAddActionsSource, new RegExp(`\\.\\/builder_roster_attachment_add_model\\.js\\?v=${version}`));
     assert.match(attachmentAddActionsSource, new RegExp(`\\.\\/builder_roster_attachment_members\\.js\\?v=${version}`));
+
+    const attachmentAddModelSource = readFileSync(join(outDir, "static", "builder_roster_attachment_add_model.js"), "utf8");
+    assert.match(attachmentAddModelSource, new RegExp(`\\.\\/builder_roster_attachment_members\\.js\\?v=${version}`));
 
     const detachmentActionsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_actions.js"), "utf8");
     assert.match(detachmentActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
@@ -837,6 +841,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(loadoutMatcherSource, new RegExp(`\\.\\/builder_loadout_catalog\\.js\\?v=${version}`));
     assert.match(loadoutMatcherSource, new RegExp(`\\.\\/builder_loadout_counts\\.js\\?v=${version}`));
     assert.match(loadoutMatcherSource, new RegExp(`\\.\\/builder_loadout_choices\\.js\\?v=${version}`));
+    assert.match(loadoutMatcherSource, new RegExp(`\\.\\/builder_loadout_partition\\.js\\?v=${version}`));
 
     const modelWargearSource = readFileSync(join(outDir, "static", "builder_model_wargear.js"), "utf8");
     assert.match(modelWargearSource, new RegExp(`\\.\\/builder_model_wargear_defaults\\.js\\?v=${version}`));
@@ -1105,6 +1110,14 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(unitDetailEditorsSource, new RegExp(`\\.\\/builder_roster_unit_composition_editor\\.js\\?v=${version}`));
     assert.match(unitDetailEditorsSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_editor\\.js\\?v=${version}`));
     assert.match(unitDetailEditorsSource, new RegExp(`\\.\\/builder_roster_unit_warlord_editor\\.js\\?v=${version}`));
+
+    const unitAllegianceEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_allegiance_editor.js"), "utf8");
+    assert.match(unitAllegianceEditorSource, new RegExp(`\\.\\/builder_roster_unit_allegiance_options\\.js\\?v=${version}`));
+
+    const unitAllegianceOptionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_allegiance_options.js"), "utf8");
+    assert.match(unitAllegianceOptionsSource, new RegExp(`\\.\\/builder_allegiance_rules\\.js\\?v=${version}`));
+    assert.match(unitAllegianceOptionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(unitAllegianceOptionsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const unitEnhancementEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_editor.js"), "utf8");
     assert.match(unitEnhancementEditorSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_models\\.js\\?v=${version}`));
