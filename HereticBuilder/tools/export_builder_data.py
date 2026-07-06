@@ -235,6 +235,17 @@ GENERATED_DATA_FILE_PATTERNS = (
     "unit-images*.json",
 )
 
+PAYLOAD_EXCLUDED_COLUMNS = {
+    "datasheet": {
+        "bannerImage",
+        "baseSize",
+        "isFreeFromEntitlements",
+        "lore",
+        "rowImage",
+        "unitComposition",
+    },
+}
+
 
 @dataclass(frozen=True)
 class BuilderDataExportResult:
@@ -796,6 +807,20 @@ def attach_unit_image_filenames(table, rows):
     return rows
 
 
+def prune_payload_columns(table, columns, rows):
+    excluded = PAYLOAD_EXCLUDED_COLUMNS.get(table, set())
+    if not excluded:
+        return columns, rows
+    filtered_columns = [
+        column for column in columns
+        if column["name"] not in excluded
+    ]
+    for row in rows:
+        for name in excluded:
+            row.pop(name, None)
+    return filtered_columns, rows
+
+
 def excluded_table_names(all_tables, exported_tables):
     excluded = []
     for table in all_tables:
@@ -879,6 +904,7 @@ def export_builder_data(db_path, out_dir):
         for table in BUILDER_CLIENT_CATALOG_TABLES:
             columns = table_columns(conn, table)
             rows = attach_unit_image_filenames(table, table_rows(conn, table, columns))
+            columns, rows = prune_payload_columns(table, columns, rows)
             payload = {
                 "table": table,
                 "columns": columns,

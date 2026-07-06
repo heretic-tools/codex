@@ -15,6 +15,8 @@ export const minimumParityCoreCases = [
       "entry.sha256",
       "static Builder rule table column lists stay pinned",
       "Object.keys(BUILDER_RULE_TABLE_COLUMNS).length, 73",
+      "PAYLOAD_EXCLUDED_COLUMNS",
+      "rows should omit pruned thin-client columns",
       "\"requiresAllUnitsHaveKeywordId\"",
       "\"isCombatPatrolDefault\"",
       "\"duplicateLimit\"",

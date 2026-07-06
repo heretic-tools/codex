@@ -171,6 +171,24 @@ const BUILDER_RULE_TABLE_COLUMNS = {
   "wargear_item": ["id", "name", "wargearType", "ruleText", "noMultiProfileIcon"],
 };
 
+const PAYLOAD_EXCLUDED_COLUMNS = {
+  "datasheet": [
+    "bannerImage",
+    "baseSize",
+    "isFreeFromEntitlements",
+    "lore",
+    "rowImage",
+    "unitComposition",
+  ],
+};
+
+const BUILDER_PAYLOAD_TABLE_COLUMNS = Object.fromEntries(
+  Object.entries(BUILDER_RULE_TABLE_COLUMNS).map(([tableName, columns]) => [
+    tableName,
+    columns.filter((columnName) => !(PAYLOAD_EXCLUDED_COLUMNS[tableName] || []).includes(columnName)),
+  ])
+);
+
 const DATA_EMPTY_RULE_TABLES = [
   ["faction_keyword_mandatory_allegiance_ability", "factionKeywordMandatoryAllegianceAbilities"],
   ["allied_faction_allegiance_ability", "alliedFactionAllegianceAbilities"],
@@ -1699,7 +1717,7 @@ test("static Builder rule table column lists stay pinned", async () => {
   assert.equal(Object.keys(BUILDER_RULE_TABLE_COLUMNS).length, 73);
 
   for (const tableName of exportedBuilderRuleTableNames()) {
-    const expectedColumns = BUILDER_RULE_TABLE_COLUMNS[tableName];
+    const expectedColumns = BUILDER_PAYLOAD_TABLE_COLUMNS[tableName];
     const payload = await fetchBuilderDataJson(`tables/${tableName}.json`);
     assert.deepEqual(
       payload.columns.map((column) => column.name),
@@ -1715,6 +1733,16 @@ test("static Builder rule table column lists stay pinned", async () => {
       .filter(([, missingColumns]) => missingColumns.length);
 
     assert.deepEqual(rowsMissingColumns, [], `${tableName} rows should carry all exported columns`);
+
+    const excludedColumns = PAYLOAD_EXCLUDED_COLUMNS[tableName] || [];
+    const rowsWithExcludedColumns = (payload.rows || [])
+      .map((row, index) => [
+        index,
+        excludedColumns.filter((columnName) => Object.hasOwn(row, columnName)),
+      ])
+      .filter(([, presentColumns]) => presentColumns.length);
+
+    assert.deepEqual(rowsWithExcludedColumns, [], `${tableName} rows should omit pruned thin-client columns`);
   }
 });
 
