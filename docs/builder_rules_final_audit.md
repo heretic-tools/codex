@@ -49,9 +49,10 @@ DB audit result:
 
 - SQLite `pragma integrity_check`: `ok`
 - DB tables: 145
-- Exported catalog tables: 102
+- Audited catalog tables: 102
+- Published Builder rule table JSON files: 73
 - Unexpected unexported tables: 0
-- Builder data files: 105
+- Builder data files: 1217 total, with 77 manifest-listed startup/reachable files and hashed loadout shards kept behind the precomputed loadout manifest.
 
 ## Validation Pipeline Trace
 

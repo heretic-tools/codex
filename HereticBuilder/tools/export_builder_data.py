@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -120,25 +121,88 @@ CATALOG_TABLES = (
     "wargear_rule",
 )
 
-CORE_CATALOG_TABLES = (
-    "allied_faction",
-    "allied_faction_parent_faction_keyword",
+BUILDER_CLIENT_CORE_CATALOG_TABLES = (
     "battle_size",
     "detachment",
-    "detachment_faction_detachment_points_cost",
     "detachment_faction_keyword",
-    "detachment_force_disposition",
+    "detachment_faction_detachment_points_cost",
+    "detachment_unique_keyword",
+    "detachment_required_datasheet",
+    "detachment_linked_datasheet",
+    "detachment_mandatory_warlord_miniature",
+    "detachment_granted_warlord_miniature",
     "faction_keyword",
-    "faction_keyword_allied_faction",
-    "force_disposition",
+    "faction_keyword_excluded_datasheet",
+    "detachment_excluded_datasheet",
+    "datasheet",
+    "datasheet_faction_keyword",
+    "datasheet_points_step",
+    "datasheet_bodyguard_group",
+    "datasheet_bodyguard_group_datasheet",
+    "datasheet_bodyguard_group_keyword",
+    "unit_composition",
+    "unit_composition_miniature",
+    "unit_composition_required_faction_keyword",
+    "unit_composition_required_detachment",
+    "miniature",
     "keyword",
-    "metadata",
+    "miniature_keyword",
+    "conditional_keyword",
     "publication",
+    "detachment_force_disposition",
+    "force_disposition",
 )
 
-FACTION_HEAVY_CATALOG_TABLES = tuple(
-    table for table in CATALOG_TABLES
-    if table not in CORE_CATALOG_TABLES
+BUILDER_CLIENT_FACTION_HEAVY_CATALOG_TABLES = (
+    "faction_keyword_mandatory_allegiance_ability",
+    "allegiance_ability_group",
+    "allegiance_ability",
+    "enhancement",
+    "enhancement_keyword_points_cost",
+    "enhancement_excluded_keyword",
+    "enhancement_required_wargear_item",
+    "enhancement_required_keyword_group",
+    "enhancement_required_keyword_group_keyword",
+    "enhancement_required_keyword_group_faction_keyword",
+    "enhancement_bodyguard_group",
+    "enhancement_bodyguard_group_datasheet",
+    "enhancement_bodyguard_group_keyword",
+    "allied_faction",
+    "faction_keyword_allied_faction",
+    "allied_faction_parent_faction_keyword",
+    "allied_faction_datasheet",
+    "allied_faction_points_limit",
+    "allied_faction_keyword",
+    "allied_faction_allowed_warlord_miniature",
+    "allied_faction_required_detachment",
+    "allied_faction_allegiance_ability",
+    "allied_faction_keyword_slotless_keyword_group",
+    "allied_faction_keyword_slotless_keyword_group_donor_keyword",
+    "allied_faction_keyword_slotless_keyword_group_receiver_keyword",
+    "keyword_ally_restricting_keyword",
+    "keyword_restriction_group",
+    "keyword_restriction_group_keyword",
+    "restriction_group_detachment_limit",
+    "base_miniature_loadout",
+    "base_miniature_loadout_wargear_option",
+    "loadout_choice_set",
+    "loadout_choice",
+    "loadout_choice_wargear_item",
+    "limited_wargear_choice_set",
+    "limited_wargear_choice",
+    "limited_wargear_choice_wargear_item",
+    "wargear_limit",
+    "all_model_wargear_choice_set",
+    "all_model_wargear_choice",
+    "all_model_wargear_choice_wargear_item",
+    "wargear_option_group",
+    "wargear_option",
+    "wargear_item",
+)
+
+BUILDER_CLIENT_CATALOG_TABLES = (
+    *BUILDER_CLIENT_CORE_CATALOG_TABLES,
+    *BUILDER_CLIENT_FACTION_HEAVY_CATALOG_TABLES,
 )
 
 EXCLUDED_PREFIXES = (
@@ -158,6 +222,19 @@ EXCLUDED_TABLES = {
     "force_disposition_mission_recommended_preset",
     "grdb_migrations",
 }
+
+GENERATED_DATA_DIRS = (
+    "precomputed-loadouts",
+    "tables",
+)
+
+GENERATED_DATA_FILE_PATTERNS = (
+    "audit.json",
+    "bootstrap.json",
+    "manifest.json",
+    "precomputed-loadouts*.json",
+    "unit-images*.json",
+)
 
 
 @dataclass(frozen=True)
@@ -179,6 +256,22 @@ def resolve_project_path(value):
     if not path.is_absolute():
         path = PROJECT_ROOT / path
     return path.resolve()
+
+
+def clear_generated_builder_data(out_dir):
+    for dirname in GENERATED_DATA_DIRS:
+        path = out_dir / dirname
+        if path.is_dir():
+            shutil.rmtree(path)
+        elif path.exists():
+            path.unlink()
+
+    for pattern in GENERATED_DATA_FILE_PATTERNS:
+        for path in out_dir.glob(pattern):
+            if path.is_dir():
+                shutil.rmtree(path)
+            elif path.exists():
+                path.unlink()
 
 
 def connect_readonly(db_path):
@@ -733,12 +826,19 @@ def export_builder_data(db_path, out_dir):
     if not db_path.exists():
         raise SystemExit(f"Database does not exist: {db_path}")
     out_dir.mkdir(parents=True, exist_ok=True)
+    clear_generated_builder_data(out_dir)
 
     with connect_readonly(db_path) as conn:
         all_tables = table_names(conn)
         missing = [table for table in CATALOG_TABLES if table not in all_tables]
         if missing:
             raise SystemExit("Missing expected catalog tables: " + ", ".join(missing))
+        missing_client_tables = [
+            table for table in BUILDER_CLIENT_CATALOG_TABLES
+            if table not in CATALOG_TABLES
+        ]
+        if missing_client_tables:
+            raise SystemExit("Missing client catalog audit tables: " + ", ".join(missing_client_tables))
 
         version = data_version(conn)
         counts = {table: table_count(conn, table) for table in CATALOG_TABLES}
@@ -781,7 +881,7 @@ def export_builder_data(db_path, out_dir):
         record = write_hashed_json(out_dir, "unit-images.json", unit_images)
         files.append(file_entry(out_dir, record, len(unit_images["imagesByDatasheetId"]), "unit-images.json"))
 
-        for table in CATALOG_TABLES:
+        for table in BUILDER_CLIENT_CATALOG_TABLES:
             columns = table_columns(conn, table)
             rows = table_rows(conn, table, columns)
             payload = {
@@ -806,8 +906,8 @@ def export_builder_data(db_path, out_dir):
             "sha256": db_sha256(db_path),
         },
         "tableGroups": {
-            "core": list(CORE_CATALOG_TABLES),
-            "factionHeavy": list(FACTION_HEAVY_CATALOG_TABLES),
+            "core": list(BUILDER_CLIENT_CORE_CATALOG_TABLES),
+            "factionHeavy": list(BUILDER_CLIENT_FACTION_HEAVY_CATALOG_TABLES),
         },
         "files": sorted(files, key=lambda item: item["path"]),
     }
@@ -818,7 +918,7 @@ def export_builder_data(db_path, out_dir):
         out_dir=out_dir,
         data_version=version,
         table_count=len(all_tables),
-        exported_table_count=len(CATALOG_TABLES),
+        exported_table_count=len(BUILDER_CLIENT_CATALOG_TABLES),
         file_count=len(all_files),
         total_bytes=sum(item["bytes"] for item in all_files),
     )

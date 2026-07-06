@@ -249,6 +249,10 @@ async function builderDataManifest() {
   return response.json();
 }
 
+function loadedBuilderRuleTableNames() {
+  return LOADED_BUILDER_RULE_TABLES.map(([tableName]) => tableName).sort();
+}
+
 function builderDataEntry(manifest, logicalPath) {
   return (manifest.files || []).find((entry) => (entry.logicalPath || entry.path) === logicalPath);
 }
@@ -1547,6 +1551,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 test("static Builder data manifest lists every exported rule file with matching rows and hashes", async () => {
   const manifest = await builderDataManifest();
   const tableCounts = realCatalog.bootstrap.tableCounts;
+  const exportedTableNames = loadedBuilderRuleTableNames();
   const files = new Map(manifest.files.map((entry) => [entry.logicalPath || entry.path, entry]));
   const tableEntries = manifest.files.filter((entry) => (entry.logicalPath || entry.path).startsWith("tables/"));
   const precomputedEntries = manifest.files.filter((entry) => (
@@ -1558,9 +1563,9 @@ test("static Builder data manifest lists every exported rule file with matching 
   assert.equal(manifest.dataVersion, realCatalog.bootstrap.dataVersion);
   assert.equal(
     manifest.files.length,
-    Object.keys(tableCounts).length + 3 + legacyPrecomputedEntryCount + precomputedEntries.length
+    exportedTableNames.length + 3 + legacyPrecomputedEntryCount + precomputedEntries.length
   );
-  assert.equal(tableEntries.length, Object.keys(tableCounts).length);
+  assert.equal(tableEntries.length, exportedTableNames.length);
   assert.ok(precomputedEntries.length >= 1 || legacyPrecomputedEntryCount === 1);
   assert.ok(files.has("bootstrap.json"));
   assert.ok(files.has("precomputed-loadouts/manifest.json") || legacyPrecomputedEntryCount === 1);
@@ -1569,8 +1574,13 @@ test("static Builder data manifest lists every exported rule file with matching 
 
   assert.deepEqual(
     tableEntries.map((entry) => (entry.logicalPath || entry.path).replace(/^tables\/|\.json$/g, "")).sort(),
-    Object.keys(tableCounts).sort()
+    exportedTableNames
   );
+  assert.ok(Object.keys(tableCounts).length > exportedTableNames.length);
+  for (const tableName of ["stratagem", "datasheet_ability", "rule_container_component", "wargear_item_profile"]) {
+    assert.ok(tableCounts[tableName] > 0, `${tableName} should remain audited through bootstrap counts`);
+    assert.equal(files.has(`tables/${tableName}.json`), false, `${tableName} should stay out of thin-client table files`);
+  }
 
   for (const entry of manifest.files) {
     const fileBuffer = await readFile(builderDataPath(entry.path));
@@ -1605,6 +1615,7 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     );
     const bootstrap = JSON.parse(readFileSync(join(outDir, "bootstrap.json"), "utf8"));
     const manifest = JSON.parse(readFileSync(join(outDir, "manifest.json"), "utf8"));
+    const exportedTableNames = loadedBuilderRuleTableNames();
     const loadoutManifestEntry = builderDataEntry(manifest, "precomputed-loadouts/manifest.json");
     assert.ok(loadoutManifestEntry);
     const loadouts = JSON.parse(readFileSync(join(outDir, loadoutManifestEntry.path), "utf8"));
@@ -1627,7 +1638,12 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     assert.ok(manifest.files.some((entry) => entry.logicalPath?.startsWith("tables/") && entry.path !== entry.logicalPath));
     assert.deepEqual(
       [...manifest.tableGroups.core, ...manifest.tableGroups.factionHeavy].sort(),
-      Object.keys(bootstrap.tableCounts).sort()
+      exportedTableNames
+    );
+    assert.ok(Object.keys(bootstrap.tableCounts).length > exportedTableNames.length);
+    assert.equal(
+      manifest.files.some((entry) => entry.logicalPath === "tables/stratagem.json"),
+      false
     );
     assert.deepEqual(
       manifest.tableGroups.core.filter((table) => manifest.tableGroups.factionHeavy.includes(table)),
