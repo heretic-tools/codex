@@ -930,6 +930,11 @@ browser smoke test.
   rendering out of `builder_roster_detachment_editor_view.js` into focused
   candidate and row modules. The editor now owns only the add/search controls
   and list composition while preserving the previous public candidate exports.
+- 2026-07-06: Split detachment candidate DP status and option label formatting
+  out of `builder_roster_detachment_candidates.js` into
+  `builder_roster_detachment_candidate_status.js` and
+  `builder_roster_detachment_option_labels.js`. The candidate module now only
+  filters, searches, and sorts rows while preserving its public exports.
 - 2026-07-05: Split detachment search/select/Add controls out of
   `builder_roster_detachment_editor_view.js` into
   `builder_roster_detachment_controls.js`. The editor now composes section title,
@@ -1935,6 +1940,10 @@ Done when:
   `builder_roster_unit_allegiance_editor.js` into
   `builder_roster_unit_allegiance_options.js`, leaving the editor as a DOM-only
   wrapper around precomputed eligibility labels.
+- 2026-07-06: Split allegiance ability option sorting and label text out of
+  `builder_roster_unit_allegiance_options.js` into
+  `builder_roster_unit_allegiance_labels.js`, leaving the option model builder
+  focused on roster/unit context and candidate status calls.
 
 ### 7. Improve message parity - done for Builder, WH app comparison remains
 

@@ -1,26 +1,10 @@
 import { allegianceAbilityCandidateStatus } from "./builder_allegiance_rules.js";
 import { rosterUnitSummaries } from "./builder_model.js";
+import {
+  allegianceAbilityLabel,
+  sortAllegianceAbilities,
+} from "./builder_roster_unit_allegiance_labels.js";
 import { state } from "./builder_state.js";
-
-function sortAllegianceAbilities(rows) {
-  return [...rows].sort((left, right) => (left.displayOrder || 0) - (right.displayOrder || 0)
-    || String(left.name || "").localeCompare(String(right.name || "")));
-}
-
-function allegianceAbilityLabel(ability, status = null) {
-  const suffix = [];
-  if (ability.requiresWargearItemId) {
-    const item = state.catalog.wargearItemById.get(ability.requiresWargearItemId);
-    const reason = item ? `requires ${item.name}` : "requires wargear";
-    if (!status || status.eligible || status.reason !== reason) {
-      suffix.push(reason);
-    }
-  }
-  if (status && !status.eligible) {
-    suffix.push(status.reason);
-  }
-  return suffix.length ? `${ability.name} (${suffix.join(" / ")})` : ability.name;
-}
 
 function allegianceEditorOptions(roster, unit) {
   const group = state.catalog.allegianceAbilityGroupById.get(unit.allegianceAbilityGroupId);

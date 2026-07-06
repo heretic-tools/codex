@@ -1161,6 +1161,16 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const detachmentControlsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_controls.js"), "utf8");
     assert.match(detachmentControlsSource, new RegExp(`\\.\\/builder_roster_detachment_candidates\\.js\\?v=${version}`));
 
+    const detachmentCandidatesSource = readFileSync(join(outDir, "static", "builder_roster_detachment_candidates.js"), "utf8");
+    assert.match(detachmentCandidatesSource, new RegExp(`\\.\\/builder_roster_detachment_candidate_status\\.js\\?v=${version}`));
+    assert.match(detachmentCandidatesSource, new RegExp(`\\.\\/builder_roster_detachment_option_labels\\.js\\?v=${version}`));
+
+    const detachmentCandidateStatusSource = readFileSync(join(outDir, "static", "builder_roster_detachment_candidate_status.js"), "utf8");
+    assert.match(detachmentCandidateStatusSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+
+    const detachmentOptionLabelsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_option_labels.js"), "utf8");
+    assert.match(detachmentOptionLabelsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+
     const detachmentRowsSource = readFileSync(join(outDir, "static", "builder_roster_detachment_rows.js"), "utf8");
     assert.match(detachmentRowsSource, new RegExp(`\\.\\/builder_codex_links\\.js\\?v=${version}`));
     assert.match(detachmentRowsSource, new RegExp(`\\.\\/builder_roster_detachment_validation_status\\.js\\?v=${version}`));
@@ -1200,7 +1210,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const unitAllegianceOptionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_allegiance_options.js"), "utf8");
     assert.match(unitAllegianceOptionsSource, new RegExp(`\\.\\/builder_allegiance_rules\\.js\\?v=${version}`));
     assert.match(unitAllegianceOptionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(unitAllegianceOptionsSource, new RegExp(`\\.\\/builder_roster_unit_allegiance_labels\\.js\\?v=${version}`));
     assert.match(unitAllegianceOptionsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+
+    const unitAllegianceLabelsSource = readFileSync(join(outDir, "static", "builder_roster_unit_allegiance_labels.js"), "utf8");
+    assert.match(unitAllegianceLabelsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const unitEnhancementEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_editor.js"), "utf8");
     assert.match(unitEnhancementEditorSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_models\\.js\\?v=${version}`));

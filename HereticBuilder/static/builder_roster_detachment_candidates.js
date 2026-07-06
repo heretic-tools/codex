@@ -1,30 +1,10 @@
 import {
   availableDetachments,
-  costForDetachment,
   detachmentDispositionName,
 } from "./builder_model.js";
-
-function detachmentOptionLabel(roster, detachment) {
-  const disposition = detachmentDispositionName(detachment) || "No disposition";
-  return `${detachment.name} (${disposition} / ${costForDetachment(detachment.id, roster.factionKeywordId)} DP)`;
-}
-
-function detachmentCandidateStatus(roster, validation, detachment) {
-  const limit = validation.points?.detachmentLimit || 0;
-  if (!limit) {
-    return { severity: "ok", reason: "" };
-  }
-  const next = (validation.points?.detachmentPoints || 0) + costForDetachment(detachment.id, roster.factionKeywordId);
-  if (next > limit) {
-    return { severity: "warning", reason: `${next - limit} DP over` };
-  }
-  return { severity: "ok", reason: "" };
-}
-
-function detachmentOptionText(roster, detachment, status) {
-  const label = detachmentOptionLabel(roster, detachment);
-  return status.reason ? `${label} / ${status.reason}` : label;
-}
+import { detachmentCandidateStatus } from "./builder_roster_detachment_candidate_status.js";
+export { detachmentCandidateStatus } from "./builder_roster_detachment_candidate_status.js";
+export { detachmentOptionText } from "./builder_roster_detachment_option_labels.js";
 
 function detachmentCandidateRows(roster, validation, query = "") {
   const normalizedQuery = String(query || "").trim().toLocaleLowerCase();
@@ -48,6 +28,4 @@ function detachmentCandidateRows(roster, validation, query = "") {
 
 export {
   detachmentCandidateRows,
-  detachmentCandidateStatus,
-  detachmentOptionText,
 };
