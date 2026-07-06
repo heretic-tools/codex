@@ -39,6 +39,7 @@ function renderRosterUnitDetailView({ onBack, onUpdate, roster, unit, validation
     renderValidation(unitValidation, {
       context: validationContext,
       groupAction: renderUnitValidationAction,
+      title: "Unit Validation",
     }),
     renderEnhancementsEditor({
       onUpdate,

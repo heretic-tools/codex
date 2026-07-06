@@ -31,7 +31,7 @@ function renderRosterUnitOverview({ onBack, onUpdate, otherIssueCount, roster, u
     overview.appendChild(allegianceEditor);
   }
   if (otherIssueCount) {
-    overview.appendChild(metricLine("Other Issues", String(otherIssueCount)));
+    overview.appendChild(metricLine("Roster Issues", String(otherIssueCount)));
   }
   overview.append(
     button("plain-button", "Reset Wargear", async () => onUpdate(rosterWithUnitDefaultWargear(roster, unit.id))),
