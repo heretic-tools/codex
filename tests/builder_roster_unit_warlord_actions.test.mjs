@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   availableDatasheets,
   battleSizeNamed,
+  enhancementTargetUnit,
   factionNamed,
   keywordIdsForDatasheet,
   realCatalog,
@@ -120,4 +121,40 @@ test("builder roster action rejects invalid Warlord targets when context is supp
 
   const cleared = rosterWithWarlord(accepted, {});
   assert.equal(cleared.units[0].miniatures[0].isWarlord, false);
+});
+
+test("builder roster action derives Warlord context when omitted", () => {
+  state.catalog = realCatalog;
+  const intercessor = enhancementTargetUnit({
+    id: "direct-context-intercessor",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const captain = enhancementTargetUnit({
+    id: "direct-context-captain",
+    datasheetName: "Captain",
+    miniatureName: "Captain",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const roster = {
+    id: "warlord-direct-context-roster",
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [intercessor, captain],
+  };
+
+  const rejected = rosterWithWarlord(roster, {
+    rosterUnitMiniatureId: intercessor.miniatures[0].rosterUnitMiniatureId,
+    unitId: intercessor.id,
+  });
+  assert.equal(rejected, roster);
+
+  const accepted = rosterWithWarlord(roster, {
+    rosterUnitMiniatureId: captain.miniatures[0].rosterUnitMiniatureId,
+    unitId: captain.id,
+  });
+  assert.equal(accepted.units[0].miniatures[0].isWarlord, false);
+  assert.equal(accepted.units[1].miniatures[0].isWarlord, true);
 });
