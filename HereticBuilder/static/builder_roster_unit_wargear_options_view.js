@@ -23,10 +23,11 @@ function updateWargearCountFromEditor(roster, unit, target, optionRow, count, on
 }
 
 function renderWargearOption({ group, label, onUndoableUpdate = null, onUpdate, optionRow, roster, target, unit }) {
-  const row = document.createElement("label");
+  const row = document.createElement("div");
   row.className = "wargear-option-row";
   row.append(textNode("span", "", label));
   row.appendChild(countControl({
+    label,
     optionRow,
     target,
     onChange: async (count) => updateWargearCountFromEditor(

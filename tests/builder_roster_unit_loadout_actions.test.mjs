@@ -24,6 +24,47 @@ import {
 import {
   updateWargearCountFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_wargear_options_view.js";
+import {
+  countControl,
+  normalizedCount,
+} from "../HereticBuilder/static/builder_roster_unit_wargear_count_control.js";
+
+function createMockElement(tagName) {
+  return {
+    attributes: new Map(),
+    checked: false,
+    children: [],
+    className: "",
+    dataset: {},
+    disabled: false,
+    listeners: new Map(),
+    tagName,
+    textContent: "",
+    type: "",
+    value: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      return node;
+    },
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    async click() {
+      return this.listeners.get("click")?.();
+    },
+    async dispatch(name) {
+      return this.listeners.get(name)?.();
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    },
+  };
+}
 
 function rosterWithMultiCompositionUnit() {
   state.catalog = realCatalog;
@@ -62,6 +103,57 @@ function rosterWithMultiCompositionUnit() {
     unit: { ...unit, name: datasheet.name },
   };
 }
+
+test("unit wargear count control exposes a mobile stepper", async () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const changes = [];
+    const control = countControl({
+      label: "Plasma gun",
+      onChange: (count) => changes.push(count),
+      optionRow: { id: "option-1" },
+      target: { wargear: { "option-1": 1 } },
+    });
+
+    assert.equal(normalizedCount("-4"), 0);
+    assert.equal(normalizedCount("2.8"), 2);
+    assert.equal(normalizedCount("not-a-number"), 0);
+    assert.equal(control.className, "wargear-count-stepper");
+    assert.equal(control.children.length, 3);
+
+    const [decrement, input, increment] = control.children;
+    assert.equal(decrement.textContent, "-");
+    assert.equal(decrement.attributes.get("aria-label"), "Decrease Plasma gun");
+    assert.equal(decrement.disabled, false);
+    assert.equal(input.type, "number");
+    assert.equal(input.value, "1");
+    assert.equal(input.attributes.get("aria-label"), "Plasma gun");
+    assert.equal(increment.textContent, "+");
+    assert.equal(increment.attributes.get("aria-label"), "Increase Plasma gun");
+
+    await increment.click();
+    assert.equal(input.value, "2");
+    assert.deepEqual(changes, [2]);
+
+    await decrement.click();
+    await decrement.click();
+    assert.equal(input.value, "0");
+    assert.equal(decrement.disabled, true);
+    assert.deepEqual(changes, [2, 1, 0]);
+
+    input.value = "-3";
+    await input.dispatch("change");
+    assert.equal(input.value, "0");
+    assert.equal(decrement.disabled, true);
+    assert.deepEqual(changes, [2, 1, 0, 0]);
+  } finally {
+    global.document = previousDocument;
+  }
+});
 
 test("builder roster actions update unit composition and scoped wargear", () => {
   state.catalog = realCatalog;
