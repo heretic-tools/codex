@@ -25,7 +25,7 @@ function validationHasMessages(validation) {
   return Boolean((validation?.messages || []).length);
 }
 
-function renderRosterUnitDetailView({ focusTarget = "", onBack, onUndoableUpdate = null, onUpdate, roster, unit, validation }) {
+function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null, onUpdate, roster, unit, validation }) {
   const summary = unitSummary(roster, unit);
   const unitValidation = validationForUnit(validation, summary);
   const otherValidation = validationWithoutMessages(validation, unitValidation.messages);
@@ -38,7 +38,6 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUndoableUpdate
   sidebar.className = "builder-roster-sidebar";
 
   const overview = renderRosterUnitOverview({
-    onBack,
     onUndoableUpdate,
     onUpdate,
     roster,

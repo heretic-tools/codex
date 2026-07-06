@@ -8,6 +8,7 @@ const {
   baseBreadcrumbs,
   builderBreadcrumbs,
   parseRoute,
+  rosterBreadcrumbs,
 } = await import("../HereticBuilder/static/builder_routes.js");
 
 test("builder route parser keeps optional unit-detail focus targets", () => {
@@ -42,5 +43,13 @@ test("builder breadcrumbs keep HereticTools pointed at the site root", () => {
   assert.deepEqual(builderBreadcrumbs(), [
     { label: "HereticTools", href: "/" },
     { label: "Builder", href: "/#/" },
+  ]);
+});
+
+test("unit-detail breadcrumbs include the parent roster", () => {
+  assert.deepEqual(rosterBreadcrumbs({ id: "roster 1", name: "Raid Night" }), [
+    { label: "HereticTools", href: "/" },
+    { label: "Builder", href: "/#/" },
+    { label: "Raid Night", href: "/#/roster/roster%201" },
   ]);
 });

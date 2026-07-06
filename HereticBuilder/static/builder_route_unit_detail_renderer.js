@@ -1,5 +1,5 @@
 import { loadRules, loadUnitView } from "./builder_module_loaders.js";
-import { builderBreadcrumbs, navigate } from "./builder_routes.js";
+import { rosterBreadcrumbs } from "./builder_routes.js";
 import { el, renderBreadcrumbs } from "./builder_shell.js";
 import { state } from "./builder_state.js";
 import {
@@ -29,10 +29,9 @@ async function renderUnit(render) {
   const validation = validateRoster(roster);
   await saveRosterCacheIfStale(roster, validation);
   el.title.textContent = unitDisplayName(roster, unit);
-  renderBreadcrumbs(builderBreadcrumbs());
+  renderBreadcrumbs(rosterBreadcrumbs(roster));
   el.root.appendChild(renderRosterUnitDetailView({
     focusTarget: state.route.focusTarget || "",
-    onBack: () => navigate(`/roster/${encodeURIComponent(roster.id)}`),
     onUpdate: (nextRoster) => updateRoster(nextRoster, render),
     onUndoableUpdate: ({ message, nextRoster, previousRoster }) => updateRosterWithUndo({
       message,

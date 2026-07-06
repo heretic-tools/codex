@@ -265,6 +265,29 @@ test("unit overview does not duplicate the unit title from the app header", () =
   }
 });
 
+test("unit overview keeps only local actions when breadcrumbs handle navigation", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithCompositionCount(1);
+    const overview = renderRosterUnitOverview({
+      onUpdate: () => {},
+      roster,
+      unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
+    assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
 test("builder roster actions update unit composition and scoped wargear", () => {
   state.catalog = realCatalog;
   const faction = factionNamed("Heretic Astartes");

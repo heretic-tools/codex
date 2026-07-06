@@ -35,4 +35,14 @@ function builderBreadcrumbs() {
   return [...baseBreadcrumbs(), { label: "Builder", href: builderHref("/") }];
 }
 
-export { baseBreadcrumbs, builderBreadcrumbs, builderHref, navigate, parseRoute };
+function rosterBreadcrumbs(roster) {
+  return [
+    ...builderBreadcrumbs(),
+    {
+      label: roster?.name || "New Roster",
+      href: builderHref(`/roster/${encodeURIComponent(roster?.id || "")}`),
+    },
+  ];
+}
+
+export { baseBreadcrumbs, builderBreadcrumbs, builderHref, navigate, parseRoute, rosterBreadcrumbs };

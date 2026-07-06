@@ -24,7 +24,7 @@ function resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate = nul
   });
 }
 
-function renderRosterUnitOverview({ onBack, onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
+function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
   const overview = document.createElement("section");
   overview.className = "builder-section unit-overview-card";
   const image = unitImageNode(unit.datasheetId, "unit-detail-art-frame");
@@ -56,8 +56,7 @@ function renderRosterUnitOverview({ onBack, onUndoableUpdate = null, onUpdate, r
     button("plain-button", "Reset Wargear", async () => {
       await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
       await resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate);
-    }),
-    button("plain-button", "Back", onBack)
+    })
   );
   overview.appendChild(actions);
   return overview;
