@@ -12,6 +12,7 @@ import {
 import { allegianceEditorOptions } from "../HereticBuilder/static/builder_roster_unit_allegiance_options.js";
 import { compositionSelectModel } from "../HereticBuilder/static/builder_roster_unit_composition_options.js";
 import { enhancementSelectRows } from "../HereticBuilder/static/builder_roster_unit_enhancement_options.js";
+import { wargearGroupsFor } from "../HereticBuilder/static/builder_roster_unit_wargear_groups.js";
 import { unitWarlordSelectModel } from "../HereticBuilder/static/builder_roster_unit_warlord_options.js";
 import { warlordPickerModel } from "../HereticBuilder/static/builder_roster_warlord_options.js";
 
@@ -157,6 +158,28 @@ test("composition select model exposes current composition labels", () => {
   assert.ok(model.options.length);
   assert.equal(model.options[0].value, model.currentId);
   assert.match(model.options[0].label, /pts\)$/);
+});
+
+test("wargear groups model filters unit and miniature scopes", () => {
+  state.catalog = realCatalog;
+  const datasheetGroups = [...realCatalog.wargearGroupsByDatasheetId.entries()]
+    .find(([, groups]) => groups.some((group) => !group.miniatureId) && groups.some((group) => group.miniatureId));
+  assert.ok(datasheetGroups, "Expected a datasheet with unit and model wargear groups");
+  const [datasheetId, groups] = datasheetGroups;
+  const miniatureId = groups.find((group) => group.miniatureId)?.miniatureId;
+  const unit = { datasheetId };
+
+  const unitGroups = wargearGroupsFor(unit);
+  const miniatureGroups = wargearGroupsFor(unit, miniatureId);
+
+  assert.ok(unitGroups.length);
+  assert.ok(miniatureGroups.length);
+  assert.ok(unitGroups.every((group) => !group.miniatureId));
+  assert.ok(miniatureGroups.every((group) => group.miniatureId === miniatureId));
+  assert.deepEqual(
+    unitGroups.map((group) => group.displayOrder || 0),
+    [...unitGroups].map((group) => group.displayOrder || 0).sort((left, right) => left - right)
+  );
 });
 
 test("allegiance editor disables invalid non-current options", () => {

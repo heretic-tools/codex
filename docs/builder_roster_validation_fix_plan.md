@@ -1753,6 +1753,10 @@ browser smoke test.
   `builder_roster_unit_composition_editor.js` into
   `builder_roster_unit_composition_options.js`, keeping composition availability
   and label preparation out of the DOM renderer.
+- 2026-07-06: Split unit-detail Wargear group lookup out of
+  `builder_roster_unit_wargear_view.js` into
+  `builder_roster_unit_wargear_groups.js`, so the wargear view renders supplied
+  groups while catalog filtering and display-order sorting stay testable.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and

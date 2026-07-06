@@ -1,17 +1,10 @@
 import { textNode } from "./builder_dom.js";
-import { state } from "./builder_state.js";
 import { renderWargearGroup } from "./builder_roster_unit_wargear_options_view.js";
 import {
   renderScopeValidation,
   targetIdForWargearScope,
   validationForWargearScope,
 } from "./builder_roster_unit_wargear_validation_view.js";
-
-function groupsFor(unit, miniatureId = "") {
-  return (state.catalog.wargearGroupsByDatasheetId.get(unit.datasheetId) || [])
-    .filter((group) => (group.miniatureId || "") === miniatureId)
-    .sort((left, right) => (left.displayOrder || 0) - (right.displayOrder || 0));
-}
 
 function renderScope({ groups, heading, onUpdate, roster, target, unit }) {
   const wrap = document.createElement("section");
@@ -41,4 +34,4 @@ function renderWargearScope({ groups, heading, onUpdate, roster, target, unit, v
   return scope;
 }
 
-export { groupsFor, renderWargearScope };
+export { renderWargearScope };

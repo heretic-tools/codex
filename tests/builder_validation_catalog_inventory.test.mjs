@@ -1212,11 +1212,15 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(unitOverviewSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
 
     const unitWargearSectionSource = readFileSync(join(outDir, "static", "builder_roster_unit_wargear_section_view.js"), "utf8");
+    assert.match(unitWargearSectionSource, new RegExp(`\\.\\/builder_roster_unit_wargear_groups\\.js\\?v=${version}`));
     assert.match(unitWargearSectionSource, new RegExp(`\\.\\/builder_roster_unit_wargear_view\\.js\\?v=${version}`));
 
     const unitWargearViewSource = readFileSync(join(outDir, "static", "builder_roster_unit_wargear_view.js"), "utf8");
     assert.match(unitWargearViewSource, new RegExp(`\\.\\/builder_roster_unit_wargear_options_view\\.js\\?v=${version}`));
     assert.match(unitWargearViewSource, new RegExp(`\\.\\/builder_roster_unit_wargear_validation_view\\.js\\?v=${version}`));
+
+    const unitWargearGroupsSource = readFileSync(join(outDir, "static", "builder_roster_unit_wargear_groups.js"), "utf8");
+    assert.match(unitWargearGroupsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const unitWargearOptionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_wargear_options_view.js"), "utf8");
     assert.match(unitWargearOptionsSource, new RegExp(`\\.\\/builder_roster_unit_wargear_count_control\\.js\\?v=${version}`));
