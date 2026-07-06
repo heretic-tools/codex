@@ -1,15 +1,10 @@
-import { canonicalWargearKey, choiceItems, cleanCounts } from "./builder_loadout_math.js";
+import { canonicalWargearKey, choiceItems } from "./builder_loadout_math.js";
 import { state } from "./builder_state.js";
+import { filterCountsByKeys } from "./builder_wargear_limited_count_filters.js";
 export { effectiveWargearLimit } from "./builder_wargear_limited_limits.js";
 
 function limitedChoiceItems(choiceId, context) {
   return choiceItems(state.catalog.limitedWargearChoiceItemsByChoiceId.get(choiceId), context);
-}
-
-function filterCountsByKeys(counts, keys) {
-  return cleanCounts(Object.fromEntries(
-    Object.entries(counts || {}).filter(([key]) => keys.has(key))
-  ));
 }
 
 function limitedUpgradeKeys(limitedSet) {
@@ -54,7 +49,6 @@ function limitedWargearChoices(limitedSet, upgradeKeys) {
 }
 
 export {
-  filterCountsByKeys,
   limitedUpgradeKeys,
   limitedWargearChoices,
 };

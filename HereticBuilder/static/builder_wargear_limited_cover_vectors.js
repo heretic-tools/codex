@@ -1,4 +1,4 @@
-import { filterCountsByKeys } from "./builder_wargear_limited_choices.js";
+import { filterCountsByKeys } from "./builder_wargear_limited_count_filters.js";
 
 function limitedChoiceCoverVectors(selectedCounts, choices) {
   const relevantKeys = new Set(choices.flatMap((choice) => Object.keys(choice || {})));

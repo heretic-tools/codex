@@ -1127,7 +1127,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(unitEnhancementModelsSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_options\\.js\\?v=${version}`));
 
     const unitEnhancementSelectSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_select.js"), "utf8");
-    assert.match(unitEnhancementSelectSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_options\\.js\\?v=${version}`));
+    assert.match(unitEnhancementSelectSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_labels\\.js\\?v=${version}`));
+
+    const unitEnhancementLabelsSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_labels.js"), "utf8");
+    assert.match(unitEnhancementLabelsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(unitEnhancementLabelsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const validationSource = readFileSync(join(outDir, "static", "builder_validation_view.js"), "utf8");
     assert.match(validationSource, new RegExp(`\\.\\/builder_validation_groups\\.js\\?v=${version}`));
@@ -1143,6 +1147,8 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const validationScopesSource = readFileSync(join(outDir, "static", "builder_validation_scopes.js"), "utf8");
     assert.match(validationScopesSource, new RegExp(`\\.\\/builder_validation_attachment_scopes\\.js\\?v=${version}`));
+    assert.match(validationScopesSource, new RegExp(`\\.\\/builder_validation_detachment_scopes\\.js\\?v=${version}`));
+    assert.match(validationScopesSource, new RegExp(`\\.\\/builder_validation_target_scopes\\.js\\?v=${version}`));
     assert.match(validationScopesSource, new RegExp(`\\.\\/builder_validation_unit_scopes\\.js\\?v=${version}`));
 
     const rosterValidationSource = readFileSync(join(outDir, "static", "builder_roster_validation.js"), "utf8");
@@ -1185,13 +1191,17 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const limitedWargearChoicesSource = readFileSync(join(outDir, "static", "builder_wargear_limited_choices.js"), "utf8");
     assert.match(limitedWargearChoicesSource, new RegExp(`\\.\\/builder_wargear_limited_limits\\.js\\?v=${version}`));
+    assert.match(limitedWargearChoicesSource, new RegExp(`\\.\\/builder_wargear_limited_count_filters\\.js\\?v=${version}`));
+
+    const limitedWargearCountFiltersSource = readFileSync(join(outDir, "static", "builder_wargear_limited_count_filters.js"), "utf8");
+    assert.match(limitedWargearCountFiltersSource, new RegExp(`\\.\\/builder_loadout_math\\.js\\?v=${version}`));
 
     const limitedWargearCoverSource = readFileSync(join(outDir, "static", "builder_wargear_limited_cover.js"), "utf8");
     assert.match(limitedWargearCoverSource, new RegExp(`\\.\\/builder_wargear_limited_cover_search\\.js\\?v=${version}`));
     assert.match(limitedWargearCoverSource, new RegExp(`\\.\\/builder_wargear_limited_cover_vectors\\.js\\?v=${version}`));
 
     const limitedWargearCoverVectorsSource = readFileSync(join(outDir, "static", "builder_wargear_limited_cover_vectors.js"), "utf8");
-    assert.match(limitedWargearCoverVectorsSource, new RegExp(`\\.\\/builder_wargear_limited_choices\\.js\\?v=${version}`));
+    assert.match(limitedWargearCoverVectorsSource, new RegExp(`\\.\\/builder_wargear_limited_count_filters\\.js\\?v=${version}`));
 
     const warlordRulesSource = readFileSync(join(outDir, "static", "builder_warlord_rules.js"), "utf8");
     assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));

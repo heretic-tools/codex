@@ -1,4 +1,6 @@
 import { validationMessageMatchesAttachment } from "./builder_validation_attachment_scopes.js";
+import { validationMessageMatchesDetachment } from "./builder_validation_detachment_scopes.js";
+import { validationMessageMatchesTarget } from "./builder_validation_target_scopes.js";
 import { validationMessageMatchesUnit } from "./builder_validation_unit_scopes.js";
 
 function validationState(messages) {
@@ -20,12 +22,6 @@ function validationForUnit(validation, unit) {
   );
 }
 
-function validationMessageMatchesDetachment(message, detachmentId) {
-  const scope = message.scope || {};
-  return scope.detachmentId === detachmentId
-    || (scope.detachmentIds || []).includes(detachmentId);
-}
-
 function validationForDetachment(validation, detachmentId) {
   return validationWithMessages(
     validation,
@@ -37,13 +33,6 @@ function validationForAttachment(validation, attachment, unitsById = null) {
   return validationWithMessages(
     validation,
     (validation.messages || []).filter((message) => validationMessageMatchesAttachment(message, attachment, unitsById))
-  );
-}
-
-function validationMessageMatchesTarget(message, targetId) {
-  const scope = message.scope || {};
-  return Boolean(targetId) && (
-    scope.targetId === targetId || (scope.targetIds || []).includes(targetId)
   );
 }
 

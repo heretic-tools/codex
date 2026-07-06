@@ -1,8 +1,4 @@
-import {
-  enhancementPoints,
-  miniatureKeywordIds,
-  unique,
-} from "./builder_model.js";
+import { miniatureKeywordIds, unique } from "./builder_model.js";
 import { state } from "./builder_state.js";
 
 function sortEnhancements(rows) {
@@ -29,17 +25,6 @@ function enhancementOptionsFor(roster, targetKind, currentId = "") {
   return sortEnhancements(rows);
 }
 
-function enhancementLabel(enhancement, keywordIds, status = null) {
-  const detachment = state.catalog.detachmentById.get(enhancement.detachmentId);
-  const points = enhancementPoints(enhancement.id, keywordIds);
-  const suffix = [
-    detachment?.name,
-    `${points || 0} pts`,
-    status && !status.eligible ? status.reason : "",
-  ].filter(Boolean).join(" / ");
-  return suffix ? `${enhancement.name} (${suffix})` : enhancement.name;
-}
-
 function currentMiniatureEnhancementId(unit, rosterUnitMiniatureId) {
   return (unit.miniatureEnhancements || []).find((enhancement) => (
     enhancement.targetId === rosterUnitMiniatureId
@@ -55,7 +40,6 @@ function miniatureEnhancementKeywordIds(unit, miniature) {
 
 export {
   currentMiniatureEnhancementId,
-  enhancementLabel,
   enhancementOptionsFor,
   miniatureEnhancementKeywordIds,
 };

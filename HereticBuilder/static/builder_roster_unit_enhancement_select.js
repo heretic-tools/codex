@@ -1,6 +1,6 @@
 import { option, textNode } from "./builder_dom.js";
 import { enhancementCandidateStatus } from "./builder_enhancement_rules.js";
-import { enhancementLabel } from "./builder_roster_unit_enhancement_options.js";
+import { enhancementLabel } from "./builder_roster_unit_enhancement_labels.js";
 import { state } from "./builder_state.js";
 
 function enhancementSelectRows({ enhancements, keywordIds, miniature, roster, targetKind, unit, units }) {

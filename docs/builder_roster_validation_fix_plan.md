@@ -1267,6 +1267,11 @@ browser smoke test.
   `builder_validation_scopes.js` into `builder_validation_attachment_scopes.js`.
   Member unit IDs and model target IDs for attached-unit groups are now audited
   separately from generic unit/detachment/target filtering.
+- 2026-07-06: Split detachment-specific and direct target validation scope
+  matching out of `builder_validation_scopes.js` into
+  `builder_validation_detachment_scopes.js` and
+  `builder_validation_target_scopes.js`, matching the same per-scope shape as
+  unit and attachment diagnostics.
 - 2026-07-05: Split Warlord validation into eligibility, candidate-status, and
   scope-helper modules. `builder_warlord_rules.js` still exports the same
   `validateWarlord` and `warlordCandidateStatus` API, while mandatory faction
@@ -1330,6 +1335,10 @@ browser smoke test.
   `builder_wargear_limited_choices.js` into
   `builder_wargear_limited_limits.js`. Choice hydration now stays separate from
   effective `choiceLimit`/`duplicateLimit` row selection.
+- 2026-07-06: Split limited-Wargear selected-count filtering out of
+  `builder_wargear_limited_choices.js` into
+  `builder_wargear_limited_count_filters.js`, so cover-vector construction no
+  longer imports the full choice hydration module.
 - 2026-07-05: Split roster-list row rendering out of
   `builder_roster_list_view.js` into `builder_roster_list_rows.js`. The list
   view now owns screen assembly and import/export controls, while the roster
@@ -1497,6 +1506,10 @@ browser smoke test.
   `builder_roster_unit_enhancement_models.js`. The editor now owns only the
   section shell and roster mutation callbacks, while unit/model option rows are
   prepared in a dedicated view-model helper.
+- 2026-07-06: Split unit-detail Enhancement select labels out of
+  `builder_roster_unit_enhancement_options.js` into
+  `builder_roster_unit_enhancement_labels.js`, separating candidate discovery
+  from detachment/points/status label formatting.
 - 2026-07-05: Split allied-rule helpers and allied keyword/allegiance/
   restricting-keyword validation out of `builder_allied_rules.js` into
   `builder_allied_rule_helpers.js` and `builder_allied_keyword_rules.js`.
