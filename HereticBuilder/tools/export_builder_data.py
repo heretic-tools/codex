@@ -246,14 +246,37 @@ def table_rows(conn, table, columns):
     return rows
 
 
+def json_payload_bytes(payload):
+    body = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return body
+
+
 def write_json(path, payload):
     path.parent.mkdir(parents=True, exist_ok=True)
-    body = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    body = json_payload_bytes(payload)
     path.write_bytes(body)
     return {
         "path": path,
         "bytes": len(body),
         "sha256": hashlib.sha256(body).hexdigest(),
+    }
+
+
+def hashed_json_path(logical_path, digest):
+    path = Path(logical_path)
+    return (path.parent / f"{path.stem}-{digest[:12]}{path.suffix}").as_posix()
+
+
+def write_hashed_json(out_dir, logical_path, payload):
+    body = json_payload_bytes(payload)
+    digest = hashlib.sha256(body).hexdigest()
+    path = out_dir / hashed_json_path(logical_path, digest)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(body)
+    return {
+        "path": path,
+        "bytes": len(body),
+        "sha256": digest,
     }
 
 
@@ -715,12 +738,12 @@ def export_builder_data(db_path, out_dir):
         files.append(file_entry(out_dir, record))
 
         loadouts = precomputed_loadouts(conn, aliases)
-        record = write_json(out_dir / "precomputed-loadouts.json", loadouts)
-        files.append(file_entry(out_dir, record))
+        record = write_hashed_json(out_dir, "precomputed-loadouts.json", loadouts)
+        files.append(file_entry(out_dir, record, logical_path="precomputed-loadouts.json"))
 
         unit_images = unit_images_payload(conn)
-        record = write_json(out_dir / "unit-images.json", unit_images)
-        files.append(file_entry(out_dir, record, len(unit_images["imagesByDatasheetId"])))
+        record = write_hashed_json(out_dir, "unit-images.json", unit_images)
+        files.append(file_entry(out_dir, record, len(unit_images["imagesByDatasheetId"]), "unit-images.json"))
 
         for table in CATALOG_TABLES:
             columns = table_columns(conn, table)
@@ -730,8 +753,9 @@ def export_builder_data(db_path, out_dir):
                 "columns": columns,
                 "rows": rows,
             }
-            record = write_json(out_dir / "tables" / f"{table}.json", payload)
-            files.append(file_entry(out_dir, record, len(rows)))
+            logical_path = f"tables/{table}.json"
+            record = write_hashed_json(out_dir, logical_path, payload)
+            files.append(file_entry(out_dir, record, len(rows), logical_path))
 
         audit = audit_payload(conn, all_tables, set(CATALOG_TABLES))
         record = write_json(out_dir / "audit.json", audit)

@@ -243,6 +243,24 @@ function builderDataPath(path) {
   return join(projectRoot, "dist", "builder-data", path);
 }
 
+async function builderDataManifest() {
+  const response = await fetch("/builder-data/manifest.json");
+  assert.equal(response.ok, true);
+  return response.json();
+}
+
+function builderDataEntry(manifest, logicalPath) {
+  return (manifest.files || []).find((entry) => (entry.logicalPath || entry.path) === logicalPath);
+}
+
+async function fetchBuilderDataJson(logicalPath) {
+  const manifest = await builderDataManifest();
+  const entry = builderDataEntry(manifest, logicalPath);
+  const response = await fetch(`/builder-data/${entry?.path || logicalPath}`);
+  assert.equal(response.ok, true, `${logicalPath} should be exported`);
+  return response.json();
+}
+
 function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
 }
@@ -1527,13 +1545,10 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 });
 
 test("static Builder data manifest lists every exported rule file with matching rows and hashes", async () => {
-  const response = await fetch("/builder-data/manifest.json");
-  assert.equal(response.ok, true);
-
-  const manifest = await response.json();
+  const manifest = await builderDataManifest();
   const tableCounts = realCatalog.bootstrap.tableCounts;
-  const files = new Map(manifest.files.map((entry) => [entry.path, entry]));
-  const tableEntries = manifest.files.filter((entry) => entry.path.startsWith("tables/"));
+  const files = new Map(manifest.files.map((entry) => [entry.logicalPath || entry.path, entry]));
+  const tableEntries = manifest.files.filter((entry) => (entry.logicalPath || entry.path).startsWith("tables/"));
 
   assert.equal(manifest.exportSchemaVersion, realCatalog.bootstrap.exportSchemaVersion);
   assert.equal(manifest.dataVersion, realCatalog.bootstrap.dataVersion);
@@ -1545,7 +1560,7 @@ test("static Builder data manifest lists every exported rule file with matching 
   assert.ok(files.has("audit.json"));
 
   assert.deepEqual(
-    tableEntries.map((entry) => entry.path.replace(/^tables\/|\.json$/g, "")).sort(),
+    tableEntries.map((entry) => (entry.logicalPath || entry.path).replace(/^tables\/|\.json$/g, "")).sort(),
     Object.keys(tableCounts).sort()
   );
 
@@ -1563,10 +1578,7 @@ test("static Builder data manifest lists every exported rule file with matching 
 });
 
 test("static Builder data exports compact unit image map", async () => {
-  const response = await fetch("/builder-data/unit-images.json");
-  assert.equal(response.ok, true);
-
-  const payload = await response.json();
+  const payload = await fetchBuilderDataJson("unit-images.json");
   const abaddon = realCatalog.datasheets.find((datasheet) => datasheet.name === "Abaddon the Despoiler");
   assert.ok(abaddon);
   const filename = payload.imagesByDatasheetId[abaddon.id];
@@ -1584,12 +1596,16 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
       { cwd: projectRoot, stdio: "ignore" }
     );
     const bootstrap = JSON.parse(readFileSync(join(outDir, "bootstrap.json"), "utf8"));
-    const loadouts = JSON.parse(readFileSync(join(outDir, "precomputed-loadouts.json"), "utf8"));
     const manifest = JSON.parse(readFileSync(join(outDir, "manifest.json"), "utf8"));
+    const loadoutEntry = builderDataEntry(manifest, "precomputed-loadouts.json");
+    assert.ok(loadoutEntry);
+    const loadouts = JSON.parse(readFileSync(join(outDir, loadoutEntry.path), "utf8"));
 
     assert.equal(bootstrap.precomputedLoadouts, undefined);
     assert.ok(manifest.files.length > 0);
-    assert.ok(manifest.files.every((entry) => entry.logicalPath === entry.path));
+    assert.ok(manifest.files.every((entry) => entry.logicalPath));
+    assert.ok(manifest.files.some((entry) => entry.logicalPath === "precomputed-loadouts.json" && entry.path !== entry.logicalPath));
+    assert.ok(manifest.files.some((entry) => entry.logicalPath?.startsWith("tables/") && entry.path !== entry.logicalPath));
     assert.deepEqual(
       [...manifest.tableGroups.core, ...manifest.tableGroups.factionHeavy].sort(),
       Object.keys(bootstrap.tableCounts).sort()
@@ -1618,10 +1634,7 @@ test("static Builder rule table column lists stay pinned", async () => {
   assert.equal(Object.keys(BUILDER_RULE_TABLE_COLUMNS).length, 73);
 
   for (const [tableName, expectedColumns] of Object.entries(BUILDER_RULE_TABLE_COLUMNS)) {
-    const response = await fetch(`/builder-data/tables/${tableName}.json`);
-    assert.equal(response.ok, true, `${tableName} should be exported`);
-
-    const payload = await response.json();
+    const payload = await fetchBuilderDataJson(`tables/${tableName}.json`);
     assert.deepEqual(
       payload.columns.map((column) => column.name),
       expectedColumns,
