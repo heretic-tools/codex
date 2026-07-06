@@ -1228,6 +1228,11 @@ browser smoke test.
   passes current unit summaries and detachments so detachment-gated,
   mandatory-faction, required-Wargear, and roster-limit candidate checks are
   applied before writing the selection.
+- 2026-07-06: Split guarded Allegiance and Enhancement unit upgrade mutations
+  out of `builder_roster_unit_upgrade_actions.js` into
+  `builder_roster_unit_allegiance_actions.js` and
+  `builder_roster_unit_enhancement_actions.js`. The upgrade actions module is
+  now only a public facade over the two guarded mutation families plus Warlord.
 - 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
   enhancement editors out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a

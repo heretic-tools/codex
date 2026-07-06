@@ -802,8 +802,19 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(unitWargearDefaultActionsSource, new RegExp(`\\.\\/builder_roster_unit_default_rows\\.js\\?v=${version}`));
 
     const unitUpgradeActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_upgrade_actions.js"), "utf8");
-    assert.match(unitUpgradeActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(unitUpgradeActionsSource, new RegExp(`\\.\\/builder_roster_unit_allegiance_actions\\.js\\?v=${version}`));
+    assert.match(unitUpgradeActionsSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_actions\\.js\\?v=${version}`));
     assert.match(unitUpgradeActionsSource, new RegExp(`\\.\\/builder_roster_warlord_actions\\.js\\?v=${version}`));
+
+    const unitAllegianceActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_allegiance_actions.js"), "utf8");
+    assert.match(unitAllegianceActionsSource, new RegExp(`\\.\\/builder_allegiance_rules\\.js\\?v=${version}`));
+    assert.match(unitAllegianceActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(unitAllegianceActionsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+
+    const unitEnhancementActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_actions.js"), "utf8");
+    assert.match(unitEnhancementActionsSource, new RegExp(`\\.\\/builder_enhancement_rules\\.js\\?v=${version}`));
+    assert.match(unitEnhancementActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(unitEnhancementActionsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const rosterWarlordActionsSource = readFileSync(join(outDir, "static", "builder_roster_warlord_actions.js"), "utf8");
     assert.match(rosterWarlordActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
