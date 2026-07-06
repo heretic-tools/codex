@@ -120,6 +120,27 @@ CATALOG_TABLES = (
     "wargear_rule",
 )
 
+CORE_CATALOG_TABLES = (
+    "allied_faction",
+    "allied_faction_parent_faction_keyword",
+    "battle_size",
+    "detachment",
+    "detachment_faction_detachment_points_cost",
+    "detachment_faction_keyword",
+    "detachment_force_disposition",
+    "faction_keyword",
+    "faction_keyword_allied_faction",
+    "force_disposition",
+    "keyword",
+    "metadata",
+    "publication",
+)
+
+FACTION_HEAVY_CATALOG_TABLES = tuple(
+    table for table in CATALOG_TABLES
+    if table not in CORE_CATALOG_TABLES
+)
+
 EXCLUDED_PREFIXES = (
     "battle",
     "mission",
@@ -723,6 +744,10 @@ def export_builder_data(db_path, out_dir):
         "source": {
             "database": db_path.name,
             "sha256": db_sha256(db_path),
+        },
+        "tableGroups": {
+            "core": list(CORE_CATALOG_TABLES),
+            "factionHeavy": list(FACTION_HEAVY_CATALOG_TABLES),
         },
         "files": sorted(files, key=lambda item: item["path"]),
     }

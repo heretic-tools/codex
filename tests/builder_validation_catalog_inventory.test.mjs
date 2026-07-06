@@ -1590,6 +1590,14 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     assert.equal(bootstrap.precomputedLoadouts, undefined);
     assert.ok(manifest.files.length > 0);
     assert.ok(manifest.files.every((entry) => entry.logicalPath === entry.path));
+    assert.deepEqual(
+      [...manifest.tableGroups.core, ...manifest.tableGroups.factionHeavy].sort(),
+      Object.keys(bootstrap.tableCounts).sort()
+    );
+    assert.deepEqual(
+      manifest.tableGroups.core.filter((table) => manifest.tableGroups.factionHeavy.includes(table)),
+      []
+    );
     assert.equal(loadouts.maxLoadoutsPerContext, 1000);
     assert.equal(loadouts.contextCount, 1578);
     assert.equal(loadouts.skippedContextCount, 2);
