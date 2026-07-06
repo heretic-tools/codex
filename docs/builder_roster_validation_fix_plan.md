@@ -1764,7 +1764,9 @@ browser smoke test.
 - 2026-07-06: Added duplicate-limit safety to the add-unit roster action and
   disabled duplicate-limit error rows in the unit picker while leaving
   over-points warning rows selectable for intentionally invalid intermediate
-  rosters.
+  rosters. Unit picker previews now build candidate summaries without going
+  through the guarded mutation path, so duplicate-limit rows still display
+  their exact `limit reached` reason.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and

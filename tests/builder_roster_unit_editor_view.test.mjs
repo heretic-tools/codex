@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  availableDatasheets,
   battleSizeNamed,
   factionNamed,
+  keywordIdsForDatasheet,
   realCatalog,
   state,
 } from "./builder_validation_helpers.mjs";
+import { rosterWithAddedUnit } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
   parseUnitOptionValue,
   unitCandidateGroups,
@@ -13,6 +16,19 @@ import {
   unitOptionValue,
   unitSourceBadgeText,
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
+
+function regularDuplicateLimitedDatasheet(roster) {
+  const datasheet = availableDatasheets(roster, "native").find((row) => {
+    const keywordNames = keywordIdsForDatasheet(row.id)
+      .map((id) => realCatalog.keywordById.get(id)?.name)
+      .filter(Boolean);
+    return !keywordNames.includes("Epic Hero")
+      && !keywordNames.includes("Battleline")
+      && !keywordNames.includes("Dedicated Transport");
+  });
+  assert.ok(datasheet, "Expected a non-Epic, non-Battleline, non-Transport native datasheet");
+  return datasheet;
+}
 
 test("unit candidate status explains duplicate caps and point pressure", () => {
   state.catalog = realCatalog;
@@ -72,6 +88,30 @@ test("unit candidate groups combine native and allied datasheets in one picker",
   assert.ok(groups[0].rows.length, "expected native datasheets");
   assert.ok(groups.slice(1).some((group) => group.source.value !== "native" && group.rows.length));
   assert.deepEqual(unitCandidateGroups(roster, { points: { limit: 2000, total: 0 } }, "definitely-no-unit"), []);
+});
+
+test("unit candidate groups preserve duplicate-limit reasons after action guard", () => {
+  state.catalog = realCatalog;
+  const roster = {
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    units: [],
+  };
+  const datasheet = regularDuplicateLimitedDatasheet(roster);
+  let current = roster;
+  for (let index = 0; index < 3; index += 1) {
+    current = rosterWithAddedUnit(current, {
+      datasheetId: datasheet.id,
+      unitId: `candidate-duplicate-${index}`,
+    });
+  }
+
+  const groups = unitCandidateGroups(current, { points: { limit: 2000, total: 0 } }, datasheet.name);
+  const row = groups.flatMap((group) => group.rows).find((item) => item.datasheet.id === datasheet.id);
+
+  assert.ok(row?.candidate, "Expected duplicate-limited candidate summary to remain visible");
+  assert.deepEqual(row.status, { severity: "error", reason: "limit 3 reached" });
 });
 
 test("unit option values round-trip ally type and datasheet id", () => {

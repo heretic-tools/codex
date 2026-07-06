@@ -2,18 +2,18 @@ import {
   rosterUnitSummaries,
   unitSummary,
 } from "./builder_model.js";
-import { rosterWithAddedUnit } from "./builder_roster_actions.js";
+import { defaultRosterUnitForDatasheet } from "./builder_roster_unit_add_actions.js";
 import { state } from "./builder_state.js";
 import { duplicateLimitForUnit } from "./builder_validation_core.js";
 
 function candidateSummary(roster, allyType, datasheet) {
   const unitId = `candidate:${allyType}:${datasheet.id}`;
-  const candidateRoster = rosterWithAddedUnit(roster, {
+  const unit = defaultRosterUnitForDatasheet(roster, {
     allyType,
     datasheetId: datasheet.id,
     unitId,
   });
-  const unit = (candidateRoster.units || []).find((item) => item.id === unitId);
+  const candidateRoster = unit ? { ...roster, units: [...(roster.units || []), unit] } : roster;
   return unit ? unitSummary(candidateRoster, unit) : null;
 }
 

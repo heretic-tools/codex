@@ -21,19 +21,19 @@ function unitCanBeAddedToRoster(roster, unit) {
   return currentCount < duplicateLimit;
 }
 
-function rosterWithAddedUnit(roster, { allyType = "native", datasheetId, unitId }) {
+function defaultRosterUnitForDatasheet(roster, { allyType = "native", datasheetId, unitId }) {
   if (!datasheetId || !unitId) {
-    return roster;
+    return null;
   }
   if (!datasheetAvailableToRoster(roster, allyType, datasheetId)) {
-    return roster;
+    return null;
   }
   const factionIds = compositionFactionIds(roster, allyType);
   const composition = defaultComposition(datasheetId, factionIds, roster.detachmentIds || []);
   if (!composition) {
-    return roster;
+    return null;
   }
-  const unit = {
+  return {
     id: unitId,
     allyType,
     datasheetId,
@@ -43,6 +43,13 @@ function rosterWithAddedUnit(roster, { allyType = "native", datasheetId, unitId 
     miniatureEnhancements: [],
     miniatures: defaultRosterMiniatures(unitId, datasheetId, composition.id),
   };
+}
+
+function rosterWithAddedUnit(roster, { allyType = "native", datasheetId, unitId }) {
+  const unit = defaultRosterUnitForDatasheet(roster, { allyType, datasheetId, unitId });
+  if (!unit) {
+    return roster;
+  }
   if (!unitCanBeAddedToRoster(roster, unit)) {
     return roster;
   }
@@ -51,4 +58,8 @@ function rosterWithAddedUnit(roster, { allyType = "native", datasheetId, unitId 
   });
 }
 
-export { rosterWithAddedUnit, unitCanBeAddedToRoster };
+export {
+  defaultRosterUnitForDatasheet,
+  rosterWithAddedUnit,
+  unitCanBeAddedToRoster,
+};
