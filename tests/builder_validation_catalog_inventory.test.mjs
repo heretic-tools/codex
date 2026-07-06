@@ -562,8 +562,15 @@ test("thin client bootstrap loading does not fetch full rule tables", async () =
     assert.equal(catalog.bootstrap.dataVersion, realCatalog.bootstrap.dataVersion);
     assert.ok(catalog.factions.length > 0);
     assert.ok(catalog.battleSizes.length > 0);
+    assert.ok(catalog.detachmentSummaries.length > 0);
+    assert.ok(catalog.detachmentSummaryById.get(catalog.detachmentSummaries[0].id));
+    assert.equal(
+      catalog.detachmentSummaries.length,
+      realCatalog.detachments.filter((row) => !row.isCombatPatrol).length
+    );
     assert.equal(catalog.bootstrap.precomputedLoadouts, undefined);
     assert.equal(catalog.datasheets, undefined);
+    assert.equal(catalog.detachments, undefined);
   } finally {
     global.fetch = previousFetch;
   }

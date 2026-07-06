@@ -856,12 +856,26 @@ def bootstrap_payload(conn, version, counts, aliases):
             """
         )
     ]
+    detachment_summaries = [
+        dict(row)
+        for row in conn.execute(
+            """
+            select d.id, d.name, fd.name as disposition
+            from detachment d
+            left join detachment_force_disposition dfd on dfd.detachmentId = d.id
+            left join force_disposition fd on fd.id = dfd.forceDispositionId
+            where d.isCombatPatrol = 0
+            order by d.displayOrder, lower(d.name)
+            """
+        )
+    ]
     return {
         "exportSchemaVersion": EXPORT_SCHEMA_VERSION,
         "dataVersion": version,
         **defaults,
         "factions": factions,
         "battleSizes": battle_sizes,
+        "detachmentSummaries": detachment_summaries,
         "wargearAliases": aliases,
         "tableCounts": counts,
     }

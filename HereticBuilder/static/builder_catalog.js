@@ -7,10 +7,13 @@ import {
 } from "./builder_catalog_loader.js";
 
 function catalogFromBootstrap(bootstrap) {
+  const detachmentSummaries = bootstrap.detachmentSummaries || [];
   return {
     bootstrap,
     factions: bootstrap.factions || [],
     battleSizes: bootstrap.battleSizes || [],
+    detachmentSummaries,
+    detachmentSummaryById: new Map(detachmentSummaries.map((row) => [row.id, row])),
   };
 }
 

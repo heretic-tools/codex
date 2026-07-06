@@ -17,12 +17,20 @@ function rosterListCacheIsFreshForCurrentData(roster) {
   return rosterListCacheIsFresh(roster, currentDataVersion());
 }
 
+function rosterDetachmentBadges(roster) {
+  const byId = state.catalog.detachmentSummaryById || new Map();
+  return (roster.detachmentIds || [])
+    .map((detachmentId) => byId.get(detachmentId))
+    .filter(Boolean);
+}
+
 function lightweightRosterSummary(roster) {
   const faction = bootstrapRowById(state.catalog.factions, roster.factionKeywordId);
   const battleSize = bootstrapRowById(state.catalog.battleSizes, roster.battleSizeId);
   const cacheFresh = rosterListCacheIsFreshForCurrentData(roster);
   return {
     battleSizeName: battleSize?.name || "Unknown Battle Size",
+    detachmentBadges: rosterDetachmentBadges(roster),
     detachmentCount: (roster.detachmentIds || []).length,
     factionName: faction?.name || "Unknown Faction",
     pointsLimit: battleSize?.pointsLimit || 0,

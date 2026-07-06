@@ -24,7 +24,7 @@ function navigate(path) {
 }
 
 function baseBreadcrumbs() {
-  return [{ label: "HereticTools", href: siteHref("/") }];
+  return [{ label: "HereticTools", href: "/" }];
 }
 
 function builderHref(hashPath = "/") {

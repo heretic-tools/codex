@@ -1,4 +1,5 @@
 import { button, textNode } from "./builder_dom.js";
+import { dispositionSlug } from "./builder_roster_editor_dom.js";
 
 function rosterValidationBadgeClass(validationState) {
   if (validationState === "valid") {
@@ -8,6 +9,21 @@ function rosterValidationBadgeClass(validationState) {
     return "warning";
   }
   return "error";
+}
+
+function rosterDetachmentBadgeClass(disposition) {
+  const slug = dispositionSlug(disposition);
+  return slug ? `disposition-badge disposition-${slug}` : "meta-badge";
+}
+
+function appendDetachmentBadges(parent, badges) {
+  for (const badge of badges || []) {
+    const node = textNode("span", rosterDetachmentBadgeClass(badge.disposition), badge.name || "Detachment");
+    if (badge.disposition) {
+      node.title = badge.disposition;
+    }
+    parent.appendChild(node);
+  }
 }
 
 function rosterLine(roster, onOpen, summarizeRoster) {
@@ -21,6 +37,7 @@ function rosterLine(roster, onOpen, summarizeRoster) {
     textNode("strong", "", roster.name || "New Roster"),
     textNode("span", "", `${summary.factionName} / ${summary.battleSizeName}`)
   );
+  appendDetachmentBadges(text, summary.detachmentBadges);
   const meta = document.createElement("span");
   meta.className = "row-meta";
   meta.append(
@@ -33,4 +50,4 @@ function rosterLine(roster, onOpen, summarizeRoster) {
   return node;
 }
 
-export { rosterLine, rosterValidationBadgeClass };
+export { rosterDetachmentBadgeClass, rosterLine, rosterValidationBadgeClass };

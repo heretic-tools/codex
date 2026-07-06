@@ -11,7 +11,7 @@ const builderTablesDir = join(distDir, "builder-data", "tables");
 const searchIndexPath = join(distDir, "search-index.json");
 const searchIndexManifestPath = join(distDir, "search-index", "manifest.json");
 
-const BUILDER_BOOTSTRAP_BYTES_BUDGET = 12_000;
+const BUILDER_BOOTSTRAP_BYTES_BUDGET = 42_000;
 const BUILDER_DATA_MANIFEST_BYTES_BUDGET = 12_000;
 const BUILDER_PRECOMPUTED_MANIFEST_BYTES_BUDGET = 190_000;
 const BUILDER_TABLES_BYTES_BUDGET = 6_300_000;

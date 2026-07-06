@@ -4,7 +4,11 @@ import test from "node:test";
 global.document = { querySelector: () => null };
 global.window = { location: { hash: "" } };
 
-const { parseRoute } = await import("../HereticBuilder/static/builder_routes.js");
+const {
+  baseBreadcrumbs,
+  builderBreadcrumbs,
+  parseRoute,
+} = await import("../HereticBuilder/static/builder_routes.js");
 
 test("builder route parser keeps optional unit-detail focus targets", () => {
   window.location.hash = "#/roster/roster%201/unit/unit%201/focus/wargear%3Amodel-1";
@@ -31,4 +35,12 @@ test("builder route parser returns empty focus targets for other routes", () => 
     name: "create",
     rosterId: "",
   });
+});
+
+test("builder breadcrumbs keep HereticTools pointed at the site root", () => {
+  assert.deepEqual(baseBreadcrumbs(), [{ label: "HereticTools", href: "/" }]);
+  assert.deepEqual(builderBreadcrumbs(), [
+    { label: "HereticTools", href: "/" },
+    { label: "Builder", href: "/#/" },
+  ]);
 });

@@ -1,5 +1,9 @@
 import { button, textNode } from "./builder_dom.js";
-import { rosterLine, rosterValidationBadgeClass } from "./builder_roster_list_rows.js";
+import {
+  rosterDetachmentBadgeClass,
+  rosterLine,
+  rosterValidationBadgeClass,
+} from "./builder_roster_list_rows.js";
 
 function renderRosterListView({ onCreate, onExport, onImport, onOpen, rosters, summarizeRoster }) {
   const root = document.createElement("section");
@@ -35,4 +39,4 @@ function renderRosterListView({ onCreate, onExport, onImport, onOpen, rosters, s
   return root;
 }
 
-export { renderRosterListView, rosterValidationBadgeClass };
+export { renderRosterListView, rosterDetachmentBadgeClass, rosterValidationBadgeClass };

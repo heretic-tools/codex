@@ -1952,6 +1952,9 @@ Fixes:
 
 - Change `factionScope` to walk `state.catalog.factionKeywordById`, not only
   bootstrap-visible `factionById`.
+- 2026-07-06: Added bootstrap-only detachment summaries (`id/name/disposition`)
+  so the roster list can show selected detachment disposition badges without
+  loading full rule tables on the Builder home route.
 - Change enhancement `cannotBeWarlord` validation to check the target model
   against the selected warlord miniature, not the whole unit.
 - Harden `keyword_ally_restricting_keyword` handling so new-table rows are not
