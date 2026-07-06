@@ -755,6 +755,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const attachmentAddActionsSource = readFileSync(join(outDir, "static", "builder_roster_attachment_add_actions.js"), "utf8");
     assert.match(attachmentAddActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(attachmentAddActionsSource, new RegExp(`\\.\\/builder_roster_attachment_failures\\.js\\?v=${version}`));
     assert.match(attachmentAddActionsSource, new RegExp(`\\.\\/builder_roster_attachment_add_model\\.js\\?v=${version}`));
     assert.match(attachmentAddActionsSource, new RegExp(`\\.\\/builder_roster_attachment_members\\.js\\?v=${version}`));
 

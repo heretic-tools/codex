@@ -1,4 +1,5 @@
 import { withModifiedRoster } from "./builder_roster_action_helpers.js";
+import { attachmentPairFailures } from "./builder_roster_attachment_failures.js";
 import {
   attachmentWithAddedMember,
   newAttachmentGroup,
@@ -8,16 +9,36 @@ import {
   unitHasAttachmentMembership,
 } from "./builder_roster_attachment_members.js";
 
+function attachmentPairCanBeAdded(roster, units, {
+  attachedUnitId,
+  attachmentType,
+  bodyguardUnitId,
+}) {
+  if (!units) {
+    return true;
+  }
+  const attachedUnit = units.find((unit) => unit.id === attachedUnitId);
+  const bodyguardUnit = units.find((unit) => unit.id === bodyguardUnitId);
+  if (!attachedUnit || !bodyguardUnit) {
+    return false;
+  }
+  return !attachmentPairFailures(roster, attachedUnit, bodyguardUnit, attachmentType).length;
+}
+
 function rosterWithAddedAttachment(roster, {
   attachedUnitId,
   attachmentId,
   attachmentType = "leader",
   bodyguardUnitId,
+  units = null,
 }) {
   if (!attachedUnitId || !bodyguardUnitId || attachedUnitId === bodyguardUnitId) {
     return roster;
   }
   if (!["leader", "support"].includes(attachmentType)) {
+    return roster;
+  }
+  if (!attachmentPairCanBeAdded(roster, units, { attachedUnitId, attachmentType, bodyguardUnitId })) {
     return roster;
   }
   if (unitHasAttachmentMembership(roster, attachedUnitId)) {

@@ -1423,6 +1423,11 @@ browser smoke test.
   `builder_roster_attachment_add_model.js`, keeping guard order and membership
   checks inside the action while making the current-shape attachment records
   independently cache-busted.
+- 2026-07-06: Added an optional attachment-pair rule guard to
+  `builder_roster_attachment_add_actions.js`. The add action preserves legacy
+  low-level calls when summaries are omitted, while the Builder UI now passes
+  current unit summaries so invalid bodyguard pairs cannot be written by the
+  mutation layer.
 - 2026-07-05: Split per-choice-set loadout generation out of
   `builder_loadout_choices.js` into `builder_loadout_choice_set_loadouts.js`.
   Single-set limit, duplicate, empty-choice, and combination handling are now

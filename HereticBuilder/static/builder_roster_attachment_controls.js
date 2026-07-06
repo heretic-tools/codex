@@ -16,6 +16,7 @@ function renderAttachmentControls({ bodyguards, newId, onUpdate, roster, units, 
       attachmentId: newId(),
       attachmentType: type.value,
       bodyguardUnitId: bodyguard.value,
+      units,
     }));
   });
 

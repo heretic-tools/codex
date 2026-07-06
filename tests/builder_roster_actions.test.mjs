@@ -8,6 +8,7 @@ import {
   realCatalog,
   state,
   validateRoster,
+  withCatalog,
 } from "./builder_validation_helpers.mjs";
 import {
   rosterWithAddedAttachment,
@@ -96,6 +97,62 @@ test("builder roster actions manage current-shape attachment groups", () => {
     bodyguardUnitId: "bodyguard-1",
     leaderUnitId: "leader-1",
   }]);
+});
+
+test("builder roster action rejects invalid attachment pairs when summaries are supplied", () => {
+  const catalog = {
+    ...realCatalog,
+    datasheetBodyguardGroupsByDatasheetId: new Map([["leader-datasheet", [{
+      id: "leader-bodyguard-group",
+      datasheetId: "leader-datasheet",
+      bodyguardType: "leader",
+      factionKeywordId: "",
+      excludedDetachmentId: "",
+      requiredDetachmentId: "",
+      requiresAllUnitsHaveKeywordId: "",
+    }]]]),
+    datasheetBodyguardGroupDatasheetsByGroupId: new Map([
+      ["leader-bodyguard-group", [{ datasheetId: "bodyguard-datasheet" }]],
+    ]),
+    datasheetBodyguardGroupKeywordsByGroupId: new Map(),
+  };
+  const roster = {
+    id: "attachment-guard-roster",
+    factionKeywordId: "faction",
+    detachmentIds: [],
+    attachments: [],
+  };
+  const units = [
+    { id: "leader", name: "Leader", datasheetId: "leader-datasheet", keywordIds: [] },
+    { id: "bodyguard", name: "Bodyguard", datasheetId: "bodyguard-datasheet", keywordIds: [] },
+    { id: "wrong-bodyguard", name: "Wrong Bodyguard", datasheetId: "wrong-datasheet", keywordIds: [] },
+  ];
+
+  withCatalog(catalog, () => {
+    const invalid = rosterWithAddedAttachment(roster, {
+      attachedUnitId: "leader",
+      attachmentId: "invalid-attachment",
+      attachmentType: "leader",
+      bodyguardUnitId: "wrong-bodyguard",
+      units,
+    });
+    assert.equal(invalid, roster);
+
+    const valid = rosterWithAddedAttachment(roster, {
+      attachedUnitId: "leader",
+      attachmentId: "valid-attachment",
+      attachmentType: "leader",
+      bodyguardUnitId: "bodyguard",
+      units,
+    });
+    assert.deepEqual(valid.attachments, [{
+      id: "valid-attachment",
+      members: [
+        { rosterUnitId: "leader", attachmentType: "leader" },
+        { rosterUnitId: "bodyguard", attachmentType: "bodyguard" },
+      ],
+    }]);
+  });
 });
 
 test("builder roster actions write compact allegiance ability selections", () => {
