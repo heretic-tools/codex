@@ -264,6 +264,9 @@ PAYLOAD_EXCLUDED_COLUMNS = {
         "factionKeywordId",
         "productId",
     },
+    "allegiance_ability": {
+        "rules",
+    },
     "wargear_item": {
         "noMultiProfileIcon",
         "ruleText",
@@ -465,6 +468,16 @@ def file_entry(out_dir, record, row_count=None, logical_path=None):
     if row_count is not None:
         entry["rows"] = row_count
     return entry
+
+
+def manifest_file_entry(entry):
+    result = {
+        "logicalPath": entry["logicalPath"],
+        "path": entry["path"],
+    }
+    if "rows" in entry:
+        result["rows"] = entry["rows"]
+    return result
 
 
 def table_count(conn, table):
@@ -904,7 +917,7 @@ def excluded_table_names(all_tables, exported_tables):
     return excluded
 
 
-def audit_payload(conn, all_tables, exported_tables):
+def audit_payload(conn, all_tables, exported_tables, file_entries=()):
     excluded = excluded_table_names(all_tables, exported_tables)
     return {
         "integrityCheck": conn.execute("pragma integrity_check").fetchone()[0],
@@ -918,6 +931,7 @@ def audit_payload(conn, all_tables, exported_tables):
             for table in all_tables
             if table not in exported_tables and table not in excluded
         ],
+        "fileIntegrity": sorted(file_entries, key=lambda item: item["path"]),
     }
 
 
@@ -989,7 +1003,7 @@ def export_builder_data(db_path, out_dir):
             record = write_hashed_json(out_dir, logical_path, payload)
             files.append(file_entry(out_dir, record, len(rows), logical_path))
 
-        audit = audit_payload(conn, all_tables, set(CATALOG_TABLES))
+        audit = audit_payload(conn, all_tables, set(CATALOG_TABLES), files)
         record = write_json(out_dir / "audit.json", audit)
         files.append(file_entry(out_dir, record))
 
@@ -1005,7 +1019,10 @@ def export_builder_data(db_path, out_dir):
             "core": list(BUILDER_CLIENT_CORE_CATALOG_TABLES),
             "factionHeavy": list(BUILDER_CLIENT_FACTION_HEAVY_CATALOG_TABLES),
         },
-        "files": sorted(files, key=lambda item: item["path"]),
+        "files": [
+            manifest_file_entry(item)
+            for item in sorted(files, key=lambda item: item["path"])
+        ],
     }
     manifest_record = write_json(out_dir / "manifest.json", manifest)
 

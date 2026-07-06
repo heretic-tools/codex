@@ -203,6 +203,9 @@ const PAYLOAD_EXCLUDED_COLUMNS = {
     "factionKeywordId",
     "productId",
   ],
+  "allegiance_ability": [
+    "rules",
+  ],
   "wargear_item": [
     "noMultiProfileIcon",
     "ruleText",
@@ -698,6 +701,7 @@ test("static Builder data export audit has no unexpected roster tables", async (
   assert.equal(audit.exportedTables.length, Object.keys(realCatalog.bootstrap.tableCounts).length);
   assert.equal(audit.excludedTables.length, 43);
   assert.deepEqual(audit.unexpectedUnexportedTables, []);
+  assert.ok(audit.fileIntegrity.length > 0);
 });
 
 test("standalone Builder build cache-busts HTML and local module imports", () => {
@@ -1641,7 +1645,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
   }
 });
 
-test("static Builder data manifest lists every exported rule file with matching rows and hashes", async () => {
+test("static Builder data manifest lists every exported rule file without audit-only hashes", async () => {
   const manifest = await builderDataManifest();
   const tableCounts = realCatalog.bootstrap.tableCounts;
   const exportedTableNames = exportedBuilderRuleTableNames();
@@ -1664,6 +1668,13 @@ test("static Builder data manifest lists every exported rule file with matching 
   assert.ok(files.has("precomputed-loadouts/manifest.json") || legacyPrecomputedEntryCount === 1);
   assert.ok(files.has("audit.json"));
   assert.equal(files.has("unit-images.json"), false);
+  assert.deepEqual(
+    manifest.files
+      .filter((entry) => Object.hasOwn(entry, "bytes") || Object.hasOwn(entry, "sha256"))
+      .map((entry) => entry.path),
+    [],
+    "runtime manifest should not ship audit-only byte counts or hashes"
+  );
 
   assert.deepEqual(
     tableEntries.map((entry) => (entry.logicalPath || entry.path).replace(/^tables\/|\.json$/g, "")).sort(),
@@ -1677,16 +1688,26 @@ test("static Builder data manifest lists every exported rule file with matching 
     assert.equal(files.has(`tables/${tableName}.json`), false, `${tableName} should stay out of thin-client table files`);
   }
 
-  for (const entry of manifest.files) {
-    const fileBuffer = await readFile(builderDataPath(entry.path));
-    assert.equal(entry.bytes, fileBuffer.length, `${entry.path} byte count changed`);
-    assert.equal(entry.sha256, sha256(fileBuffer), `${entry.path} sha256 changed`);
-  }
-
   for (const tableName of exportedTableNames) {
     const entry = files.get(`tables/${tableName}.json`);
     assert.ok(entry, `${tableName} should be listed in manifest`);
     assert.equal(entry.rows, tableCounts[tableName], `${tableName} manifest rows should match tableCounts`);
+  }
+});
+
+test("static Builder audit keeps file integrity out of the runtime manifest", async () => {
+  const manifest = await builderDataManifest();
+  const auditResponse = await fetch("/builder-data/audit.json");
+  assert.equal(auditResponse.ok, true);
+  const audit = await auditResponse.json();
+  const integrityByPath = new Map(audit.fileIntegrity.map((entry) => [entry.path, entry]));
+
+  for (const entry of manifest.files.filter((item) => item.logicalPath !== "audit.json")) {
+    const integrity = integrityByPath.get(entry.path);
+    assert.ok(integrity, `${entry.path} should have audit integrity metadata`);
+    const fileBuffer = await readFile(builderDataPath(entry.path));
+    assert.equal(integrity.bytes, fileBuffer.length, `${entry.path} byte count changed`);
+    assert.equal(integrity.sha256, sha256(fileBuffer), `${entry.path} sha256 changed`);
   }
 });
 
@@ -1713,8 +1734,9 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     const exportedTableNames = exportedBuilderRuleTableNames();
     const loadoutManifestEntry = builderDataEntry(manifest, "precomputed-loadouts/manifest.json");
     assert.ok(loadoutManifestEntry);
-    const loadouts = JSON.parse(readFileSync(join(outDir, loadoutManifestEntry.path), "utf8"));
-    assert.ok(loadoutManifestEntry.bytes < 180_000, "precomputed loadout manifest should stay runtime-slim");
+    const loadoutManifestText = readFileSync(join(outDir, loadoutManifestEntry.path), "utf8");
+    const loadouts = JSON.parse(loadoutManifestText);
+    assert.ok(Buffer.byteLength(loadoutManifestText) < 180_000, "precomputed loadout manifest should stay runtime-slim");
     const shardEntries = loadouts.shards || [];
     assert.deepEqual(
       Object.keys(shardEntries[0] || {}).sort(),

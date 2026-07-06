@@ -911,6 +911,14 @@ browser smoke test.
   assets. The static exporter now attaches `unitImageFilename` to datasheet rows,
   full catalog load indexes it as `unitImagesByDatasheetId`, and bootstrap/list
   startup remains image-free without a separate unit-image data request.
+- 2026-07-06: Pruned `allegiance_ability.rules` from the Builder runtime table
+  payload. The full DB fingerprint still audits the source column, while the
+  thin client keeps only the ids, names, ordering, group links, and required
+  wargear flag used by validation and selection UI.
+- 2026-07-06: Slimmed the startup Builder data manifest by removing per-file
+  `bytes` and `sha256` from runtime entries. Integrity metadata now lives in
+  `audit.fileIntegrity`, so tests can still verify generated file bytes and
+  hashes without making GitHub Pages clients download audit-only fields.
 - 2026-07-05: Reused the same local unit thumbnail helper in attached-unit rows,
   so bodyguard and attached leader/support entries now share the roster unit
   list's visual language without adding runtime fetches or cached UI state.
