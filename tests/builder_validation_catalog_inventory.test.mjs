@@ -352,6 +352,12 @@ function builderDataEntry(manifest, logicalPath) {
   return (manifest.files || []).find((entry) => (entry.logicalPath || entry.path) === logicalPath);
 }
 
+function tableColumnNames(payload) {
+  return (payload.columns || []).map((column) => (
+    typeof column === "string" ? column : column.name
+  ));
+}
+
 async function fetchBuilderDataJson(logicalPath) {
   const manifest = await builderDataManifest();
   const entry = builderDataEntry(manifest, logicalPath);
@@ -467,6 +473,25 @@ test("Builder data paths prefer manifest logical paths with old-manifest fallbac
     "/builder-data/tables/keyword.json"
   );
   assert.equal(builderDataUrlPath(null, "bootstrap.json"), "/builder-data/bootstrap.json");
+});
+
+test("array table rows decode compact and legacy column metadata", () => {
+  assert.deepEqual(
+    tableRows({
+      rowFormat: "array",
+      columns: ["id", "name"],
+      rows: [["one", "One"]],
+    }),
+    [{ id: "one", name: "One" }]
+  );
+  assert.deepEqual(
+    tableRows({
+      rowFormat: "array",
+      columns: [{ name: "id" }, { name: "name" }],
+      rows: [["two", "Two"]],
+    }),
+    [{ id: "two", name: "Two" }]
+  );
 });
 
 test("precomputed loadout manifest is cached across shard requests", async () => {
@@ -1862,8 +1887,12 @@ test("static Builder rule table column lists stay pinned", async () => {
     if ((payload.rows || []).length) {
       assert.ok(Array.isArray(payload.rows[0]), `${tableName} raw rows should be arrays`);
     }
+    assert.ok(
+      (payload.columns || []).every((column) => typeof column === "string"),
+      `${tableName} should use compact column-name metadata`
+    );
     assert.deepEqual(
-      payload.columns.map((column) => column.name),
+      tableColumnNames(payload),
       expectedColumns,
       `${tableName} column list changed`
     );

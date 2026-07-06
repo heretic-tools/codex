@@ -928,6 +928,10 @@ browser smoke test.
   Builder data loader. Repeated roster/unit editor actions can still fetch only
   the needed datasheet shards, but no longer re-read and re-parse the same
   170 KB precomputed manifest in a single browser session.
+- 2026-07-06: Encoded Builder table payload column metadata as compact name
+  arrays instead of full SQLite schema objects. Runtime table loading remains
+  backward-compatible with the old object-column shape, while the exported table
+  JSON budget is tightened around the smaller payload.
 - 2026-07-05: Reused the same local unit thumbnail helper in attached-unit rows,
   so bodyguard and attached leader/support entries now share the roster unit
   list's visual language without adding runtime fetches or cached UI state.

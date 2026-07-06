@@ -906,8 +906,15 @@ def payload_columns(table, columns):
     ]
 
 
+def column_names(columns):
+    return [
+        column["name"] if isinstance(column, dict) else column
+        for column in columns
+    ]
+
+
 def rows_as_arrays(columns, rows):
-    names = [column["name"] for column in columns]
+    names = column_names(columns)
     return [
         [row.get(name) for name in names]
         for row in rows
@@ -1017,7 +1024,7 @@ def export_builder_data(db_path, out_dir):
             payload = {
                 "table": table,
                 "rowFormat": "array",
-                "columns": columns,
+                "columns": column_names(columns),
                 "rows": rows_as_arrays(columns, rows),
             }
             logical_path = f"tables/{table}.json"

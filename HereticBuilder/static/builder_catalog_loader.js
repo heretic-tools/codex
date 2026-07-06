@@ -43,7 +43,9 @@ function tableRows(payload) {
   if (payload?.rowFormat !== "array") {
     return rows;
   }
-  const columnNames = (payload.columns || []).map((column) => column.name);
+  const columnNames = (payload.columns || []).map((column) => (
+    typeof column === "string" ? column : column.name
+  ));
   return rows.map((values) => Object.fromEntries(
     columnNames.map((name, index) => [name, values[index]])
   ));
