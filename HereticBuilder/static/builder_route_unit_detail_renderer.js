@@ -25,6 +25,7 @@ async function renderUnit(render) {
   el.title.textContent = unitDisplayName(roster, unit);
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterUnitDetailView({
+    focusTarget: state.route.focusTarget || "",
     onBack: () => navigate(`/roster/${encodeURIComponent(roster.id)}`),
     onUpdate: (nextRoster) => updateRoster(nextRoster, render),
     roster,

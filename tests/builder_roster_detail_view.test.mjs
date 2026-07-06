@@ -13,7 +13,7 @@ test("roster validation actions prefer exact scoped editor targets", () => {
       detachmentIds: [],
       unitIds: ["unit-1"],
     }),
-    { kind: "unit", text: "Open", unitId: "unit-1" }
+    { focusTarget: "warlord", kind: "unit", text: "Open", unitId: "unit-1" }
   );
 
   assert.deepEqual(
@@ -34,6 +34,40 @@ test("roster validation actions prefer exact scoped editor targets", () => {
       unitIds: [],
     }),
     { attribute: "attachment-id", kind: "row", text: "Show", value: "attachment-1" }
+  );
+});
+
+test("roster validation actions preserve unit-detail focus targets", () => {
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "wargear_loadout.invalid_model_wargear",
+      detachmentIds: [],
+      targetIds: ["model-1"],
+      unitIds: ["unit-1"],
+    }),
+    { focusTarget: "wargear:model-1", kind: "unit", text: "Open", unitId: "unit-1" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "enhancement.model_does_not_have_required_keywords",
+      detachmentIds: [],
+      targetIds: ["model-1"],
+      unitIds: ["unit-1"],
+    }),
+    { focusTarget: "enhancement:model-1", kind: "unit", text: "Open", unitId: "unit-1" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
+      code: "unit_composition.unavailable",
+      detachmentIds: [],
+      unitIds: ["unit-1"],
+    }),
+    { focusTarget: "composition", kind: "unit", text: "Open", unitId: "unit-1" }
   );
 });
 

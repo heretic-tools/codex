@@ -1204,6 +1204,9 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_overview_view\\.js\\?v=${version}`));
     assert.match(unitDetailSource, new RegExp(`\\.\\/builder_roster_unit_wargear_section_view\\.js\\?v=${version}`));
 
+    const unitDetailActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_detail_actions.js"), "utf8");
+    assert.match(unitDetailActionsSource, new RegExp(`\\.\\/builder_roster_unit_validation_targets\\.js\\?v=${version}`));
+
     const unitOverviewSource = readFileSync(join(outDir, "static", "builder_roster_unit_overview_view.js"), "utf8");
     assert.match(unitOverviewSource, new RegExp(`\\.\\/builder_roster_unit_detail_editors\\.js\\?v=${version}`));
     assert.match(unitOverviewSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
@@ -1476,6 +1479,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
       "utf8",
     );
     assert.match(rosterValidationActionTargetsSource, new RegExp(`\\.\\/builder_roster_validation_code_action_targets\\.js\\?v=${version}`));
+    assert.match(rosterValidationActionTargetsSource, new RegExp(`\\.\\/builder_roster_unit_validation_targets\\.js\\?v=${version}`));
   } finally {
     rmSync(outDir, { force: true, recursive: true });
   }

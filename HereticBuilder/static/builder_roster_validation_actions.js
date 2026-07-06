@@ -19,7 +19,7 @@ function renderValidationGroupAction(group, { onUnitOpen, roster, unitById }) {
   }
   if (action.kind === "unit") {
     const unit = unitById.get(action.unitId);
-    return unit ? button("validation-action-button", action.text, () => onUnitOpen(unit)) : null;
+    return unit ? button("validation-action-button", action.text, () => onUnitOpen(unit, action.focusTarget || "")) : null;
   }
   if (action.kind === "detachmentCodex") {
     const href = detachmentCodexHref(roster.factionKeywordId, action.detachmentId);

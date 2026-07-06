@@ -1,4 +1,5 @@
 import { rosterValidationCodeActionTarget } from "./builder_roster_validation_code_action_targets.js";
+import { unitValidationActionTarget } from "./builder_roster_unit_validation_targets.js";
 
 function rosterValidationActionTarget(group) {
   const attachmentIds = group.attachmentIds || [];
@@ -17,7 +18,13 @@ function rosterValidationActionTarget(group) {
     return codeTarget;
   }
   if (unitIds.length === 1) {
-    return { kind: "unit", text: "Open", unitId: unitIds[0] };
+    const unitTarget = unitValidationActionTarget(group);
+    return {
+      focusTarget: unitTarget?.target || "",
+      kind: "unit",
+      text: "Open",
+      unitId: unitIds[0],
+    };
   }
   if (attachmentIds.length === 1) {
     return { attribute: "attachment-id", kind: "row", text: "Show", value: attachmentIds[0] };

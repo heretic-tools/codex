@@ -878,6 +878,10 @@ browser smoke test.
   reuses the existing unit-scoped diagnostics beside the relevant editor fields,
   while Wargear keeps its existing model/unit scoped messages and no validation
   result is cached in roster storage.
+- 2026-07-06: Added optional unit-detail focus targets to roster validation
+  actions. Single-unit diagnostics can now navigate to `/unit/<id>/focus/<target>`
+  and immediately highlight the matching Wargear, Enhancement, Warlord,
+  Allegiance, or Composition control without adding route state outside the hash.
 - 2026-07-05: Added target-aware unit-detail Wargear navigation. Grouped
   diagnostics now carry `targetIds`, and model-scoped wargear messages can jump
   directly to the affected model's Wargear section instead of only the broad

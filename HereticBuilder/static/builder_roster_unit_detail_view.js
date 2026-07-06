@@ -1,12 +1,16 @@
 import { unitSummary } from "./builder_model.js";
 import { validationContextForRoster } from "./builder_validation_context.js";
 import { renderValidation, validationForUnit } from "./builder_validation_view.js";
-import { renderUnitValidationAction, unitValidationActionTarget } from "./builder_roster_unit_detail_actions.js";
+import {
+  renderUnitValidationAction,
+  scrollToUnitDetailTarget,
+  unitValidationActionTarget,
+} from "./builder_roster_unit_detail_actions.js";
 import { renderEnhancementsEditor } from "./builder_roster_unit_detail_editors.js";
 import { renderRosterUnitOverview, unitDisplayName } from "./builder_roster_unit_overview_view.js";
 import { renderRosterUnitWargearSection } from "./builder_roster_unit_wargear_section_view.js";
 
-function renderRosterUnitDetailView({ onBack, onUpdate, roster, unit, validation }) {
+function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster, unit, validation }) {
   const summary = unitSummary(roster, unit);
   const unitValidation = validationForUnit(validation, summary);
   const validationContext = validationContextForRoster(roster);
@@ -50,6 +54,9 @@ function renderRosterUnitDetailView({ onBack, onUpdate, roster, unit, validation
     })
   );
   root.append(sidebar, wargear);
+  if (focusTarget) {
+    window.requestAnimationFrame(() => scrollToUnitDetailTarget(focusTarget));
+  }
   return root;
 }
 

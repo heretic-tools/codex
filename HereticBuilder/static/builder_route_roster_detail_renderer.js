@@ -31,7 +31,10 @@ async function renderRoster(render) {
     roster,
     onDelete: deleteRoster,
     onUpdate: (nextRoster) => updateRoster(nextRoster, render),
-    onUnitOpen: (unit) => navigate(`/roster/${encodeURIComponent(roster.id)}/unit/${encodeURIComponent(unit.id)}`),
+    onUnitOpen: (unit, focusTarget = "") => {
+      const unitPath = `/roster/${encodeURIComponent(roster.id)}/unit/${encodeURIComponent(unit.id)}`;
+      navigate(focusTarget ? `${unitPath}/focus/${encodeURIComponent(focusTarget)}` : unitPath);
+    },
     summarizeRoster: rosterSummary,
     validation,
     validateRoster,

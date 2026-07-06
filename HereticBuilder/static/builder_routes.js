@@ -3,19 +3,20 @@ import { siteHref } from "./builder_state.js";
 function parseRoute() {
   const parts = (window.location.hash.replace(/^#/, "") || "/").split("/").filter(Boolean);
   if (parts[0] === "new") {
-    return { name: "create", rosterId: "" };
+    return { focusTarget: "", name: "create", rosterId: "" };
   }
   if (parts[0] === "roster" && parts[1]) {
     if (parts[2] === "unit" && parts[3]) {
       return {
+        focusTarget: parts[4] === "focus" && parts[5] ? decodeURIComponent(parts[5]) : "",
         name: "unit",
         rosterId: decodeURIComponent(parts[1]),
         unitId: decodeURIComponent(parts[3]),
       };
     }
-    return { name: "roster", rosterId: decodeURIComponent(parts[1]) };
+    return { focusTarget: "", name: "roster", rosterId: decodeURIComponent(parts[1]) };
   }
-  return { name: "list", rosterId: "" };
+  return { focusTarget: "", name: "list", rosterId: "" };
 }
 
 function navigate(path) {
