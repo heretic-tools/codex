@@ -4,12 +4,16 @@ import {
   detachmentCandidateRows,
   detachmentOptionText,
 } from "./builder_roster_detachment_candidates.js";
+import { SEARCH_CLEAR_LABEL, searchControlLabel } from "./builder_roster_control_labels.js";
 
 function renderDetachmentControls({ onUpdate, roster, validation }) {
   const search = document.createElement("input");
   search.type = "search";
   search.placeholder = "Search";
   search.autocomplete = "off";
+  const searchLabel = searchControlLabel("detachments");
+  search.title = searchLabel;
+  search.setAttribute("aria-label", searchLabel);
   const searchWrap = document.createElement("span");
   searchWrap.className = "builder-search-field";
   const clearSearch = button("remove-button search-clear-button", "x", () => {
@@ -17,7 +21,8 @@ function renderDetachmentControls({ onUpdate, roster, validation }) {
     refreshOptions();
     search.focus();
   });
-  clearSearch.setAttribute("aria-label", "Clear search");
+  clearSearch.title = SEARCH_CLEAR_LABEL;
+  clearSearch.setAttribute("aria-label", SEARCH_CLEAR_LABEL);
   searchWrap.append(search, clearSearch);
   const select = document.createElement("select");
   select.dataset.focusTarget = "true";
