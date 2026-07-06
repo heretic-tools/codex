@@ -26,6 +26,7 @@ export {
 
 export {
   availableCompositions,
+  compositionIsAvailable,
   compositionLabel,
   defaultComposition,
 } from "./builder_model_compositions.js";

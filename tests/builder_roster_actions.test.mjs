@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  availableCompositions,
   availableDatasheets,
   availableDetachments,
   battleSizeNamed,
+  compositionFactionIds,
   datasheetIsCombatPatrol,
   factionNamed,
   keywordNamed,
@@ -278,13 +280,59 @@ test("builder roster actions update unit composition and scoped wargear", () => 
   });
   const unit = withUnit.units[0];
 
-  const composition = (realCatalog.compositionsByDatasheetId.get(datasheet.id) || [])
+  const composition = availableCompositions(
+    datasheet.id,
+    compositionFactionIds(roster, "native"),
+    roster.detachmentIds || []
+  )
     .find((row) => row.id !== unit.compositionId);
   if (composition) {
     const changed = rosterWithUnitComposition(withUnit, unit.id, composition.id);
     assert.equal(changed.units[0].compositionId, composition.id);
     assert.notDeepEqual(changed.units[0].miniatures, unit.miniatures);
   }
+  const otherDatasheetComposition = realCatalog.unitCompositions
+    .find((row) => row.datasheetId !== unit.datasheetId);
+  assert.ok(otherDatasheetComposition, "Expected a composition from another datasheet");
+  assert.equal(
+    rosterWithUnitComposition(withUnit, unit.id, otherDatasheetComposition.id),
+    withUnit
+  );
+  const requiredDetachmentCompositionRow = realCatalog.compositionRequiredDetachments
+    .map((row) => ({
+      composition: realCatalog.compositionById.get(row.unitCompositionId),
+      row,
+    }))
+    .find(({ composition }) => (
+      composition
+      && realCatalog.datasheetFactionKeywords.some((item) => item.datasheetId === composition.datasheetId)
+    ));
+  assert.ok(requiredDetachmentCompositionRow, "Expected a detachment-required composition");
+  const requiredDetachmentFaction = realCatalog.datasheetFactionKeywords
+    .find((item) => item.datasheetId === requiredDetachmentCompositionRow.composition.datasheetId);
+  const restrictedRoster = {
+    id: "restricted-composition-roster",
+    factionKeywordId: requiredDetachmentFaction.factionKeywordId,
+    detachmentIds: [],
+    units: [{
+      id: "restricted-composition-unit",
+      allyType: "native",
+      compositionId: "existing-composition",
+      datasheetId: requiredDetachmentCompositionRow.composition.datasheetId,
+      miniatureEnhancements: [],
+      miniatures: [],
+      unitEnhancements: [],
+      wargear: {},
+    }],
+  };
+  assert.equal(
+    rosterWithUnitComposition(
+      restrictedRoster,
+      "restricted-composition-unit",
+      requiredDetachmentCompositionRow.composition.id
+    ),
+    restrictedRoster
+  );
 
   const group = (realCatalog.wargearGroupsByDatasheetId.get(datasheet.id) || [])
     .find((row) => !row.miniatureId || unit.miniatures.some((miniature) => miniature.miniatureId === row.miniatureId));
