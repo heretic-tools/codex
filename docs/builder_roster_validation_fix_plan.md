@@ -915,6 +915,10 @@ browser smoke test.
   payload. The full DB fingerprint still audits the source column, while the
   thin client keeps only the ids, names, ordering, group links, and required
   wargear flag used by validation and selection UI.
+- 2026-07-06: Pruned faction media/lore columns from the Builder runtime
+  `faction_keyword` table. The thin client still keeps faction ids, names,
+  parent scope, army-builder exclusion, and mandatory Warlord ids for validation
+  and option filtering; Codex remains the place for faction imagery and lore.
 - 2026-07-06: Slimmed the startup Builder data manifest into a runtime path
   map. Per-file `bytes`/`sha256`, DB source metadata, data version, generated
   timestamp, and table-group audit metadata now live in `audit.json`, so tests

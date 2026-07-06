@@ -256,6 +256,13 @@ PAYLOAD_EXCLUDED_COLUMNS = {
         "publicationId",
         "rowImage",
     },
+    "faction_keyword": {
+        "armySelectionImage",
+        "lore",
+        "moreInfoImage",
+        "rosterFactionImage",
+        "rosterHeaderImage",
+    },
     "publication": {
         "combatPatrolName",
         "displayOrder",
