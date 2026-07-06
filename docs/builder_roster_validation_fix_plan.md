@@ -1397,6 +1397,10 @@ browser smoke test.
   `builder_warlord_eligibility.js` into `builder_warlord_mandatory_rows.js`.
   Warlord eligibility now focuses on per-miniature eligibility and re-exports
   mandatory-row helpers for existing callers.
+- 2026-07-06: Split roster Warlord miniature id scanning out of
+  `builder_model_keywords.js` into `builder_model_warlord_ids.js`. Unit keyword
+  resolution no longer owns the roster-level effective-composition scan for
+  selected Warlord models.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

@@ -2,14 +2,8 @@ import { state } from "./builder_state.js";
 import {
   miniatureKeywordIds,
 } from "./builder_model_core.js";
-import {
-  compositionFactionIds,
-  conditionalKeywordApplies,
-} from "./builder_model_selections.js";
-import {
-  effectiveComposition,
-  miniaturesForUnit,
-} from "./builder_model_compositions.js";
+import { conditionalKeywordApplies } from "./builder_model_selections.js";
+export { rosterWarlordMiniatureIds } from "./builder_model_warlord_ids.js";
 
 function conditionalKeywordRowsForUnit(roster, unit, allegianceAbilities, warlordMiniatureIds) {
   const detachmentIds = new Set(roster.detachmentIds || []);
@@ -44,22 +38,7 @@ function unitKeywords(roster, unit, miniatures, allegianceAbilities, warlordMini
     .sort((left, right) => String(left.name || "").localeCompare(String(right.name || "")));
 }
 
-function rosterWarlordMiniatureIds(roster) {
-  const ids = [];
-  for (const unit of roster.units || []) {
-    const factionIds = compositionFactionIds(roster, unit.allyType || "native");
-    const composition = effectiveComposition(unit, factionIds, roster.detachmentIds || []);
-    for (const miniature of miniaturesForUnit(unit, composition)) {
-      if (miniature.isWarlord && miniature.count > 0) {
-        ids.push(miniature.miniatureId);
-      }
-    }
-  }
-  return ids;
-}
-
 export {
   conditionalKeywordRowsForUnit,
-  rosterWarlordMiniatureIds,
   unitKeywords,
 };

@@ -919,7 +919,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const modelKeywordsSource = readFileSync(join(outDir, "static", "builder_model_keywords.js"), "utf8");
     assert.match(modelKeywordsSource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
-    assert.match(modelKeywordsSource, new RegExp(`\\.\\/builder_model_compositions\\.js\\?v=${version}`));
+    assert.match(modelKeywordsSource, new RegExp(`\\.\\/builder_model_warlord_ids\\.js\\?v=${version}`));
+
+    const modelWarlordIdsSource = readFileSync(join(outDir, "static", "builder_model_warlord_ids.js"), "utf8");
+    assert.match(modelWarlordIdsSource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
+    assert.match(modelWarlordIdsSource, new RegExp(`\\.\\/builder_model_compositions\\.js\\?v=${version}`));
 
     const modelAvailabilitySource = readFileSync(join(outDir, "static", "builder_model_availability.js"), "utf8");
     assert.match(modelAvailabilitySource, new RegExp(`\\.\\/builder_allied_unit_sources\\.js\\?v=${version}`));
