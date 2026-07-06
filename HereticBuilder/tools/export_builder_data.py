@@ -236,9 +236,11 @@ def write_json(path, payload):
     }
 
 
-def file_entry(out_dir, record, row_count=None):
+def file_entry(out_dir, record, row_count=None, logical_path=None):
+    path = record["path"].relative_to(out_dir).as_posix()
     entry = {
-        "path": record["path"].relative_to(out_dir).as_posix(),
+        "logicalPath": logical_path or path,
+        "path": path,
         "bytes": record["bytes"],
         "sha256": record["sha256"],
     }

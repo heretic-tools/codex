@@ -9,6 +9,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { realCatalog } from "./builder_validation_helpers.mjs";
 import { loadBootstrap, loadCatalog } from "../HereticBuilder/static/builder_catalog.js";
+import { builderDataPath as builderDataUrlPath } from "../HereticBuilder/static/builder_catalog_loader.js";
 import { siteHref } from "../HereticBuilder/static/builder_state.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -333,6 +334,22 @@ test("GitHub Pages project base path prefixes Builder data URLs", async () => {
   } finally {
     global.document = previousDocument;
   }
+});
+
+test("Builder data paths prefer manifest logical paths with old-manifest fallback", () => {
+  assert.equal(
+    builderDataUrlPath({
+      files: [
+        { logicalPath: "tables/datasheet.json", path: "tables/datasheet.abc123.json" },
+      ],
+    }, "tables/datasheet.json"),
+    "/builder-data/tables/datasheet.abc123.json"
+  );
+  assert.equal(
+    builderDataUrlPath({ files: [{ path: "tables/keyword.json" }] }, "tables/keyword.json"),
+    "/builder-data/tables/keyword.json"
+  );
+  assert.equal(builderDataUrlPath(null, "bootstrap.json"), "/builder-data/bootstrap.json");
 });
 
 test("Builder roster storage stays browser-local and serverless", () => {
@@ -1568,8 +1585,11 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     );
     const bootstrap = JSON.parse(readFileSync(join(outDir, "bootstrap.json"), "utf8"));
     const loadouts = JSON.parse(readFileSync(join(outDir, "precomputed-loadouts.json"), "utf8"));
+    const manifest = JSON.parse(readFileSync(join(outDir, "manifest.json"), "utf8"));
 
     assert.equal(bootstrap.precomputedLoadouts, undefined);
+    assert.ok(manifest.files.length > 0);
+    assert.ok(manifest.files.every((entry) => entry.logicalPath === entry.path));
     assert.equal(loadouts.maxLoadoutsPerContext, 1000);
     assert.equal(loadouts.contextCount, 1578);
     assert.equal(loadouts.skippedContextCount, 2);

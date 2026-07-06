@@ -1,4 +1,9 @@
-import { fetchJson, loadCatalogTables } from "./builder_catalog_loader.js";
+import {
+  builderDataPath,
+  fetchJson,
+  loadBuilderDataManifest,
+  loadCatalogTables,
+} from "./builder_catalog_loader.js";
 
 function catalogFromBootstrap(bootstrap) {
   return {
@@ -13,6 +18,7 @@ async function loadBootstrap() {
 }
 
 async function loadCatalog(bootstrap = null) {
+  const manifest = await loadBuilderDataManifest();
   const [
     { buildCatalogIndexes },
     { CATALOG_TABLES },
@@ -22,11 +28,11 @@ async function loadCatalog(bootstrap = null) {
   ] = await Promise.all([
     import("./builder_catalog_indexes.js"),
     import("./builder_catalog_tables.js"),
-    bootstrap ? Promise.resolve(bootstrap) : fetchJson("/builder-data/bootstrap.json"),
-    fetchJson("/builder-data/precomputed-loadouts.json"),
-    fetchJson("/builder-data/unit-images.json"),
+    bootstrap ? Promise.resolve(bootstrap) : fetchJson(builderDataPath(manifest, "bootstrap.json")),
+    fetchJson(builderDataPath(manifest, "precomputed-loadouts.json")),
+    fetchJson(builderDataPath(manifest, "unit-images.json")),
   ]);
-  const tables = await loadCatalogTables(CATALOG_TABLES);
+  const tables = await loadCatalogTables(CATALOG_TABLES, manifest);
   return {
     ...catalogFromBootstrap(resolvedBootstrap),
     ...tables,
