@@ -1736,6 +1736,10 @@ browser smoke test.
   Warlord control. The unit-detail select now uses the same candidate status
   reasons as the roster-level picker and passes the same context to the guarded
   Warlord action.
+- 2026-07-06: Disabled invalid non-current Warlord, Enhancement, and
+  Allegiance select options while keeping current invalid selections visible
+  with their validation reason. The mutation guards remain the safety net, and
+  focused option-model tests now cover both blocked and current-invalid rows.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and

@@ -27,6 +27,7 @@ function warlordSelectionContext(roster) {
 
 function warlordPickerModel(roster) {
   const { detachments, units } = warlordSelectionContext(roster);
+  const currentValue = selectedWarlordValue(units);
   const rows = units.flatMap((unit) => (unit.miniatures || [])
     .filter((miniature) => (miniature.count || 0) > 0)
     .map((miniature) => ({
@@ -38,16 +39,18 @@ function warlordPickerModel(roster) {
       || String(left.unit.name || "").localeCompare(String(right.unit.name || ""))
       || String(left.miniature.name || "").localeCompare(String(right.miniature.name || "")));
   return {
-    currentValue: selectedWarlordValue(units),
+    currentValue,
     detachments,
     disabled: !units.length,
     options: [
       { label: units.length ? "No Warlord selected" : "Add units first", value: "" },
       ...rows.map((row) => {
+        const value = warlordOptionValue(row.unit, row.miniature);
         const suffix = row.status.eligible ? "" : ` / ${row.status.reason}`;
         return {
+          disabled: !row.status.eligible && value !== currentValue,
           label: `${row.unit.name || "Unit"} / ${row.miniature.name || "Model"} (${row.miniature.count || 0})${suffix}`,
-          value: warlordOptionValue(row.unit, row.miniature),
+          value,
         };
       }),
     ],

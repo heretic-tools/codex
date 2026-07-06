@@ -39,7 +39,11 @@ function renderEnhancementSelect({
   const select = document.createElement("select");
   select.appendChild(option("", "No enhancement"));
   for (const row of enhancementSelectRows({ enhancements, keywordIds, miniature, roster, targetKind, unit, units })) {
-    select.appendChild(option(row.enhancement.id, enhancementLabel(row.enhancement, keywordIds, row.status)));
+    select.appendChild(option(
+      row.enhancement.id,
+      enhancementLabel(row.enhancement, keywordIds, row.status),
+      { disabled: !row.status.eligible && row.enhancement.id !== currentId }
+    ));
   }
   select.value = currentId || "";
   select.dataset.focusTarget = "true";

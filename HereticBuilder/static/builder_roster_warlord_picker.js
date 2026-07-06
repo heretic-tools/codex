@@ -7,7 +7,7 @@ function renderWarlordPicker({ onUpdate, roster }) {
   const select = document.createElement("select");
   select.dataset.focusTarget = "true";
   for (const row of model.options) {
-    select.appendChild(option(row.value, row.label));
+    select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
   }
   select.value = model.currentValue;
   select.disabled = model.disabled;

@@ -12,13 +12,18 @@ function renderWarlordEditor({ onUpdate, roster, unit, validation = null, valida
   const context = warlordSelectionContext(roster);
   const select = document.createElement("select");
   select.appendChild(option("", "No warlord for this unit"));
+  const currentId = currentWarlordTargetId(unit);
   for (const miniature of unit.miniatures || []) {
     const targetId = miniature.rosterUnitMiniatureId || miniature.id;
     const status = warlordCandidateStatus(roster, context.detachments, context.units, unit, miniature);
     const suffix = status.eligible ? "" : ` / ${status.reason}`;
-    select.appendChild(option(targetId, `${miniature.name} (${miniature.count || 0})${suffix}`));
+    select.appendChild(option(
+      targetId,
+      `${miniature.name} (${miniature.count || 0})${suffix}`,
+      { disabled: !status.eligible && targetId !== currentId }
+    ));
   }
-  select.value = currentWarlordTargetId(unit);
+  select.value = currentId;
   select.dataset.focusTarget = "true";
   select.addEventListener("change", async () => onUpdate(rosterWithWarlord(roster, {
     detachments: context.detachments,

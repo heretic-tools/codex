@@ -21,16 +21,18 @@ function allegianceEditorOptions(roster, unit) {
     index,
     status: allegianceAbilityCandidateStatus({ ability, detachments, roster, unit, units }),
   })).sort((left, right) => Number(right.status.eligible) - Number(left.status.eligible) || left.index - right.index);
+  const currentId = unit.allegianceAbilities?.find((ability) => ability.groupId === group.id)?.id || "";
   const label = group.detachmentId
     ? `${group.name} (${state.catalog.detachmentById.get(group.detachmentId)?.name || "required detachment"})`
     : group.name;
   return {
-    currentId: unit.allegianceAbilities?.find((ability) => ability.groupId === group.id)?.id || "",
+    currentId,
     detachments,
     label,
     options: [
       { label: group.isMandatory ? `Select ${group.name}` : `No ${group.name}`, value: "" },
       ...rows.map((row) => ({
+        disabled: !row.status.eligible && row.ability.id !== currentId,
         label: allegianceAbilityLabel(row.ability, row.status),
         value: row.ability.id,
       })),

@@ -10,7 +10,7 @@ function renderAllegianceEditor({ onUpdate, roster, unit, validation = null, val
   }
   const select = document.createElement("select");
   for (const row of model.options) {
-    select.appendChild(option(row.value, row.label));
+    select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
   }
   select.value = model.currentId;
   select.dataset.focusTarget = "true";

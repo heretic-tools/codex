@@ -30,10 +30,11 @@ function link(className, text, href) {
   return node;
 }
 
-function option(value, text) {
+function option(value, text, { disabled = false } = {}) {
   const node = document.createElement("option");
   node.value = value;
   node.textContent = text;
+  node.disabled = disabled;
   return node;
 }
 

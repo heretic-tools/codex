@@ -1,0 +1,127 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import {
+  allegianceUnit,
+  battleSizeNamed,
+  enhancementTargetUnit,
+  factionNamed,
+  realCatalog,
+  state,
+} from "./builder_validation_helpers.mjs";
+import { allegianceEditorOptions } from "../HereticBuilder/static/builder_roster_unit_allegiance_options.js";
+import { warlordPickerModel } from "../HereticBuilder/static/builder_roster_warlord_options.js";
+
+function warlordValue(unit) {
+  return JSON.stringify({
+    rosterUnitMiniatureId: unit.miniatures[0].rosterUnitMiniatureId,
+    unitId: unit.id,
+  });
+}
+
+function firstDetachmentGatedAllegiance() {
+  const group = realCatalog.allegianceAbilityGroups.find((item) => item.detachmentId);
+  assert.ok(group, "Expected a detachment-gated allegiance group");
+  const ability = (realCatalog.allegianceAbilitiesByGroupId.get(group.id) || [])[0];
+  assert.ok(ability, `Expected an ability for ${group.name}`);
+  return {
+    ability: {
+      ...ability,
+      groupId: ability.allegianceAbilityGroupId,
+      groupName: group.name,
+    },
+    group,
+  };
+}
+
+test("warlord picker disables invalid non-current candidates", () => {
+  state.catalog = realCatalog;
+  const captain = enhancementTargetUnit({
+    id: "captain",
+    datasheetName: "Captain",
+    miniatureName: "Captain",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const intercessor = enhancementTargetUnit({
+    id: "intercessor-sergeant",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const roster = {
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [captain, intercessor],
+  };
+
+  const model = warlordPickerModel(roster);
+  const captainOption = model.options.find((row) => row.value === warlordValue(captain));
+  const intercessorOption = model.options.find((row) => row.value === warlordValue(intercessor));
+
+  assert.equal(captainOption.disabled, false);
+  assert.equal(intercessorOption.disabled, true);
+  assert.match(intercessorOption.label, /not eligible/);
+});
+
+test("warlord picker keeps the current invalid candidate visible and enabled", () => {
+  state.catalog = realCatalog;
+  const intercessor = enhancementTargetUnit({
+    id: "intercessor-sergeant",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+    isWarlord: true,
+  });
+  const roster = {
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [intercessor],
+  };
+
+  const model = warlordPickerModel(roster);
+  const intercessorOption = model.options.find((row) => row.value === warlordValue(intercessor));
+
+  assert.equal(model.currentValue, warlordValue(intercessor));
+  assert.equal(intercessorOption.disabled, false);
+  assert.match(intercessorOption.label, /not eligible/);
+});
+
+test("allegiance editor disables invalid non-current options", () => {
+  state.catalog = realCatalog;
+  const { ability, group } = firstDetachmentGatedAllegiance();
+  const unit = allegianceUnit({ id: "missing-detachment-unit", group });
+  const roster = {
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    units: [unit],
+  };
+
+  const model = allegianceEditorOptions(roster, unit);
+  const abilityOption = model.options.find((row) => row.value === ability.id);
+
+  assert.equal(abilityOption.disabled, true);
+  assert.match(abilityOption.label, /requires /);
+});
+
+test("allegiance editor keeps the current invalid option visible and enabled", () => {
+  state.catalog = realCatalog;
+  const { ability, group } = firstDetachmentGatedAllegiance();
+  const unit = allegianceUnit({
+    abilities: [ability],
+    group,
+    id: "current-missing-detachment-unit",
+  });
+  const roster = {
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Heretic Astartes").id,
+    units: [unit],
+  };
+
+  const model = allegianceEditorOptions(roster, unit);
+  const abilityOption = model.options.find((row) => row.value === ability.id);
+
+  assert.equal(model.currentId, ability.id);
+  assert.equal(abilityOption.disabled, false);
+  assert.match(abilityOption.label, /requires /);
+});
