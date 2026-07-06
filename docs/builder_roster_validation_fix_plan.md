@@ -1414,6 +1414,10 @@ browser smoke test.
   `builder_roster_unit_control_options.js`. The controls module now assembles
   search/select/Add widgets while the helper refreshes optgroups and empty
   states.
+- 2026-07-06: Split unit Wargear checkbox/number count control creation out of
+  `builder_roster_unit_wargear_options_view.js` into
+  `builder_roster_unit_wargear_count_control.js`. Wargear option rows now
+  delegate input state and change wiring.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

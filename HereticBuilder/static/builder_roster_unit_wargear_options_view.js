@@ -1,34 +1,12 @@
 import { textNode } from "./builder_dom.js";
 import { rosterWithUnitWargearCount } from "./builder_roster_actions.js";
+import { countControl } from "./builder_roster_unit_wargear_count_control.js";
 import { state } from "./builder_state.js";
 
 function wargearOptionName(row) {
   const item = state.catalog.wargearItemById.get(row.wargearItemId);
   const points = row.points ? ` / ${row.points} pts` : "";
   return `${item?.name || "Wargear"}${points}`;
-}
-
-function currentCount(target, optionId) {
-  return Number((target.wargear || {})[optionId] || 0);
-}
-
-function countControl({ onChange, optionRow, target }) {
-  if (optionRow.inputType === "checkbox") {
-    const input = document.createElement("input");
-    input.type = "checkbox";
-    input.checked = currentCount(target, optionRow.id) > 0;
-    input.dataset.focusTarget = "true";
-    input.addEventListener("change", () => onChange(input.checked ? 1 : 0));
-    return input;
-  }
-  const input = document.createElement("input");
-  input.type = "number";
-  input.min = "0";
-  input.step = "1";
-  input.value = String(currentCount(target, optionRow.id));
-  input.dataset.focusTarget = "true";
-  input.addEventListener("change", () => onChange(input.value));
-  return input;
 }
 
 function renderWargearOption({ group, onUpdate, optionRow, roster, target, unit }) {
