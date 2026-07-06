@@ -205,6 +205,18 @@ const PAYLOAD_EXCLUDED_COLUMNS = {
     "ruleText",
     "wargearType",
   ],
+  "miniature": [
+    "displayOrder",
+    "isIndividualModels",
+    "leadership",
+    "miniatureSlots",
+    "movement",
+    "objectiveControl",
+    "save",
+    "statlineHidden",
+    "toughness",
+    "wounds",
+  ],
 };
 
 const BUILDER_PAYLOAD_TABLE_COLUMNS = Object.fromEntries(

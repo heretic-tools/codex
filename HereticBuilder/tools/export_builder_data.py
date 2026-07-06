@@ -269,6 +269,18 @@ PAYLOAD_EXCLUDED_COLUMNS = {
         "ruleText",
         "wargearType",
     },
+    "miniature": {
+        "displayOrder",
+        "isIndividualModels",
+        "leadership",
+        "miniatureSlots",
+        "movement",
+        "objectiveControl",
+        "save",
+        "statlineHidden",
+        "toughness",
+        "wounds",
+    },
 }
 
 
