@@ -1740,6 +1740,10 @@ browser smoke test.
   Allegiance select options while keeping current invalid selections visible
   with their validation reason. The mutation guards remain the safety net, and
   focused option-model tests now cover both blocked and current-invalid rows.
+- 2026-07-06: Moved unit-detail Enhancement select row construction into
+  `builder_roster_unit_enhancement_options.js`. The DOM renderer now only
+  paints precomputed rows, while option-model tests prove invalid non-current
+  Enhancement choices are disabled and current invalid choices stay visible.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and

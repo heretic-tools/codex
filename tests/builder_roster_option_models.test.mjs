@@ -5,10 +5,12 @@ import {
   battleSizeNamed,
   enhancementTargetUnit,
   factionNamed,
+  keywordIdsForDatasheet,
   realCatalog,
   state,
 } from "./builder_validation_helpers.mjs";
 import { allegianceEditorOptions } from "../HereticBuilder/static/builder_roster_unit_allegiance_options.js";
+import { enhancementSelectRows } from "../HereticBuilder/static/builder_roster_unit_enhancement_options.js";
 import { warlordPickerModel } from "../HereticBuilder/static/builder_roster_warlord_options.js";
 
 function warlordValue(unit) {
@@ -124,4 +126,74 @@ test("allegiance editor keeps the current invalid option visible and enabled", (
   assert.equal(model.currentId, ability.id);
   assert.equal(abilityOption.disabled, false);
   assert.match(abilityOption.label, /requires /);
+});
+
+test("enhancement select rows disable invalid non-current options", () => {
+  state.catalog = realCatalog;
+  const detachment = realCatalog.detachments.find((item) => item.name === "Librarius Conclave");
+  assert.ok(detachment, "Expected Librarius Conclave");
+  const enhancement = realCatalog.enhancements.find((item) => (
+    item.name === "Fusillade" && item.detachmentId === detachment.id
+  ));
+  assert.ok(enhancement, "Expected Fusillade");
+  const intercessor = enhancementTargetUnit({
+    id: "intercessor-enhancement-target",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const roster = {
+    detachmentIds: [detachment.id],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [intercessor],
+  };
+
+  const rows = enhancementSelectRows({
+    currentId: "",
+    enhancements: [enhancement],
+    keywordIds: keywordIdsForDatasheet(intercessor.datasheetId),
+    miniature: intercessor.miniatures[0],
+    roster,
+    targetKind: "miniature",
+    unit: intercessor,
+    units: [intercessor],
+  });
+
+  assert.equal(rows[0].disabled, true);
+  assert.equal(rows[0].status.reason, "Character required");
+});
+
+test("enhancement select rows keep the current invalid option visible and enabled", () => {
+  state.catalog = realCatalog;
+  const detachment = realCatalog.detachments.find((item) => item.name === "Librarius Conclave");
+  assert.ok(detachment, "Expected Librarius Conclave");
+  const enhancement = realCatalog.enhancements.find((item) => (
+    item.name === "Fusillade" && item.detachmentId === detachment.id
+  ));
+  assert.ok(enhancement, "Expected Fusillade");
+  const intercessor = enhancementTargetUnit({
+    id: "current-intercessor-enhancement-target",
+    datasheetName: "Intercessor Squad",
+    miniatureName: "Intercessor Sergeant",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const roster = {
+    detachmentIds: [detachment.id],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [intercessor],
+  };
+
+  const rows = enhancementSelectRows({
+    currentId: enhancement.id,
+    enhancements: [enhancement],
+    keywordIds: keywordIdsForDatasheet(intercessor.datasheetId),
+    miniature: intercessor.miniatures[0],
+    roster,
+    targetKind: "miniature",
+    unit: intercessor,
+    units: [intercessor],
+  });
+
+  assert.equal(rows[0].disabled, false);
+  assert.equal(rows[0].status.reason, "Character required");
 });

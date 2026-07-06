@@ -1,4 +1,5 @@
 import { miniatureKeywordIds, unique } from "./builder_model.js";
+import { enhancementCandidateStatus } from "./builder_enhancement_rules.js";
 import { state } from "./builder_state.js";
 
 function sortEnhancements(rows) {
@@ -38,8 +39,40 @@ function miniatureEnhancementKeywordIds(unit, miniature) {
   ]);
 }
 
+function enhancementSelectRows({
+  currentId = "",
+  enhancements,
+  keywordIds,
+  miniature,
+  roster,
+  targetKind,
+  unit,
+  units,
+}) {
+  const detachments = (roster.detachmentIds || []).map((id) => ({ id, ...state.catalog.detachmentById.get(id) }));
+  return enhancements.map((enhancement, index) => {
+    const status = enhancementCandidateStatus({
+      roster,
+      detachments,
+      units,
+      unit,
+      enhancement,
+      keywordIds,
+      miniature,
+      targetKind,
+    });
+    return {
+      disabled: !status.eligible && enhancement.id !== currentId,
+      enhancement,
+      index,
+      status,
+    };
+  }).sort((left, right) => Number(right.status.eligible) - Number(left.status.eligible) || left.index - right.index);
+}
+
 export {
   currentMiniatureEnhancementId,
   enhancementOptionsFor,
+  enhancementSelectRows,
   miniatureEnhancementKeywordIds,
 };
