@@ -475,6 +475,33 @@ test("Builder data paths prefer manifest logical paths with old-manifest fallbac
   assert.equal(builderDataUrlPath(null, "bootstrap.json"), "/builder-data/bootstrap.json");
 });
 
+test("Builder data metadata fetches bypass the browser HTTP cache", async () => {
+  const previousFetch = global.fetch;
+  const requests = [];
+  global.fetch = async (path, options = {}) => {
+    requests.push({ cache: options.cache || "", path: String(path) });
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ files: [] }),
+    };
+  };
+  try {
+    const loader = await import(
+      `../HereticBuilder/static/builder_catalog_loader.js?cache-policy=${Date.now()}`
+    );
+    await loader.loadBuilderDataManifest();
+    await loader.fetchJson("/builder-data/tables/datasheet.hash.json");
+  } finally {
+    global.fetch = previousFetch;
+  }
+
+  assert.deepEqual(requests, [
+    { cache: "no-cache", path: "/builder-data/manifest.json" },
+    { cache: "force-cache", path: "/builder-data/tables/datasheet.hash.json" },
+  ]);
+});
+
 test("array table rows decode compact and legacy column metadata", () => {
   assert.deepEqual(
     tableRows({
@@ -843,6 +870,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const serviceWorkerSource = readFileSync(join(outDir, "service-worker.js"), "utf8");
     assert.match(serviceWorkerSource, /builder-data/);
+    assert.match(serviceWorkerSource, /isBuilderDataMetadataPath/);
     assert.match(serviceWorkerSource, /request\.mode === "navigate"/);
     assert.doesNotMatch(serviceWorkerSource, /localStorage|indexedDB|sessionStorage/);
 
@@ -919,6 +947,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const catalogSource = readFileSync(join(outDir, "static", "builder_catalog.js"), "utf8");
     assert.match(catalogSource, new RegExp(`\\.\\/builder_catalog_loader\\.js\\?v=${version}`));
+    assert.match(catalogSource, /cache: "no-cache"/);
     assert.match(catalogSource, new RegExp(`\\.\\/builder_catalog_indexes\\.js\\?v=${version}`));
     assert.match(catalogSource, new RegExp(`\\.\\/builder_catalog_tables\\.js\\?v=${version}`));
 

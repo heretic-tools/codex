@@ -3,8 +3,8 @@ import { siteHref } from "./builder_state.js";
 let manifestPromise = null;
 let precomputedManifestPromise = null;
 
-async function fetchJson(path) {
-  const response = await fetch(siteHref(path), { cache: "force-cache" });
+async function fetchJson(path, { cache = "force-cache" } = {}) {
+  const response = await fetch(siteHref(path), { cache });
   if (!response.ok) {
     throw new Error(`${path}: ${response.status}`);
   }
@@ -23,7 +23,7 @@ function builderDataPath(manifest, logicalPath) {
 
 async function loadBuilderDataManifest() {
   if (!manifestPromise) {
-    manifestPromise = fetchJson("/builder-data/manifest.json").catch(() => null);
+    manifestPromise = fetchJson("/builder-data/manifest.json", { cache: "no-cache" }).catch(() => null);
   }
   return manifestPromise;
 }

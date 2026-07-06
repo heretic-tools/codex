@@ -23,10 +23,18 @@ function shouldHandle(request) {
 }
 
 function isCacheFirstPath(pathname) {
+  if (isBuilderDataMetadataPath(pathname)) {
+    return false;
+  }
   return pathname.includes("/static/")
     || pathname.includes("/assets/")
     || pathname.includes("/builder-data/")
     || pathname.includes("/search-index/");
+}
+
+function isBuilderDataMetadataPath(pathname) {
+  return pathname.endsWith("/builder-data/manifest.json")
+    || pathname.endsWith("/builder-data/bootstrap.json");
 }
 
 async function putIfOk(cacheName, request, response) {
@@ -91,6 +99,10 @@ self.addEventListener("fetch", (event) => {
   }
   const url = new URL(request.url);
   if (request.mode === "navigate") {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+  if (isBuilderDataMetadataPath(url.pathname)) {
     event.respondWith(networkFirst(request));
     return;
   }

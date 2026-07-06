@@ -18,7 +18,7 @@ function catalogFromBootstrap(bootstrap) {
 }
 
 async function loadBootstrap() {
-  return catalogFromBootstrap(await fetchJson("/builder-data/bootstrap.json"));
+  return catalogFromBootstrap(await fetchJson("/builder-data/bootstrap.json", { cache: "no-cache" }));
 }
 
 function loadCatalogOptions(optionsOrBootstrap = null) {
@@ -57,7 +57,7 @@ async function loadCatalog(optionsOrBootstrap = null) {
   ] = await Promise.all([
     import("./builder_catalog_indexes.js"),
     import("./builder_catalog_tables.js"),
-    options.bootstrap ? Promise.resolve(options.bootstrap) : fetchJson(builderDataPath(manifest, "bootstrap.json")),
+    options.bootstrap ? Promise.resolve(options.bootstrap) : fetchJson(builderDataPath(manifest, "bootstrap.json"), { cache: "no-cache" }),
     precomputedLoadoutsMap(manifest, options.preloadPrecomputedLoadouts),
   ]);
   const tables = await loadCatalogTables(CATALOG_TABLES, manifest);
