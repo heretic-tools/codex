@@ -1,19 +1,11 @@
 import { state } from "./builder_state.js";
 import {
-  conditionalKeywordApplies,
   factionScope,
-  lowerName,
   miniatureKeywordIds,
   selectedAllegianceAbilities,
 } from "./builder_model.js";
 import { keywordNameInIds } from "./builder_validation_core.js";
-
-function conditionalKeywordNamedApplies(datasheetId, keywordName, roster, detachmentIds, allegianceAbilityIds, warlordMiniatureIds) {
-  return (state.catalog.conditionalKeywordsByDatasheetId.get(datasheetId) || []).some((row) => (
-    lowerName(state.catalog.keywordById.get(row.keywordId)?.name) === lowerName(keywordName)
-    && conditionalKeywordApplies(row, roster, new Set(detachmentIds), new Set(allegianceAbilityIds), new Set(warlordMiniatureIds))
-  ));
-}
+import { conditionalKeywordNamedApplies } from "./builder_warlord_conditional_keywords.js";
 
 function canBeWarlord(miniature, unit, roster, detachmentIds, warlordIds) {
   if ((state.catalog.detachmentGrantedWarlordsByMiniatureId.get(miniature.miniatureId) || [])
