@@ -65,7 +65,7 @@ Builder не должен иметь старую совместимость с�
 | Экран | Route family | Главные действия | Что видно на мобильном |
 | --- | --- | --- | --- |
 | Home | `/` | Выбрать Codex или Builder. | Два главных входа без marketing layer. |
-| Codex root / faction list | `/codex` or `/` when mounted at root | Выбрать faction/faction group, открыть core rules/search. | Сканируемый список фракций и групп. |
+| Codex root / faction list | `/codex` or `/` when mounted at root | Выбрать faction/faction group, открыть core rules/search. | Сканируемый список фракций и групп; поиск доступен тапом и через Cmd/Ctrl+K, результаты сгруппированы по типу. |
 | Faction overview | faction route | Перейти в datasheets, detachments, army rules. | Название фракции, основные разделы, быстрый возврат назад. |
 | Datasheet list | faction datasheets route | Найти и открыть datasheet. | Список datasheets с понятными badges/points where available. |
 | Datasheet detail | datasheet route | Читать профиль, weapons, abilities, keywords. | Название юнита, ключевые stats, таблицы с контролируемым horizontal scroll только там, где таблица действительно шире экрана; длинные ability/rule/wargear cards на мобильном раскрываются по намеренному тапу. |

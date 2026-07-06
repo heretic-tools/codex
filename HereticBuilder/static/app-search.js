@@ -243,6 +243,41 @@
     setOpen(true);
   }
 
+  function groupedResults(items) {
+    const groups = [];
+    const byType = new Map();
+    items.forEach((item) => {
+      const type = resultText(item.type) || "Results";
+      if (!byType.has(type)) {
+        const group = { type, items: [] };
+        byType.set(type, group);
+        groups.push(group);
+      }
+      byType.get(type).items.push(item);
+    });
+    return groups;
+  }
+
+  function resultLink(item) {
+    const link = document.createElement("a");
+    link.className = "app-search-result";
+    link.href = siteHref(item.href);
+    link.setAttribute("role", "listitem");
+
+    const title = document.createElement("span");
+    title.className = "app-search-result-title";
+    title.textContent = resultText(item.title);
+    link.append(title);
+
+    const meta = document.createElement("span");
+    meta.className = "app-search-result-meta";
+    const context = resultText(item.meta);
+    meta.textContent = context || resultText(item.type);
+    link.append(meta);
+
+    return link;
+  }
+
   function renderResults(items) {
     resultList.replaceChildren();
     if (!items.length) {
@@ -251,25 +286,18 @@
     }
 
     const fragment = document.createDocumentFragment();
-    items.forEach((item) => {
-      const link = document.createElement("a");
-      link.className = "app-search-result";
-      link.href = siteHref(item.href);
-      link.setAttribute("role", "listitem");
+    groupedResults(items).forEach((group) => {
+      const section = document.createElement("section");
+      section.className = "app-search-result-group";
+      section.setAttribute("aria-label", group.type);
 
-      const title = document.createElement("span");
-      title.className = "app-search-result-title";
-      title.textContent = resultText(item.title);
-      link.append(title);
+      const heading = document.createElement("div");
+      heading.className = "app-search-result-group-title";
+      heading.textContent = group.type;
+      section.append(heading);
 
-      const meta = document.createElement("span");
-      meta.className = "app-search-result-meta";
-      const type = resultText(item.type);
-      const context = resultText(item.meta);
-      meta.textContent = [type, context].filter(Boolean).join(" / ");
-      link.append(meta);
-
-      fragment.append(link);
+      group.items.forEach((item) => section.append(resultLink(item)));
+      fragment.append(section);
     });
     resultList.append(fragment);
     setOpen(true);
@@ -325,6 +353,17 @@
       clearResults();
       input.blur();
     }
+  });
+  input.setAttribute("aria-keyshortcuts", "Control+K Meta+K");
+
+  document.addEventListener("keydown", (event) => {
+    if (String(event.key || "").toLocaleLowerCase() !== "k" || (!event.ctrlKey && !event.metaKey) || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    input.focus();
+    input.select();
+    scheduleSearch();
   });
 
   document.addEventListener("pointerdown", (event) => {
