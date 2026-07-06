@@ -13,6 +13,7 @@ const {
 const {
   addAttachmentFromControls,
   attachmentControlField,
+  renderAttachmentControls,
 } = await import("../HereticBuilder/static/builder_roster_attachment_controls.js");
 const {
   removeAttachmentFromRow,
@@ -56,6 +57,44 @@ function attachmentCatalog() {
   };
 }
 
+function createMockElement(tagName) {
+  return {
+    attributes: new Map(),
+    children: [],
+    className: "",
+    dataset: {},
+    disabled: false,
+    hidden: false,
+    listeners: new Map(),
+    tagName,
+    textContent: "",
+    title: "",
+    type: "",
+    value: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      this.textContent += node.textContent || "";
+      return node;
+    },
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    replaceChildren(...nodes) {
+      this.children = [];
+      this.textContent = "";
+      this.append(...nodes);
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    },
+  };
+}
+
 test("attached unit empty state explains missing shared keywords", () => {
   const roster = {
     attachments: [],
@@ -94,6 +133,45 @@ test("attached unit empty state stays terse when valid pairs exist", () => {
 test("attached unit controls render only when a valid bodyguard exists", () => {
   assert.equal(attachmentControlsAvailable([]), false);
   assert.equal(attachmentControlsAvailable([{ id: "bodyguard" }]), true);
+});
+
+test("attached unit controls stay collapsed behind an add disclosure", () => {
+  const roster = {
+    attachments: [],
+    detachmentIds: ["pactbound"],
+    factionKeywordId: "faction",
+  };
+  const units = [
+    { id: "leader", name: "Leader", datasheetId: "leader-datasheet", keywordIds: ["nurgle"], modelCount: 1 },
+    { id: "bodyguard", name: "Bodyguard", datasheetId: "bodyguard-datasheet", keywordIds: ["nurgle"], modelCount: 5 },
+  ];
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    withCatalog(attachmentCatalog(), () => {
+      const controls = renderAttachmentControls({
+        bodyguards: [units[1]],
+        newId: () => "attachment-1",
+        onUpdate: () => {},
+        roster,
+        units,
+        unitsById: new Map(units.map((unit) => [unit.id, unit])),
+      });
+
+      assert.equal(controls.tagName, "details");
+      assert.equal(controls.className, "attachment-add-disclosure");
+      assert.equal(controls.children[0].tagName, "summary");
+      assert.equal(controls.children[0].className, "plain-button attachment-add-summary");
+      assert.equal(controls.children[0].textContent, "Add attached unit");
+      assert.equal(controls.children[1].className, "builder-control-row attachment-control-row");
+      assert.equal(controls.children[1].children.length, 4);
+    });
+  } finally {
+    global.document = previousDocument;
+  }
 });
 
 test("attached unit controls label their select controls", () => {

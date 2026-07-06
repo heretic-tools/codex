@@ -26,6 +26,12 @@ function addAttachmentFromControls(roster, values, onUpdate, onUndoableUpdate = 
 
 function renderAttachmentControls({ bodyguards, newId, onUndoableUpdate = null, onUpdate, roster, units, unitsById }) {
   const { attached, bodyguard, type } = createAttachmentControlSelects();
+  const disclosure = document.createElement("details");
+  disclosure.className = "attachment-add-disclosure";
+  const summary = document.createElement("summary");
+  summary.className = "plain-button attachment-add-summary";
+  summary.textContent = "Add attached unit";
+
   const controls = document.createElement("div");
   controls.className = "builder-control-row attachment-control-row";
 
@@ -63,7 +69,8 @@ function renderAttachmentControls({ bodyguards, newId, onUndoableUpdate = null, 
   bodyguard.addEventListener("change", refreshControls);
   type.addEventListener("change", refreshControls);
   refreshControls();
-  return controls;
+  disclosure.append(summary, controls);
+  return disclosure;
 }
 
 export { addAttachmentFromControls, attachmentControlField, renderAttachmentControls };

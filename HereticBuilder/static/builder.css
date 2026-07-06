@@ -287,6 +287,34 @@
   grid-template-columns: minmax(160px, 1fr) minmax(120px, 160px) minmax(160px, 1fr) auto;
 }
 
+.attachment-add-disclosure {
+  display: grid;
+  gap: 8px;
+}
+
+.attachment-add-disclosure:not([open]) {
+  gap: 0;
+}
+
+.attachment-add-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  list-style: none;
+  cursor: pointer;
+}
+
+.attachment-add-summary::-webkit-details-marker {
+  display: none;
+}
+
+.attachment-add-summary::before {
+  content: "+";
+  margin-right: 8px;
+  font-family: var(--builder-mono);
+  font-weight: 900;
+}
+
 .attachment-control-field {
   min-width: 0;
 }
