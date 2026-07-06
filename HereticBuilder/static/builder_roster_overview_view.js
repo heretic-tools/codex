@@ -62,7 +62,7 @@ function renderRosterStickySummary({ roster, validation }) {
   return summary;
 }
 
-function renderRosterOverview({ onDelete, onUpdate, roster, summary, validation }) {
+function renderRosterOverview({ onDelete, onUndoableUpdate = null, onUpdate, roster, summary, validation }) {
   const overview = document.createElement("section");
   overview.className = `builder-section roster-overview-card has-validation-${rosterOverviewStateClass(validation)}`;
   const head = document.createElement("div");
@@ -77,7 +77,7 @@ function renderRosterOverview({ onDelete, onUpdate, roster, summary, validation 
   const controls = document.createElement("div");
   controls.className = "roster-overview-controls";
   controls.append(
-    renderWarlordPicker({ onUpdate, roster }),
+    renderWarlordPicker({ onUndoableUpdate, onUpdate, roster }),
     labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), "Delete roster")
   );
   overview.append(

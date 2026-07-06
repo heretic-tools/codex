@@ -27,7 +27,14 @@ function renderRosterDetailView({
   root.className = "builder-grid roster-detail-grid";
   const sidebar = document.createElement("section");
   sidebar.className = "builder-roster-sidebar";
-  const overview = renderRosterOverview({ onDelete, onUpdate, roster, summary, validation: validationResult });
+  const overview = renderRosterOverview({
+    onDelete,
+    onUndoableUpdate,
+    onUpdate,
+    roster,
+    summary,
+    validation: validationResult,
+  });
   const editor = renderRosterEditor({
     newId,
     onUndoableUpdate,

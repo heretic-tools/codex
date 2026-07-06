@@ -1728,6 +1728,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(rosterOverviewSource, new RegExp(`\\.\\/builder_validation_summary\\.js\\?v=${version}`));
 
     const rosterWarlordPickerSource = readFileSync(join(outDir, "static", "builder_roster_warlord_picker.js"), "utf8");
+    assert.match(rosterWarlordPickerSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
     assert.match(rosterWarlordPickerSource, new RegExp(`\\.\\/builder_roster_warlord_options\\.js\\?v=${version}`));
 
     const rosterWarlordOptionsSource = readFileSync(join(outDir, "static", "builder_roster_warlord_options.js"), "utf8");
