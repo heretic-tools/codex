@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   availableDetachments,
   costForDetachment,
@@ -12,6 +15,8 @@ import {
   detachmentCandidateRows,
   detachmentCandidateStatus,
 } from "../HereticBuilder/static/builder_roster_detachment_editor_view.js";
+
+const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
 test("detachment candidate status explains detachment-point pressure", () => {
   state.catalog = realCatalog;
@@ -68,4 +73,17 @@ test("detachment candidate rows filter by name and disposition", () => {
   assert.ok(dispositionRows.length);
   assert.ok(dispositionRows.every((row) => detachmentDispositionName(row.detachment) === firstDisposition));
   assert.deepEqual(detachmentCandidateRows(roster, validation, "definitely-no-detachment"), []);
+});
+
+test("detachment editor focuses search when jumped from mobile summary", () => {
+  const source = readFileSync(
+    join(projectRoot, "HereticBuilder", "static", "builder_roster_detachment_controls.js"),
+    "utf8"
+  );
+  const searchFocusIndex = source.indexOf('search.dataset.focusTarget = "true"');
+  const selectFocusIndex = source.indexOf('select.dataset.focusTarget = "true"');
+
+  assert.ok(searchFocusIndex >= 0);
+  assert.ok(selectFocusIndex >= 0);
+  assert.ok(searchFocusIndex < selectFocusIndex);
 });

@@ -33,6 +33,7 @@ function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, v
   search.placeholder = "Search";
   search.autocomplete = "off";
   labelControl(search, searchControlLabel("detachments"));
+  search.dataset.focusTarget = "true";
   const searchWrap = document.createElement("span");
   searchWrap.className = "builder-search-field";
   const clearSearch = button("remove-button search-clear-button", "x", () => {
