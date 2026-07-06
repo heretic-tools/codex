@@ -5,6 +5,10 @@ import { unitSourceBadgeNode, unitSourceBadgeText } from "./builder_roster_unit_
 import { unitValidationStatus } from "./builder_roster_unit_validation_status.js";
 import { unitImageNode } from "./builder_unit_images.js";
 
+function unitOpenLabel(summary) {
+  return `Open unit: ${summary.name || "Unit"}`;
+}
+
 function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen) {
   const row = document.createElement("div");
   row.className = "builder-row editor-row unit-editor-row";
@@ -14,6 +18,9 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen) {
   }
   const text = button("unit-open-button", "", () => onUnitOpen(summary));
   text.className = "unit-open-button row-text";
+  const openLabel = unitOpenLabel(summary);
+  text.title = openLabel;
+  text.setAttribute("aria-label", openLabel);
   const image = unitImageNode(summary.datasheetId);
   if (image) {
     text.appendChild(image);
@@ -44,5 +51,6 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen) {
 
 export {
   renderUnitRow,
+  unitOpenLabel,
   unitSourceBadgeText,
 };

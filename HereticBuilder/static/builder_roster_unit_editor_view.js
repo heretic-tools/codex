@@ -10,7 +10,7 @@ import {
   emptyMessage,
   sectionTitle,
 } from "./builder_roster_editor_dom.js";
-import { renderUnitRow, unitSourceBadgeText } from "./builder_roster_unit_rows.js";
+import { renderUnitRow, unitOpenLabel, unitSourceBadgeText } from "./builder_roster_unit_rows.js";
 
 function renderUnitEditor({ newId, onUpdate, onUnitOpen, roster, validation }) {
   const root = document.createElement("section");
@@ -43,5 +43,6 @@ export {
   unitCandidateGroups,
   unitCandidateStatus,
   unitOptionValue,
+  unitOpenLabel,
   unitSourceBadgeText,
 };

@@ -13,6 +13,7 @@ import {
   parseUnitOptionValue,
   unitCandidateGroups,
   unitCandidateStatus,
+  unitOpenLabel,
   unitOptionValue,
   unitSourceBadgeText,
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
@@ -139,4 +140,9 @@ test("unit source badge names selected allied unit source", () => {
   assert.equal(unitSourceBadgeText({ allyType: "native" }), "");
   assert.match(unitSourceBadgeText({ allyType: longAllied.alliedFactionId }), /^Allied: /);
   assert.ok(unitSourceBadgeText({ allyType: longAllied.alliedFactionId }).endsWith("..."));
+});
+
+test("unit row open label names the row action", () => {
+  assert.equal(unitOpenLabel({ name: "Chosen" }), "Open unit: Chosen");
+  assert.equal(unitOpenLabel({}), "Open unit: Unit");
 });
