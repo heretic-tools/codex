@@ -1236,12 +1236,12 @@ browser smoke test.
   mutations now require the option to belong to the unit datasheet and to match
   unit-level versus model-level target scope, while zero-count writes remain
   available for cleanup.
-- 2026-07-06: Added an optional `allegianceAbilityCanBeSelected` guard to
-  `builder_roster_unit_upgrade_actions.js`. Low-level calls without context
-  preserve legacy mutation behavior, while the unit-detail Allegiance editor now
-  passes current unit summaries and detachments so detachment-gated,
-  mandatory-faction, required-Wargear, and roster-limit candidate checks are
-  applied before writing the selection.
+- 2026-07-06: Added an `allegianceAbilityCanBeSelected` guard to
+  `builder_roster_unit_upgrade_actions.js`. The mutation layer now derives
+  current unit summaries and roster detachments when explicit context is
+  omitted, while the unit-detail Allegiance editor can still pass precomputed
+  context. Detachment-gated, mandatory-faction, required-Wargear, and
+  roster-limit candidate checks are applied before writing the selection.
 - 2026-07-06: Split guarded Allegiance and Enhancement unit upgrade mutations
   out of `builder_roster_unit_upgrade_actions.js` into
   `builder_roster_unit_allegiance_actions.js` and

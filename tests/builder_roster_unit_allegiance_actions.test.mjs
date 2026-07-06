@@ -3,25 +3,78 @@ import test from "node:test";
 import {
   factionNamed,
   realCatalog,
+  state,
   withCatalog,
 } from "./builder_validation_helpers.mjs";
 import { rosterWithUnitAllegianceAbility } from "../HereticBuilder/static/builder_roster_actions.js";
 
+function firstDetachmentGatedAllegianceSelection() {
+  for (const datasheet of realCatalog.datasheets) {
+    const group = realCatalog.allegianceAbilityGroupById.get(datasheet.allegianceAbilityGroupId);
+    if (!group?.detachmentId) {
+      continue;
+    }
+    const ability = (realCatalog.allegianceAbilitiesByGroupId.get(group.id) || [])
+      .find((item) => !item.requiresWargearItemId);
+    if (!ability) {
+      continue;
+    }
+    const factionRows = realCatalog.datasheetFactionKeywordsByDatasheetId.get(datasheet.id) || [];
+    const factionKeywordId = factionRows[0]?.factionKeywordId
+      || factionNamed("Heretic Astartes").id;
+    return { ability, datasheet, factionKeywordId, group };
+  }
+  assert.fail("Expected a detachment-gated allegiance selection");
+}
+
 test("builder roster actions write compact allegiance ability selections", () => {
+  state.catalog = realCatalog;
+  const { ability, datasheet, factionKeywordId, group } = firstDetachmentGatedAllegianceSelection();
   const roster = {
     id: "allegiance-action-roster",
+    detachmentIds: [group.detachmentId],
+    factionKeywordId,
     units: [{
       id: "unit-1",
       allegianceAbilities: [],
+      datasheetId: datasheet.id,
+      miniatures: [],
+      wargear: {},
     }],
   };
 
-  const selected = rosterWithUnitAllegianceAbility(roster, "unit-1", "ability-1");
-  assert.deepEqual(selected.units[0].allegianceAbilities, [{ id: "ability-1" }]);
+  const selected = rosterWithUnitAllegianceAbility(roster, "unit-1", ability.id);
+  assert.deepEqual(selected.units[0].allegianceAbilities, [{ id: ability.id }]);
   assert.deepEqual(roster.units[0].allegianceAbilities, []);
 
   const cleared = rosterWithUnitAllegianceAbility(selected, "unit-1", "");
   assert.deepEqual(cleared.units[0].allegianceAbilities, []);
+});
+
+test("builder roster action derives allegiance context when omitted", () => {
+  state.catalog = realCatalog;
+  const { ability, datasheet, factionKeywordId, group } = firstDetachmentGatedAllegianceSelection();
+  const roster = {
+    id: "allegiance-action-derived-context-roster",
+    detachmentIds: [],
+    factionKeywordId,
+    units: [{
+      id: "unit-1",
+      allegianceAbilities: [],
+      datasheetId: datasheet.id,
+      miniatures: [],
+      wargear: {},
+    }],
+  };
+
+  const rejected = rosterWithUnitAllegianceAbility(roster, "unit-1", ability.id);
+  assert.equal(rejected, roster);
+
+  const selected = rosterWithUnitAllegianceAbility({
+    ...roster,
+    detachmentIds: [group.detachmentId],
+  }, "unit-1", ability.id);
+  assert.deepEqual(selected.units[0].allegianceAbilities, [{ id: ability.id }]);
 });
 
 test("builder roster action rejects invalid allegiance abilities when context is supplied", () => {
