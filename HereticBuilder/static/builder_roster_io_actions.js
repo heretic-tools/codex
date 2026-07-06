@@ -25,11 +25,21 @@ async function createRoster(values) {
 }
 
 async function deleteRoster(roster) {
-  if (window.confirm(`Delete ${roster.name || "this roster"}?`)) {
-    await removeRoster(roster.id);
-    await refreshRosters();
-    navigate("/");
-  }
+  await removeRoster(roster.id);
+  await refreshRosters();
+  navigate("/");
+  const { showUndoToast } = await import("./builder_toast.js");
+  showUndoToast({
+    message: `${roster.name || "Roster"} deleted`,
+    onUndo: () => restoreRoster(roster),
+  });
+}
+
+async function restoreRoster(roster) {
+  const { validateRoster } = await loadRules();
+  await saveRoster(rosterWithFreshListCache(roster, validateRoster(roster)));
+  await refreshRosters();
+  navigate(`/roster/${encodeURIComponent(roster.id)}`);
 }
 
 async function updateRoster(roster, render) {
@@ -42,5 +52,6 @@ async function updateRoster(roster, render) {
 export {
   createRoster,
   deleteRoster,
+  restoreRoster,
   updateRoster,
 };
