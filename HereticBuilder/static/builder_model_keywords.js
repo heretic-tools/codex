@@ -2,15 +2,8 @@ import { state } from "./builder_state.js";
 import {
   miniatureKeywordIds,
 } from "./builder_model_core.js";
-import { conditionalKeywordApplies } from "./builder_model_selections.js";
+import { conditionalKeywordRowsForUnit } from "./builder_model_conditional_keyword_rows.js";
 export { rosterWarlordMiniatureIds } from "./builder_model_warlord_ids.js";
-
-function conditionalKeywordRowsForUnit(roster, unit, allegianceAbilities, warlordMiniatureIds) {
-  const detachmentIds = new Set(roster.detachmentIds || []);
-  const allegianceAbilityIds = new Set(allegianceAbilities.map((item) => item.id));
-  return (state.catalog.conditionalKeywordsByDatasheetId.get(unit.datasheetId) || [])
-    .filter((row) => conditionalKeywordApplies(row, roster, detachmentIds, allegianceAbilityIds, warlordMiniatureIds));
-}
 
 function unitKeywords(roster, unit, miniatures, allegianceAbilities, warlordMiniatureIds, conditionalKeywordRows = null) {
   const keywordIds = new Set();

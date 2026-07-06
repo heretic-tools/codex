@@ -1401,6 +1401,10 @@ browser smoke test.
   `builder_model_keywords.js` into `builder_model_warlord_ids.js`. Unit keyword
   resolution no longer owns the roster-level effective-composition scan for
   selected Warlord models.
+- 2026-07-06: Split conditional keyword row filtering out of
+  `builder_model_keywords.js` into `builder_model_conditional_keyword_rows.js`.
+  Unit keyword resolution now consumes prefiltered conditional keyword rows from
+  a dedicated helper.
 - 2026-07-05: Split the unit picker/editor view into
   `builder_roster_unit_candidates.js`, `builder_roster_unit_rows.js`, and the
   slim `builder_roster_unit_editor_view.js` facade. Candidate availability,

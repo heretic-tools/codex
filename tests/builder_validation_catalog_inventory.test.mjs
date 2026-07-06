@@ -918,8 +918,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(modelSummaryPointsSource, new RegExp(`\\.\\/builder_model_wargear\\.js\\?v=${version}`));
 
     const modelKeywordsSource = readFileSync(join(outDir, "static", "builder_model_keywords.js"), "utf8");
-    assert.match(modelKeywordsSource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
+    assert.match(modelKeywordsSource, new RegExp(`\\.\\/builder_model_conditional_keyword_rows\\.js\\?v=${version}`));
     assert.match(modelKeywordsSource, new RegExp(`\\.\\/builder_model_warlord_ids\\.js\\?v=${version}`));
+
+    const modelConditionalKeywordRowsSource = readFileSync(join(outDir, "static", "builder_model_conditional_keyword_rows.js"), "utf8");
+    assert.match(modelConditionalKeywordRowsSource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
+    assert.match(modelConditionalKeywordRowsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const modelWarlordIdsSource = readFileSync(join(outDir, "static", "builder_model_warlord_ids.js"), "utf8");
     assert.match(modelWarlordIdsSource, new RegExp(`\\.\\/builder_model_selections\\.js\\?v=${version}`));
