@@ -57,7 +57,7 @@ async function cacheFirst(request) {
 
 async function networkFirst(request) {
   try {
-    const response = await fetch(request);
+    const response = await fetch(request, { cache: "no-cache" });
     return putIfOk(SHELL_CACHE, request, response);
   } catch (_error) {
     const cached = (await caches.match(request))

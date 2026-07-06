@@ -872,6 +872,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(serviceWorkerSource, /builder-data/);
     assert.match(serviceWorkerSource, /isBuilderDataMetadataPath/);
     assert.match(serviceWorkerSource, /request\.mode === "navigate"/);
+    assert.match(serviceWorkerSource, /fetch\(request, \{ cache: "no-cache" \}\)/);
     assert.doesNotMatch(serviceWorkerSource, /localStorage|indexedDB|sessionStorage/);
 
     const rosterRuntimeSource = readFileSync(join(outDir, "static", "builder_roster_runtime.js"), "utf8");
