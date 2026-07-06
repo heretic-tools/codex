@@ -45,10 +45,10 @@ function renderRosterDetailView({
   });
   const stickySummary = renderRosterStickySummary({
     actions: [
-      { label: "Validation", target: "validation" },
-      { label: "Detachments", target: "detachments" },
-      { label: "Units", target: "units" },
-      { label: "Attached", target: "attachments" },
+      { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
+      { ariaLabel: "Add detachment", label: "+ Detach", target: "detachments" },
+      { ariaLabel: "Add unit", label: "+ Unit", target: "units" },
+      { ariaLabel: "Add attached unit", label: "Attach", target: "attachments" },
     ],
     roster,
     validation: validationResult,

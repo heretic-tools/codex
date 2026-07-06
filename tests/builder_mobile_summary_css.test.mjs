@@ -10,6 +10,10 @@ function builderCss() {
   return readFileSync(join(projectRoot, "HereticBuilder", "static", "builder.css"), "utf8");
 }
 
+function builderSource(filename) {
+  return readFileSync(join(projectRoot, "HereticBuilder", "static", filename), "utf8");
+}
+
 test("mobile roster summary is a bottom safe-area bar", () => {
   const source = builderCss();
   const mobileLayer = source.slice(source.indexOf("@media (max-width: 760px)"));
@@ -24,4 +28,15 @@ test("mobile roster summary is a bottom safe-area bar", () => {
   assert.ok(mobileLayer.includes("bottom: calc(206px + env(safe-area-inset-bottom));"));
   assert.ok(source.includes(".roster-sticky-summary-actions"));
   assert.ok(source.includes(".roster-sticky-summary-action"));
+});
+
+test("mobile roster summary actions are framed as primary add shortcuts", () => {
+  const source = builderSource("builder_roster_detail_view.js");
+
+  assert.ok(source.includes('label: "Issues"'));
+  assert.ok(source.includes('ariaLabel: "Add detachment"'));
+  assert.ok(source.includes('label: "+ Detach"'));
+  assert.ok(source.includes('ariaLabel: "Add unit"'));
+  assert.ok(source.includes('label: "+ Unit"'));
+  assert.ok(source.includes('ariaLabel: "Add attached unit"'));
 });

@@ -72,7 +72,7 @@ function renderStickySummaryActions(actions = []) {
   actions.forEach((action) => {
     const node = button("roster-sticky-summary-action", action.label, () => scrollToEditorTarget(action.target));
     node.dataset.summaryTarget = action.target;
-    node.setAttribute("aria-label", `Go to ${action.label}`);
+    node.setAttribute("aria-label", action.ariaLabel || `Go to ${action.label}`);
     wrap.appendChild(node);
   });
   return wrap;
