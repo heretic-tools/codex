@@ -35,7 +35,7 @@
 | Builder list | `#/` | Открыть ростер, создать ростер, export/import ростеров. | Header `Builder`, breadcrumbs назад к `HereticTools`, список ростеров, статус валидации, очки, количество детачей/юнитов, detachment badges, кнопка `Create Roster` под списком. |
 | Create roster | `#/new` | Ввести имя, выбрать фракцию, выбрать battle size, подтвердить или вернуться назад. | Header `Create Roster`, три поля формы, primary action `Confirm`, secondary action `Back`. |
 | Roster detail | `#/roster/:rosterId` | Смотреть статус ростера, выбрать Warlord, удалить ростер, добавлять/удалять detachments, units, attached units, переходить в Codex по detachment, переходить в unit detail. | Название ростера в header, компактный overview с faction/battle size, validation state, points, DP, units, блок validation messages, затем редакторы detachments/units/attachments. |
-| Unit detail | `#/roster/:rosterId/unit/:unitId` | Вернуться в ростер, менять composition, Warlord state, allegiance, enhancements/upgrades, wargear по моделям. | Название юнита в header, локальная unit validation, критичные действия редактирования, wargear сгруппирован по моделям и не требует desktop-wide layout. |
+| Unit detail | `#/roster/:rosterId/unit/:unitId` | Вернуться в ростер через breadcrumbs, менять composition, Warlord state, allegiance, enhancements/upgrades, wargear по моделям. | Название юнита в header, breadcrumbs до parent roster, локальная unit validation только при наличии сообщений, критичные действия редактирования, wargear сгруппирован по моделям и не требует desktop-wide layout. |
 | Not found | unknown roster/unit | Вернуться к Builder list. | Понятное сообщение, без пустого экрана. |
 
 Builder не должен иметь старую совместимость со старыми локальными ростерами:
@@ -45,8 +45,9 @@ Builder не должен иметь старую совместимость с�
 ## Builder UX contract
 
 - Roster list rows являются основными кнопками, а не вложенными карточками.
-- Validation всегда видна в roster detail и unit detail, с различением errors и
-  warnings.
+- Validation summary всегда видна в roster detail; unit detail показывает
+  validation sections при наличии локальных или roster-level сообщений, с
+  различением errors и warnings.
 - Детачи и юниты добавляются из контролов рядом с выбором; выбранные элементы
   являются кликабельными строками, если у них есть detail/Codex destination.
 - Unit detail является единственным местом для глубокой настройки юнита:

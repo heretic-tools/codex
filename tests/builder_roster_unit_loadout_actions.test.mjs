@@ -8,6 +8,7 @@ import {
   factionNamed,
   realCatalog,
   state,
+  withCatalog,
 } from "./builder_validation_helpers.mjs";
 import {
   rosterWithAddedUnit,
@@ -22,6 +23,7 @@ import {
 import {
   renderRosterUnitOverview,
   resetWargearFromOverview,
+  unitHasWargearControls,
   unitOverviewMetric,
 } from "../HereticBuilder/static/builder_roster_unit_overview_view.js";
 import {
@@ -133,6 +135,32 @@ function rosterWithCompositionCount(count) {
   const withUnit = rosterWithAddedUnit(roster, {
     datasheetId: datasheet.id,
     unitId: `composition-count-${count}-unit`,
+  });
+  return {
+    datasheet,
+    roster: withUnit,
+    unit: { ...withUnit.units[0], name: datasheet.name },
+  };
+}
+
+function rosterWithWargearUnit() {
+  state.catalog = realCatalog;
+  const faction = factionNamed("Heretic Astartes");
+  const roster = {
+    id: "overview-wargear-roster",
+    name: "Overview Wargear Roster",
+    factionKeywordId: faction.id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const datasheet = availableDatasheets(roster, "native")
+    .find((row) => (realCatalog.wargearGroupsByDatasheetId.get(row.id) || []).length);
+  assert.ok(datasheet, "Expected a datasheet with wargear groups");
+  const withUnit = rosterWithAddedUnit(roster, {
+    datasheetId: datasheet.id,
+    unitId: "overview-wargear-unit",
   });
   return {
     datasheet,
@@ -273,7 +301,7 @@ test("unit overview keeps only local actions when breadcrumbs handle navigation"
   };
 
   try {
-    const { roster, unit } = rosterWithCompositionCount(1);
+    const { roster, unit } = rosterWithWargearUnit();
     const overview = renderRosterUnitOverview({
       onUpdate: () => {},
       roster,
@@ -284,6 +312,32 @@ test("unit overview keeps only local actions when breadcrumbs handle navigation"
 
     const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
     assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit overview hides reset action when no wargear controls exist", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithCompositionCount(1);
+    withCatalog({ ...realCatalog, wargearGroupsByDatasheetId: new Map() }, () => {
+      assert.equal(unitHasWargearControls(unit), false);
+      const overview = renderRosterUnitOverview({
+        onUpdate: () => {},
+        roster,
+        unit,
+        validation: { messages: [] },
+        validationContext: {},
+      });
+
+      const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
+      assert.deepEqual(buttons.map((node) => node.textContent), []);
+    });
   } finally {
     global.document = previousDocument;
   }

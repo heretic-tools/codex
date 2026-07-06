@@ -8,6 +8,7 @@ import {
   renderCompositionEditor,
   renderWarlordEditor,
 } from "./builder_roster_unit_detail_editors.js";
+import { wargearGroupsFor } from "./builder_roster_unit_wargear_groups.js";
 import { unitImageNode } from "./builder_unit_images.js";
 
 function unitDisplayName(roster, unit) {
@@ -32,6 +33,15 @@ function unitOverviewMetric(label, value) {
     textNode("strong", "", value)
   );
   return metric;
+}
+
+function unitHasWargearControls(unit) {
+  if (wargearGroupsFor(unit).length) {
+    return true;
+  }
+  return (unit.miniatures || []).some((miniature) => (
+    wargearGroupsFor(unit, miniature.miniatureId).length
+  ));
 }
 
 function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
@@ -60,16 +70,24 @@ function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, u
   if (allegianceEditor) {
     overview.appendChild(allegianceEditor);
   }
-  const actions = document.createElement("div");
-  actions.className = "unit-overview-actions";
-  actions.append(
-    button("plain-button", "Reset Wargear", async () => {
-      await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
-      await resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate);
-    })
-  );
-  overview.appendChild(actions);
+  if (unitHasWargearControls(unit)) {
+    const actions = document.createElement("div");
+    actions.className = "unit-overview-actions";
+    actions.append(
+      button("plain-button", "Reset Wargear", async () => {
+        await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
+        await resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate);
+      })
+    );
+    overview.appendChild(actions);
+  }
   return overview;
 }
 
-export { renderRosterUnitOverview, resetWargearFromOverview, unitDisplayName, unitOverviewMetric };
+export {
+  renderRosterUnitOverview,
+  resetWargearFromOverview,
+  unitDisplayName,
+  unitHasWargearControls,
+  unitOverviewMetric,
+};
