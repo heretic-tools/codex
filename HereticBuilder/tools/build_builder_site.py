@@ -4,13 +4,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
 from build_static_site import (
     CONFIG_FILENAME,
+    HERETIC_BUILDER_ROOT,
     PROJECT_ROOT,
-    copy_assets,
+    STATIC_ROOT,
+    copy_dir,
     inject_static_config,
     load_toml_config,
     merge_profile_config,
@@ -22,6 +25,21 @@ from build_static_site import (
 )
 from export_builder_data import export_builder_data
 from roster_builder_templates import render_template
+
+BUILDER_STATIC_SUPPORT_FILES = (
+    "desktop.css",
+    "codex.css",
+    "win-scrollbars.js",
+    "builder.css",
+)
+
+BUILDER_ASSET_DIRS = (
+    "unit-images",
+)
+
+BUILDER_ICON_FILES = (
+    "boosty.png",
+)
 
 
 @dataclass(frozen=True)
@@ -83,6 +101,26 @@ def write_builder_page(out_dir, base_path, asset_version):
     (out_dir / "404.html").write_text(html, encoding="utf-8")
 
 
+def copy_file(src, dest):
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dest)
+
+
+def copy_builder_assets(out_dir):
+    static_dir = out_dir / "static"
+    for path in sorted(STATIC_ROOT.glob("builder*.js")):
+        copy_file(path, static_dir / path.name)
+    for filename in BUILDER_STATIC_SUPPORT_FILES:
+        copy_file(STATIC_ROOT / filename, static_dir / filename)
+
+    source_assets = HERETIC_BUILDER_ROOT / "assets"
+    for dirname in BUILDER_ASSET_DIRS:
+        copy_dir(source_assets / dirname, out_dir / "assets" / dirname)
+    for filename in BUILDER_ICON_FILES:
+        copy_file(source_assets / "icons" / filename, out_dir / "assets" / "icons" / filename)
+    (out_dir / ".nojekyll").write_text("", encoding="utf-8")
+
+
 def version_builder_static_imports(out_dir, asset_version):
     static_dir = out_dir / "static"
     if not static_dir.exists():
@@ -110,7 +148,7 @@ def build_builder_site(config):
 
     out_dir = prepare_out_dir(config.out, protected_dirs=(config.source,))
     asset_version = builder_asset_version()
-    copy_assets(out_dir)
+    copy_builder_assets(out_dir)
     version_builder_static_imports(out_dir, asset_version)
     write_builder_page(out_dir, config.base_path, asset_version)
     data_result = export_builder_data(config.db, out_dir / "builder-data")

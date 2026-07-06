@@ -631,6 +631,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.ok(match, "Expected builder.js content hash in standalone HTML");
     const version = match[1];
     assert.match(index, new RegExp(`/builder/static/builder\\.css\\?v=${version}`));
+    assert.ok(existsSync(join(outDir, "static", "desktop.css")));
+    assert.ok(existsSync(join(outDir, "static", "codex.css")));
+    assert.ok(existsSync(join(outDir, "static", "win-scrollbars.js")));
+    assert.ok(existsSync(join(outDir, "assets", "icons", "boosty.png")));
+    assert.ok(existsSync(join(outDir, "assets", "unit-images")));
+    assert.equal(existsSync(join(outDir, "static", "home.js")), false);
+    assert.equal(existsSync(join(outDir, "assets", "faction-images")), false);
 
     const builderSource = readFileSync(join(outDir, "static", "builder.js"), "utf8");
     assert.match(builderSource, new RegExp(`\\.\\/builder_catalog\\.js\\?v=${version}`));
