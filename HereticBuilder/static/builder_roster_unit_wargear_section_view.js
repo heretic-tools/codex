@@ -43,7 +43,7 @@ function appendWargearScope(wargear, {
 
 function renderRosterUnitWargearSection({ onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
   const wargear = document.createElement("section");
-  wargear.className = "builder-section unit-wargear-section";
+  wargear.className = "unit-wargear-section";
   wargear.dataset.unitDetailTarget = "wargear";
   let renderedScopes = 0;
   renderedScopes += appendWargearScope(wargear, {

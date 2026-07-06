@@ -579,6 +579,9 @@
 .unit-wargear-section {
   grid-column: 2;
   grid-row: 1 / span 2;
+  min-width: 0;
+  display: grid;
+  align-content: start;
   gap: 12px;
 }
 
@@ -587,6 +590,9 @@
 }
 
 .wargear-scope {
+  min-width: 0;
+  display: grid;
+  align-content: start;
   gap: 0;
 }
 
@@ -1335,13 +1341,6 @@
 .editor-list,
 .wargear-scope {
   gap: 8px;
-}
-
-.unit-wargear-section .wargear-scope {
-  padding: 10px;
-  background: var(--builder-paper);
-  border: 1px solid var(--builder-border);
-  border-radius: var(--builder-radius);
 }
 
 .wargear-scope-head {

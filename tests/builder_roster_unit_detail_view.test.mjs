@@ -8,11 +8,42 @@ const {
   validationWithoutMessages,
 } = await import("../HereticBuilder/static/builder_roster_unit_detail_view.js");
 const {
+  renderRosterUnitWargearSection,
   wargearScopeHasContent,
 } = await import("../HereticBuilder/static/builder_roster_unit_wargear_section_view.js");
 const {
+  renderWargearScope,
+} = await import("../HereticBuilder/static/builder_roster_unit_wargear_view.js");
+const {
+  state,
+} = await import("./builder_validation_helpers.mjs");
+const {
   unitValidationActionLabel,
 } = await import("../HereticBuilder/static/builder_roster_unit_detail_actions.js");
+
+function createMockElement(tagName) {
+  return {
+    children: [],
+    className: "",
+    dataset: {},
+    tagName,
+    textContent: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      this.textContent += node.textContent || "";
+      return node;
+    },
+    after() {},
+    querySelector() {
+      return null;
+    },
+  };
+}
 
 test("unit validation actions route diagnostics to unit detail editors", () => {
   const cases = [
@@ -121,4 +152,42 @@ test("unit wargear section hides empty scopes unless they carry wargear validati
       scope: {},
     }],
   }), true);
+});
+
+test("unit wargear renderer uses flat sections without nested builder-section cards", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+    querySelector: () => null,
+  };
+  const previousCatalog = state.catalog;
+  state.catalog = {
+    ...previousCatalog,
+    wargearGroupsByDatasheetId: new Map(),
+  };
+
+  try {
+    const section = renderRosterUnitWargearSection({
+      roster: {},
+      unit: { datasheetId: "datasheet-1", miniatures: [] },
+      validation: { messages: [] },
+      validationContext: {},
+    });
+    const scope = renderWargearScope({
+      groups: [],
+      heading: "Unit Wargear",
+      roster: {},
+      target: {},
+      unit: { datasheetId: "datasheet-1" },
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    assert.equal(section.className, "unit-wargear-section");
+    assert.equal(section.dataset.unitDetailTarget, "wargear");
+    assert.equal(scope.className, "wargear-scope");
+  } finally {
+    global.document = previousDocument;
+    state.catalog = previousCatalog;
+  }
 });

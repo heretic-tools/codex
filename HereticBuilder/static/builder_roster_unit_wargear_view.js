@@ -18,7 +18,7 @@ function renderScopeHeader(heading, groupCount) {
 
 function renderScope({ groups, heading, onUndoableUpdate = null, onUpdate, roster, target, unit }) {
   const wrap = document.createElement("section");
-  wrap.className = "builder-section wargear-scope";
+  wrap.className = "wargear-scope";
   wrap.appendChild(renderScopeHeader(heading, groups.length));
   if (!groups.length) {
     wrap.appendChild(textNode("p", "empty-list", "No wargear options"));
