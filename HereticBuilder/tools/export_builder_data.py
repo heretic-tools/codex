@@ -281,6 +281,12 @@ PAYLOAD_EXCLUDED_COLUMNS = {
         "toughness",
         "wounds",
     },
+    "miniature_keyword": {
+        "displayOrder",
+    },
+    "datasheet_faction_keyword": {
+        "displayOrder",
+    },
 }
 
 
