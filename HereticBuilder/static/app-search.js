@@ -1,44 +1,28 @@
 (() => {
-  const root = document.querySelector(".taskbar-search");
+  const root = document.querySelector(".app-search");
   if (!root) {
     return;
   }
 
-  const input = root.querySelector(".taskbar-search-input");
-  const results = root.querySelector(".taskbar-search-results");
+  const input = root.querySelector(".app-search-input");
+  const results = root.querySelector(".app-search-results");
   const resultList = document.createElement("div");
   const clearButton = document.createElement("button");
   let searchTimer = 0;
-  let dragStart = null;
   let staticSearchIndexPromise = null;
 
-  resultList.className = "taskbar-search-results-list";
+  resultList.className = "app-search-results-list";
   resultList.setAttribute("role", "list");
   results.removeAttribute("role");
   results.replaceChildren(resultList);
 
-  const scrollbar = document.createElement("div");
-  scrollbar.className = "win-scrollbar taskbar-search-scrollbar";
-  scrollbar.hidden = true;
-  scrollbar.innerHTML = `
-    <button class="scroll-button scroll-button-up" type="button" aria-label="Scroll up"></button>
-    <div class="scroll-track"><div class="scroll-thumb"></div></div>
-    <button class="scroll-button scroll-button-down" type="button" aria-label="Scroll down"></button>
-  `;
-  results.append(scrollbar);
-
-  const upButton = scrollbar.querySelector(".scroll-button-up");
-  const downButton = scrollbar.querySelector(".scroll-button-down");
-  const track = scrollbar.querySelector(".scroll-track");
-  const thumb = scrollbar.querySelector(".scroll-thumb");
-
-  clearButton.className = "taskbar-search-clear";
+  clearButton.className = "app-search-clear";
   clearButton.type = "button";
   clearButton.setAttribute("aria-label", "Clear search");
   clearButton.textContent = "x";
   input.after(clearButton);
 
-  const TASKBAR_GAP = 54;
+  const APP_FOOTER_GAP = 54;
   const basePath = normalizeBasePath(document.querySelector('meta[name="heretic-base-path"]')?.content || "");
   const staticSearchIndexUrl = document.querySelector('meta[name="heretic-search-index"]')?.content || siteHref("/search-index/manifest.json");
 
@@ -222,9 +206,8 @@
       return;
     }
     const keyboardInset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-    results.style.bottom = `${keyboardInset + TASKBAR_GAP}px`;
-    results.style.maxHeight = `${Math.max(120, Math.round(viewport.height - TASKBAR_GAP - 12))}px`;
-    refreshScrollbar();
+    results.style.bottom = `${keyboardInset + APP_FOOTER_GAP}px`;
+    results.style.maxHeight = `${Math.max(120, Math.round(viewport.height - APP_FOOTER_GAP - 12))}px`;
   }
 
   function setOpen(open) {
@@ -233,7 +216,6 @@
     results.hidden = !open;
     if (open) {
       positionResults();
-      requestAnimationFrame(refreshScrollbar);
     } else {
       results.style.bottom = "";
       results.style.maxHeight = "";
@@ -255,7 +237,7 @@
 
   function renderMessage(message) {
     const item = document.createElement("div");
-    item.className = "taskbar-search-message";
+    item.className = "app-search-message";
     item.textContent = message;
     resultList.replaceChildren(item);
     setOpen(true);
@@ -271,17 +253,17 @@
     const fragment = document.createDocumentFragment();
     items.forEach((item) => {
       const link = document.createElement("a");
-      link.className = "taskbar-search-result";
+      link.className = "app-search-result";
       link.href = siteHref(item.href);
       link.setAttribute("role", "listitem");
 
       const title = document.createElement("span");
-      title.className = "taskbar-search-result-title";
+      title.className = "app-search-result-title";
       title.textContent = resultText(item.title);
       link.append(title);
 
       const meta = document.createElement("span");
-      meta.className = "taskbar-search-result-meta";
+      meta.className = "app-search-result-meta";
       const type = resultText(item.type);
       const context = resultText(item.meta);
       meta.textContent = [type, context].filter(Boolean).join(" / ");
@@ -291,32 +273,6 @@
     });
     resultList.append(fragment);
     setOpen(true);
-  }
-
-  function scrollStep() {
-    return Math.max(64, Math.floor(resultList.clientHeight * 0.35));
-  }
-
-  function updateThumb() {
-    const maxScroll = Math.max(0, resultList.scrollHeight - resultList.clientHeight);
-    const trackHeight = track.clientHeight;
-    const thumbHeight = Math.max(24, Math.floor(resultList.clientHeight / resultList.scrollHeight * trackHeight));
-    const travel = Math.max(0, trackHeight - thumbHeight);
-    const thumbTop = maxScroll ? Math.round(resultList.scrollTop / maxScroll * travel) : 0;
-    thumb.style.height = `${thumbHeight}px`;
-    thumb.style.transform = `translateY(${thumbTop}px)`;
-  }
-
-  function refreshScrollbar() {
-    if (results.hidden) {
-      return;
-    }
-    const isScrollable = resultList.scrollHeight - resultList.clientHeight > 1;
-    results.classList.toggle("has-search-scrollbar", isScrollable);
-    scrollbar.hidden = !isScrollable;
-    if (isScrollable) {
-      updateThumb();
-    }
   }
 
   async function runSearch(query) {
@@ -353,47 +309,10 @@
     input.focus();
   });
 
-  upButton.addEventListener("click", () => resultList.scrollBy({ top: -scrollStep(), behavior: "auto" }));
-  downButton.addEventListener("click", () => resultList.scrollBy({ top: scrollStep(), behavior: "auto" }));
-  track.addEventListener("click", (event) => {
-    if (event.target !== track) {
-      return;
-    }
-    const thumbRect = thumb.getBoundingClientRect();
-    resultList.scrollBy({ top: event.clientY < thumbRect.top ? -resultList.clientHeight : resultList.clientHeight, behavior: "auto" });
-  });
-  thumb.addEventListener("pointerdown", (event) => {
-    dragStart = { y: event.clientY, scrollTop: resultList.scrollTop };
-    thumb.setPointerCapture(event.pointerId);
-    event.preventDefault();
-  });
-  thumb.addEventListener("pointermove", (event) => {
-    if (!dragStart) {
-      return;
-    }
-    const maxScroll = resultList.scrollHeight - resultList.clientHeight;
-    const travel = Math.max(1, track.clientHeight - thumb.offsetHeight);
-    resultList.scrollTop = dragStart.scrollTop + (event.clientY - dragStart.y) * maxScroll / travel;
-  });
-  thumb.addEventListener("pointerup", () => {
-    dragStart = null;
-  });
-  thumb.addEventListener("pointercancel", () => {
-    dragStart = null;
-  });
-  resultList.addEventListener("scroll", updateThumb, { passive: true });
-  window.addEventListener("resize", () => {
-    positionResults();
-    refreshScrollbar();
-  });
+  window.addEventListener("resize", positionResults);
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", positionResults);
     window.visualViewport.addEventListener("scroll", positionResults);
-  }
-  if ("ResizeObserver" in window) {
-    const observer = new ResizeObserver(refreshScrollbar);
-    observer.observe(results);
-    observer.observe(resultList);
   }
 
   input.addEventListener("input", scheduleSearch);

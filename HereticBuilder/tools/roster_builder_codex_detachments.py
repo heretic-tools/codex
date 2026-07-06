@@ -266,7 +266,7 @@ def render_faction_detachment_page(heretic_builder, faction_id, detachment_id):
     content_html = '<div class="codex-content detachment-detail-content">' + "".join(section for section in sections if section) + "</div>"
     return render_codex_content_page(
         title=f"{detachment['name']} Detachment",
-        window_title=f"{detachment['name']}\nDetachment",
+        header_title=f"{detachment['name']}\nDetachment",
         task_title=f"{faction['name']} / {detachment['name']}",
         page_class="faction-detail-page detachment-detail-page",
         content_html=content_html,
@@ -294,7 +294,7 @@ def render_faction_detachments_page(heretic_builder, faction_id):
         content_html = '<div class="empty-state">No detachments found.</div>'
     return render_codex_content_page(
         title=f"{faction['name']} Detachments",
-        window_title=f"{faction['name']}\nDetachments",
+        header_title=f"{faction['name']}\nDetachments",
         task_title=f"{faction['name']} / Detachments",
         page_class="faction-detail-page many-buttons-page",
         content_html=content_html,

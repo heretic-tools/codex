@@ -1,6 +1,6 @@
 (() => {
   const launchers = Array.from(document.querySelectorAll(".launcher"));
-  const titleBar = document.querySelector(".title-bar");
+  const appHeader = document.querySelector(".app-header");
   const page = document.querySelector(".codex-page");
   const ruleReturnStorageKey = "hereticCoreRuleReturnStack";
   const basePath = normalizeBasePath(document.querySelector('meta[name="heretic-base-path"]')?.content || "");
@@ -149,8 +149,8 @@
   }
 
   function goUp() {
-    if (titleBar?.dataset.upHref) {
-      window.location.href = navigationHref(titleBar.dataset.upHref);
+    if (appHeader?.dataset.upHref) {
+      window.location.href = navigationHref(appHeader.dataset.upHref);
     }
   }
 
@@ -189,13 +189,13 @@
     return Boolean(event.target?.closest?.("a, button, input, select, textarea, [role='link'], [role='button']"));
   }
 
-  titleBar?.addEventListener("click", (event) => {
+  appHeader?.addEventListener("click", (event) => {
     if (isInteractiveTarget(event)) {
       return;
     }
     closeWindow();
   });
-  titleBar?.addEventListener("keydown", (event) => {
+  appHeader?.addEventListener("keydown", (event) => {
     if (isInteractiveTarget(event)) {
       return;
     }

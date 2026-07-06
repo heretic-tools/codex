@@ -4,7 +4,7 @@ const el = {
   breadcrumbs: document.getElementById("builder-breadcrumbs"),
   root: document.getElementById("builder-root"),
   status: document.getElementById("data-status"),
-  title: document.getElementById("builder-window-title"),
+  title: document.getElementById("builder-page-title"),
 };
 
 function setStatus(text) {

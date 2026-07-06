@@ -35,12 +35,12 @@
   margin: auto;
 }
 
-.builder-title-bar {
+.builder-app-header {
   display: flex;
   justify-content: space-between;
 }
 
-.builder-title-actions {
+.builder-app-header-actions {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -720,7 +720,7 @@
   width: min(1120px, 100%);
 }
 
-.builder-title-bar {
+.builder-app-header {
   min-height: 58px;
 }
 

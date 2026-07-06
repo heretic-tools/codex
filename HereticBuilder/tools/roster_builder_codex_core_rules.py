@@ -26,7 +26,7 @@ from roster_builder_utils import dict_row
 def render_core_rules_page():
     return render_codex_page(
         title="Core Rules",
-        window_title="Core Rules",
+        header_title="Core Rules",
         task_title="Core Rules",
         page_class="core-rules-page",
         grid_label="Core Rules sections",
@@ -154,7 +154,7 @@ def render_core_rules_rules_page(heretic_builder):
     content_html = f'<div class="list-grid core-rules-list-grid">{items_html}</div>'
     return render_codex_content_page(
         title="Core Rules",
-        window_title="Rules",
+        header_title="Rules",
         task_title="Core Rules / Rules",
         page_class="faction-detail-page core-rules-list-page",
         content_html=content_html,
@@ -196,7 +196,7 @@ def render_core_rules_section_page(heretic_builder, section_code):
 
     return render_codex_content_page(
         title=section["name"],
-        window_title=section["name"],
+        header_title=section["name"],
         task_title=f'Core Rules / {section["name"]}',
         page_class="faction-detail-page core-rules-list-page",
         content_html=content_html,
@@ -210,7 +210,7 @@ def render_core_stratagems_page(heretic_builder):
     content_html = f'<div class="list-grid core-rules-list-grid">{items_html}</div>'
     return render_codex_content_page(
         title="Core Stratagems",
-        window_title="Core Stratagems",
+        header_title="Core Stratagems",
         task_title="Core Rules / Stratagems",
         page_class="faction-detail-page core-rules-list-page",
         content_html=content_html,
@@ -223,7 +223,7 @@ def render_core_faq_page(heretic_builder):
     content_html = render_faq_section("FAQ", faqs) or '<div class="empty-state">No FAQ found.</div>'
     return render_codex_content_page(
         title="Core Rules FAQ",
-        window_title="Core Rules\nFAQ",
+        header_title="Core Rules\nFAQ",
         task_title="Core Rules / FAQ",
         page_class="faction-detail-page core-rules-faq-page",
         content_html=content_html,
@@ -365,7 +365,7 @@ def render_core_rule_page(heretic_builder, reference):
     content_html = '<article class="codex-content core-rule-content">' + "".join(section for section in sections if section) + "</article>"
     return render_codex_content_page(
         title=heading,
-        window_title=heading,
+        header_title=heading,
         task_title=f"Core Rules / {heading}",
         page_class="core-rule-page",
         content_html=content_html,

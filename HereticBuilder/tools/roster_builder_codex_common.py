@@ -63,17 +63,17 @@ def core_rule_section_href(section):
     code = normalize_rule_section_code(section.get("name", ""))
     return f"/codex/core-rules/section/{code}" if code else "/codex/core-rules/rules"
 
-def title_bar_context(hero_image=None, hero_image_url=None):
+def app_header_context(hero_image=None, hero_image_url=None):
     if not hero_image_url and hero_image:
         hero_image_url = faction_image_url(hero_image)
     if not hero_image_url:
-        return {"title_bar_class": "", "title_bar_style_attr": ""}
+        return {"app_header_class": "", "app_header_style_attr": ""}
     return {
-        "title_bar_class": "faction-hero-title",
-        "title_bar_style_attr": f' style="--faction-hero-image: url(\'{hero_image_url}\');"',
+        "app_header_class": "faction-hero-title",
+        "app_header_style_attr": f' style="--faction-hero-image: url(\'{hero_image_url}\');"',
     }
 
-def render_window_title(value):
+def render_header_title(value):
     return "<br>".join(escape_html(line) for line in str(value).splitlines())
 
 def breadcrumb_label_from_segment(segment):
@@ -154,7 +154,7 @@ def render_launcher(button):
 
 def render_codex_page(
     title,
-    window_title,
+    header_title,
     task_title,
     page_class,
     grid_label,
@@ -170,11 +170,11 @@ def render_codex_page(
 
     return render_template(
         "codex.html",
-        **title_bar_context(hero_image, hero_image_url),
+        **app_header_context(hero_image, hero_image_url),
         document_title=escape_html(f"{title} - HereticTools"),
         page_class=escape_attr(page_class),
         title=escape_attr(title),
-        window_title=render_window_title(window_title),
+        header_title=render_header_title(header_title),
         breadcrumb_html=render_breadcrumbs(back_href, breadcrumb_items),
         grid_label=escape_attr(grid_label),
         buttons_html="\n".join(render_launcher(button) for button in buttons),
@@ -185,7 +185,7 @@ def render_codex_page(
 
 def render_codex_content_page(
     title,
-    window_title,
+    header_title,
     task_title,
     page_class,
     content_html,
@@ -197,11 +197,11 @@ def render_codex_content_page(
 ):
     return render_template(
         "codex_content.html",
-        **title_bar_context(hero_image, hero_image_url),
+        **app_header_context(hero_image, hero_image_url),
         document_title=escape_html(f"{title} - HereticTools"),
         page_class=escape_attr(page_class),
         title=escape_attr(title),
-        window_title=render_window_title(window_title),
+        header_title=render_header_title(header_title),
         breadcrumb_html=render_breadcrumbs(back_href, breadcrumb_items),
         content_html=content_html,
         back_href=escape_attr(back_href),
@@ -212,7 +212,7 @@ def render_codex_content_page(
 def render_codex_root_page():
     return render_codex_page(
         title="Codex",
-        window_title="Codex",
+        header_title="Codex",
         task_title="Codex",
         page_class="codex-root-page",
         grid_label="Codex sections",

@@ -33,7 +33,7 @@ ADEPTUS_ASTARTES_FACTION_ID = "01623188-9470-4441-96b0-e06eb2572bb5"
 FACTION_GROUPS = {
     "imperium": {
         "title": "Imperium",
-        "window_title": "Imperium",
+        "header_title": "Imperium",
         "hero_faction_id": "2f81671f-3164-4ab0-93c0-4a99746b5996",
         "hero_faction_name": "Agents of the Imperium",
         "ids": {
@@ -48,7 +48,7 @@ FACTION_GROUPS = {
     },
     "chaos": {
         "title": "Chaos",
-        "window_title": "Chaos",
+        "header_title": "Chaos",
         "hero_faction_id": "40a70c91-675a-4ac5-aa97-daedb9cb6f11",
         "hero_faction_name": "Legiones Daemonica",
         "ids": {
@@ -64,7 +64,7 @@ FACTION_GROUPS = {
     },
     "xenos": {
         "title": "Xenos",
-        "window_title": "Xenos",
+        "header_title": "Xenos",
         "hero_faction_id": "0b30f1e3-1e5c-4823-afa1-07951433a270",
         "hero_faction_name": "Orks",
         "ids": {
@@ -134,7 +134,7 @@ def render_faction_group_page(heretic_builder, group_key):
         buttons.sort(key=lambda button: button["label"].lower())
     return render_codex_page(
         title=group["title"],
-        window_title=group["window_title"],
+        header_title=group["header_title"],
         task_title=group["title"],
         page_class="faction-list-page",
         grid_label="Faction sections",
@@ -153,7 +153,7 @@ def render_adeptus_astartes_page(heretic_builder):
     ]
     return render_codex_page(
         title="Adeptus Astartes",
-        window_title="AdeptusAstartes",
+        header_title="AdeptusAstartes",
         task_title="Adeptus Astartes",
         page_class="faction-list-page",
         grid_label="Adeptus Astartes factions",
@@ -213,7 +213,7 @@ def render_faction_page(heretic_builder, faction_id):
     base_href = faction_href(faction)
     return render_codex_page(
         title=faction["name"],
-        window_title=f"{faction['name']}",
+        header_title=f"{faction['name']}",
         task_title=faction["name"],
         page_class="faction-home-page",
         grid_label=f"{faction['name']} sections",
@@ -294,7 +294,7 @@ def render_faction_army_rule_page(heretic_builder, faction_id):
         content_html = '<div class="codex-content">' + "".join(rule_html) + "</div>"
     return render_codex_content_page(
         title=f"{faction['name']} Army Rule",
-        window_title=f"{faction['name']}\nRule",
+        header_title=f"{faction['name']}\nRule",
         task_title=f"{faction['name']} / Army Rule",
         page_class="faction-detail-page",
         content_html=content_html,
@@ -550,7 +550,7 @@ def render_faction_datasheets_page(heretic_builder, faction_id):
         content_html = '<div class="empty-state">No datasheets found.</div>'
     return render_codex_content_page(
         title=f"{faction['name']} Data Sheets",
-        window_title=f"{faction['name']}\nData Sheets",
+        header_title=f"{faction['name']}\nData Sheets",
         task_title=f"{faction['name']} / Data Sheets",
         page_class="faction-detail-page many-buttons-page",
         content_html=content_html,

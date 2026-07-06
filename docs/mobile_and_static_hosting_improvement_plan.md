@@ -28,7 +28,7 @@ Tactical Mono** — плотный тактический интерфейс с 
 | Приоритет | Направление | Статус | Уже сделано | Осталось |
 | --- | --- | --- | --- | --- |
 | P0 | Продуктовый скелет | Сделано | Основные маршруты и флоу уже существуют: Home, Codex, Builder list, Builder create, roster detail, unit detail/wargear/upgrades. GitHub Pages constraint и local-cache подход зафиксированы в этом плане. Проверяемый продуктовый контракт записан в `docs/product_skeleton.md`. | Поддерживать документ актуальным при изменении экранов или главных действий. |
-| P0 | Современный app shell вместо Windows shell | Основной срез сделан | Коммит `7a4fc6e` убрал активные fake window controls из пользовательских шаблонов, ввёл modern shell/tokens для цветов, отступов, кнопок, badges, lists и panels, проверен на Builder/Codex mobile screenshots. `win-scrollbars.js` и optional `setupWinScrollbars` удалены из кода и Builder build. Ранний dark-first/light theme foundation добавлен через общие tokens и browser preference. | Удалить/переименовать оставшиеся legacy DOM/CSS контракты вроде `taskbar`, `title-bar` и search-specific `win-scrollbar` классы. |
+| P0 | Современный app shell вместо Windows shell | Основной срез сделан | Коммит `7a4fc6e` убрал активные fake window controls из пользовательских шаблонов, ввёл modern shell/tokens для цветов, отступов, кнопок, badges, lists и panels, проверен на Builder/Codex mobile screenshots. `win-scrollbars.js` и optional `setupWinScrollbars` удалены из кода и Builder build. Ранний dark-first/light theme foundation добавлен через общие tokens и browser preference. Legacy header/footer/search DOM/CSS контракты переименованы в `app-header`, `app-footer`, `app-search`; скрытый custom search scrollbar удалён. | Оставшееся legacy naming вроде `desktop`/`desktop.css` вынести отдельным проходом, чтобы не смешивать с Builder UX. |
 | P0/P1 | Builder в новом стиле | Частично сделано | Список ростеров, создание ростера, базовый roster detail и validation surfaces уже переведены на новый shell; roster list получил detachment badges. | Довести roster detail, unit detail, wargear/upgrades и validation messages до полноценного UX в новой системе. |
 | P1 | Codex в новом стиле | Частично сделано | Базовые Codex surfaces, cards, badges и таблицы получили modern override вместе с app shell. | Довести faction list, datasheets, detachment/rules pages и мобильную читаемость таблиц отдельным проходом. |
 | P1 | PWA/offline | Не начато | Подтверждено, что Builder остаётся статическим GitHub Pages приложением без backend, а пользовательские данные хранятся локально. | Добавить manifest, service worker, offline/cache стратегию и проверить, что не кэшируем старую UI-архитектуру. |
@@ -50,7 +50,7 @@ Tactical Mono** — плотный тактический интерфейс с 
 | Builder грузит все ~70 таблиц каталога одним `Promise.all`, независимо от выбранной фракции | `HereticBuilder/static/builder_catalog_tables.js` (список `CATALOG_TABLES`) + `HereticBuilder/static/builder_catalog_loader.js:12-16` (`loadCatalogTables`) |
 | Экспорт каталога пишет по одному JSON-файлу на таблицу без учёта фракции | `HereticBuilder/tools/export_builder_data.py:684-693` (цикл по `CATALOG_TABLES`) |
 | Итоговый вес `dist/builder-data/` | 19MB (`tables/` — основной вес, `bootstrap.json` — 9KB) |
-| `dist/search-index.json` грузится целиком одним fetch | `HereticBuilder/static/taskbar-search.js:43,175` |
+| `dist/search-index.json` грузится целиком одним fetch | `HereticBuilder/static/app-search.js:173` |
 | Вес `search-index.json` | 6.7MB |
 | Web app manifest / service worker | отсутствуют |
 | Медиа-запросы в CSS | 1 в `builder.css`, 3 в `desktop.css`, 3 в `codex.css` — фактически desktop-first |
@@ -106,12 +106,12 @@ Acceptance:
 
 ## Фаза 2 — Шардинг поискового индекса Codex
 
-Проблема: `dist/search-index.json` (6.7MB) собирается целиком в `write_search_index` (`build_static_site.py:291-299`) и грузится одним fetch в `taskbar-search.js:175`, до того как пользователь начал печатать. Исследование указывает на Pagefind-стиль шардинга как прямое решение для multi-MB индекса на статическом хостинге без сервера.
+Проблема: `dist/search-index.json` (6.7MB) собирается целиком в `write_search_index` (`build_static_site.py:291-299`) и грузится одним fetch в `app-search.js:173`, до того как пользователь начал печатать. Исследование указывает на Pagefind-стиль шардинга как прямое решение для multi-MB индекса на статическом хостинге без сервера.
 
 Deliverables:
 
 1. В `build_static_site.py` изменить `write_search_index` так, чтобы вместо одного `search-index.json` со всеми items писались шарды по типу контента (`search-index/datasheet.json`, `search-index/stratagem.json`, `search-index/faq.json`, ... — по значению поля `type` из `search_index_items`), плюс маленький `search-index/manifest.json` со списком шардов и их размерами.
-2. В `taskbar-search.js` заменить единый eager `fetch(staticSearchIndexUrl)` (строка 175) на: загрузку `search-index/manifest.json` сразу (маленький файл), затем lazy-фетч конкретных шардов **только когда пользователь открывает поиск** (по первому нажатию на search-триггер), с последующим кэшированием уже загруженных шардов в памяти на время сессии.
+2. В `app-search.js` заменить единый eager `fetch(staticSearchIndexUrl)` (строка 173) на: загрузку `search-index/manifest.json` сразу (маленький файл), затем lazy-фетч конкретных шардов **только когда пользователь открывает поиск** (по первому нажатию на search-триггер), с последующим кэшированием уже загруженных шардов в памяти на время сессии.
 3. Сохранить обратную совместимость метатега `heretic-search-index` (`build_static_site.py:194`) — он теперь указывает на `search-index/manifest.json` вместо монолитного файла.
 
 Acceptance:
@@ -129,12 +129,12 @@ Deliverables:
 1. Инвертировать порядок правил в `codex.css`, `builder.css`: базовые (без медиа-запроса) стили теперь пишутся для узкого вьюпорта (~375px), а текущие "десктопные" правила заворачиваются в `@media (min-width: 768px)` — mobile-first по direction медиа-запросов (`min-width`, не `max-width`).
 2. Датащит-таблицы оружия (`codex_unit_weapon_row.html`, колонки R/A/Skill/S/AP/D) получают frozen-first-column паттерн: обёртка `overflow-x:auto`, `position:sticky; left:0` на `<th scope="row">` с именем оружия, остальные колонки скроллятся горизонтально под большим пальцем — конкретно из исследования (CSS-Tricks frozen-first-column).
 3. Основные touch-таргеты (кнопки создания/сохранения ростера, переключатели в Builder, ссылки в navigation) получают минимум 44×44pt согласно Apple HIG / 48×48dp согласно Material — проверяется через `preview_inspect` на реальной сборке.
-4. Основная навигация/действия Builder (создать юнит, посмотреть очки, провалидировать) переносятся в нижний sticky-бар вместо текущего верхнего `title-bar`/`taskbar` паттерна для мобильного вьюпорта — десктопный `title-bar` остаётся для `min-width: 768px`.
+4. Основная навигация/действия Builder (создать юнит, посмотреть очки, провалидировать) переносятся в нижний sticky-бар вместо текущей схемы с верхним `app-header` и общим `app-footer` для мобильного вьюпорта — десктопный `app-header` остаётся для `min-width: 768px`.
 
 Acceptance:
 
 - `preview_resize` на `mobile` (375×812) показывает: датащит-таблицу оружия без горизонтального переполнения всей страницы (только сама таблица скроллится), нижний sticky-бар с очками не перекрыт safe-area, все интерактивные элементы ≥44px через `preview_inspect`.
-- `preview_resize` на `desktop` (1280×800) показывает прежнее поведение без регрессий (тот же title-bar/taskbar, что и сейчас).
+- `preview_resize` на `desktop` (1280×800) показывает прежнее поведение без регрессий (тот же app-header/app-footer, что и сейчас).
 - Не увеличивается число медиа-запросов бессистемно — направление (`min-width`) единое по всему `codex.css`/`builder.css`.
 
 ## Фаза 4 — PWA: manifest, service worker, offline

@@ -424,7 +424,7 @@ def render_datasheet_page(heretic_builder, faction_id, datasheet_id):
 
     return render_codex_content_page(
         title=datasheet["name"],
-        window_title=f"{datasheet['name']}",
+        header_title=f"{datasheet['name']}",
         task_title=f"{faction['name']} / {datasheet['name']}",
         page_class="faction-detail-page unit-detail-page",
         content_html=content_html,
