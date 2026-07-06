@@ -1179,8 +1179,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const warlordRulesSource = readFileSync(join(outDir, "static", "builder_warlord_rules.js"), "utf8");
     assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
     assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_candidates\\.js\\?v=${version}`));
+    assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_mandatory_presence_rules\\.js\\?v=${version}`));
     assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_selected_rules\\.js\\?v=${version}`));
     assert.match(warlordRulesSource, new RegExp(`\\.\\/builder_warlord_scopes\\.js\\?v=${version}`));
+
+    const warlordMandatoryPresenceRulesSource = readFileSync(join(outDir, "static", "builder_warlord_mandatory_presence_rules.js"), "utf8");
+    assert.match(warlordMandatoryPresenceRulesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
+    assert.match(warlordMandatoryPresenceRulesSource, new RegExp(`\\.\\/builder_warlord_scopes\\.js\\?v=${version}`));
 
     const warlordEligibilitySource = readFileSync(join(outDir, "static", "builder_warlord_eligibility.js"), "utf8");
     assert.match(warlordEligibilitySource, new RegExp(`\\.\\/builder_warlord_conditional_keywords\\.js\\?v=${version}`));
