@@ -68,7 +68,7 @@ Builder не должен иметь старую совместимость с�
 | Codex root / faction list | `/codex` or `/` when mounted at root | Выбрать faction/faction group, открыть core rules/search. | Сканируемый список фракций и групп. |
 | Faction overview | faction route | Перейти в datasheets, detachments, army rules. | Название фракции, основные разделы, быстрый возврат назад. |
 | Datasheet list | faction datasheets route | Найти и открыть datasheet. | Список datasheets с понятными badges/points where available. |
-| Datasheet detail | datasheet route | Читать профиль, weapons, abilities, keywords. | Название юнита, ключевые stats, таблицы с контролируемым horizontal scroll только там, где таблица действительно шире экрана. |
+| Datasheet detail | datasheet route | Читать профиль, weapons, abilities, keywords. | Название юнита, ключевые stats, таблицы с контролируемым horizontal scroll только там, где таблица действительно шире экрана; длинные ability/rule/wargear cards на мобильном раскрываются по намеренному тапу. |
 | Detachments list | faction detachments route | Выбрать detachment. | Список detachments с disposition/cost badges. |
 | Detachment/rules detail | detachment/rules routes | Читать rule, enhancements, stratagems, restrictions. | Заголовок, badges, читаемые правила без desktop-only таблиц. |
 | Core rules / FAQ | core rules routes | Читать базовые правила и FAQ. | Текстовые разделы с удобным скроллом и breadcrumbs назад. |

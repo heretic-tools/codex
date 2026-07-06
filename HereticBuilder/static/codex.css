@@ -1677,6 +1677,48 @@
   color: var(--app-ink);
 }
 
+.unit-info-card-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.unit-info-card-toggle-row h3 {
+  min-width: 0;
+}
+
+.unit-info-card-collapse-button {
+  flex: none;
+  min-height: 32px;
+  padding: 4px 9px;
+  color: var(--app-ink);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.unit-info-card-collapse-button:hover {
+  border-color: var(--app-border-strong);
+}
+
+.unit-info-card-collapse-button:focus-visible {
+  outline: 3px solid rgba(40, 95, 159, .28);
+  outline-offset: 2px;
+}
+
+.unit-info-card-collapsible-body {
+  display: grid;
+  gap: 7px;
+}
+
+.unit-info-card-collapsible-body[hidden] {
+  display: none;
+}
+
 .unit-table-wrap {
   border-radius: var(--app-radius);
   overflow: auto;

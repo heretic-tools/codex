@@ -189,6 +189,90 @@
     return Boolean(event.target?.closest?.("a, button, input, select, textarea, [role='link'], [role='button']"));
   }
 
+  function cardTitle(card) {
+    return card.querySelector("h2, h3")?.textContent?.trim() || "Rules";
+  }
+
+  function collapseButtonLabel(collapsed, title) {
+    return `${collapsed ? "Show" : "Hide"} ${title}`;
+  }
+
+  function setUnitInfoCardCollapsed(card, collapsed) {
+    const button = card.querySelector(".unit-info-card-collapse-button");
+    const body = card.querySelector(".unit-info-card-collapsible-body");
+    if (!button || !body) {
+      return;
+    }
+    const title = cardTitle(card);
+    body.hidden = collapsed;
+    card.classList.toggle("is-collapsed", collapsed);
+    button.textContent = collapsed ? "Show" : "Hide";
+    button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    button.setAttribute("aria-label", collapseButtonLabel(collapsed, title));
+  }
+
+  function enhanceUnitInfoCard(card, index) {
+    if (card.dataset.collapsibleReady === "true") {
+      return;
+    }
+    const heading = card.querySelector(":scope > .unit-card-heading, :scope > h2, :scope > h3");
+    if (!heading) {
+      return;
+    }
+    const body = document.createElement("div");
+    body.className = "unit-info-card-collapsible-body";
+    body.id = `unit-info-card-body-${index + 1}`;
+    while (heading.nextSibling) {
+      body.appendChild(heading.nextSibling);
+    }
+    const button = document.createElement("button");
+    button.className = "unit-info-card-collapse-button";
+    button.type = "button";
+    button.setAttribute("aria-controls", body.id);
+    button.addEventListener("click", () => {
+      card.dataset.collapsibleTouched = "true";
+      setUnitInfoCardCollapsed(card, !body.hidden);
+    });
+    heading.classList.add("unit-info-card-toggle-row");
+    heading.appendChild(button);
+    card.appendChild(body);
+    card.dataset.collapsibleReady = "true";
+  }
+
+  function setupMobileUnitInfoCards() {
+    const cards = Array.from(document.querySelectorAll(".unit-detail-page .unit-rules-grid > .unit-info-card"));
+    if (!cards.length || !window.matchMedia) {
+      return;
+    }
+    const media = window.matchMedia("(max-width: 760px)");
+    const applyMode = () => {
+      cards.forEach((card, index) => {
+        enhanceUnitInfoCard(card, index);
+        const button = card.querySelector(".unit-info-card-collapse-button");
+        const body = card.querySelector(".unit-info-card-collapsible-body");
+        if (!button || !body) {
+          return;
+        }
+        button.hidden = !media.matches;
+        if (media.matches) {
+          if (card.dataset.collapsibleTouched !== "true") {
+            setUnitInfoCardCollapsed(card, true);
+          }
+          return;
+        }
+        body.hidden = false;
+        card.classList.remove("is-collapsed");
+        button.setAttribute("aria-expanded", "true");
+      });
+    };
+    applyMode();
+    if (media.addEventListener) {
+      media.addEventListener("change", applyMode);
+    } else {
+      media.addListener?.(applyMode);
+    }
+  }
+
   appHeader?.addEventListener("click", (event) => {
     if (isInteractiveTarget(event)) {
       return;
@@ -210,5 +294,7 @@
   if (activeButton) {
     activeButton.setAttribute("aria-pressed", "true");
   }
+
+  setupMobileUnitInfoCards();
 
 })();
