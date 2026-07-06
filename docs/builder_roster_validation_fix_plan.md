@@ -1192,6 +1192,12 @@ browser smoke test.
   legacy mutation behavior, while the roster picker and unit-detail Warlord
   control now pass current unit summaries and detachments so ineligible Warlord
   targets cannot be written by the mutation layer.
+- 2026-07-06: Added optional Enhancement candidate-status guards to
+  `builder_roster_unit_upgrade_actions.js`. Low-level calls without context
+  preserve legacy mutation behavior, while the unit-detail Enhancement editor
+  now passes current unit summaries, detachments, target keywords, and model
+  context so ineligible unit/model Enhancement selections cannot be written by
+  the mutation layer.
 - 2026-07-05: Split base unit add/remove/composition mutations out of the
   `builder_roster_unit_actions.js` facade into
   `builder_roster_unit_base_actions.js`. The public action API is unchanged,
