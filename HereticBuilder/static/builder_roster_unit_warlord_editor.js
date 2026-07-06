@@ -31,6 +31,11 @@ function renderWarlordEditor({
   validationContext = {},
 }) {
   const model = unitWarlordSelectModel(roster, unit);
+  const validationNode = renderUnitEditorValidation(validation, validationContext, "warlord");
+  const hasSelectableTarget = model.options.some((row) => row.value && !row.disabled);
+  if (!model.currentId && !hasSelectableTarget && !validationNode) {
+    return null;
+  }
   const select = document.createElement("select");
   for (const row of model.options) {
     select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
@@ -46,7 +51,6 @@ function renderWarlordEditor({
   wrap.className = "field";
   wrap.dataset.unitDetailTarget = "warlord";
   wrap.append(textNode("span", "", "Warlord"), select);
-  const validationNode = renderUnitEditorValidation(validation, validationContext, "warlord");
   if (validationNode) {
     wrap.appendChild(validationNode);
   }

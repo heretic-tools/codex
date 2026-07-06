@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   availableDatasheets,
   battleSizeNamed,
+  datasheetNamed,
   enhancementTargetUnit,
   factionNamed,
   keywordIdsForDatasheet,
@@ -13,8 +14,41 @@ import {
   rosterWithAddedUnit,
   rosterWithWarlord,
 } from "../HereticBuilder/static/builder_roster_actions.js";
-import { updateUnitWarlordFromEditor } from "../HereticBuilder/static/builder_roster_unit_warlord_editor.js";
+import {
+  renderWarlordEditor,
+  updateUnitWarlordFromEditor,
+} from "../HereticBuilder/static/builder_roster_unit_warlord_editor.js";
 import { updateWarlordFromPicker } from "../HereticBuilder/static/builder_roster_warlord_picker.js";
+
+function createMockElement(tagName) {
+  return {
+    attributes: new Map(),
+    children: [],
+    className: "",
+    dataset: {},
+    disabled: false,
+    listeners: new Map(),
+    tagName,
+    textContent: "",
+    value: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      this.textContent += node.textContent || "";
+      return node;
+    },
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    },
+  };
+}
 
 function duplicateLimitedCharacterDatasheet(roster) {
   const datasheet = availableDatasheets(roster, "native").find((row) => {
@@ -29,6 +63,87 @@ function duplicateLimitedCharacterDatasheet(roster) {
   assert.ok(datasheet, "Expected a duplicate-limited Character datasheet");
   return datasheet;
 }
+
+test("unit warlord editor hides units with no selectable warlord target", () => {
+  state.catalog = realCatalog;
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const roster = {
+      id: "hidden-warlord-editor-roster",
+      name: "Hidden Warlord Editor",
+      factionKeywordId: factionNamed("Heretic Astartes").id,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [],
+      units: [],
+      attachments: [],
+    };
+    const withSupremeCommander = rosterWithAddedUnit(roster, {
+      datasheetId: datasheetNamed("Abaddon the Despoiler").id,
+      unitId: "abaddon",
+    });
+    const withAccursedCultists = rosterWithAddedUnit(withSupremeCommander, {
+      datasheetId: datasheetNamed("Accursed Cultists").id,
+      unitId: "accursed-cultists",
+    });
+    const accursedCultists = {
+      ...withAccursedCultists.units.find((unit) => unit.id === "accursed-cultists"),
+      name: "Accursed Cultists",
+    };
+
+    assert.equal(renderWarlordEditor({
+      onUpdate: () => {},
+      roster: withAccursedCultists,
+      unit: accursedCultists,
+      validation: { messages: [] },
+      validationContext: {},
+    }), null);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit warlord editor stays visible when the unit has an eligible target", () => {
+  state.catalog = realCatalog;
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const roster = {
+      id: "visible-warlord-editor-roster",
+      name: "Visible Warlord Editor",
+      factionKeywordId: factionNamed("Heretic Astartes").id,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [],
+      units: [],
+      attachments: [],
+    };
+    const datasheet = duplicateLimitedCharacterDatasheet(roster);
+    const withUnit = rosterWithAddedUnit(roster, {
+      datasheetId: datasheet.id,
+      unitId: "character-unit",
+    });
+    const unit = { ...withUnit.units[0], name: datasheet.name };
+    const node = renderWarlordEditor({
+      onUpdate: () => {},
+      roster: withUnit,
+      unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    assert.equal(node.tagName, "label");
+    assert.equal(node.dataset.unitDetailTarget, "warlord");
+    assert.equal(node.children[1].tagName, "select");
+  } finally {
+    global.document = previousDocument;
+  }
+});
 
 test("builder roster actions keep only one selected Warlord", () => {
   state.catalog = realCatalog;
