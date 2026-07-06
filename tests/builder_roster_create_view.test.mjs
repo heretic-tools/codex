@@ -107,6 +107,45 @@ test("roster create view derives default names from faction and date", async () 
   }
 });
 
+test("roster create view uses battle size radio choices for submit state", async () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    let submitted = null;
+    const form = createView({
+      onSubmit: (value) => {
+        submitted = value;
+      },
+    });
+    const picker = form.children[2];
+    const options = picker.children[1];
+    const incursionLabel = options.children[0];
+    const incursionInput = incursionLabel.children[0];
+    const strikeLabel = options.children[1];
+    const strikeInput = strikeLabel.children[0];
+
+    assert.equal(picker.tagName, "fieldset");
+    assert.equal(form.autocomplete, "off");
+    assert.equal(strikeInput.autocomplete, "off");
+    assert.equal(strikeInput.checked, true);
+    assert.equal(strikeLabel.className, "battle-size-option is-selected");
+
+    incursionInput.checked = true;
+    await incursionInput.dispatch("change");
+    assert.equal(incursionInput.checked, true);
+    assert.equal(strikeInput.checked, false);
+    assert.equal(incursionLabel.className, "battle-size-option is-selected");
+
+    await form.dispatch("submit", { preventDefault() {} });
+    assert.equal(submitted.battleSizeId, "incursion");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
 test("roster create view submit falls back to the generated name", async () => {
   const previousDocument = global.document;
   const previousDate = global.Date;

@@ -494,6 +494,78 @@
   border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
 }
 
+.battle-size-picker {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.battle-size-picker-title {
+  padding: 0;
+  font-weight: 800;
+}
+
+.battle-size-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.battle-size-option {
+  position: relative;
+  min-width: 0;
+  min-height: 48px;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding: 7px 8px;
+  color: var(--builder-ink);
+  background: var(--builder-panel);
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--builder-light) var(--builder-shadow) var(--builder-shadow) var(--builder-light);
+  cursor: pointer;
+}
+
+.battle-size-option + .battle-size-option {
+  margin-left: -2px;
+}
+
+.battle-size-option input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.battle-size-option.is-selected {
+  background: var(--builder-paper);
+  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
+}
+
+.battle-size-option input:focus-visible + .battle-size-option-name {
+  outline: 2px solid var(--builder-blue);
+  outline-offset: 2px;
+}
+
+.battle-size-option-name {
+  overflow-wrap: anywhere;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.battle-size-option-points {
+  color: var(--builder-muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
 .field-readonly-value {
   min-height: 34px;
   display: flex;
