@@ -16,6 +16,7 @@ import {
   rosterWithUnitWargearCount,
 } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
+  renderCompositionEditor,
   updateUnitCompositionFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_composition_editor.js";
 import {
@@ -104,6 +105,36 @@ function rosterWithMultiCompositionUnit() {
   };
 }
 
+function rosterWithCompositionCount(count) {
+  state.catalog = realCatalog;
+  const faction = factionNamed("Heretic Astartes");
+  const roster = {
+    id: `composition-count-${count}-roster`,
+    name: "Composition Count Roster",
+    factionKeywordId: faction.id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const datasheet = availableDatasheets(roster, "native")
+    .find((row) => availableCompositions(
+      row.id,
+      compositionFactionIds(roster, "native"),
+      roster.detachmentIds || []
+    ).length === count);
+  assert.ok(datasheet, `Expected a native datasheet with ${count} available composition(s)`);
+  const withUnit = rosterWithAddedUnit(roster, {
+    datasheetId: datasheet.id,
+    unitId: `composition-count-${count}-unit`,
+  });
+  return {
+    datasheet,
+    roster: withUnit,
+    unit: { ...withUnit.units[0], name: datasheet.name },
+  };
+}
+
 test("unit wargear count control exposes a mobile stepper", async () => {
   const previousDocument = global.document;
   global.document = {
@@ -150,6 +181,43 @@ test("unit wargear count control exposes a mobile stepper", async () => {
     assert.equal(input.value, "0");
     assert.equal(decrement.disabled, true);
     assert.deepEqual(changes, [2, 1, 0, 0]);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit composition editor renders read-only value when only one composition is available", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const single = rosterWithCompositionCount(1);
+    const singleNode = renderCompositionEditor({
+      onUpdate: () => {},
+      roster: single.roster,
+      unit: single.unit,
+    });
+
+    assert.equal(singleNode.tagName, "div");
+    assert.equal(singleNode.className, "field field-readonly");
+    assert.equal(singleNode.dataset.unitDetailTarget, "composition");
+    assert.equal(singleNode.children[0].textContent, "Composition");
+    assert.equal(singleNode.children[1].className, "field-readonly-value");
+    assert.match(singleNode.children[1].textContent, /pts\)$/);
+
+    const multi = rosterWithMultiCompositionUnit();
+    const multiNode = renderCompositionEditor({
+      onUpdate: () => {},
+      roster: multi.roster,
+      unit: multi.unit,
+    });
+
+    assert.equal(multiNode.tagName, "label");
+    assert.equal(multiNode.className, "field");
+    assert.equal(multiNode.children[1].tagName, "select");
+    assert.ok(multiNode.children[1].children.length > 1);
   } finally {
     global.document = previousDocument;
   }

@@ -494,6 +494,19 @@
   border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
 }
 
+.field-readonly-value {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  color: var(--builder-ink);
+  background: var(--builder-panel);
+  border: 2px solid var(--builder-light);
+  border-right-color: var(--builder-shadow);
+  border-bottom-color: var(--builder-shadow);
+  font-weight: 800;
+}
+
 .builder-search-field {
   min-width: 0;
   display: grid;
@@ -1225,6 +1238,7 @@
 .builder-control-row select,
 .field input,
 .field select,
+.field-readonly-value,
 .wargear-option-row input[type="number"] {
   min-height: 42px;
   padding: 8px 10px;

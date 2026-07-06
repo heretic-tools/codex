@@ -28,20 +28,31 @@ function renderCompositionEditor({
   validationContext = {},
 }) {
   const model = compositionSelectModel(roster, unit);
-  const select = document.createElement("select");
-  for (const row of model.options) {
-    select.appendChild(option(row.value, row.label));
-  }
-  select.value = model.currentId;
-  select.dataset.focusTarget = "true";
-  select.addEventListener("change", async () => {
-    await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
-    await updateUnitCompositionFromEditor(roster, unit, select.value, onUpdate, onUndoableUpdate);
-  });
-  const wrap = document.createElement("label");
+  const hasChoices = model.options.length > 1;
+  const wrap = document.createElement(hasChoices ? "label" : "div");
   wrap.className = "field";
   wrap.dataset.unitDetailTarget = "composition";
-  wrap.append(textNode("span", "", "Composition"), select);
+  wrap.appendChild(textNode("span", "", "Composition"));
+  if (hasChoices) {
+    const select = document.createElement("select");
+    for (const row of model.options) {
+      select.appendChild(option(row.value, row.label));
+    }
+    select.value = model.currentId;
+    select.dataset.focusTarget = "true";
+    select.addEventListener("change", async () => {
+      await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
+      await updateUnitCompositionFromEditor(roster, unit, select.value, onUpdate, onUndoableUpdate);
+    });
+    wrap.appendChild(select);
+  } else {
+    wrap.className = "field field-readonly";
+    wrap.appendChild(textNode(
+      "strong",
+      "field-readonly-value",
+      model.options[0]?.label || "No valid composition"
+    ));
+  }
   const validationNode = renderUnitEditorValidation(validation, validationContext, "composition");
   if (validationNode) {
     wrap.appendChild(validationNode);
