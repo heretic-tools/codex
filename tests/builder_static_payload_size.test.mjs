@@ -10,7 +10,7 @@ const builderTablesDir = join(distDir, "builder-data", "tables");
 const searchIndexPath = join(distDir, "search-index.json");
 const searchIndexManifestPath = join(distDir, "search-index", "manifest.json");
 
-const BUILDER_TABLES_BYTES_BUDGET = 10_100_000;
+const BUILDER_TABLES_BYTES_BUDGET = 10_000_000;
 const SEARCH_INDEX_BYTES_BUDGET = 7_100_000;
 
 function jsonFileBytes(dir) {

@@ -287,6 +287,9 @@ PAYLOAD_EXCLUDED_COLUMNS = {
     "datasheet_faction_keyword": {
         "displayOrder",
     },
+    "unit_composition": {
+        "referenceGroupingKeywordId",
+    },
 }
 
 

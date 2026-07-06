@@ -223,6 +223,9 @@ const PAYLOAD_EXCLUDED_COLUMNS = {
   "datasheet_faction_keyword": [
     "displayOrder",
   ],
+  "unit_composition": [
+    "referenceGroupingKeywordId",
+  ],
 };
 
 const BUILDER_PAYLOAD_TABLE_COLUMNS = Object.fromEntries(
