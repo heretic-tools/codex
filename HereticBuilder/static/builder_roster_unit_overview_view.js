@@ -8,6 +8,7 @@ import {
   renderCompositionEditor,
   renderWarlordEditor,
 } from "./builder_roster_unit_detail_editors.js";
+import { unitHasDefaultWargear } from "./builder_roster_unit_wargear_default_actions.js";
 import { wargearGroupsFor } from "./builder_roster_unit_wargear_groups.js";
 import { unitImageNode } from "./builder_unit_images.js";
 
@@ -70,7 +71,7 @@ function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, u
   if (allegianceEditor) {
     overview.appendChild(allegianceEditor);
   }
-  if (unitHasWargearControls(unit)) {
+  if (unitHasWargearControls(unit) && !unitHasDefaultWargear(unit)) {
     const actions = document.createElement("div");
     actions.className = "unit-overview-actions";
     actions.append(

@@ -169,6 +169,29 @@ function rosterWithWargearUnit() {
   };
 }
 
+function rosterWithDirtyWargearUnit() {
+  const { datasheet, roster, unit } = rosterWithWargearUnit();
+  const group = (realCatalog.wargearGroupsByDatasheetId.get(datasheet.id) || [])
+    .find((row) => !row.miniatureId || unit.miniatures.some((miniature) => miniature.miniatureId === row.miniatureId));
+  assert.ok(group, "Expected a scoped wargear group");
+  const option = (realCatalog.wargearOptionsByGroupId.get(group.id) || [])[0];
+  assert.ok(option, "Expected a wargear option");
+  const miniature = group.miniatureId
+    ? unit.miniatures.find((row) => row.miniatureId === group.miniatureId)
+    : null;
+  const dirtyRoster = rosterWithUnitWargearCount(roster, unit.id, {
+    optionId: option.id,
+    count: 2,
+    rosterUnitMiniatureId: miniature?.rosterUnitMiniatureId || "",
+  });
+  assert.notEqual(dirtyRoster, roster, "Expected wargear count change to update roster");
+  return {
+    datasheet,
+    roster: dirtyRoster,
+    unit: { ...dirtyRoster.units[0], name: datasheet.name },
+  };
+}
+
 test("unit wargear count control exposes a mobile stepper", async () => {
   const previousDocument = global.document;
   global.document = {
@@ -294,7 +317,30 @@ test("unit overview does not duplicate the unit title from the app header", () =
   }
 });
 
-test("unit overview keeps only local actions when breadcrumbs handle navigation", () => {
+test("unit overview shows reset action after wargear changes", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithDirtyWargearUnit();
+    const overview = renderRosterUnitOverview({
+      onUpdate: () => {},
+      roster,
+      unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
+    assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit overview hides reset action while wargear is already default", () => {
   const previousDocument = global.document;
   global.document = {
     createElement: createMockElement,
@@ -311,7 +357,7 @@ test("unit overview keeps only local actions when breadcrumbs handle navigation"
     });
 
     const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
-    assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
+    assert.deepEqual(buttons.map((node) => node.textContent), []);
   } finally {
     global.document = previousDocument;
   }
