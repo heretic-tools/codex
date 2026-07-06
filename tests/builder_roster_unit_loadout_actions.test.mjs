@@ -15,6 +15,50 @@ import {
   rosterWithUnitDefaultWargear,
   rosterWithUnitWargearCount,
 } from "../HereticBuilder/static/builder_roster_actions.js";
+import {
+  updateUnitCompositionFromEditor,
+} from "../HereticBuilder/static/builder_roster_unit_composition_editor.js";
+import {
+  resetWargearFromOverview,
+} from "../HereticBuilder/static/builder_roster_unit_overview_view.js";
+
+function rosterWithMultiCompositionUnit() {
+  state.catalog = realCatalog;
+  const faction = factionNamed("Heretic Astartes");
+  const roster = {
+    id: "undoable-loadout-roster",
+    name: "Undoable Loadout Roster",
+    factionKeywordId: faction.id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const datasheet = availableDatasheets(roster, "native")
+    .find((row) => availableCompositions(
+      row.id,
+      compositionFactionIds(roster, "native"),
+      roster.detachmentIds || []
+    ).length > 1);
+  assert.ok(datasheet, "Expected a native datasheet with multiple available compositions");
+  const withUnit = rosterWithAddedUnit(roster, {
+    datasheetId: datasheet.id,
+    unitId: "undoable-unit",
+  });
+  const unit = withUnit.units[0];
+  const composition = availableCompositions(
+    datasheet.id,
+    compositionFactionIds(roster, "native"),
+    roster.detachmentIds || []
+  ).find((row) => row.id !== unit.compositionId);
+  assert.ok(composition, "Expected an alternate composition");
+  return {
+    composition,
+    datasheet,
+    roster: withUnit,
+    unit: { ...unit, name: datasheet.name },
+  };
+}
 
 test("builder roster actions update unit composition and scoped wargear", () => {
   state.catalog = realCatalog;
@@ -162,4 +206,41 @@ test("builder roster actions update unit composition and scoped wargear", () => 
     unit.miniatures.map((row) => row.rosterUnitMiniatureId)
   );
   assert.equal(resetWargear.units[0].miniatures[0].isWarlord, true);
+});
+
+test("unit composition editor emits undoable roster updates", async () => {
+  const { composition, datasheet, roster, unit } = rosterWithMultiCompositionUnit();
+  let event = null;
+
+  await updateUnitCompositionFromEditor(
+    roster,
+    unit,
+    composition.id,
+    () => {},
+    (value) => {
+      event = value;
+    }
+  );
+
+  assert.equal(event.message, `Composition changed for ${datasheet.name}`);
+  assert.equal(event.previousRoster, roster);
+  assert.equal(event.nextRoster.units[0].compositionId, composition.id);
+});
+
+test("unit overview reset wargear emits undoable roster updates", async () => {
+  const { datasheet, roster, unit } = rosterWithMultiCompositionUnit();
+  let event = null;
+
+  await resetWargearFromOverview(
+    roster,
+    unit,
+    () => {},
+    (value) => {
+      event = value;
+    }
+  );
+
+  assert.equal(event.message, `Wargear reset for ${datasheet.name}`);
+  assert.equal(event.previousRoster, roster);
+  assert.equal(event.nextRoster.units[0].id, unit.id);
 });

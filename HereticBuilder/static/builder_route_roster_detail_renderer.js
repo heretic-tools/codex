@@ -11,15 +11,7 @@ import {
   updateRoster,
 } from "./builder_roster_io_actions.js";
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
-import { showUndoToast } from "./builder_toast.js";
-
-async function updateRosterWithUndo({ message, nextRoster, previousRoster, render }) {
-  await updateRoster(nextRoster, render);
-  showUndoToast({
-    message,
-    onUndo: () => updateRoster(previousRoster, render),
-  });
-}
+import { updateRosterWithUndo } from "./builder_roster_update_with_undo.js";
 
 async function renderRoster(render) {
   const roster = currentRoster();
@@ -61,4 +53,4 @@ async function renderRoster(render) {
   }));
 }
 
-export { renderRoster, updateRosterWithUndo };
+export { renderRoster };

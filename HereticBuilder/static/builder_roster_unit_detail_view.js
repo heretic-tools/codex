@@ -21,7 +21,7 @@ function validationWithoutMessages(validation, excludedMessages) {
   };
 }
 
-function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster, unit, validation }) {
+function renderRosterUnitDetailView({ focusTarget = "", onBack, onUndoableUpdate = null, onUpdate, roster, unit, validation }) {
   const summary = unitSummary(roster, unit);
   const unitValidation = validationForUnit(validation, summary);
   const otherValidation = validationWithoutMessages(validation, unitValidation.messages);
@@ -36,6 +36,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUpdate, roster
 
   const overview = renderRosterUnitOverview({
     onBack,
+    onUndoableUpdate,
     onUpdate,
     roster,
     unit: summary,

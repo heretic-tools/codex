@@ -8,6 +8,7 @@ import {
 } from "./builder_roster_runtime.js";
 import { updateRoster } from "./builder_roster_io_actions.js";
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
+import { updateRosterWithUndo } from "./builder_roster_update_with_undo.js";
 
 async function renderUnit(render) {
   const roster = currentRoster();
@@ -33,6 +34,12 @@ async function renderUnit(render) {
     focusTarget: state.route.focusTarget || "",
     onBack: () => navigate(`/roster/${encodeURIComponent(roster.id)}`),
     onUpdate: (nextRoster) => updateRoster(nextRoster, render),
+    onUndoableUpdate: ({ message, nextRoster, previousRoster }) => updateRosterWithUndo({
+      message,
+      nextRoster,
+      previousRoster,
+      render,
+    }),
     roster,
     unit,
     validation,

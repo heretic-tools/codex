@@ -860,12 +860,17 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
     assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
     assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
-    assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_toast\\.js\\?v=${version}`));
+    assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_roster_update_with_undo\\.js\\?v=${version}`));
 
     const routeUnitDetailRendererSource = readFileSync(join(outDir, "static", "builder_route_unit_detail_renderer.js"), "utf8");
     assert.match(routeUnitDetailRendererSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
     assert.match(routeUnitDetailRendererSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
     assert.match(routeUnitDetailRendererSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
+    assert.match(routeUnitDetailRendererSource, new RegExp(`\\.\\/builder_roster_update_with_undo\\.js\\?v=${version}`));
+
+    const rosterUpdateWithUndoSource = readFileSync(join(outDir, "static", "builder_roster_update_with_undo.js"), "utf8");
+    assert.match(rosterUpdateWithUndoSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
+    assert.match(rosterUpdateWithUndoSource, new RegExp(`\\.\\/builder_toast\\.js\\?v=${version}`));
 
     const routeNotFoundRendererSource = readFileSync(join(outDir, "static", "builder_route_not_found_renderer.js"), "utf8");
     assert.match(routeNotFoundRendererSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
@@ -1451,6 +1456,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const unitOverviewSource = readFileSync(join(outDir, "static", "builder_roster_unit_overview_view.js"), "utf8");
     assert.match(unitOverviewSource, new RegExp(`\\.\\/builder_roster_unit_detail_editors\\.js\\?v=${version}`));
+    assert.match(unitOverviewSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
     assert.match(unitOverviewSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
 
     const unitWargearSectionSource = readFileSync(join(outDir, "static", "builder_roster_unit_wargear_section_view.js"), "utf8");
@@ -1484,6 +1490,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const unitCompositionEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_composition_editor.js"), "utf8");
     assert.match(unitCompositionEditorSource, new RegExp(`\\.\\/builder_roster_unit_composition_options\\.js\\?v=${version}`));
     assert.match(unitCompositionEditorSource, new RegExp(`\\.\\/builder_roster_unit_editor_validation_view\\.js\\?v=${version}`));
+    assert.match(unitCompositionEditorSource, new RegExp(`\\.\\/builder_roster_undoable_update\\.js\\?v=${version}`));
 
     const unitCompositionOptionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_composition_options.js"), "utf8");
     assert.match(unitCompositionOptionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));

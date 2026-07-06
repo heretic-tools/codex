@@ -2,6 +2,7 @@ import { button, metricLine, textNode } from "./builder_dom.js";
 import { unitSummary } from "./builder_model.js";
 import { rosterWithUnitDefaultWargear } from "./builder_roster_actions.js";
 import { ensurePrecomputedLoadoutsForDatasheets } from "./builder_precomputed_loadouts_runtime.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import {
   renderAllegianceEditor,
   renderCompositionEditor,
@@ -13,7 +14,17 @@ function unitDisplayName(roster, unit) {
   return unitSummary(roster, unit).name || "Unit";
 }
 
-function renderRosterUnitOverview({ onBack, onUpdate, roster, unit, validation, validationContext }) {
+function resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate = null) {
+  return applyRosterUpdate({
+    message: `Wargear reset for ${unit.name || "Unit"}`,
+    nextRoster: rosterWithUnitDefaultWargear(roster, unit.id),
+    onUndoableUpdate,
+    onUpdate,
+    previousRoster: roster,
+  });
+}
+
+function renderRosterUnitOverview({ onBack, onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
   const overview = document.createElement("section");
   overview.className = "builder-section unit-overview-card";
   overview.appendChild(textNode("h2", "section-title", unit.name));
@@ -29,7 +40,7 @@ function renderRosterUnitOverview({ onBack, onUpdate, roster, unit, validation, 
   );
   overview.append(
     metrics,
-    renderCompositionEditor({ onUpdate, roster, unit, validation, validationContext }),
+    renderCompositionEditor({ onUndoableUpdate, onUpdate, roster, unit, validation, validationContext }),
     renderWarlordEditor({ onUpdate, roster, unit, validation, validationContext })
   );
   const allegianceEditor = renderAllegianceEditor({ onUpdate, roster, unit, validation, validationContext });
@@ -41,7 +52,7 @@ function renderRosterUnitOverview({ onBack, onUpdate, roster, unit, validation, 
   actions.append(
     button("plain-button", "Reset Wargear", async () => {
       await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
-      await onUpdate(rosterWithUnitDefaultWargear(roster, unit.id));
+      await resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate);
     }),
     button("plain-button", "Back", onBack)
   );
@@ -49,4 +60,4 @@ function renderRosterUnitOverview({ onBack, onUpdate, roster, unit, validation, 
   return overview;
 }
 
-export { renderRosterUnitOverview, unitDisplayName };
+export { renderRosterUnitOverview, resetWargearFromOverview, unitDisplayName };
