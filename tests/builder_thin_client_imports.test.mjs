@@ -40,6 +40,7 @@ test("builder entry keeps route views, full catalog, and validators off the stat
   const disallowed = [
     "builder_catalog_indexes.js",
     "builder_catalog_tables.js",
+    "builder_precomputed_loadouts_runtime.js",
     "builder_roster_create_view.js",
     "builder_roster_detail_view.js",
     "builder_roster_list_view.js",
