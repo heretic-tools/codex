@@ -7,6 +7,7 @@ import {
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 import { enhancementSelectModels } from "./builder_roster_unit_enhancement_models.js";
+import { enhancementSelectHasActionableRows } from "./builder_roster_unit_enhancement_options.js";
 import { renderEnhancementSelect } from "./builder_roster_unit_enhancement_select.js";
 import { state } from "./builder_state.js";
 
@@ -44,7 +45,15 @@ function renderEnhancementsEditor({
 }) {
   const sectionValidation = renderUnitEditorValidation(validation, validationContext, "enhancements");
   const selectModels = enhancementSelectModels(roster, unit);
-  if (!selectModels.length && !sectionValidation) {
+  const units = rosterUnitSummaries(roster);
+  const actionableModels = selectModels.filter((model) => enhancementSelectHasActionableRows({
+    ...model,
+    miniature: model.miniature || null,
+    roster,
+    unit,
+    units,
+  }));
+  if (!actionableModels.length && !sectionValidation) {
     return null;
   }
 
@@ -56,16 +65,15 @@ function renderEnhancementsEditor({
     wrap.appendChild(sectionValidation);
   }
 
-  const units = rosterUnitSummaries(roster);
   const detachments = (roster.detachmentIds || [])
     .map((id) => state.catalog.detachmentById.get(id))
     .filter(Boolean);
-  if (!selectModels.length) {
+  if (!actionableModels.length) {
     wrap.appendChild(textNode("p", "empty-list", "No enhancements available for selected detachments"));
     return wrap;
   }
 
-  for (const model of selectModels) {
+  for (const model of actionableModels) {
     const context = {
       detachments,
       keywordIds: model.keywordIds,

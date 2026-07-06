@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   battleSizeNamed,
+  datasheetNamed,
+  detachmentNamed,
   factionNamed,
   keywordNamed,
   realCatalog,
@@ -110,6 +112,41 @@ test("unit enhancement editor hides when no actionable enhancement exists", () =
         validation: { messages: [] },
         validationContext: {},
       });
+    });
+
+    assert.equal(node, null);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit enhancement editor hides when detachment enhancements are all target-ineligible", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    state.catalog = realCatalog;
+    const roster = rosterWithAddedUnit({
+      id: "action-roster-epic-enhancements",
+      name: "Action Roster",
+      factionKeywordId: factionNamed("Heretic Astartes").id,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [detachmentNamed("Veterans of the Long War").id],
+      units: [],
+      attachments: [],
+    }, {
+      datasheetId: datasheetNamed("Abaddon the Despoiler").id,
+      unitId: "unit-epic",
+    });
+    const summary = unitSummary(roster, roster.units[0]);
+    const node = renderEnhancementsEditor({
+      onUpdate: () => {},
+      roster,
+      unit: summary,
+      validation: { messages: [] },
+      validationContext: {},
     });
 
     assert.equal(node, null);

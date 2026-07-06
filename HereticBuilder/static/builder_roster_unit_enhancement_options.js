@@ -70,9 +70,14 @@ function enhancementSelectRows({
   }).sort((left, right) => Number(right.status.eligible) - Number(left.status.eligible) || left.index - right.index);
 }
 
+function enhancementSelectHasActionableRows(args) {
+  return enhancementSelectRows(args).some((row) => !row.disabled || row.enhancement.id === args.currentId);
+}
+
 export {
   currentMiniatureEnhancementId,
   enhancementOptionsFor,
+  enhancementSelectHasActionableRows,
   enhancementSelectRows,
   miniatureEnhancementKeywordIds,
 };
