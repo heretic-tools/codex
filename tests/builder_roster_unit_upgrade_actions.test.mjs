@@ -6,6 +6,7 @@ import {
   keywordNamed,
   realCatalog,
   state,
+  unitSummary,
   withCatalog,
 } from "./builder_validation_helpers.mjs";
 import {
@@ -14,6 +15,7 @@ import {
   rosterWithUnitEnhancement,
 } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
+  renderEnhancementsEditor,
   updateEnhancementFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_enhancement_editor.js";
 
@@ -31,6 +33,36 @@ const ENHANCEMENT_FIXTURES = {
     factionName: "Adeptus Astartes",
   },
 };
+
+function createMockElement(tagName) {
+  return {
+    attributes: new Map(),
+    children: [],
+    className: "",
+    dataset: {},
+    disabled: false,
+    listeners: new Map(),
+    tagName,
+    textContent: "",
+    value: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      this.textContent += node.textContent || "";
+      return node;
+    },
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    },
+  };
+}
 
 function rosterWithFixtureUnit(fixture, detachmentIds = [fixture.detachmentId]) {
   state.catalog = realCatalog;
@@ -50,6 +82,78 @@ function rosterWithFixtureUnit(fixture, detachmentIds = [fixture.detachmentId]) 
   assert.equal(withUnit.units.length, 1, "Expected fixture datasheet to be available");
   return { roster: withUnit, unit: withUnit.units[0] };
 }
+
+function catalogWithoutEnhancements() {
+  return {
+    ...realCatalog,
+    enhancements: [],
+    enhancementById: new Map(),
+  };
+}
+
+test("unit enhancement editor hides when no actionable enhancement exists", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithFixtureUnit(ENHANCEMENT_FIXTURES.unit, []);
+    const summary = unitSummary(roster, unit);
+    let node = undefined;
+
+    withCatalog(catalogWithoutEnhancements(), () => {
+      node = renderEnhancementsEditor({
+        onUpdate: () => {},
+        roster,
+        unit: summary,
+        validation: { messages: [] },
+        validationContext: {},
+      });
+    });
+
+    assert.equal(node, null);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit enhancement editor stays visible for enhancement validation", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithFixtureUnit(ENHANCEMENT_FIXTURES.unit, []);
+    const summary = unitSummary(roster, unit);
+    let node = undefined;
+
+    withCatalog(catalogWithoutEnhancements(), () => {
+      node = renderEnhancementsEditor({
+        onUpdate: () => {},
+        roster,
+        unit: summary,
+        validation: {
+          messages: [{
+            code: "enhancement.unit_has_too_many_enhancements",
+            level: "error",
+            scope: { unitId: unit.id },
+            text: "Too many enhancements.",
+          }],
+        },
+        validationContext: {},
+      });
+    });
+
+    assert.equal(node.className, "builder-section unit-enhancements-section");
+    assert.equal(node.dataset.unitDetailTarget, "enhancements");
+    assert.match(node.textContent, /Enhancements/);
+    assert.match(node.textContent, /Too many enhancements\./);
+  } finally {
+    global.document = previousDocument;
+  }
+});
 
 test("builder roster actions write compact enhancement selections", () => {
   const { roster, unit } = rosterWithFixtureUnit(ENHANCEMENT_FIXTURES.unit);

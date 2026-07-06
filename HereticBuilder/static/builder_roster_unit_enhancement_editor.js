@@ -42,11 +42,16 @@ function renderEnhancementsEditor({
   validation = null,
   validationContext = {},
 }) {
+  const sectionValidation = renderUnitEditorValidation(validation, validationContext, "enhancements");
+  const selectModels = enhancementSelectModels(roster, unit);
+  if (!selectModels.length && !sectionValidation) {
+    return null;
+  }
+
   const wrap = document.createElement("section");
   wrap.className = "builder-section unit-enhancements-section";
   wrap.dataset.unitDetailTarget = "enhancements";
   wrap.appendChild(textNode("h2", "section-title", "Enhancements"));
-  const sectionValidation = renderUnitEditorValidation(validation, validationContext, "enhancements");
   if (sectionValidation) {
     wrap.appendChild(sectionValidation);
   }
@@ -55,7 +60,6 @@ function renderEnhancementsEditor({
   const detachments = (roster.detachmentIds || [])
     .map((id) => state.catalog.detachmentById.get(id))
     .filter(Boolean);
-  const selectModels = enhancementSelectModels(roster, unit);
   if (!selectModels.length) {
     wrap.appendChild(textNode("p", "empty-list", "No enhancements available for selected detachments"));
     return wrap;

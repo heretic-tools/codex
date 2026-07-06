@@ -67,14 +67,17 @@ function renderRosterUnitDetailView({ focusTarget = "", onBack, onUndoableUpdate
       title: "Roster Issues",
     }));
   }
-  sidebar.appendChild(renderEnhancementsEditor({
+  const enhancementsEditor = renderEnhancementsEditor({
     onUndoableUpdate,
     onUpdate,
     roster,
     unit: summary,
     validation: unitValidation,
     validationContext,
-  }));
+  });
+  if (enhancementsEditor) {
+    sidebar.appendChild(enhancementsEditor);
+  }
   root.append(stickySummary, sidebar, wargear);
   if (focusTarget) {
     window.requestAnimationFrame(() => scrollToUnitDetailTarget(focusTarget));
