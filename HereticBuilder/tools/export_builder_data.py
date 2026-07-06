@@ -857,7 +857,6 @@ def export_builder_data(db_path, out_dir):
             "contextCount": loadouts["contextCount"],
             "skippedContextCount": loadouts["skippedContextCount"],
             "shardCount": len(precomputed_shards),
-            "datasheetIds": list(precomputed_shards),
             "shards": [],
         }
         for datasheet_id, shard in precomputed_shards.items():
@@ -865,12 +864,9 @@ def export_builder_data(db_path, out_dir):
             record = write_hashed_json(out_dir, logical_path, shard)
             entry = file_entry(out_dir, record, len(shard["contexts"]), logical_path)
             precomputed_manifest["shards"].append({
-                "bytes": entry["bytes"],
                 "datasheetId": datasheet_id,
-                "logicalPath": entry["logicalPath"],
                 "path": entry["path"],
                 "rows": entry["rows"],
-                "sha256": entry["sha256"],
             })
             unlisted_files.append(entry)
         record = write_hashed_json(out_dir, "precomputed-loadouts/manifest.json", precomputed_manifest)

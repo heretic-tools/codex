@@ -1638,7 +1638,12 @@ test("builder data export precomputes bounded loadout fingerprints", () => {
     const loadoutManifestEntry = builderDataEntry(manifest, "precomputed-loadouts/manifest.json");
     assert.ok(loadoutManifestEntry);
     const loadouts = JSON.parse(readFileSync(join(outDir, loadoutManifestEntry.path), "utf8"));
+    assert.ok(loadoutManifestEntry.bytes < 180_000, "precomputed loadout manifest should stay runtime-slim");
     const shardEntries = loadouts.shards || [];
+    assert.deepEqual(
+      Object.keys(shardEntries[0] || {}).sort(),
+      ["datasheetId", "path", "rows"]
+    );
     const shardContexts = shardEntries.flatMap((entry) => {
       const shard = JSON.parse(readFileSync(join(outDir, entry.path), "utf8"));
       assert.equal(entry.rows, shard.contexts.length);
