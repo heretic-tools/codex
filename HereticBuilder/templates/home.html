@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>HereticTools</title>
+  <link rel="manifest" href="/manifest.webmanifest">
   <script src="/static/theme.js"></script>
   <link rel="stylesheet" href="/static/desktop.css">
 </head>
@@ -13,6 +14,7 @@
       <div class="app-header">
         <div class="title">HereticTools</div>
         <div class="app-header-actions">
+          <div class="offline-status" data-offline-status role="status" hidden></div>
           <button class="theme-toggle" type="button" data-theme-toggle>
             <span data-theme-toggle-label>Dark</span>
           </button>
@@ -53,6 +55,7 @@
     </footer>
   </main>
 
+  <script src="/static/pwa.js" defer></script>
   <script src="/static/app-search.js" defer></script>
   <script src="/static/home.js" defer></script>
 </body>

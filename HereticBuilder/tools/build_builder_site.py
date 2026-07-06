@@ -29,11 +29,19 @@ BUILDER_STATIC_SUPPORT_FILES = (
     "desktop.css",
     "codex.css",
     "theme.js",
+    "pwa.js",
     "builder.css",
 )
 
 BUILDER_ICON_FILES = (
+    "builder-192.png",
+    "builder-512.png",
     "boosty.png",
+)
+
+BUILDER_ROOT_STATIC_FILES = (
+    "manifest.webmanifest",
+    "service-worker.js",
 )
 
 
@@ -107,6 +115,8 @@ def copy_builder_assets(out_dir):
         copy_file(path, static_dir / path.name)
     for filename in BUILDER_STATIC_SUPPORT_FILES:
         copy_file(STATIC_ROOT / filename, static_dir / filename)
+    for filename in BUILDER_ROOT_STATIC_FILES:
+        copy_file(STATIC_ROOT / filename, out_dir / filename)
 
     source_assets = HERETIC_BUILDER_ROOT / "assets"
     unit_images_dir = source_assets / "unit-images"

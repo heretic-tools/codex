@@ -809,11 +809,19 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const match = index.match(/\/builder\/static\/builder\.js\?v=([a-f0-9]{12})/);
     assert.ok(match, "Expected builder.js content hash in standalone HTML");
     const version = match[1];
+    assert.match(index, /<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">/);
+    assert.match(index, /<link rel="manifest" href="\/builder\/manifest\.webmanifest">/);
     assert.match(index, new RegExp(`/builder/static/theme\\.js\\?v=${version}`));
+    assert.match(index, new RegExp(`/builder/static/pwa\\.js\\?v=${version}`));
     assert.match(index, new RegExp(`/builder/static/builder\\.css\\?v=${version}`));
+    assert.ok(existsSync(join(outDir, "manifest.webmanifest")));
+    assert.ok(existsSync(join(outDir, "service-worker.js")));
     assert.ok(existsSync(join(outDir, "static", "desktop.css")));
     assert.ok(existsSync(join(outDir, "static", "codex.css")));
     assert.ok(existsSync(join(outDir, "static", "theme.js")));
+    assert.ok(existsSync(join(outDir, "static", "pwa.js")));
+    assert.ok(existsSync(join(outDir, "assets", "icons", "builder-192.png")));
+    assert.ok(existsSync(join(outDir, "assets", "icons", "builder-512.png")));
     assert.ok(existsSync(join(outDir, "assets", "icons", "boosty.png")));
     assert.ok(existsSync(join(outDir, "assets", "unit-images")));
     assert.equal(existsSync(join(outDir, "static", "home.js")), false);
@@ -825,6 +833,18 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(builderSource, new RegExp(`\\.\\/builder_route_renderers\\.js\\?v=${version}`));
     assert.match(builderSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
     assert.match(builderSource, new RegExp(`\\.\\/builder_storage\\.js\\?v=${version}`));
+
+    const manifestSource = readFileSync(join(outDir, "manifest.webmanifest"), "utf8");
+    assert.deepEqual(JSON.parse(manifestSource).icons.map((icon) => icon.sizes), ["192x192", "512x512"]);
+
+    const pwaSource = readFileSync(join(outDir, "static", "pwa.js"), "utf8");
+    assert.match(pwaSource, /serviceWorker/);
+    assert.match(pwaSource, /data-offline-status/);
+
+    const serviceWorkerSource = readFileSync(join(outDir, "service-worker.js"), "utf8");
+    assert.match(serviceWorkerSource, /builder-data/);
+    assert.match(serviceWorkerSource, /request\.mode === "navigate"/);
+    assert.doesNotMatch(serviceWorkerSource, /localStorage|indexedDB|sessionStorage/);
 
     const rosterRuntimeSource = readFileSync(join(outDir, "static", "builder_roster_runtime.js"), "utf8");
     assert.match(rosterRuntimeSource, new RegExp(`\\.\\/builder_roster_runtime_summary\\.js\\?v=${version}`));

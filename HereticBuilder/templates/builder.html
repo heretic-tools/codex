@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Heretic Builder</title>
+  <link rel="manifest" href="/manifest.webmanifest">
   <script src="/static/theme.js?v=__BUILDER_ASSET_VERSION__"></script>
   <link rel="stylesheet" href="/static/desktop.css">
   <link rel="stylesheet" href="/static/codex.css">
@@ -18,6 +19,7 @@
         </div>
         <div class="builder-app-header-actions">
           <div id="data-status" class="builder-status" role="status">Loading</div>
+          <div class="offline-status" data-offline-status role="status" hidden></div>
           <button class="theme-toggle" type="button" data-theme-toggle>
             <span data-theme-toggle-label>Dark</span>
           </button>
@@ -45,6 +47,7 @@
     </footer>
   </main>
 
+  <script src="/static/pwa.js?v=__BUILDER_ASSET_VERSION__" defer></script>
   <script src="/static/builder.js?v=__BUILDER_ASSET_VERSION__" type="module"></script>
 </body>
 </html>

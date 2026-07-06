@@ -398,6 +398,26 @@ h1 {
   cursor: pointer;
 }
 
+.offline-status {
+  min-height: 30px;
+  padding: 5px 8px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--app-amber);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  font-family: var(--app-font-mono);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.offline-status[hidden] {
+  display: none;
+}
+
 .support-button:hover,
 .support-button:focus-visible,
 .theme-toggle:hover,

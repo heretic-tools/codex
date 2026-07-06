@@ -68,6 +68,10 @@ STATIC_SEARCH_METHODS = (
     "search_detachment_stratagem_items",
 )
 CONFIG_FILENAME = "heretic.toml"
+ROOT_STATIC_FILES = (
+    "manifest.webmanifest",
+    "service-worker.js",
+)
 
 
 @dataclass(frozen=True)
@@ -262,6 +266,8 @@ def prepare_out_dir(out_dir, protected_dirs=()):
 def copy_assets(out_dir):
     copy_dir(STATIC_ROOT, out_dir / "static")
     copy_dir(HERETIC_BUILDER_ROOT / "assets", out_dir / "assets")
+    for filename in ROOT_STATIC_FILES:
+        shutil.copy2(STATIC_ROOT / filename, out_dir / filename)
     (out_dir / ".nojekyll").write_text("", encoding="utf-8")
 
 
