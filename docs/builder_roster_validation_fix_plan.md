@@ -1166,6 +1166,9 @@ browser smoke test.
   `builder_module_loaders.js`. The entrypoint still keeps route views,
   transfer, full rules, and validators behind dynamic imports, while startup
   routing/storage code is easier to audit for thin-client behavior.
+- 2026-07-06: Split the repeated lazy-module promise cache out of
+  `builder_module_loaders.js` into `builder_lazy_module.js`. The loader module
+  now stays as a cache-busted dynamic-import registry for route/rules chunks.
 - 2026-07-05: Split the remaining Builder entrypoint into catalog-runtime,
   roster IO action, and route renderer modules. `builder.js` now only performs
   bootstrap loading, local DB opening, roster-list refresh, initial route
@@ -1551,6 +1554,10 @@ browser smoke test.
   `builder_detachment_datasheet_rules.js` and
   `builder_detachment_unique_keyword_rules.js`. The detachment restriction
   facade now exposes independent rule families.
+- 2026-07-06: Split detachment datasheet diagnostic construction out of
+  `builder_detachment_datasheet_rules.js` into
+  `builder_detachment_datasheet_messages.js`, keeping required/excluded/linked
+  datasheet loops separate from message text and scope construction.
 - 2026-07-05: Split `validateRoster` orchestration into validation context,
   basic roster limits, domain rule runner, and post-rule unit checks. The
   public `builder_roster_validation.js` module now preserves diagnostic order
@@ -1567,6 +1574,10 @@ browser smoke test.
   `builder_roster_warlord_picker.js`. The roster page now composes overview,
   editor, and validation; the Warlord control owns candidate ordering and
   eligibility labels.
+- 2026-07-06: Split roster Warlord picker option-model construction out of
+  `builder_roster_warlord_picker.js` into
+  `builder_roster_warlord_options.js`, leaving the picker as DOM select wiring
+  over the same candidate ordering and eligibility labels.
 - 2026-07-05: Split validation-action target mapping and DOM scroll/focus
   helpers out of `builder_roster_validation_actions.js` into
   `builder_roster_validation_action_targets.js` and

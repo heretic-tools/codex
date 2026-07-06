@@ -692,6 +692,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(catalogWargearGroupIndexesSource, new RegExp(`\\.\\/builder_catalog_index_helpers\\.js\\?v=${version}`));
 
     const loaderSource = readFileSync(join(outDir, "static", "builder_module_loaders.js"), "utf8");
+    assert.match(loaderSource, new RegExp(`\\.\\/builder_lazy_module\\.js\\?v=${version}`));
     assert.match(loaderSource, new RegExp(`\\.\\/builder_roster_list_view\\.js\\?v=${version}`));
     assert.match(loaderSource, new RegExp(`\\.\\/builder_roster_transfer\\.js\\?v=${version}`));
     assert.match(loaderSource, new RegExp(`\\.\\/builder_roster_unit_detail_view\\.js\\?v=${version}`));
@@ -1042,6 +1043,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(detachmentRestrictionRulesSource, new RegExp(`\\.\\/builder_detachment_datasheet_rules\\.js\\?v=${version}`));
     assert.match(detachmentRestrictionRulesSource, new RegExp(`\\.\\/builder_detachment_unique_keyword_rules\\.js\\?v=${version}`));
 
+    const detachmentDatasheetRulesSource = readFileSync(join(outDir, "static", "builder_detachment_datasheet_rules.js"), "utf8");
+    assert.match(detachmentDatasheetRulesSource, new RegExp(`\\.\\/builder_detachment_datasheet_messages\\.js\\?v=${version}`));
+
+    const detachmentDatasheetMessagesSource = readFileSync(join(outDir, "static", "builder_detachment_datasheet_messages.js"), "utf8");
+    assert.match(detachmentDatasheetMessagesSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+    assert.match(detachmentDatasheetMessagesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
+
     const keywordRestrictionRulesSource = readFileSync(join(outDir, "static", "builder_keyword_restriction_rules.js"), "utf8");
     assert.match(keywordRestrictionRulesSource, new RegExp(`\\.\\/builder_keyword_restriction_groups\\.js\\?v=${version}`));
     assert.match(keywordRestrictionRulesSource, new RegExp(`\\.\\/builder_keyword_restriction_messages\\.js\\?v=${version}`));
@@ -1300,7 +1308,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(rosterOverviewSource, new RegExp(`\\.\\/builder_roster_warlord_picker\\.js\\?v=${version}`));
 
     const rosterWarlordPickerSource = readFileSync(join(outDir, "static", "builder_roster_warlord_picker.js"), "utf8");
-    assert.match(rosterWarlordPickerSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
+    assert.match(rosterWarlordPickerSource, new RegExp(`\\.\\/builder_roster_warlord_options\\.js\\?v=${version}`));
+
+    const rosterWarlordOptionsSource = readFileSync(join(outDir, "static", "builder_roster_warlord_options.js"), "utf8");
+    assert.match(rosterWarlordOptionsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(rosterWarlordOptionsSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+    assert.match(rosterWarlordOptionsSource, new RegExp(`\\.\\/builder_warlord_rules\\.js\\?v=${version}`));
 
     const rosterValidationActionsSource = readFileSync(join(outDir, "static", "builder_roster_validation_actions.js"), "utf8");
     assert.match(rosterValidationActionsSource, new RegExp(`\\.\\/builder_roster_validation_action_scroll\\.js\\?v=${version}`));
