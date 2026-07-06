@@ -794,6 +794,10 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const unitUpgradeActionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_upgrade_actions.js"), "utf8");
     assert.match(unitUpgradeActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
+    assert.match(unitUpgradeActionsSource, new RegExp(`\\.\\/builder_roster_warlord_actions\\.js\\?v=${version}`));
+
+    const rosterWarlordActionsSource = readFileSync(join(outDir, "static", "builder_roster_warlord_actions.js"), "utf8");
+    assert.match(rosterWarlordActionsSource, new RegExp(`\\.\\/builder_roster_action_helpers\\.js\\?v=${version}`));
 
     const loadoutMathSource = readFileSync(join(outDir, "static", "builder_loadout_math.js"), "utf8");
     assert.match(loadoutMathSource, new RegExp(`\\.\\/builder_loadout_catalog\\.js\\?v=${version}`));
@@ -1241,8 +1245,14 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const warlordMandatorySelectedRulesSource = readFileSync(join(outDir, "static", "builder_warlord_mandatory_selected_rules.js"), "utf8");
     assert.match(warlordMandatorySelectedRulesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
-    assert.match(warlordMandatorySelectedRulesSource, new RegExp(`\\.\\/builder_warlord_scopes\\.js\\?v=${version}`));
+    assert.match(warlordMandatorySelectedRulesSource, new RegExp(`\\.\\/builder_warlord_mandatory_selected_messages\\.js\\?v=${version}`));
     assert.match(warlordMandatorySelectedRulesSource, new RegExp(`\\.\\/builder_warlord_supreme_commander_rules\\.js\\?v=${version}`));
+
+    const warlordMandatorySelectedMessagesSource = readFileSync(join(outDir, "static", "builder_warlord_mandatory_selected_messages.js"), "utf8");
+    assert.match(warlordMandatorySelectedMessagesSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(warlordMandatorySelectedMessagesSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
+    assert.match(warlordMandatorySelectedMessagesSource, new RegExp(`\\.\\/builder_validation_messages\\.js\\?v=${version}`));
+    assert.match(warlordMandatorySelectedMessagesSource, new RegExp(`\\.\\/builder_warlord_scopes\\.js\\?v=${version}`));
 
     const warlordCandidatesSource = readFileSync(join(outDir, "static", "builder_warlord_candidates.js"), "utf8");
     assert.match(warlordCandidatesSource, new RegExp(`\\.\\/builder_warlord_eligibility\\.js\\?v=${version}`));
@@ -1298,7 +1308,12 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(attachmentFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_rule_failures\\.js\\?v=${version}`));
 
     const attachmentRuleFailuresSource = readFileSync(join(outDir, "static", "builder_roster_attachment_rule_failures.js"), "utf8");
+    assert.match(attachmentRuleFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_rule_catalog\\.js\\?v=${version}`));
     assert.match(attachmentRuleFailuresSource, new RegExp(`\\.\\/builder_roster_attachment_types\\.js\\?v=${version}`));
+
+    const attachmentRuleCatalogSource = readFileSync(join(outDir, "static", "builder_roster_attachment_rule_catalog.js"), "utf8");
+    assert.match(attachmentRuleCatalogSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));
+    assert.match(attachmentRuleCatalogSource, new RegExp(`\\.\\/builder_state\\.js\\?v=${version}`));
 
     const rosterDetailSource = readFileSync(join(outDir, "static", "builder_roster_detail_view.js"), "utf8");
     assert.match(rosterDetailSource, new RegExp(`\\.\\/builder_roster_overview_view\\.js\\?v=${version}`));

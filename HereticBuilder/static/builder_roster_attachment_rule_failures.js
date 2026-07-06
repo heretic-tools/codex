@@ -1,10 +1,10 @@
-import { idsFromRows, setIntersects } from "./builder_model.js";
-import { state } from "./builder_state.js";
+import { setIntersects } from "./builder_model.js";
+import {
+  bodyguardDatasheetIdsForRule,
+  bodyguardKeywordIdsForRule,
+  nameForId,
+} from "./builder_roster_attachment_rule_catalog.js";
 import { formatAttachmentList } from "./builder_roster_attachment_types.js";
-
-function nameForId(mapName, id, fallback) {
-  return state.catalog?.[mapName]?.get(id)?.name || fallback;
-}
 
 function attachmentRuleFailures(roster, detachmentIds, row, attachedUnit, bodyguardUnit) {
   const failures = [];
@@ -26,17 +26,11 @@ function attachmentRuleFailures(roster, detachmentIds, row, attachedUnit, bodygu
       name: nameForId("detachmentById", row.requiredDetachmentId, "required detachment"),
     });
   }
-  const allowedDatasheets = new Set(idsFromRows(
-    state.catalog.datasheetBodyguardGroupDatasheetsByGroupId.get(row.id),
-    "datasheetId"
-  ));
+  const allowedDatasheets = bodyguardDatasheetIdsForRule(row);
   if (allowedDatasheets.size && !allowedDatasheets.has(bodyguardUnit.datasheetId)) {
     failures.push({ type: "bodyguard-datasheet", name: bodyguardUnit.name || "bodyguard" });
   }
-  const allowedKeywordIds = new Set(idsFromRows(
-    state.catalog.datasheetBodyguardGroupKeywordsByGroupId.get(row.id),
-    "keywordId"
-  ));
+  const allowedKeywordIds = bodyguardKeywordIdsForRule(row);
   if (allowedKeywordIds.size && !setIntersects(new Set(bodyguardUnit.keywordIds || []), allowedKeywordIds)) {
     failures.push({
       type: "bodyguard-keyword",

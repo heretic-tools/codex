@@ -1070,6 +1070,11 @@ browser smoke test.
   `builder_roster_attachment_rule_failures.js`. Pair-level failure aggregation
   now stays separate from faction, detachment, datasheet, keyword, and shared
   keyword rule checks.
+- 2026-07-06: Split attachment bodyguard-rule catalog lookups out of
+  `builder_roster_attachment_rule_failures.js` into
+  `builder_roster_attachment_rule_catalog.js`. The rule-failure loop now stays
+  focused on applying faction, detachment, datasheet, keyword, and shared
+  keyword gates.
 - 2026-07-05: Split Enhancement required/excluded keyword gates out of
   `builder_enhancement_eligibility.js` into
   `builder_enhancement_keyword_rules.js`. Candidate status and validation still
@@ -1148,6 +1153,10 @@ browser smoke test.
   `builder_roster_unit_actions.js` module still exports the same unit action
   API, while add/remove/composition, Wargear, Enhancement/Allegiance, and
   Warlord state changes are independently auditable.
+- 2026-07-06: Split Warlord roster mutation out of
+  `builder_roster_unit_upgrade_actions.js` into
+  `builder_roster_warlord_actions.js`, leaving upgrade actions as the compact
+  Enhancement/Allegiance mutation facade while preserving the public exports.
 - 2026-07-05: Split base unit add/remove/composition mutations out of the
   `builder_roster_unit_actions.js` facade into
   `builder_roster_unit_base_actions.js`. The public action API is unchanged,
@@ -1290,6 +1299,11 @@ browser smoke test.
   `builder_warlord_mandatory_selected_rules.js`. Supreme Commander,
   detachment-required Warlord, and faction-required Warlord diagnostics are now
   separate from the selected model's generic eligibility validation.
+- 2026-07-06: Split mandatory selected-Warlord diagnostic construction out of
+  `builder_warlord_mandatory_selected_rules.js` into
+  `builder_warlord_mandatory_selected_messages.js`, leaving the rule module as
+  the condition order for Supreme Commander, detachment, and faction-required
+  selected Warlord checks.
 - 2026-07-05: Split Allegiance Ability candidate-status and shared helper
   lookups out of `builder_allegiance_rules.js`. The validator still owns
   roster messages, while UI candidate availability, detachment gates, mandatory

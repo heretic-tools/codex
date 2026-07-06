@@ -1,7 +1,5 @@
-import {
-  updateRosterUnit,
-  withModifiedRoster,
-} from "./builder_roster_action_helpers.js";
+import { updateRosterUnit } from "./builder_roster_action_helpers.js";
+export { rosterWithWarlord } from "./builder_roster_warlord_actions.js";
 
 function rosterWithUnitEnhancement(roster, unitId, enhancementId) {
   return updateRosterUnit(roster, unitId, (unit) => ({
@@ -35,24 +33,8 @@ function rosterWithMiniatureEnhancement(roster, unitId, { enhancementId, rosterU
   });
 }
 
-function rosterWithWarlord(roster, { rosterUnitMiniatureId = "", unitId = "" }) {
-  return withModifiedRoster(roster, {
-    units: (roster.units || []).map((unit) => ({
-      ...unit,
-      miniatures: (unit.miniatures || []).map((miniature) => {
-        const targetId = miniature.rosterUnitMiniatureId || miniature.id;
-        return {
-          ...miniature,
-          isWarlord: Boolean(unitId && rosterUnitMiniatureId && unit.id === unitId && targetId === rosterUnitMiniatureId),
-        };
-      }),
-    })),
-  });
-}
-
 export {
   rosterWithMiniatureEnhancement,
   rosterWithUnitAllegianceAbility,
   rosterWithUnitEnhancement,
-  rosterWithWarlord,
 };
