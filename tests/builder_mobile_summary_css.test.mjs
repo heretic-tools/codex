@@ -19,13 +19,13 @@ test("mobile roster summary is a bottom safe-area bar", () => {
   const mobileLayer = source.slice(source.indexOf("@media (max-width: 760px)"));
 
   assert.ok(mobileLayer.includes(".builder-panel-content:has(.roster-sticky-summary)"));
-  assert.ok(mobileLayer.includes("padding-bottom: calc(214px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes("padding-bottom: calc(224px + env(safe-area-inset-bottom));"));
   assert.ok(mobileLayer.includes(".roster-detail-grid .roster-sticky-summary"));
   assert.ok(mobileLayer.includes("position: fixed;"));
   assert.ok(mobileLayer.includes("bottom: calc(70px + env(safe-area-inset-bottom));"));
   assert.ok(mobileLayer.includes("left: max(8px, env(safe-area-inset-left));"));
   assert.ok(mobileLayer.includes(".builder-toast"));
-  assert.ok(mobileLayer.includes("bottom: calc(206px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes("bottom: calc(216px + env(safe-area-inset-bottom));"));
   assert.ok(source.includes(".roster-sticky-summary-actions"));
   assert.ok(source.includes(".roster-sticky-summary-action"));
 });
@@ -39,4 +39,20 @@ test("mobile roster summary actions are framed as primary add shortcuts", () => 
   assert.ok(source.includes('ariaLabel: "Add unit"'));
   assert.ok(source.includes('label: "+ Unit"'));
   assert.ok(source.includes('ariaLabel: "Add attached unit"'));
+});
+
+test("mobile Builder action controls keep 44px touch targets", () => {
+  const mobileLayer = builderCss().slice(builderCss().indexOf("@media (max-width: 760px)"));
+
+  assert.ok(mobileLayer.includes(".builder-search-field"));
+  assert.ok(mobileLayer.includes("grid-template-columns: minmax(0, 1fr) 44px;"));
+  assert.ok(mobileLayer.includes(".remove-button,"));
+  assert.ok(mobileLayer.includes(".attachment-member .remove-button,"));
+  assert.ok(mobileLayer.includes(".search-clear-button,"));
+  assert.ok(mobileLayer.includes(".roster-sticky-summary-action,"));
+  assert.ok(mobileLayer.includes(".toast-action,"));
+  assert.ok(mobileLayer.includes(".wargear-count-button"));
+  assert.ok(mobileLayer.includes("min-width: 44px;"));
+  assert.ok(mobileLayer.includes("min-height: 44px;"));
+  assert.ok(mobileLayer.includes("grid-template-columns: 44px minmax(0, 1fr) 44px;"));
 });

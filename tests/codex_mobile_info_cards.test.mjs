@@ -30,5 +30,7 @@ test("Codex unit info card collapse controls use modern flat styles", () => {
   assert.ok(modernLayer.includes(".unit-info-card-toggle-row"));
   assert.ok(modernLayer.includes(".unit-info-card-collapse-button"));
   assert.ok(modernLayer.includes("background: var(--app-surface-2);"));
+  assert.ok(modernLayer.includes("@media (max-width: 760px)"));
+  assert.ok(modernLayer.includes("min-height: 44px;"));
   assert.ok(modernLayer.includes(".unit-info-card-collapsible-body[hidden]"));
 });

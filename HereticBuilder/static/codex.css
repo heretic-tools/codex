@@ -1719,6 +1719,13 @@
   display: none;
 }
 
+@media (max-width: 760px) {
+  .unit-info-card-collapse-button {
+    min-height: 44px;
+    padding: 6px 12px;
+  }
+}
+
 .unit-table-wrap {
   border-radius: var(--app-radius);
   overflow: auto;

@@ -1558,7 +1558,7 @@
   }
 
   .builder-panel-content:has(.roster-sticky-summary) {
-    padding-bottom: calc(214px + env(safe-area-inset-bottom));
+    padding-bottom: calc(224px + env(safe-area-inset-bottom));
   }
 
   .builder-grid,
@@ -1618,8 +1618,36 @@
     justify-content: flex-start;
   }
 
+  .builder-control-row input,
+  .builder-control-row select,
+  .field input,
+  .field select,
+  .wargear-option-row input[type="number"] {
+    min-height: 44px;
+  }
+
+  .builder-search-field {
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+
+  .remove-button,
+  .attachment-member .remove-button,
+  .search-clear-button,
+  .roster-sticky-summary-action,
+  .toast-action,
+  .wargear-count-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .wargear-count-stepper {
+    width: 132px;
+    min-width: 132px;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
+
   .builder-toast {
-    bottom: calc(206px + env(safe-area-inset-bottom));
+    bottom: calc(216px + env(safe-area-inset-bottom));
   }
 }
 

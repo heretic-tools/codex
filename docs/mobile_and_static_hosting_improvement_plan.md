@@ -128,7 +128,7 @@ Deliverables:
 
 1. Инвертировать порядок правил в `codex.css`, `builder.css`: базовые (без медиа-запроса) стили теперь пишутся для узкого вьюпорта (~375px), а текущие "десктопные" правила заворачиваются в `@media (min-width: 768px)` — mobile-first по direction медиа-запросов (`min-width`, не `max-width`).
 2. Датащит-таблицы оружия (`codex_unit_weapon_row.html`, колонки R/A/Skill/S/AP/D) получают frozen-first-column паттерн: обёртка `overflow-x:auto`, `position:sticky; left:0` на `<th scope="row">` с именем оружия, остальные колонки скроллятся горизонтально под большим пальцем — конкретно из исследования (CSS-Tricks frozen-first-column). **Сделано первым modern override:** mobile weapon tables используют внутренний horizontal scroll и sticky weapon-name column; полный mobile-first CSS inversion остаётся отдельным проходом.
-3. Основные touch-таргеты (кнопки создания/сохранения ростера, переключатели в Builder, ссылки в navigation) получают минимум 44×44pt согласно Apple HIG / 48×48dp согласно Material — проверяется через `preview_inspect` на реальной сборке.
+3. Основные touch-таргеты (кнопки создания/сохранения ростера, переключатели в Builder, ссылки в navigation) получают минимум 44×44pt согласно Apple HIG / 48×48dp согласно Material — проверяется через `preview_inspect` на реальной сборке. **Частично сделано:** mobile override закрепляет 44px для shared shell controls, Builder remove/search/stepper/sticky actions и Codex info-card collapse controls.
 4. Основная навигация/действия Builder (создать юнит, посмотреть очки, провалидировать) переносятся в нижний sticky-бар вместо текущей схемы с верхним `app-header` и общим `app-footer` для мобильного вьюпорта — десктопный `app-header` остаётся для `min-width: 768px`.
 
 Acceptance:

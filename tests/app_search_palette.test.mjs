@@ -30,3 +30,17 @@ test("app search grouped result styles stay inside the shared app shell", () => 
   assert.ok(source.includes("background: var(--app-surface-2);"));
   assert.ok(source.includes("border-bottom: 1px solid var(--app-border);"));
 });
+
+test("shared mobile shell controls keep 44px touch targets", () => {
+  const source = staticSource("desktop.css");
+  const mobileLayer = source.slice(source.indexOf("@media (max-width: 460px)"));
+
+  assert.ok(mobileLayer.includes(".favorite-toggle,"));
+  assert.ok(mobileLayer.includes(".support-button,"));
+  assert.ok(mobileLayer.includes(".theme-toggle,"));
+  assert.ok(mobileLayer.includes(".app-search-input"));
+  assert.ok(mobileLayer.includes("min-height: 44px;"));
+  assert.ok(mobileLayer.includes(".app-search-clear"));
+  assert.ok(mobileLayer.includes("width: 44px;"));
+  assert.ok(mobileLayer.includes("height: 44px;"));
+});
