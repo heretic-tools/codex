@@ -1226,6 +1226,13 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const unitAllegianceEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_allegiance_editor.js"), "utf8");
     assert.match(unitAllegianceEditorSource, new RegExp(`\\.\\/builder_roster_unit_allegiance_options\\.js\\?v=${version}`));
+    assert.match(unitAllegianceEditorSource, new RegExp(`\\.\\/builder_roster_unit_editor_validation_view\\.js\\?v=${version}`));
+
+    const unitCompositionEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_composition_editor.js"), "utf8");
+    assert.match(unitCompositionEditorSource, new RegExp(`\\.\\/builder_roster_unit_editor_validation_view\\.js\\?v=${version}`));
+
+    const unitWarlordEditorValidationSource = readFileSync(join(outDir, "static", "builder_roster_unit_warlord_editor.js"), "utf8");
+    assert.match(unitWarlordEditorValidationSource, new RegExp(`\\.\\/builder_roster_unit_editor_validation_view\\.js\\?v=${version}`));
 
     const unitAllegianceOptionsSource = readFileSync(join(outDir, "static", "builder_roster_unit_allegiance_options.js"), "utf8");
     assert.match(unitAllegianceOptionsSource, new RegExp(`\\.\\/builder_allegiance_rules\\.js\\?v=${version}`));
@@ -1239,12 +1246,17 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     const unitEnhancementEditorSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_editor.js"), "utf8");
     assert.match(unitEnhancementEditorSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_models\\.js\\?v=${version}`));
     assert.match(unitEnhancementEditorSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_select\\.js\\?v=${version}`));
+    assert.match(unitEnhancementEditorSource, new RegExp(`\\.\\/builder_roster_unit_editor_validation_view\\.js\\?v=${version}`));
 
     const unitEnhancementModelsSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_models.js"), "utf8");
     assert.match(unitEnhancementModelsSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_options\\.js\\?v=${version}`));
 
     const unitEnhancementSelectSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_select.js"), "utf8");
     assert.match(unitEnhancementSelectSource, new RegExp(`\\.\\/builder_roster_unit_enhancement_labels\\.js\\?v=${version}`));
+    assert.match(unitEnhancementSelectSource, new RegExp(`\\.\\/builder_roster_unit_editor_validation_view\\.js\\?v=${version}`));
+
+    const unitEditorValidationSource = readFileSync(join(outDir, "static", "builder_roster_unit_editor_validation_view.js"), "utf8");
+    assert.match(unitEditorValidationSource, new RegExp(`\\.\\/builder_validation_view\\.js\\?v=${version}`));
 
     const unitEnhancementLabelsSource = readFileSync(join(outDir, "static", "builder_roster_unit_enhancement_labels.js"), "utf8");
     assert.match(unitEnhancementLabelsSource, new RegExp(`\\.\\/builder_model\\.js\\?v=${version}`));

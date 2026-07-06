@@ -1,6 +1,7 @@
 import { option, textNode } from "./builder_dom.js";
 import { enhancementCandidateStatus } from "./builder_enhancement_rules.js";
 import { enhancementLabel } from "./builder_roster_unit_enhancement_labels.js";
+import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 import { state } from "./builder_state.js";
 
 function enhancementSelectRows({ enhancements, keywordIds, miniature, roster, targetKind, unit, units }) {
@@ -21,7 +22,20 @@ function enhancementSelectRows({ enhancements, keywordIds, miniature, roster, ta
   })).sort((left, right) => Number(right.status.eligible) - Number(left.status.eligible) || left.index - right.index);
 }
 
-function renderEnhancementSelect({ currentId, enhancements, keywordIds, label, miniature = null, onChange, roster, targetKind, unit, units }) {
+function renderEnhancementSelect({
+  currentId,
+  enhancements,
+  keywordIds,
+  label,
+  miniature = null,
+  onChange,
+  roster,
+  targetKind,
+  unit,
+  units,
+  validation = null,
+  validationContext = {},
+}) {
   const select = document.createElement("select");
   select.appendChild(option("", "No enhancement"));
   for (const row of enhancementSelectRows({ enhancements, keywordIds, miniature, roster, targetKind, unit, units })) {
@@ -38,6 +52,12 @@ function renderEnhancementSelect({ currentId, enhancements, keywordIds, label, m
     wrap.dataset.unitDetailTarget = `enhancement:${targetId}`;
   }
   wrap.append(textNode("span", "", label), select);
+  if (targetId) {
+    const validationNode = renderUnitEditorValidation(validation, validationContext, "enhancements", targetId);
+    if (validationNode) {
+      wrap.appendChild(validationNode);
+    }
+  }
   return wrap;
 }
 

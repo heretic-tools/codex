@@ -17,7 +17,15 @@ function renderRosterUnitDetailView({ onBack, onUpdate, roster, unit, validation
   const sidebar = document.createElement("section");
   sidebar.className = "builder-roster-sidebar";
 
-  const overview = renderRosterUnitOverview({ onBack, onUpdate, otherIssueCount, roster, unit: summary });
+  const overview = renderRosterUnitOverview({
+    onBack,
+    onUpdate,
+    otherIssueCount,
+    roster,
+    unit: summary,
+    validation: unitValidation,
+    validationContext,
+  });
   const wargear = renderRosterUnitWargearSection({
     onUpdate,
     roster,
@@ -32,7 +40,13 @@ function renderRosterUnitDetailView({ onBack, onUpdate, roster, unit, validation
       context: validationContext,
       groupAction: renderUnitValidationAction,
     }),
-    renderEnhancementsEditor({ onUpdate, roster, unit: summary })
+    renderEnhancementsEditor({
+      onUpdate,
+      roster,
+      unit: summary,
+      validation: unitValidation,
+      validationContext,
+    })
   );
   root.append(sidebar, wargear);
   return root;

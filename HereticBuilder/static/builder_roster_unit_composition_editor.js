@@ -5,8 +5,9 @@ import {
   compositionLabel,
 } from "./builder_model.js";
 import { rosterWithUnitComposition } from "./builder_roster_actions.js";
+import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 
-function renderCompositionEditor({ onUpdate, roster, unit }) {
+function renderCompositionEditor({ onUpdate, roster, unit, validation = null, validationContext = {} }) {
   const factionIds = compositionFactionIds(roster, unit.allyType || "native");
   const compositions = availableCompositions(unit.datasheetId, factionIds, roster.detachmentIds || []);
   const select = document.createElement("select");
@@ -22,6 +23,10 @@ function renderCompositionEditor({ onUpdate, roster, unit }) {
   wrap.className = "field";
   wrap.dataset.unitDetailTarget = "composition";
   wrap.append(textNode("span", "", "Composition"), select);
+  const validationNode = renderUnitEditorValidation(validation, validationContext, "composition");
+  if (validationNode) {
+    wrap.appendChild(validationNode);
+  }
   return wrap;
 }
 

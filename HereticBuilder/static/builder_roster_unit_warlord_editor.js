@@ -1,5 +1,6 @@
 import { option, textNode } from "./builder_dom.js";
 import { rosterWithWarlord } from "./builder_roster_actions.js";
+import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 import { warlordSelectionContext } from "./builder_roster_warlord_options.js";
 import { warlordCandidateStatus } from "./builder_warlord_rules.js";
 
@@ -7,7 +8,7 @@ function currentWarlordTargetId(unit) {
   return (unit.miniatures || []).find((miniature) => miniature.isWarlord)?.rosterUnitMiniatureId || "";
 }
 
-function renderWarlordEditor({ onUpdate, roster, unit }) {
+function renderWarlordEditor({ onUpdate, roster, unit, validation = null, validationContext = {} }) {
   const context = warlordSelectionContext(roster);
   const select = document.createElement("select");
   select.appendChild(option("", "No warlord for this unit"));
@@ -30,6 +31,10 @@ function renderWarlordEditor({ onUpdate, roster, unit }) {
   wrap.className = "field";
   wrap.dataset.unitDetailTarget = "warlord";
   wrap.append(textNode("span", "", "Warlord"), select);
+  const validationNode = renderUnitEditorValidation(validation, validationContext, "warlord");
+  if (validationNode) {
+    wrap.appendChild(validationNode);
+  }
   return wrap;
 }
 

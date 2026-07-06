@@ -873,6 +873,11 @@ browser smoke test.
   diagnostics can now jump to local Wargear, Enhancements, Allegiance Ability,
   Warlord, or Composition controls, and those targets focus the relevant select
   or wargear input without adding cached validation state.
+- 2026-07-06: Added local unit-detail validation blocks for Composition,
+  Warlord, Allegiance Ability, and Enhancement controls. The unit page now
+  reuses the existing unit-scoped diagnostics beside the relevant editor fields,
+  while Wargear keeps its existing model/unit scoped messages and no validation
+  result is cached in roster storage.
 - 2026-07-05: Added target-aware unit-detail Wargear navigation. Grouped
   diagnostics now carry `targetIds`, and model-scoped wargear messages can jump
   directly to the affected model's Wargear section instead of only the broad

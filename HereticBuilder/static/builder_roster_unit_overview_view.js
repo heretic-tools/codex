@@ -12,7 +12,7 @@ function unitDisplayName(roster, unit) {
   return unitSummary(roster, unit).name || "Unit";
 }
 
-function renderRosterUnitOverview({ onBack, onUpdate, otherIssueCount, roster, unit }) {
+function renderRosterUnitOverview({ onBack, onUpdate, otherIssueCount, roster, unit, validation, validationContext }) {
   const overview = document.createElement("section");
   overview.className = "builder-section";
   overview.appendChild(textNode("h2", "section-title", unit.name));
@@ -23,10 +23,10 @@ function renderRosterUnitOverview({ onBack, onUpdate, otherIssueCount, roster, u
   overview.append(
     metricLine("Points", String(unit.points || 0)),
     metricLine("Models", String(unit.modelCount || 0)),
-    renderCompositionEditor({ onUpdate, roster, unit }),
-    renderWarlordEditor({ onUpdate, roster, unit })
+    renderCompositionEditor({ onUpdate, roster, unit, validation, validationContext }),
+    renderWarlordEditor({ onUpdate, roster, unit, validation, validationContext })
   );
-  const allegianceEditor = renderAllegianceEditor({ onUpdate, roster, unit });
+  const allegianceEditor = renderAllegianceEditor({ onUpdate, roster, unit, validation, validationContext });
   if (allegianceEditor) {
     overview.appendChild(allegianceEditor);
   }

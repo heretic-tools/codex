@@ -1,8 +1,9 @@
 import { option, textNode } from "./builder_dom.js";
 import { rosterWithUnitAllegianceAbility } from "./builder_roster_actions.js";
 import { allegianceEditorOptions } from "./builder_roster_unit_allegiance_options.js";
+import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 
-function renderAllegianceEditor({ onUpdate, roster, unit }) {
+function renderAllegianceEditor({ onUpdate, roster, unit, validation = null, validationContext = {} }) {
   const model = allegianceEditorOptions(roster, unit);
   if (!model) {
     return null;
@@ -25,6 +26,10 @@ function renderAllegianceEditor({ onUpdate, roster, unit }) {
   wrap.className = "field";
   wrap.dataset.unitDetailTarget = "allegiance";
   wrap.append(textNode("span", "", model.label), select);
+  const validationNode = renderUnitEditorValidation(validation, validationContext, "allegiance");
+  if (validationNode) {
+    wrap.appendChild(validationNode);
+  }
   return wrap;
 }
 
