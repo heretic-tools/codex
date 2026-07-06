@@ -8,6 +8,8 @@ import {
   renderValidationMessages,
   validationGroupBodyTexts,
   validationGroupTitle,
+  validationSeverityLabel,
+  validationSeverityMarker,
   validationSummary,
 } from "./builder_validation_message_list.js";
 import { validationCounts } from "./builder_validation_summary.js";
@@ -78,6 +80,8 @@ export {
   validationMetaText,
   validationGroupBodyTexts,
   validationGroupTitle,
+  validationSeverityLabel,
+  validationSeverityMarker,
   validationScopeLabels,
   validationStateClass,
   validationForAttachment,

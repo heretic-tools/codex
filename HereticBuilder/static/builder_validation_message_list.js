@@ -19,6 +19,26 @@ function setValidationCode(node, code) {
   }
 }
 
+function validationSeverityLabel(level) {
+  if (level === "warning") {
+    return "Warning";
+  }
+  if (level === "ok") {
+    return "OK";
+  }
+  return "Error";
+}
+
+function validationSeverityMarker(level) {
+  const marker = textNode("span", `validation-severity-marker ${level}`, level === "warning" ? "!" : "X");
+  const label = validationSeverityLabel(level);
+  marker.title = label;
+  if (marker.setAttribute) {
+    marker.setAttribute("aria-label", label);
+  }
+  return marker;
+}
+
 function appendGroupedMessages(list, messages, context = {}, groupAction = null) {
   for (const group of groupedMessages(messages, context)) {
     const item = textNode("div", `validation-item ${group.level}`, "");
@@ -29,6 +49,7 @@ function appendGroupedMessages(list, messages, context = {}, groupAction = null)
     const title = textNode("strong", "", validationGroupTitle(group));
     title.title = group.code;
     head.append(
+      validationSeverityMarker(group.level),
       title,
       textNode("span", "validation-count", String(group.count))
     );
@@ -63,4 +84,6 @@ export {
   renderValidationMessages,
   validationGroupBodyTexts,
   validationGroupTitle,
+  validationSeverityLabel,
+  validationSeverityMarker,
 };

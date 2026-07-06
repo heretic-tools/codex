@@ -6,6 +6,8 @@ import {
   validationGroupBodyTexts,
   validationGroupTitle,
   validationScopeLabels,
+  validationSeverityLabel,
+  validationSeverityMarker,
   validationStateClass,
   validationForAttachment,
   validationForDetachment,
@@ -34,6 +36,38 @@ test("validation header helpers expose compact severity counts", () => {
     validationMetaText({ messages: [{ level: "error" }, { level: "warning" }] }),
     "1 error / 1 warning"
   );
+});
+
+test("validation severity markers expose compact visual and accessible labels", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: (tagName) => ({
+      attributes: new Map(),
+      className: "",
+      tagName,
+      textContent: "",
+      title: "",
+      setAttribute(name, value) {
+        this.attributes.set(name, value);
+      },
+    }),
+  };
+
+  try {
+    const error = validationSeverityMarker("error");
+    const warning = validationSeverityMarker("warning");
+
+    assert.equal(validationSeverityLabel("error"), "Error");
+    assert.equal(validationSeverityLabel("warning"), "Warning");
+    assert.equal(error.className, "validation-severity-marker error");
+    assert.equal(error.textContent, "X");
+    assert.equal(error.attributes.get("aria-label"), "Error");
+    assert.equal(warning.className, "validation-severity-marker warning");
+    assert.equal(warning.textContent, "!");
+    assert.equal(warning.attributes.get("aria-label"), "Warning");
+  } finally {
+    global.document = previousDocument;
+  }
 });
 
 test("validationForUnit keeps only diagnostics scoped to the selected unit", () => {

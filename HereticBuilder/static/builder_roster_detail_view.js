@@ -1,6 +1,6 @@
 import { rosterUnitSummaries } from "./builder_model.js";
 import { renderRosterEditor } from "./builder_roster_editor_view.js";
-import { renderRosterOverview } from "./builder_roster_overview_view.js";
+import { renderRosterOverview, renderRosterStickySummary } from "./builder_roster_overview_view.js";
 import {
   renderValidationGroupAction,
   rosterValidationActionTarget,
@@ -19,13 +19,14 @@ function renderRosterDetailView({ newId, onDelete, onUnitOpen, onUpdate, roster,
   sidebar.className = "builder-roster-sidebar";
   const overview = renderRosterOverview({ onDelete, onUpdate, roster, summary, validation: validationResult });
   const editor = renderRosterEditor({ newId, onUnitOpen, onUpdate, roster, validation: validationResult });
+  const stickySummary = renderRosterStickySummary({ roster, validation: validationResult });
   const validationView = renderValidation(validationResult, {
     context: validationContextForRoster(roster),
     groupAction: (group) => renderValidationGroupAction(group, { onUnitOpen, roster, unitById }),
     title: "Roster Validation",
   });
   sidebar.append(overview, validationView);
-  root.append(sidebar, editor);
+  root.append(stickySummary, sidebar, editor);
   return root;
 }
 

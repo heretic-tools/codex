@@ -38,6 +38,30 @@ function validationPill(validation) {
   return textNode("span", `roster-status-pill state-${stateClass}`, label);
 }
 
+function appendRosterMetrics(metrics, roster, validation) {
+  const detachmentLimit = validation.points.detachmentLimit || 0;
+  metrics.append(
+    overviewMetric("Points", `${validation.points.total} / ${validation.points.limit}`),
+    overviewMetric("DP", `${validation.points.detachmentPoints || 0} / ${detachmentLimit}`),
+    overviewMetric("Units", String((roster.units || []).length))
+  );
+}
+
+function renderRosterStickySummary({ roster, validation }) {
+  const summary = document.createElement("aside");
+  summary.className = `roster-sticky-summary has-validation-${rosterOverviewStateClass(validation)}`;
+  const metrics = document.createElement("div");
+  metrics.className = "roster-sticky-summary-metrics";
+  appendRosterMetrics(metrics, roster, validation);
+  summary.append(
+    validationPill(validation),
+    metrics
+  );
+  summary.dataset.validationSummary = validationSummary(validation);
+  summary.setAttribute("aria-label", `Roster sticky summary: ${validationSummary(validation)}`);
+  return summary;
+}
+
 function renderRosterOverview({ onDelete, onUpdate, roster, summary, validation }) {
   const overview = document.createElement("section");
   overview.className = `builder-section roster-overview-card has-validation-${rosterOverviewStateClass(validation)}`;
@@ -49,12 +73,7 @@ function renderRosterOverview({ onDelete, onUpdate, roster, summary, validation 
   );
   const metrics = document.createElement("div");
   metrics.className = "roster-overview-metrics";
-  const detachmentLimit = validation.points.detachmentLimit || 0;
-  metrics.append(
-    overviewMetric("Points", `${validation.points.total} / ${validation.points.limit}`),
-    overviewMetric("DP", `${validation.points.detachmentPoints || 0} / ${detachmentLimit}`),
-    overviewMetric("Units", String((roster.units || []).length))
-  );
+  appendRosterMetrics(metrics, roster, validation);
   const controls = document.createElement("div");
   controls.className = "roster-overview-controls";
   controls.append(
@@ -71,4 +90,9 @@ function renderRosterOverview({ onDelete, onUpdate, roster, summary, validation 
   return overview;
 }
 
-export { renderRosterOverview, rosterOverviewStateClass, rosterOverviewStatusLabel };
+export {
+  renderRosterOverview,
+  renderRosterStickySummary,
+  rosterOverviewStateClass,
+  rosterOverviewStatusLabel,
+};

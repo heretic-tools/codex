@@ -674,9 +674,32 @@
 
 .validation-row-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: 22px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 8px;
+}
+
+.validation-severity-marker {
+  width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  color: var(--builder-paper);
+  background: var(--builder-error);
+  border-radius: 999px;
+  font-family: var(--builder-mono);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.validation-severity-marker.warning {
+  color: var(--builder-ink);
+  background: var(--builder-warn);
+}
+
+.validation-severity-marker.ok {
+  background: var(--builder-ok);
 }
 
 .validation-row-head strong {
@@ -813,6 +836,10 @@
   border-radius: var(--builder-radius);
 }
 
+.roster-sticky-summary {
+  display: none;
+}
+
 .roster-overview-card.has-validation-ok {
   border-left: 4px solid var(--builder-ok);
 }
@@ -855,6 +882,12 @@
 }
 
 .roster-overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.roster-sticky-summary-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 5px;
@@ -1209,6 +1242,37 @@
 
   .roster-overview-controls {
     grid-template-columns: 1fr;
+  }
+
+  .roster-detail-grid .roster-sticky-summary {
+    position: sticky;
+    top: calc(8px + env(safe-area-inset-top));
+    z-index: 3;
+    display: grid;
+    gap: 8px;
+    padding: 8px;
+    background: var(--builder-paper);
+    border: 1px solid var(--builder-border);
+    border-left: 4px solid var(--builder-ok);
+    border-radius: var(--builder-radius);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .08);
+  }
+
+  .roster-detail-grid .roster-sticky-summary.has-validation-warning {
+    border-left-color: var(--builder-warn);
+  }
+
+  .roster-detail-grid .roster-sticky-summary.has-validation-error {
+    border-left-color: var(--builder-error);
+  }
+
+  .roster-sticky-summary .roster-status-pill {
+    justify-self: start;
+    margin-left: 0;
+  }
+
+  .roster-overview-card .roster-overview-metrics {
+    display: none;
   }
 
   .unit-overview-actions {
