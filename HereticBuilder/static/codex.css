@@ -1105,6 +1105,10 @@
     }
 
     .datasheet-group-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
       margin: 4px 0 0;
       padding: 5px 8px;
       background: var(--title);
@@ -1112,6 +1116,25 @@
       font-size: 18px;
       line-height: 1.1;
       text-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .datasheet-group-label {
+      min-width: 0;
+    }
+
+    .datasheet-group-count {
+      flex: none;
+      min-width: 24px;
+      padding: 2px 7px;
+      color: inherit;
+      background: rgba(255, 255, 255, .16);
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-family: var(--app-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+      font-size: 12px;
+      line-height: 1.2;
+      text-align: center;
+      text-shadow: none;
     }
 
     .list-item {
@@ -1627,6 +1650,28 @@
 .codex-page .label {
   font-size: 21px;
   line-height: 1.12;
+}
+
+.datasheet-group-title {
+  padding: 8px 10px;
+  color: var(--app-ink);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  box-shadow: none;
+  font-size: 15px;
+  line-height: 1.2;
+  text-shadow: none;
+}
+
+.datasheet-group-count {
+  min-width: 28px;
+  color: var(--app-muted);
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  font-family: var(--app-mono);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .codex-page .section-tag,

@@ -533,9 +533,13 @@ def render_datasheet_groups(heretic_builder, native_datasheets, allied_datasheet
             render_datasheet_item(datasheet, faction, slug_by_id[datasheet["id"]])
             for datasheet in sorted(group_datasheets, key=lambda item: item["name"].lower())
         )
+        group_count = len(group_datasheets)
         sections.append(
             f'<section class="datasheet-group">'
-            f'<h2 class="datasheet-group-title">{escape_html(group_name)}</h2>'
+            f'<h2 class="datasheet-group-title">'
+            f'<span class="datasheet-group-label">{escape_html(group_name)}</span>'
+            f'<span class="datasheet-group-count">{group_count}</span>'
+            f'</h2>'
             f'<div class="list-grid">{items_html}</div>'
             f'</section>'
         )
