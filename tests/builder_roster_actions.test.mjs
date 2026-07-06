@@ -353,6 +353,36 @@ test("builder roster actions update unit composition and scoped wargear", () => 
   } else {
     assert.equal(changedWargear.units[0].wargear[option.id], 2);
   }
+  const otherDatasheetOption = realCatalog.wargearOptions.find((row) => {
+    const rowGroup = realCatalog.wargearGroupById.get(row.wargearOptionGroupId);
+    return rowGroup && rowGroup.datasheetId !== unit.datasheetId;
+  });
+  assert.ok(otherDatasheetOption, "Expected a wargear option from another datasheet");
+  assert.equal(rosterWithUnitWargearCount(withUnit, unit.id, {
+    optionId: otherDatasheetOption.id,
+    count: 1,
+  }), withUnit);
+  const modelOnlyGroup = (realCatalog.wargearGroupsByDatasheetId.get(datasheet.id) || [])
+    .find((row) => row.miniatureId && unit.miniatures.some((item) => item.miniatureId === row.miniatureId));
+  if (modelOnlyGroup) {
+    const modelOnlyOption = (realCatalog.wargearOptionsByGroupId.get(modelOnlyGroup.id) || [])[0];
+    assert.ok(modelOnlyOption, "Expected a model-only wargear option");
+    assert.equal(rosterWithUnitWargearCount(withUnit, unit.id, {
+      optionId: modelOnlyOption.id,
+      count: 1,
+    }), withUnit);
+  }
+  const unitOnlyGroup = (realCatalog.wargearGroupsByDatasheetId.get(datasheet.id) || [])
+    .find((row) => !row.miniatureId);
+  if (unitOnlyGroup && unit.miniatures[0]) {
+    const unitOnlyOption = (realCatalog.wargearOptionsByGroupId.get(unitOnlyGroup.id) || [])[0];
+    assert.ok(unitOnlyOption, "Expected a unit-level wargear option");
+    assert.equal(rosterWithUnitWargearCount(withUnit, unit.id, {
+      optionId: unitOnlyOption.id,
+      count: 1,
+      rosterUnitMiniatureId: unit.miniatures[0].rosterUnitMiniatureId,
+    }), withUnit);
+  }
   const resetWargear = rosterWithUnitDefaultWargear({
     ...changedWargear,
     units: changedWargear.units.map((row) => row.id === unit.id

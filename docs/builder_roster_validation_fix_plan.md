@@ -1217,6 +1217,11 @@ browser smoke test.
   `builder_roster_unit_composition_actions.js`. The unit-detail composition
   picker and direct composition mutations now share datasheet ownership plus
   faction/detachment requirement checks before resetting Wargear and model rows.
+- 2026-07-06: Added a `wargearCountCanBeWritten` scope guard to
+  `builder_roster_unit_wargear_count_actions.js`. Positive Wargear count
+  mutations now require the option to belong to the unit datasheet and to match
+  unit-level versus model-level target scope, while zero-count writes remain
+  available for cleanup.
 - 2026-07-05: Split unit-detail composition, Warlord, allegiance, and
   enhancement editors out of `builder_roster_unit_detail_view.js` into
   `builder_roster_unit_detail_editors.js`. The unit detail page now stays as a
