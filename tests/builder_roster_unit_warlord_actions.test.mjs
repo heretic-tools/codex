@@ -16,6 +16,7 @@ import {
 } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
   renderWarlordEditor,
+  unitWarlordSelectLabel,
   updateUnitWarlordFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_warlord_editor.js";
 import {
@@ -143,8 +144,9 @@ test("unit warlord editor stays visible when the unit has an eligible target", (
     assert.equal(node.tagName, "label");
     assert.equal(node.dataset.unitDetailTarget, "warlord");
     assert.equal(node.children[1].tagName, "select");
-    assert.equal(node.children[1].title, "Choose Warlord");
-    assert.equal(node.children[1].attributes.get("aria-label"), "Choose Warlord");
+    assert.equal(unitWarlordSelectLabel(unit), `Choose Warlord for ${datasheet.name}`);
+    assert.equal(node.children[1].title, `Choose Warlord for ${datasheet.name}`);
+    assert.equal(node.children[1].attributes.get("aria-label"), `Choose Warlord for ${datasheet.name}`);
   } finally {
     global.document = previousDocument;
   }

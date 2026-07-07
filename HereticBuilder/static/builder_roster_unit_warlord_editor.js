@@ -9,6 +9,10 @@ function warlordChangeMessage(unit) {
   return `Warlord changed for ${unit.name || "Unit"}`;
 }
 
+function unitWarlordSelectLabel(unit) {
+  return `${WARLORD_SELECT_LABEL} for ${unit?.name || "unit"}`;
+}
+
 function updateUnitWarlordFromEditor(roster, unit, rosterUnitMiniatureId, context, onUpdate, onUndoableUpdate = null) {
   return applyRosterUpdate({
     message: warlordChangeMessage(unit),
@@ -38,7 +42,7 @@ function renderWarlordEditor({
     return null;
   }
   const select = document.createElement("select");
-  labelControl(select, WARLORD_SELECT_LABEL);
+  labelControl(select, unitWarlordSelectLabel(unit));
   for (const row of model.options) {
     select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
   }
@@ -59,4 +63,4 @@ function renderWarlordEditor({
   return wrap;
 }
 
-export { renderWarlordEditor, updateUnitWarlordFromEditor, warlordChangeMessage };
+export { renderWarlordEditor, unitWarlordSelectLabel, updateUnitWarlordFromEditor, warlordChangeMessage };
