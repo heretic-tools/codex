@@ -25,6 +25,34 @@ function rosterPointsLabel(total, limit) {
   return limit ? `${total} / ${limit}` : String(total);
 }
 
+function rosterPointsProgressValue(total, limit) {
+  const pointsTotal = Math.max(0, Number(total) || 0);
+  const pointsLimit = Math.max(0, Number(limit) || 0);
+  if (!pointsLimit) {
+    return 0;
+  }
+  return Math.min(100, Math.round((pointsTotal / pointsLimit) * 1000) / 10);
+}
+
+function rosterPointsProgressClass(total, limit) {
+  const pointsTotal = Math.max(0, Number(total) || 0);
+  const pointsLimit = Math.max(0, Number(limit) || 0);
+  if (!pointsLimit || pointsTotal <= 0) {
+    return "empty";
+  }
+  if (pointsTotal > pointsLimit) {
+    return "error";
+  }
+  if (pointsTotal / pointsLimit >= 0.9) {
+    return "warning";
+  }
+  return "ok";
+}
+
+function rosterPointsProgressLabel(total, limit) {
+  return limit ? `${total} of ${limit} points used` : `${total} points`;
+}
+
 function rosterUnitCountLabel(count) {
   return `${count} ${count === 1 ? "unit" : "units"}`;
 }
@@ -74,6 +102,19 @@ function appendDetachmentBadges(parent, badges) {
   }
 }
 
+function rosterPointsMeter(summary) {
+  const total = summary.pointsTotal || 0;
+  const limit = summary.pointsLimit || 0;
+  const value = rosterPointsProgressValue(total, limit);
+  const state = rosterPointsProgressClass(total, limit);
+  const meter = document.createElement("span");
+  meter.className = `roster-points-meter points-${state}`;
+  meter.title = rosterPointsProgressLabel(total, limit);
+  meter.setAttribute("aria-hidden", "true");
+  meter.setAttribute("style", `--roster-points-progress: ${value}%`);
+  return meter;
+}
+
 function rosterLine(roster, onOpen, summarizeRoster) {
   const summary = summarizeRoster(roster);
   const validationState = summary.validationState || "invalid";
@@ -96,7 +137,7 @@ function rosterLine(roster, onOpen, summarizeRoster) {
     textNode("span", "", rosterDetachmentCountLabel(summary.detachmentCount)),
     textNode("span", "", rosterUnitCountLabel(summary.unitCount))
   );
-  node.append(text, meta);
+  node.append(text, meta, rosterPointsMeter(summary));
   return node;
 }
 
@@ -106,6 +147,9 @@ export {
   rosterLine,
   rosterOpenLabel,
   rosterPointsLabel,
+  rosterPointsProgressClass,
+  rosterPointsProgressLabel,
+  rosterPointsProgressValue,
   rosterUnitCountLabel,
   rosterValidationBadgeClass,
   rosterValidationBadgeLabel,

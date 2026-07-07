@@ -6,6 +6,9 @@ import {
   rosterLine,
   rosterOpenLabel,
   rosterPointsLabel,
+  rosterPointsProgressClass,
+  rosterPointsProgressLabel,
+  rosterPointsProgressValue,
   rosterUnitCountLabel,
 } from "../HereticBuilder/static/builder_roster_list_rows.js";
 import {
@@ -62,6 +65,19 @@ test("roster list formats points consistently with roster detail", () => {
   assert.equal(rosterPointsLabel(285, 2000), "285 / 2000");
   assert.equal(rosterPointsLabel(80, 0), "80");
   assert.equal(rosterPointsLabel(80, null), "80");
+});
+
+test("roster list derives visual points progress without changing roster data", () => {
+  assert.equal(rosterPointsProgressValue(285, 2000), 14.3);
+  assert.equal(rosterPointsProgressValue(2000, 2000), 100);
+  assert.equal(rosterPointsProgressValue(2300, 2000), 100);
+  assert.equal(rosterPointsProgressValue(80, 0), 0);
+  assert.equal(rosterPointsProgressClass(0, 2000), "empty");
+  assert.equal(rosterPointsProgressClass(285, 2000), "ok");
+  assert.equal(rosterPointsProgressClass(1800, 2000), "warning");
+  assert.equal(rosterPointsProgressClass(2300, 2000), "error");
+  assert.equal(rosterPointsProgressLabel(285, 2000), "285 of 2000 points used");
+  assert.equal(rosterPointsProgressLabel(80, 0), "80 points");
 });
 
 test("roster list pluralizes unit counts", () => {
@@ -121,6 +137,10 @@ test("roster row renders polished validation and points labels", () => {
     assert.ok(row.textContent.includes("1 detachment"));
     assert.equal(row.textContent.includes("valid"), false);
     assert.equal(row.textContent.includes("det."), false);
+    assert.equal(row.children[2].className, "roster-points-meter points-ok");
+    assert.equal(row.children[2].title, "285 of 2000 points used");
+    assert.equal(row.children[2].attributes.get("aria-hidden"), "true");
+    assert.equal(row.children[2].attributes.get("style"), "--roster-points-progress: 14.3%");
   } finally {
     global.document = previousDocument;
   }

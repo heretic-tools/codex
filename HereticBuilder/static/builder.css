@@ -1294,6 +1294,36 @@
   font-size: 11px;
 }
 
+.roster-points-meter {
+  grid-column: 1 / -1;
+  display: block;
+  width: 100%;
+  height: 4px;
+  overflow: hidden;
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+}
+
+.roster-points-meter::before {
+  display: block;
+  width: var(--roster-points-progress, 0%);
+  height: 100%;
+  background: var(--builder-ok);
+  content: "";
+}
+
+.roster-points-meter.points-warning::before {
+  background: var(--builder-warn);
+}
+
+.roster-points-meter.points-error::before {
+  background: var(--builder-error);
+}
+
+.roster-points-meter.points-empty::before {
+  background: transparent;
+}
+
 .validation-section-head {
   align-items: center;
 }
