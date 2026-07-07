@@ -268,12 +268,13 @@ test("unit wargear count control exposes a mobile stepper", async () => {
 test("unit wargear controls include group context in accessible labels", () => {
   assert.equal(
     wargearControlLabel("Power fist", { instructionText: "This model's close combat weapon can be replaced." }),
-    "Power fist - This model's close combat weapon can be replaced."
+    "Power fist - Choice 1"
   );
   assert.equal(
-    wargearControlLabel("Power fist", { instructionText: "  This model's\nclose combat weapon   can be replaced. " }),
-    "Power fist - This model's close combat weapon can be replaced."
+    wargearControlLabel("Power fist", { instructionText: "  This model's\nclose combat weapon   can be replaced. " }, "Choice 2"),
+    "Power fist - Choice 2"
   );
+  assert.equal(wargearControlLabel("Bolt Pistol", { instructionText: "Default Wargear" }), "Bolt Pistol - Default Wargear");
   assert.equal(wargearControlLabel("Power fist", { instructionText: "Power fist" }), "Power fist");
   assert.equal(wargearControlLabel("Power fist", {}), "Power fist");
 });

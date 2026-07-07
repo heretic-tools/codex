@@ -22,12 +22,16 @@ function updateWargearCountFromEditor(roster, unit, target, optionRow, count, on
   });
 }
 
-function wargearControlLabel(label, group) {
+function wargearControlLabel(label, group, groupTitle = "") {
   const context = String(group?.instructionText || "").replace(/\s+/g, " ").trim();
   if (!context || context === label) {
     return label;
   }
-  return `${label} - ${context}`;
+  const compactContext = String(groupTitle || "").replace(/\s+/g, " ").trim() || wargearGroupTitle(group);
+  if (!compactContext || compactContext === "Wargear" || compactContext === label) {
+    return label;
+  }
+  return `${label} - ${compactContext}`;
 }
 
 function wargearGroupTitle(group, index = 0) {
@@ -41,12 +45,12 @@ function wargearGroupTitle(group, index = 0) {
   return `Choice ${index + 1}`;
 }
 
-function renderWargearOption({ group, label, onUndoableUpdate = null, onUpdate, optionRow, roster, target, unit }) {
+function renderWargearOption({ group, groupTitle = "", label, onUndoableUpdate = null, onUpdate, optionRow, roster, target, unit }) {
   const row = document.createElement("div");
   row.className = "wargear-option-row";
   row.append(textNode("span", "", label));
   row.appendChild(countControl({
-    label: wargearControlLabel(label, group),
+    label: wargearControlLabel(label, group, groupTitle),
     optionRow,
     target,
     onChange: async (count) => updateWargearCountFromEditor(
@@ -77,6 +81,7 @@ function renderWargearGroup({ group, groupIndex = 0, onUndoableUpdate = null, on
   for (const row of wargearOptionRowsForGroup(group)) {
     wrap.appendChild(renderWargearOption({
       group,
+      groupTitle: title,
       label: row.label,
       onUndoableUpdate,
       onUpdate,

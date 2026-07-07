@@ -68,6 +68,9 @@ Unit-detail Wargear перестал использовать длинные ins
 семантические заголовки: группы рендерят компактные `Default Wargear` /
 `Choice N` headings, сохраняя полный текст правила отдельной строкой внутри
 группы.
+Wargear control labels теперь используют эти компактные group headings
+(`Power fist - Choice 1`) вместо повторения полного instruction-абзаца на
+каждом checkbox/stepper.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
