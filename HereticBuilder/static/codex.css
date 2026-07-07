@@ -1785,13 +1785,6 @@
   display: none;
 }
 
-@media (max-width: 760px) {
-  .unit-info-card-collapse-button {
-    min-height: 44px;
-    padding: 6px 12px;
-  }
-}
-
 .unit-table-wrap {
   border-radius: var(--app-radius);
   overflow: auto;
@@ -1855,6 +1848,11 @@
 }
 
 @media (max-width: 760px) {
+  .unit-info-card-collapse-button {
+    min-height: 44px;
+    padding: 6px 12px;
+  }
+
   .unit-weapons-card .unit-weapon-group {
     overflow-x: auto;
   }

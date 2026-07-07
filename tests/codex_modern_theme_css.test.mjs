@@ -33,6 +33,14 @@ test("modern Codex table surfaces override legacy light backgrounds", () => {
   assert.ok(modernLayer.includes("background: var(--app-surface-2);"));
 });
 
+test("modern Codex layer keeps one mobile max-width block", () => {
+  const source = codexCss();
+  const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
+  const matches = modernLayer.match(/@media \(max-width: 760px\)/g) || [];
+
+  assert.equal(matches.length, 1);
+});
+
 test("modern Codex weapon tables use a mobile frozen weapon column", () => {
   const source = codexCss();
   const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
