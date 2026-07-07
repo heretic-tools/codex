@@ -3,7 +3,7 @@ import { builderBreadcrumbs } from "./builder_routes.js";
 import { el, renderBreadcrumbs, setPageTitle } from "./builder_shell.js";
 
 async function renderNotFound() {
-  setPageTitle("Builder");
+  setPageTitle("Roster Not Found");
   renderBreadcrumbs(builderBreadcrumbs());
   const { renderNotFoundView } = await loadNotFoundView();
   el.root.appendChild(renderNotFoundView());
