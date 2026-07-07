@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   availableDatasheets,
   battleSizeNamed,
@@ -18,6 +21,8 @@ import {
   unitOptionValue,
   unitSourceBadgeText,
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
+
+const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
 function regularDuplicateLimitedDatasheet(roster) {
   const datasheet = availableDatasheets(roster, "native").find((row) => {
@@ -175,4 +180,13 @@ test("unit row removal can delegate to an undo-aware handler", async () => {
   assert.equal(removeEvent.message, "Chosen removed");
   assert.equal(removeEvent.previousRoster, roster);
   assert.deepEqual(removeEvent.nextRoster.units.map((unit) => unit.id), ["unit-2"]);
+});
+
+test("unit editor exposes its Add control as the section primary action", () => {
+  const source = readFileSync(
+    join(projectRoot, "HereticBuilder", "static", "builder_roster_unit_controls.js"),
+    "utf8"
+  );
+
+  assert.ok(source.includes('add.dataset.editorPrimaryAction = "true"'));
 });

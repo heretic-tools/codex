@@ -46,8 +46,8 @@ function renderRosterDetailView({
   const stickySummary = renderRosterStickySummary({
     actions: [
       { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
-      { ariaLabel: "Add detachment", label: "+ Detach", target: "detachments" },
-      { ariaLabel: "Add unit", label: "+ Unit", target: "units" },
+      { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
+      { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
       { ariaLabel: "Add attached unit", label: "Attach", target: "attachments" },
     ],
     roster,

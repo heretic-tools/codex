@@ -86,4 +86,5 @@ test("detachment editor focuses search when jumped from mobile summary", () => {
   assert.ok(searchFocusIndex >= 0);
   assert.ok(selectFocusIndex >= 0);
   assert.ok(searchFocusIndex < selectFocusIndex);
+  assert.ok(source.includes('add.dataset.editorPrimaryAction = "true"'));
 });

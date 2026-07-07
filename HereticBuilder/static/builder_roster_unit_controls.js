@@ -57,6 +57,7 @@ function renderUnitControls({ newId, onUndoableUpdate = null, onUpdate, roster, 
     });
   });
   labelControl(add, ADD_UNIT_LABEL);
+  add.dataset.editorPrimaryAction = "true";
   const refreshOptions = () => {
     refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelect, validation });
   };

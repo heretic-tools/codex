@@ -6,9 +6,24 @@ function scrollToEditorRow(attributeName, value) {
   scrollToElement(row);
 }
 
-function scrollToEditorTarget(target) {
+function editorTargetNode(target) {
   const selectorValue = window.CSS?.escape ? CSS.escape(target) : String(target).replace(/"/g, "");
-  scrollToElement(document.querySelector(`[data-editor-target="${selectorValue}"]`));
+  return document.querySelector(`[data-editor-target="${selectorValue}"]`);
+}
+
+function scrollToEditorTarget(target) {
+  scrollToElement(editorTargetNode(target));
+}
+
+function triggerEditorTargetPrimaryAction(target) {
+  const node = editorTargetNode(target);
+  const action = node?.querySelector("[data-editor-primary-action]");
+  if (!action || action.disabled || typeof action.click !== "function") {
+    scrollToElement(node);
+    return false;
+  }
+  action.click();
+  return true;
 }
 
 function scrollToUnitSearch(query = "") {
@@ -40,4 +55,5 @@ export {
   scrollToEditorRow,
   scrollToEditorTarget,
   scrollToUnitSearch,
+  triggerEditorTargetPrimaryAction,
 };

@@ -119,7 +119,7 @@ test("roster sticky summary can expose mobile section jump actions", () => {
     const summary = renderRosterStickySummary({
       actions: [
         { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
-        { ariaLabel: "Add unit", label: "+ Unit", target: "units" },
+        { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
       ],
       roster: { units: [] },
       validation: {
@@ -140,9 +140,11 @@ test("roster sticky summary can expose mobile section jump actions", () => {
     assert.equal(actions.children[0].className, "roster-sticky-summary-action");
     assert.equal(actions.children[0].textContent, "Issues");
     assert.equal(actions.children[0].dataset.summaryTarget, "validation");
+    assert.equal(actions.children[0].dataset.summaryAction, "scroll");
     assert.equal(actions.children[0].attributes.get("aria-label"), "Review roster issues");
     assert.equal(actions.children[1].textContent, "+ Unit");
     assert.equal(actions.children[1].dataset.summaryTarget, "units");
+    assert.equal(actions.children[1].dataset.summaryAction, "primary");
     assert.equal(actions.children[1].attributes.get("aria-label"), "Add unit");
   } finally {
     global.document = previousDocument;

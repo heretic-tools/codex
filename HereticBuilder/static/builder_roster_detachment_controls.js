@@ -56,6 +56,7 @@ function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, v
     );
   });
   labelControl(add, ADD_DETACHMENT_LABEL);
+  add.dataset.editorPrimaryAction = "true";
   const refreshOptions = () => {
     const rows = detachmentCandidateRows(roster, validation, search.value);
     const nodes = rows.map((row) => (

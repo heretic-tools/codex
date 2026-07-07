@@ -1,6 +1,9 @@
 import { button, textNode } from "./builder_dom.js";
 import { labelControl } from "./builder_roster_control_labels.js";
-import { scrollToEditorTarget } from "./builder_roster_validation_action_scroll.js";
+import {
+  scrollToEditorTarget,
+  triggerEditorTargetPrimaryAction,
+} from "./builder_roster_validation_action_scroll.js";
 import { renderWarlordPicker } from "./builder_roster_warlord_picker.js";
 import { validationCounts, validationSummary } from "./builder_validation_summary.js";
 
@@ -70,8 +73,12 @@ function renderStickySummaryActions(actions = []) {
   const wrap = document.createElement("div");
   wrap.className = "roster-sticky-summary-actions";
   actions.forEach((action) => {
-    const node = button("roster-sticky-summary-action", action.label, () => scrollToEditorTarget(action.target));
+    const handler = action.primary
+      ? () => triggerEditorTargetPrimaryAction(action.target)
+      : () => scrollToEditorTarget(action.target);
+    const node = button("roster-sticky-summary-action", action.label, handler);
     node.dataset.summaryTarget = action.target;
+    node.dataset.summaryAction = action.primary ? "primary" : "scroll";
     node.setAttribute("aria-label", action.ariaLabel || `Go to ${action.label}`);
     wrap.appendChild(node);
   });
