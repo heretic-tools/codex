@@ -18,7 +18,10 @@ import {
 } from "../HereticBuilder/static/builder_roster_unit_wargear_options.js";
 import { wargearGroupsFor } from "../HereticBuilder/static/builder_roster_unit_wargear_groups.js";
 import { unitWarlordSelectModel } from "../HereticBuilder/static/builder_roster_unit_warlord_options.js";
-import { warlordPickerModel } from "../HereticBuilder/static/builder_roster_warlord_options.js";
+import {
+  warlordOptionLabel,
+  warlordPickerModel,
+} from "../HereticBuilder/static/builder_roster_warlord_options.js";
 
 function warlordValue(unit) {
   return JSON.stringify({
@@ -70,6 +73,23 @@ test("warlord picker disables invalid non-current candidates", () => {
   assert.equal(captainOption.disabled, false);
   assert.equal(intercessorOption.disabled, true);
   assert.match(intercessorOption.label, /not eligible/);
+});
+
+test("warlord picker labels collapse duplicate unit and model names", () => {
+  assert.equal(
+    warlordOptionLabel(
+      { name: "Abaddon the Despoiler" },
+      { count: 1, name: "Abaddon the Despoiler" }
+    ),
+    "Abaddon the Despoiler (1)"
+  );
+  assert.equal(
+    warlordOptionLabel(
+      { name: "Intercessor Squad" },
+      { count: 1, name: "Intercessor Sergeant" }
+    ),
+    "Intercessor Squad / Intercessor Sergeant (1)"
+  );
 });
 
 test("warlord picker keeps the current invalid candidate visible and enabled", () => {

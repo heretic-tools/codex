@@ -9,6 +9,13 @@ function warlordOptionValue(unit, miniature) {
   });
 }
 
+function warlordOptionLabel(unit, miniature) {
+  const unitName = unit.name || "Unit";
+  const miniatureName = miniature.name || "Model";
+  const name = unitName === miniatureName ? unitName : `${unitName} / ${miniatureName}`;
+  return `${name} (${miniature.count || 0})`;
+}
+
 function selectedWarlordValue(units) {
   for (const unit of units) {
     const miniature = (unit.miniatures || []).find((item) => item.isWarlord && item.count > 0);
@@ -49,7 +56,7 @@ function warlordPickerModel(roster) {
         const suffix = row.status.eligible ? "" : ` / ${row.status.reason}`;
         return {
           disabled: !row.status.eligible && value !== currentValue,
-          label: `${row.unit.name || "Unit"} / ${row.miniature.name || "Model"} (${row.miniature.count || 0})${suffix}`,
+          label: `${warlordOptionLabel(row.unit, row.miniature)}${suffix}`,
           value,
         };
       }),
@@ -58,4 +65,4 @@ function warlordPickerModel(roster) {
   };
 }
 
-export { warlordPickerModel, warlordSelectionContext };
+export { warlordOptionLabel, warlordPickerModel, warlordSelectionContext };
