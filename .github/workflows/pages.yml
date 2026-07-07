@@ -27,8 +27,13 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Build static site
+      - name: Build static Codex site
+        if: github.event.repository.name != 'builder'
         run: python3 HereticBuilder/tools/builder.py build --out dist --base-path "/${{ github.event.repository.name }}" --mount-codex-at-root
+
+      - name: Build standalone Builder site
+        if: github.event.repository.name == 'builder'
+        run: python3 HereticBuilder/tools/builder.py build-builder --out dist --base-path "/${{ github.event.repository.name }}"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
