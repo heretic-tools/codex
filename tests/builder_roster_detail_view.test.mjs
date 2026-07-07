@@ -4,6 +4,7 @@ import test from "node:test";
 global.document = { querySelector: () => null };
 
 const {
+  rosterDetailStickyActionDescriptors,
   rosterValidationActionTarget,
   scrollToRosterFocusTarget,
 } = await import("../HereticBuilder/static/builder_roster_detail_view.js");
@@ -38,6 +39,28 @@ test("roster validation actions prefer exact scoped editor targets", () => {
       unitIds: [],
     }),
     { attribute: "attachment-id", kind: "row", text: "Show", value: "attachment-1" }
+  );
+});
+
+test("roster detail sticky actions only show Issues when validation has messages", () => {
+  assert.deepEqual(
+    rosterDetailStickyActionDescriptors({ messages: [] }),
+    [
+      { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
+      { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
+    ]
+  );
+
+  assert.deepEqual(
+    rosterDetailStickyActionDescriptors({
+      messages: [{ code: "roster.empty", level: "warning", text: "Roster has no units." }],
+    }, { hasAttachments: true }),
+    [
+      { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
+      { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
+      { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
+      { ariaLabel: "Add attached unit", label: "Attach", target: "attachments" },
+    ]
   );
 });
 

@@ -25,6 +25,21 @@ function scrollToRosterFocusTarget(focusTarget) {
   scrollToEditorTarget(focusTarget);
 }
 
+function rosterDetailStickyActionDescriptors(validation, { hasAttachments = false } = {}) {
+  const actions = [];
+  if ((validation?.messages || []).length) {
+    actions.push({ ariaLabel: "Review roster issues", label: "Issues", target: "validation" });
+  }
+  actions.push(
+    { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
+    { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" }
+  );
+  if (hasAttachments) {
+    actions.push({ ariaLabel: "Add attached unit", label: "Attach", target: "attachments" });
+  }
+  return actions;
+}
+
 function renderRosterDetailView({
   focusTarget = "",
   newId,
@@ -63,14 +78,9 @@ function renderRosterDetailView({
     roster,
     validation: validationResult,
   });
-  const stickyActions = [
-    { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
-    { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
-    { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
-  ];
-  if (attachmentEditorAvailable(roster, units)) {
-    stickyActions.push({ ariaLabel: "Add attached unit", label: "Attach", target: "attachments" });
-  }
+  const stickyActions = rosterDetailStickyActionDescriptors(validationResult, {
+    hasAttachments: attachmentEditorAvailable(roster, units),
+  });
   const stickySummary = renderRosterStickySummary({
     actions: stickyActions,
     roster,
@@ -90,4 +100,9 @@ function renderRosterDetailView({
   return root;
 }
 
-export { renderRosterDetailView, rosterValidationActionTarget, scrollToRosterFocusTarget };
+export {
+  renderRosterDetailView,
+  rosterDetailStickyActionDescriptors,
+  rosterValidationActionTarget,
+  scrollToRosterFocusTarget,
+};
