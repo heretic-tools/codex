@@ -23,7 +23,7 @@ test("app search exposes a keyboard palette shortcut and grouped results", () =>
 });
 
 test("app search grouped result styles stay inside the shared app shell", () => {
-  const source = staticSource("desktop.css");
+  const source = staticSource("app.css");
 
   assert.ok(source.includes(".app-search-result-group"));
   assert.ok(source.includes(".app-search-result-group-title"));
@@ -32,7 +32,7 @@ test("app search grouped result styles stay inside the shared app shell", () => 
 });
 
 test("shared mobile shell controls keep 44px touch targets", () => {
-  const source = staticSource("desktop.css");
+  const source = staticSource("app.css");
   const mobileLayer = source.slice(source.indexOf("@media (max-width: 460px)"));
 
   assert.ok(mobileLayer.includes(".favorite-toggle,"));

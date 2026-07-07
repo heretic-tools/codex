@@ -26,7 +26,7 @@ from export_builder_data import export_builder_data
 from roster_builder_templates import render_template
 
 BUILDER_STATIC_SUPPORT_FILES = (
-    "desktop.css",
+    "app.css",
     "codex.css",
     "theme.js",
     "pwa.js",

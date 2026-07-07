@@ -33,7 +33,6 @@
   --app-font-mono: "SFMono-Regular", "Cascadia Mono", "JetBrains Mono", "Roboto Mono", Consolas, monospace;
 
   /* Compatibility aliases for the older Codex/Builder CSS modules. */
-  --desktop: var(--app-bg);
   --window: var(--app-surface);
   --shadow: var(--app-border-strong);
   --mid: var(--app-border);
@@ -114,7 +113,7 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
-.desktop {
+.app-frame {
   --app-pad-top: max(12px, env(safe-area-inset-top));
   --app-pad-right: max(12px, env(safe-area-inset-right));
   --app-pad-bottom: max(12px, env(safe-area-inset-bottom));
@@ -722,7 +721,7 @@ h1 {
 }
 
 @media (max-width: 460px) {
-  .desktop {
+  .app-frame {
     --app-pad-top: max(0px, env(safe-area-inset-top));
     --app-pad-right: max(0px, env(safe-area-inset-right));
     --app-pad-bottom: max(8px, env(safe-area-inset-bottom));
@@ -783,7 +782,7 @@ h1 {
 }
 
 @media (min-width: 720px) {
-  .desktop {
+  .app-frame {
     gap: 16px;
     padding: max(18px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
   }

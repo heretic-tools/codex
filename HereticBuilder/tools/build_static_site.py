@@ -73,7 +73,7 @@ ROOT_STATIC_FILES = (
     "service-worker.js",
 )
 STATIC_ASSET_FILES = (
-    "desktop.css",
+    "app.css",
     "codex.css",
     "theme.js",
     "pwa.js",

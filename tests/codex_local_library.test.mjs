@@ -136,7 +136,7 @@ test("Codex local library is wired into static templates and build assets", () =
   const codex = readFileSync(join(projectRoot, "HereticBuilder", "templates", "codex.html"), "utf8");
   const codexContent = readFileSync(join(projectRoot, "HereticBuilder", "templates", "codex_content.html"), "utf8");
   const buildStaticSite = readFileSync(join(projectRoot, "HereticBuilder", "tools", "build_static_site.py"), "utf8");
-  const css = readFileSync(join(projectRoot, "HereticBuilder", "static", "desktop.css"), "utf8");
+  const css = readFileSync(join(projectRoot, "HereticBuilder", "static", "app.css"), "utf8");
 
   assert.ok(home.includes('data-local-library aria-label="Local Codex library"'));
   assert.ok(home.includes('<script src="/static/codex-local.js" defer></script>'));

@@ -8,7 +8,7 @@ const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./static/desktop.css",
+  "./static/app.css",
   "./static/codex.css",
   "./static/theme.js",
   "./static/pwa.js",

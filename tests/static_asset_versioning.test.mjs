@@ -15,7 +15,7 @@ from build_static_site import inject_static_config
 html = """<!doctype html>
 <html>
 <head>
-  <link rel="stylesheet" href="/static/desktop.css">
+  <link rel="stylesheet" href="/static/app.css">
   <link rel="stylesheet" href="/static/codex.css">
   <script src="/static/theme.js"></script>
   <script src="/static/pwa.js?v=already"></script>
@@ -30,7 +30,7 @@ print(inject_static_config(html, "/builder", asset_version="abc123def456"))
     encoding: "utf8",
   });
 
-  assert.match(html, /href="\/builder\/static\/desktop\.css\?v=abc123def456"/);
+  assert.match(html, /href="\/builder\/static\/app\.css\?v=abc123def456"/);
   assert.match(html, /href="\/builder\/static\/codex\.css\?v=abc123def456"/);
   assert.match(html, /src="\/builder\/static\/theme\.js\?v=abc123def456"/);
   assert.match(html, /src="\/builder\/static\/pwa\.js\?v=already"/);
