@@ -4,10 +4,41 @@ import test from "node:test";
 global.document = { querySelector: () => null };
 
 const {
+  renderRosterOverview,
   renderRosterStickySummary,
   rosterOverviewStateClass,
   rosterOverviewStatusLabel,
 } = await import("../HereticBuilder/static/builder_roster_overview_view.js");
+
+function createMockElement(tagName) {
+  return {
+    attributes: new Map(),
+    children: [],
+    className: "",
+    dataset: {},
+    tagName,
+    textContent: "",
+    title: "",
+    type: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      this.textContent += node?.textContent || "";
+      return node;
+    },
+    addEventListener(name, handler) {
+      this.listeners ||= new Map();
+      this.listeners.set(name, handler);
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, value);
+    },
+  };
+}
 
 test("roster overview status distinguishes errors and warnings", () => {
   assert.equal(
@@ -34,6 +65,38 @@ test("roster overview status distinguishes errors and warnings", () => {
     rosterOverviewStatusLabel({ messages: [{ level: "error" }, { level: "warning" }] }),
     "1 error / 1 warning"
   );
+});
+
+test("roster overview hides Warlord picker before units exist", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const overview = renderRosterOverview({
+      onDelete: () => {},
+      onUpdate: () => {},
+      roster: { detachmentIds: [], units: [] },
+      summary: { battleSizeName: "Strike Force", factionName: "Heretic Astartes" },
+      validation: {
+        messages: [],
+        points: {
+          detachmentLimit: 3,
+          detachmentPoints: 0,
+          limit: 2000,
+          total: 0,
+        },
+        state: "valid",
+      },
+    });
+
+    assert.equal(overview.textContent.includes("Warlord"), false);
+    assert.equal(overview.textContent.includes("Add units first"), false);
+    assert.ok(overview.textContent.includes("Delete Roster"));
+  } finally {
+    global.document = previousDocument;
+  }
 });
 
 test("roster sticky summary exposes compact points and validation state", () => {

@@ -104,8 +104,11 @@ function renderRosterOverview({ onDelete, onUndoableUpdate = null, onUpdate, ros
   appendRosterMetrics(metrics, roster, validation);
   const controls = document.createElement("div");
   controls.className = "roster-overview-controls";
+  const warlordPicker = renderWarlordPicker({ onUndoableUpdate, onUpdate, roster });
+  if (warlordPicker) {
+    controls.appendChild(warlordPicker);
+  }
   controls.append(
-    renderWarlordPicker({ onUndoableUpdate, onUpdate, roster }),
     labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), "Delete roster")
   );
   overview.append(

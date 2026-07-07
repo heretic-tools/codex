@@ -22,6 +22,9 @@ function updateWarlordFromPicker(roster, value, context, onUpdate, onUndoableUpd
 
 function renderWarlordPicker({ onUndoableUpdate = null, onUpdate, roster }) {
   const model = warlordPickerModel(roster);
+  if (!model.units.length) {
+    return null;
+  }
   const select = document.createElement("select");
   select.dataset.focusTarget = "true";
   for (const row of model.options) {
