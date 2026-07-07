@@ -12,6 +12,7 @@ function stepperButton(className, text, label, onClick) {
   node.className = className;
   node.type = "button";
   node.textContent = text;
+  node.title = label;
   node.setAttribute("aria-label", label);
   node.addEventListener("click", onClick);
   return node;
@@ -23,6 +24,7 @@ function countControl({ label = "Wargear", onChange, optionRow, target }) {
     input.type = "checkbox";
     input.checked = currentCount(target, optionRow.id) > 0;
     input.dataset.focusTarget = "true";
+    input.title = label;
     input.setAttribute("aria-label", label);
     input.addEventListener("change", () => onChange(input.checked ? 1 : 0));
     return input;
@@ -40,6 +42,7 @@ function countControl({ label = "Wargear", onChange, optionRow, target }) {
   input.step = "1";
   input.value = String(currentCount(target, optionRow.id));
   input.dataset.focusTarget = "true";
+  input.title = label;
   input.setAttribute("aria-label", label);
   const commit = (value) => {
     const next = normalizedCount(value);

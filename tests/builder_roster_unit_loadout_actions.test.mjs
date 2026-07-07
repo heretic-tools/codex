@@ -215,6 +215,7 @@ test("unit wargear count control exposes a mobile stepper", async () => {
 
     const [decrement, input, increment] = control.children;
     assert.equal(decrement.textContent, "-");
+    assert.equal(decrement.title, "Decrease Plasma gun");
     assert.equal(decrement.attributes.get("aria-label"), "Decrease Plasma gun");
     assert.equal(decrement.disabled, false);
     assert.equal(input.className, "wargear-count-input");
@@ -224,8 +225,10 @@ test("unit wargear count control exposes a mobile stepper", async () => {
     assert.equal(input.attributes.get("pattern"), "[0-9]*");
     assert.equal(input.type, "number");
     assert.equal(input.value, "1");
+    assert.equal(input.title, "Plasma gun");
     assert.equal(input.attributes.get("aria-label"), "Plasma gun");
     assert.equal(increment.textContent, "+");
+    assert.equal(increment.title, "Increase Plasma gun");
     assert.equal(increment.attributes.get("aria-label"), "Increase Plasma gun");
 
     await increment.click();
@@ -243,6 +246,17 @@ test("unit wargear count control exposes a mobile stepper", async () => {
     assert.equal(input.value, "0");
     assert.equal(decrement.disabled, true);
     assert.deepEqual(changes, [2, 1, 0, 0]);
+
+    const checkbox = countControl({
+      label: "Power fist",
+      onChange: (count) => changes.push(count),
+      optionRow: { id: "option-2", inputType: "checkbox" },
+      target: { wargear: { "option-2": 1 } },
+    });
+    assert.equal(checkbox.type, "checkbox");
+    assert.equal(checkbox.checked, true);
+    assert.equal(checkbox.title, "Power fist");
+    assert.equal(checkbox.attributes.get("aria-label"), "Power fist");
   } finally {
     global.document = previousDocument;
   }
