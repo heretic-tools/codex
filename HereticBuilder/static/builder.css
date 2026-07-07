@@ -552,6 +552,18 @@
   outline: none;
 }
 
+.field-status {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-muted, #697078);
+  font-family: var(--builder-mono);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .battle-size-picker {
   min-width: 0;
   display: grid;

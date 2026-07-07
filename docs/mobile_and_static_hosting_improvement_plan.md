@@ -130,6 +130,10 @@ Character/enhancement mobile smoke выявил внутреннее переп�
 нижней панели при 6 shortcuts; sticky buttons закреплены на compact mono 11px,
 а visible label для pure `Enhancements` сокращён до `Enhance` при сохранении
 полного `aria-label`.
+Unit-detail enhancement/upgrades selects теперь показывают compact availability
+status (`available / locked`) из уже рассчитанных candidate statuses и связывают
+его с control через `aria-describedby`, чтобы locked причины были видны без
+открытия native select.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

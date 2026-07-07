@@ -25,6 +25,9 @@ import {
   enhancementKindLabel,
   enhancementSectionTitle,
 } from "../HereticBuilder/static/builder_roster_unit_enhancement_labels.js";
+import {
+  enhancementAvailabilitySummary,
+} from "../HereticBuilder/static/builder_roster_unit_enhancement_select.js";
 
 const ENHANCEMENT_FIXTURES = {
   miniature: {
@@ -215,16 +218,30 @@ test("unit enhancement editor labels enhancement selects", () => {
     });
     const field = node.children.find((child) => child.className === "field enhancement-field");
     const select = field.children.find((child) => child.tagName === "select");
+    const status = field.children.find((child) => child.className === "field-status enhancement-availability-status");
 
     assert.match(node.textContent, /Upgrades/);
     assert.equal(node.dataset.sectionTitle, "Upgrades");
     assert.equal(field.children[0].textContent, "Whole unit");
     assert.equal(select.title, `Choose upgrade for ${field.children[0].textContent}`);
     assert.equal(select.attributes.get("aria-label"), select.title);
+    assert.equal(select.attributes.get("aria-describedby"), status.id);
     assert.equal(select.children[0].textContent, "No upgrade");
+    assert.match(status.textContent, /\d+ available/);
   } finally {
     global.document = previousDocument;
   }
+});
+
+test("unit enhancement availability summary compacts locked reasons", () => {
+  assert.equal(enhancementAvailabilitySummary([]), "");
+  assert.equal(enhancementAvailabilitySummary([
+    { status: { eligible: true } },
+    { status: { eligible: false, reason: "required keywords missing" } },
+    { status: { eligible: false, reason: "required keywords missing" } },
+    { status: { eligible: false, reason: "attached unit required" } },
+    { status: { eligible: false, reason: "cannot be Warlord" } },
+  ]), "1 available / 4 locked: required keywords missing, attached unit required +1");
 });
 
 test("unit enhancement labels distinguish enhancements, upgrades, and mixed lists", () => {
