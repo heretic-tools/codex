@@ -35,7 +35,6 @@ async function renderCreate() {
     defaultBattleSizeId: state.catalog.bootstrap.defaultBattleSizeId,
     defaultFactionId: state.catalog.bootstrap.defaultFactionId,
     factions: state.catalog.factions,
-    onBack: () => navigate("/"),
     onSubmit: createRoster,
   }));
 }

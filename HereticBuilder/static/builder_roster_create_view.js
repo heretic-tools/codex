@@ -1,4 +1,4 @@
-import { button, field, option, textNode } from "./builder_dom.js";
+import { field, option, textNode } from "./builder_dom.js";
 
 function rosterNameDate(value = new Date()) {
   const date = value instanceof Date ? value : new Date(value);
@@ -62,7 +62,7 @@ function renderBattleSizePicker(battleSizes, defaultBattleSizeId) {
   };
 }
 
-function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFactionId, factions, onBack, onSubmit }) {
+function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFactionId, factions, onSubmit }) {
   const form = document.createElement("form");
   form.className = "builder-form roster-create-form";
   form.autocomplete = "off";
@@ -101,10 +101,7 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
 
   const actions = document.createElement("div");
   actions.className = "form-actions";
-  actions.append(
-    button("plain-button", "Back", onBack),
-    textNode("button", "primary-button", "Confirm")
-  );
+  actions.appendChild(textNode("button", "primary-button", "Confirm"));
   actions.lastChild.type = "submit";
   form.appendChild(actions);
   form.addEventListener("submit", async (event) => {

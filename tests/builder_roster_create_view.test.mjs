@@ -57,7 +57,6 @@ function createView(options = {}) {
       { id: "adeptus-astartes", name: "Adeptus Astartes" },
       { id: "heretic-astartes", name: "Heretic Astartes" },
     ],
-    onBack: () => {},
     onSubmit: () => {},
     ...options,
   });
@@ -103,6 +102,25 @@ test("roster create view derives default names from faction and date", async () 
     assert.equal(nameInput.value, "My list");
   } finally {
     global.Date = previousDate;
+    global.document = previousDocument;
+  }
+});
+
+test("roster create view keeps the form focused on confirmation", async () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const form = createView();
+    const actions = form.children[3];
+
+    assert.equal(actions.className, "form-actions");
+    assert.equal(actions.children.length, 1);
+    assert.equal(actions.children[0].textContent, "Confirm");
+    assert.equal(form.textContent.includes("Back"), false);
+  } finally {
     global.document = previousDocument;
   }
 });
