@@ -107,6 +107,9 @@ Codex datasheet statlines на мобильном теперь рендерят�
 генерируемых данных и без нового JS.
 Shared breadcrumbs на узком mobile viewport доведены до 44px touch target
 без изменения самих маршрутов и breadcrumb-контракта.
+Codex mobile collapsible cards теперь сохраняют чистый title до DOM-мутации и
+рендерят кнопку Show/Hide рядом с direct `h2/h3`, а не внутри heading, чтобы
+heading text и accessible labels не загрязнялись управляющим текстом.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

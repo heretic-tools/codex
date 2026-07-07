@@ -190,7 +190,7 @@
   }
 
   function cardTitle(card) {
-    return card.querySelector("h2, h3")?.textContent?.trim() || "Rules";
+    return card.dataset.collapsibleTitle || card.querySelector("h2, h3")?.textContent?.trim() || "Rules";
   }
 
   function collapseButtonLabel(collapsed, title) {
@@ -229,11 +229,18 @@
     if (!heading) {
       return;
     }
+    card.dataset.collapsibleTitle = cardTitle(card);
+    let headingRow = heading;
+    if (/^H[23]$/.test(heading.tagName)) {
+      headingRow = document.createElement("div");
+      card.insertBefore(headingRow, heading);
+      headingRow.appendChild(heading);
+    }
     const body = document.createElement("div");
     body.className = "unit-info-card-collapsible-body codex-collapsible-card-body";
     body.id = `codex-collapsible-card-body-${index + 1}`;
-    while (heading.nextSibling) {
-      body.appendChild(heading.nextSibling);
+    while (headingRow.nextSibling) {
+      body.appendChild(headingRow.nextSibling);
     }
     const button = document.createElement("button");
     button.className = "unit-info-card-collapse-button codex-collapsible-card-button";
@@ -243,8 +250,8 @@
       card.dataset.collapsibleTouched = "true";
       setCodexCollapsibleCardCollapsed(card, !body.hidden);
     });
-    heading.classList.add("unit-info-card-toggle-row", "codex-collapsible-card-toggle-row");
-    heading.appendChild(button);
+    headingRow.classList.add("unit-info-card-toggle-row", "codex-collapsible-card-toggle-row");
+    headingRow.appendChild(button);
     card.appendChild(body);
     card.dataset.collapsibleReady = "true";
   }

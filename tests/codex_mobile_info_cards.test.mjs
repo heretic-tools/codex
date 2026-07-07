@@ -23,6 +23,11 @@ test("Codex info and detachment rule cards collapse on mobile as progressive enh
   assert.ok(source.includes("codex-collapsible-card-body"));
   assert.ok(source.includes("unit-info-card-collapse-button"));
   assert.ok(source.includes("codex-collapsible-card-button"));
+  assert.ok(source.includes("card.dataset.collapsibleTitle = cardTitle(card)"));
+  assert.ok(source.includes("card.dataset.collapsibleTitle || card.querySelector"));
+  assert.ok(source.includes("headingRow = document.createElement(\"div\")"));
+  assert.ok(source.includes("card.insertBefore(headingRow, heading)"));
+  assert.ok(source.includes("headingRow.appendChild(button)"));
   assert.ok(source.includes('button.setAttribute("aria-expanded"'));
   assert.ok(source.includes("button.title = label"));
   assert.ok(source.includes('body.hidden = collapsed'));
@@ -34,6 +39,7 @@ test("Codex collapsible card controls use modern flat styles", () => {
   const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
 
   assert.ok(modernLayer.includes(".unit-info-card-toggle-row"));
+  assert.ok(source.includes(".unit-info-card-toggle-row > h3"));
   assert.ok(modernLayer.includes(".rule-card-heading.codex-collapsible-card-toggle-row"));
   assert.ok(modernLayer.includes(".unit-info-card-collapse-button"));
   assert.ok(modernLayer.includes(".codex-collapsible-card-button"));
