@@ -3,6 +3,7 @@ import {
   rosterDetachmentBadgeClass,
   rosterLine,
   rosterValidationBadgeClass,
+  rosterValidationBadgeLabel,
 } from "./builder_roster_list_rows.js";
 
 function renderRosterListView({ onCreate, onExport, onImport, onOpen, rosters, summarizeRoster }) {
@@ -39,4 +40,9 @@ function renderRosterListView({ onCreate, onExport, onImport, onOpen, rosters, s
   return root;
 }
 
-export { renderRosterListView, rosterDetachmentBadgeClass, rosterValidationBadgeClass };
+export {
+  renderRosterListView,
+  rosterDetachmentBadgeClass,
+  rosterValidationBadgeClass,
+  rosterValidationBadgeLabel,
+};
