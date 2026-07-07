@@ -50,11 +50,11 @@ Tactical Mono** — плотный тактический интерфейс с 
 | Builder грузит все ~70 таблиц каталога одним `Promise.all`, независимо от выбранной фракции | `HereticBuilder/static/builder_catalog_tables.js` (список `CATALOG_TABLES`) + `HereticBuilder/static/builder_catalog_loader.js:12-16` (`loadCatalogTables`) |
 | Экспорт каталога пишет по одному JSON-файлу на таблицу без учёта фракции | `HereticBuilder/tools/export_builder_data.py:684-693` (цикл по `CATALOG_TABLES`) |
 | Итоговый вес `dist/builder-data/` | 19MB (`tables/` — основной вес, `bootstrap.json` — 9KB) |
-| `dist/search-index.json` грузится целиком одним fetch | `HereticBuilder/static/app-search.js:173` |
-| Вес `search-index.json` | 6.7MB |
-| Web app manifest / service worker | отсутствуют |
+| Поисковый индекс Codex | `dist/search-index/manifest.json` + typed shards; `app-search.js` грузит manifest и shard payloads |
+| Вес поискового индекса | Шардирован; бюджет проверяется optional guard после сборки `dist/search-index/` |
+| Web app manifest / service worker | есть в root static files и в standalone Builder build |
 | Медиа-запросы в CSS | 1 в `builder.css`, 3 в `app.css`, 3 в `codex.css` — фактически desktop-first |
-| `.nojekyll`, `404.html` | `.nojekyll` есть, кастомного `404.html` нет (не нужен — хэш-роутинг уже избегает проблемы) |
+| `.nojekyll`, `404.html` | `.nojekyll` есть; standalone Builder build пишет `404.html`, идентичный `index.html`, для GitHub Pages SPA fallback |
 | Есть готовый guard на размеры/хэши экспорта | `tests/builder_validation_catalog_inventory.test.mjs` (пинит byte counts/hashes каталога) |
 
 ## Принципы

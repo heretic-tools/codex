@@ -833,9 +833,11 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     ], { cwd: projectRoot });
 
     const index = readFileSync(join(outDir, "index.html"), "utf8");
+    const notFound = readFileSync(join(outDir, "404.html"), "utf8");
     const match = index.match(/\/builder\/static\/builder\.js\?v=([a-f0-9]{12})/);
     assert.ok(match, "Expected builder.js content hash in standalone HTML");
     const version = match[1];
+    assert.equal(notFound, index);
     assert.match(index, /<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">/);
     assert.match(index, /<link rel="manifest" href="\/builder\/manifest\.webmanifest">/);
     assert.match(index, new RegExp(`/builder/static/theme\\.js\\?v=${version}`));
