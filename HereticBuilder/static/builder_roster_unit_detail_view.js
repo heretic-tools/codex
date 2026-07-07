@@ -7,7 +7,10 @@ import {
   scrollToUnitDetailTarget,
   unitValidationActionTarget,
 } from "./builder_roster_unit_detail_actions.js";
-import { renderEnhancementsEditor } from "./builder_roster_unit_detail_editors.js";
+import {
+  renderEnhancementsEditor,
+  unitHasCompositionChoices,
+} from "./builder_roster_unit_detail_editors.js";
 import { renderRosterStickySummary } from "./builder_roster_overview_view.js";
 import { renderRosterUnitOverview, unitDisplayName } from "./builder_roster_unit_overview_view.js";
 import { renderRosterUnitWargearSection } from "./builder_roster_unit_wargear_section_view.js";
@@ -27,12 +30,20 @@ function validationHasMessages(validation) {
   return Boolean((validation?.messages || []).length);
 }
 
-function unitDetailStickyActionDescriptors({ hasEnhancements = false, hasValidation = false, hasWargear = false } = {}) {
+function unitDetailStickyActionDescriptors({
+  hasComposition = false,
+  hasEnhancements = false,
+  hasValidation = false,
+  hasWargear = false,
+} = {}) {
   const actions = [];
   if (hasValidation) {
     actions.push({ ariaLabel: "Review unit issues", label: "Issues", target: "validation" });
   }
   actions.push({ ariaLabel: "Review unit profile", label: "Unit", target: "overview" });
+  if (hasComposition) {
+    actions.push({ ariaLabel: "Edit unit composition", label: "Composition", target: "composition" });
+  }
   if (hasWargear) {
     actions.push({ ariaLabel: "Edit unit wargear", label: "Wargear", target: "wargear" });
   }
@@ -112,6 +123,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
   }
   const stickySummary = renderRosterStickySummary({
     actions: unitDetailStickyActionDescriptors({
+      hasComposition: unitHasCompositionChoices(roster, summary),
       hasEnhancements: Boolean(enhancementsEditor),
       hasValidation,
       hasWargear: Boolean(wargear),

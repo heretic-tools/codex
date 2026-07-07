@@ -20,6 +20,10 @@ function updateUnitCompositionFromEditor(roster, unit, compositionId, onUpdate, 
   });
 }
 
+function unitHasCompositionChoices(roster, unit) {
+  return compositionSelectModel(roster, unit).options.length > 1;
+}
+
 function renderCompositionEditor({
   onUndoableUpdate = null,
   onUpdate,
@@ -65,4 +69,9 @@ function renderCompositionEditor({
   return wrap;
 }
 
-export { compositionChangeMessage, renderCompositionEditor, updateUnitCompositionFromEditor };
+export {
+  compositionChangeMessage,
+  renderCompositionEditor,
+  unitHasCompositionChoices,
+  updateUnitCompositionFromEditor,
+};

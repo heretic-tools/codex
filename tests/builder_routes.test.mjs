@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 global.document = { querySelector: () => null };
 global.window = { location: { hash: "" } };
+
+const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
 const {
   baseBreadcrumbs,
@@ -62,4 +67,22 @@ test("unit-detail breadcrumbs include the parent roster", () => {
     { label: "Builder", href: "/#/" },
     { label: "Raid Night", href: "/#/roster/roster%201" },
   ]);
+});
+
+test("builder route split modules import shared state before using it", () => {
+  const staticDir = join(projectRoot, "HereticBuilder", "static");
+  const routeModuleFiles = readdirSync(staticDir)
+    .filter((name) => name.startsWith("builder_route_") && name.endsWith(".js"));
+
+  for (const fileName of routeModuleFiles) {
+    const source = readFileSync(join(staticDir, fileName), "utf8");
+    if (!source.includes("state.")) {
+      continue;
+    }
+    assert.match(
+      source,
+      /import\s+\{\s*state\s*\}\s+from\s+"\.\/builder_state\.js";/,
+      `${fileName} uses state but does not import it`
+    );
+  }
 });

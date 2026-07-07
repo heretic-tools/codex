@@ -1,6 +1,7 @@
 import { loadDetailView, loadRules } from "./builder_module_loaders.js";
 import { builderBreadcrumbs, navigate } from "./builder_routes.js";
 import { el, renderBreadcrumbs } from "./builder_shell.js";
+import { state } from "./builder_state.js";
 import { newId } from "./builder_storage.js";
 import {
   currentRoster,

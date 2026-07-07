@@ -18,6 +18,7 @@ import {
 } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
   renderCompositionEditor,
+  unitHasCompositionChoices,
   updateUnitCompositionFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_composition_editor.js";
 import {
@@ -312,6 +313,14 @@ test("unit composition editor hides read-only value when only one valid composit
   } finally {
     global.document = previousDocument;
   }
+});
+
+test("unit composition shortcuts appear only for editable composition choices", () => {
+  const single = rosterWithCompositionCount(1);
+  const multi = rosterWithMultiCompositionUnit();
+
+  assert.equal(unitHasCompositionChoices(single.roster, single.unit), false);
+  assert.equal(unitHasCompositionChoices(multi.roster, multi.unit), true);
 });
 
 test("unit overview does not duplicate the unit title from the app header", () => {
