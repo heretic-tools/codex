@@ -33,6 +33,7 @@ function renderBreadcrumbs(items) {
 }
 
 function renderStartupError(error) {
+  setPageTitle("Builder Error");
   setStatus("Error");
   clear(el.root);
   el.root.appendChild(textNode("div", "validation-item error", error.message || "Failed to start"));

@@ -2,15 +2,24 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 function mockNode() {
-  return {
+  const node = {
     children: [],
     textContent: "",
+    get firstChild() {
+      return this.children[0] || null;
+    },
     appendChild(node) {
       this.children.push(node);
       this.textContent += node.textContent || "";
       return node;
     },
+    removeChild(child) {
+      this.children = this.children.filter((item) => item !== child);
+      this.textContent = this.children.map((item) => item.textContent || "").join("");
+      return child;
+    },
   };
+  return node;
 }
 
 const nodes = new Map([
@@ -21,12 +30,19 @@ const nodes = new Map([
 ]);
 
 global.document = {
+  createElement: (tagName) => ({
+    children: [],
+    className: "",
+    tagName,
+    textContent: "",
+  }),
   getElementById: (id) => nodes.get(id),
   title: "",
 };
 
 const {
   documentTitleFor,
+  renderStartupError,
   setPageTitle,
 } = await import("../HereticBuilder/static/builder_shell.js");
 
@@ -50,4 +66,14 @@ test("setting a builder page title updates header and browser title together", (
 
   assert.equal(nodes.get("builder-page-title").textContent, "Builder");
   assert.equal(document.title, "Heretic Builder");
+});
+
+test("startup errors set explicit Builder error title and status", () => {
+  renderStartupError(new Error("Catalog failed"));
+
+  assert.equal(nodes.get("builder-page-title").textContent, "Builder Error");
+  assert.equal(document.title, "Builder Error | Heretic Builder");
+  assert.equal(nodes.get("data-status").textContent, "Error");
+  assert.equal(nodes.get("builder-root").children[0].className, "validation-item error");
+  assert.equal(nodes.get("builder-root").children[0].textContent, "Catalog failed");
 });
