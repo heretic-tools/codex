@@ -6,20 +6,17 @@ import {
   validationForWargearScope,
 } from "./builder_roster_unit_wargear_validation_view.js";
 
-function renderScopeHeader(heading, groupCount) {
+function renderScopeHeader(heading) {
   const header = document.createElement("div");
   header.className = "builder-section-head wargear-scope-head";
   header.appendChild(textNode("h2", "section-title", heading));
-  if (groupCount) {
-    header.appendChild(textNode("span", "section-meta", `${groupCount} group${groupCount === 1 ? "" : "s"}`));
-  }
   return header;
 }
 
 function renderScope({ groups, heading, onUndoableUpdate = null, onUpdate, roster, target, unit }) {
   const wrap = document.createElement("section");
   wrap.className = "wargear-scope";
-  wrap.appendChild(renderScopeHeader(heading, groups.length));
+  wrap.appendChild(renderScopeHeader(heading));
   if (!groups.length) {
     wrap.appendChild(textNode("p", "empty-list", "No wargear options"));
     return wrap;

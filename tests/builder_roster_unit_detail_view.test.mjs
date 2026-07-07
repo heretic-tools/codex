@@ -327,10 +327,14 @@ test("unit wargear scope numbers choice headings after default wargear", () => {
     const headings = nodes
       .filter((node) => node.className === "wargear-group-title")
       .map((node) => node.textContent);
+    const headerMeta = nodes
+      .filter((node) => node.className === "section-meta")
+      .map((node) => node.textContent);
     const instructions = nodes
       .filter((node) => node.className === "wargear-group-instruction")
       .map((node) => node.textContent);
 
+    assert.deepEqual(headerMeta, []);
     assert.deepEqual(headings, ["Default Wargear", "Choice 1", "Choice 2"]);
     assert.deepEqual(instructions, [
       "This model's bolt pistol can be replaced.",

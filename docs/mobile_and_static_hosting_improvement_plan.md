@@ -71,6 +71,8 @@ Unit-detail Wargear перестал использовать длинные ins
 Unit-detail sticky shortcut для редактируемой composition теперь короче
 показывается как `Models`, сохраняя доступное имя `Edit unit composition`,
 а `Reset Wargear` получает unit-specific accessible label.
+Wargear model scopes больше не показывают шумный счётчик вроде `2 groups` в
+header: сами `Default Wargear` / `Choice N` группы уже видны ниже.
 Wargear control labels теперь используют эти компактные group headings
 (`Power fist - Choice 1`) вместо повторения полного instruction-абзаца на
 каждом checkbox/stepper.
