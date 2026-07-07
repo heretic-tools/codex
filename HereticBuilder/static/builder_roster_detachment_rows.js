@@ -39,6 +39,8 @@ function renderDetachmentRow(roster, detachmentId, index, validation, onUpdate, 
   text.className = "row-text detachment-open-link";
   if (href) {
     text.href = href;
+    text.title = `Open Codex detachment: ${detachment?.name || "Detachment"}`;
+    text.setAttribute("aria-label", text.title);
   }
   text.append(textNode("strong", "", detachment?.name || "Unknown Detachment"));
   const disposition = detachment ? detachmentDispositionName(detachment) : "";

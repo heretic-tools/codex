@@ -15,8 +15,43 @@ import {
   detachmentCandidateRows,
   detachmentCandidateStatus,
 } from "../HereticBuilder/static/builder_roster_detachment_editor_view.js";
+import { renderDetachmentRow } from "../HereticBuilder/static/builder_roster_detachment_rows.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+
+function createMockElement(tagName) {
+  const node = {
+    attributes: new Map(),
+    children: [],
+    className: "",
+    dataset: {},
+    href: "",
+    tagName,
+    textContent: "",
+    title: "",
+    type: "",
+    append(...nodes) {
+      for (const child of nodes) {
+        this.appendChild(child);
+      }
+    },
+    appendChild(child) {
+      this.children.push(child);
+      this.textContent += child?.textContent || "";
+      return child;
+    },
+    addEventListener() {},
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    },
+  };
+  node.classList = {
+    add(value) {
+      node.className = `${node.className} ${value}`.trim();
+    },
+  };
+  return node;
+}
 
 test("detachment candidate status explains detachment-point pressure", () => {
   state.catalog = realCatalog;
@@ -87,4 +122,33 @@ test("detachment editor focuses search when jumped from mobile summary", () => {
   assert.ok(selectFocusIndex >= 0);
   assert.ok(searchFocusIndex < selectFocusIndex);
   assert.ok(source.includes('add.dataset.editorPrimaryAction = "true"'));
+});
+
+test("detachment rows label their Codex links", () => {
+  state.catalog = realCatalog;
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const faction = factionNamed("Heretic Astartes");
+    const detachment = availableDetachments(faction.id)
+      .find((row) => row.name === "Pactbound Zealots");
+    const row = renderDetachmentRow(
+      { factionKeywordId: faction.id },
+      detachment.id,
+      0,
+      { messages: [] },
+      () => {}
+    );
+    const link = row.children[0];
+
+    assert.equal(link.tagName, "a");
+    assert.equal(link.href, "/faction/heretic-astartes/detachment/pactbound-zealots");
+    assert.equal(link.title, "Open Codex detachment: Pactbound Zealots");
+    assert.equal(link.attributes.get("aria-label"), "Open Codex detachment: Pactbound Zealots");
+  } finally {
+    global.document = previousDocument;
+  }
 });
