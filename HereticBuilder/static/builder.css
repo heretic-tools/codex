@@ -1751,7 +1751,7 @@
   }
 
   .builder-panel-content:has(.roster-sticky-summary) {
-    padding-bottom: calc(132px + env(safe-area-inset-bottom));
+    padding-bottom: calc(196px + env(safe-area-inset-bottom));
   }
 
   .builder-panel-content:has(.unit-detail-grid .roster-sticky-summary) {
@@ -1759,7 +1759,7 @@
   }
 
   .builder-panel-content:has(.unit-detail-grid .roster-sticky-summary.has-actions) {
-    padding-bottom: calc(132px + env(safe-area-inset-bottom));
+    padding-bottom: calc(196px + env(safe-area-inset-bottom));
   }
 
   .builder-grid,
