@@ -875,6 +875,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(pwaSource, /type: "CACHE_URLS"/);
 
     const serviceWorkerSource = readFileSync(join(outDir, "service-worker.js"), "utf8");
+    assert.match(serviceWorkerSource, /CACHE_VERSION = "pwa-v2"/);
     assert.match(serviceWorkerSource, /\.\/static\/app\.css/);
     assert.doesNotMatch(serviceWorkerSource, /desktop\.css/);
     assert.match(serviceWorkerSource, /builder-data/);
