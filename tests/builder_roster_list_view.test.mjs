@@ -130,10 +130,16 @@ test("roster list disables export while there are no local rosters", () => {
     });
     const emptyTransfer = empty.children[2];
     assert.equal(empty.children[0].children[0].textContent, "No rosters yet");
+    assert.equal(empty.children[1].title, "Create roster");
+    assert.equal(empty.children[1].attributes.get("aria-label"), "Create roster");
     assert.equal(emptyTransfer.children[0].textContent, "Export Rosters");
     assert.equal(emptyTransfer.children[0].disabled, true);
+    assert.equal(emptyTransfer.children[0].title, "Export rosters");
+    assert.equal(emptyTransfer.children[0].attributes.get("aria-label"), "Export rosters");
     assert.equal(emptyTransfer.children[1].textContent, "Import Rosters");
     assert.equal(emptyTransfer.children[1].disabled, false);
+    assert.equal(emptyTransfer.children[1].title, "Import rosters");
+    assert.equal(emptyTransfer.children[1].attributes.get("aria-label"), "Import rosters");
 
     const withRoster = renderRosterListView({
       onCreate: () => {},

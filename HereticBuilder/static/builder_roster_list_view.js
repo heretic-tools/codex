@@ -1,4 +1,5 @@
 import { button, textNode } from "./builder_dom.js";
+import { labelControl } from "./builder_roster_control_labels.js";
 import {
   rosterDetachmentBadgeClass,
   rosterLine,
@@ -31,14 +32,25 @@ function renderRosterListView({ onCreate, onExport, onImport, onOpen, rosters, s
       await onImport(file);
     }
   });
-  const exportButton = button("builder-row transfer-button", "Export Rosters", onExport);
+  const exportButton = labelControl(
+    button("builder-row transfer-button", "Export Rosters", onExport),
+    "Export rosters"
+  );
   exportButton.disabled = !rosters.length;
+  const importButton = labelControl(
+    button("builder-row transfer-button", "Import Rosters", () => input.click()),
+    "Import rosters"
+  );
+  const createButton = labelControl(
+    button("builder-row create-roster-button", "Create Roster", onCreate),
+    "Create roster"
+  );
   transfer.append(
     exportButton,
-    button("builder-row transfer-button", "Import Rosters", () => input.click()),
+    importButton,
     input
   );
-  root.append(list, button("builder-row create-roster-button", "Create Roster", onCreate), transfer);
+  root.append(list, createButton, transfer);
   return root;
 }
 
