@@ -76,6 +76,7 @@ test("roster overview hides Warlord picker before units exist", () => {
   try {
     const overview = renderRosterOverview({
       onDelete: () => {},
+      onDuplicate: () => {},
       onUpdate: () => {},
       roster: { detachmentIds: [], units: [] },
       summary: { battleSizeName: "Strike Force", factionName: "Heretic Astartes" },
@@ -93,7 +94,12 @@ test("roster overview hides Warlord picker before units exist", () => {
 
     assert.equal(overview.textContent.includes("Warlord"), false);
     assert.equal(overview.textContent.includes("Add units first"), false);
+    assert.ok(overview.textContent.includes("Duplicate Roster"));
     assert.ok(overview.textContent.includes("Delete Roster"));
+    assert.equal(overview.children[2].children[0].title, "Duplicate roster");
+    assert.equal(overview.children[2].children[0].attributes.get("aria-label"), "Duplicate roster");
+    assert.equal(overview.children[2].children[1].title, "Delete roster");
+    assert.equal(overview.children[2].children[1].attributes.get("aria-label"), "Delete roster");
   } finally {
     global.document = previousDocument;
   }

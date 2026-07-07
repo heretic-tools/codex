@@ -26,6 +26,7 @@ function renderRosterDetailView({
   focusTarget = "",
   newId,
   onDelete,
+  onDuplicate,
   onUndoableUpdate = null,
   onUnitOpen,
   onUpdate,
@@ -44,6 +45,7 @@ function renderRosterDetailView({
   sidebar.className = "builder-roster-sidebar";
   const overview = renderRosterOverview({
     onDelete,
+    onDuplicate,
     onUndoableUpdate,
     onUpdate,
     roster,

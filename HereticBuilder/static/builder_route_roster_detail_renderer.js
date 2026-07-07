@@ -9,6 +9,7 @@ import {
 } from "./builder_roster_runtime.js";
 import {
   deleteRoster,
+  duplicateRoster,
   updateRoster,
 } from "./builder_roster_io_actions.js";
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
@@ -38,6 +39,7 @@ async function renderRoster(render) {
     newId,
     roster,
     onDelete: deleteRoster,
+    onDuplicate: duplicateRoster,
     onUpdate: (nextRoster) => updateRoster(nextRoster, render),
     onUndoableUpdate: ({ message, nextRoster, previousRoster }) => updateRosterWithUndo({
       message,

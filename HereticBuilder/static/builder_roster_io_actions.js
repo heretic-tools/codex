@@ -4,6 +4,7 @@ import {
   refreshRosters,
   rosterWithFreshListCache,
 } from "./builder_roster_runtime.js";
+import { duplicateRosterDocument } from "./builder_roster_clone.js";
 import { newRosterDocument } from "./builder_roster_create_model.js";
 import { state } from "./builder_state.js";
 import { newId, removeRoster, saveRoster } from "./builder_storage.js";
@@ -35,6 +36,17 @@ async function deleteRoster(roster) {
   });
 }
 
+async function duplicateRoster(roster) {
+  const { validateRoster } = await loadRules();
+  const copy = duplicateRosterDocument(roster, {
+    id: newId(),
+    now: new Date().toISOString(),
+  });
+  await saveRoster(rosterWithFreshListCache(copy, validateRoster(copy)));
+  await refreshRosters();
+  navigate(`/roster/${encodeURIComponent(copy.id)}`);
+}
+
 async function restoreRoster(roster) {
   const { validateRoster } = await loadRules();
   await saveRoster(rosterWithFreshListCache(roster, validateRoster(roster)));
@@ -52,6 +64,7 @@ async function updateRoster(roster, render) {
 export {
   createRoster,
   deleteRoster,
+  duplicateRoster,
   restoreRoster,
   updateRoster,
 };
