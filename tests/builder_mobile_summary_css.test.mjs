@@ -50,7 +50,7 @@ test("mobile roster summary is a bottom safe-area bar", () => {
   assert.ok(source.includes(".roster-sticky-summary-action"));
 });
 
-test("mobile roster summary actions are framed as primary add shortcuts", () => {
+test("mobile roster summary actions expose add-section shortcuts", () => {
   const source = builderSource("builder_roster_detail_view.js");
 
   assert.ok(source.includes('label: "Issues"'));

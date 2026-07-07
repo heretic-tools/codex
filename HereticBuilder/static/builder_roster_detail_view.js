@@ -31,8 +31,8 @@ function rosterDetailStickyActionDescriptors(validation, { hasAttachments = fals
     actions.push({ ariaLabel: "Review roster issues", label: "Issues", target: "validation" });
   }
   actions.push(
-    { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
-    { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" }
+    { ariaLabel: "Add detachment", label: "+ Detach", target: "detachments" },
+    { ariaLabel: "Add unit", label: "+ Unit", target: "units" }
   );
   if (hasAttachments) {
     actions.push({ ariaLabel: "Add attached unit", label: "Attach", target: "attachments" });

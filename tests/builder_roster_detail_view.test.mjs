@@ -69,8 +69,8 @@ test("roster detail sticky actions only show Issues when validation has messages
   assert.deepEqual(
     rosterDetailStickyActionDescriptors({ messages: [] }),
     [
-      { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
-      { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
+      { ariaLabel: "Add detachment", label: "+ Detach", target: "detachments" },
+      { ariaLabel: "Add unit", label: "+ Unit", target: "units" },
     ]
   );
 
@@ -80,8 +80,8 @@ test("roster detail sticky actions only show Issues when validation has messages
     }, { hasAttachments: true }),
     [
       { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
-      { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
-      { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
+      { ariaLabel: "Add detachment", label: "+ Detach", target: "detachments" },
+      { ariaLabel: "Add unit", label: "+ Unit", target: "units" },
       { ariaLabel: "Add attached unit", label: "Attach", target: "attachments" },
     ]
   );
