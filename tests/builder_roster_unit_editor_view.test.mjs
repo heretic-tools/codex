@@ -20,6 +20,8 @@ import {
   unitModelCountLabel,
   unitOpenLabel,
   unitOptionValue,
+  unitSummaryGroupLabel,
+  unitSummaryGroups,
   unitSourceBadgeText,
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
 import { unitSourceBadgeNode } from "../HereticBuilder/static/builder_roster_unit_badges.js";
@@ -175,6 +177,29 @@ test("unit option values round-trip ally type and datasheet id", () => {
   assert.deepEqual(
     parseUnitOptionValue("plain-datasheet-id"),
     { allyType: "native", datasheetId: "plain-datasheet-id" }
+  );
+});
+
+test("unit summaries are grouped by roster role for scanning", () => {
+  assert.equal(unitSummaryGroupLabel({ keywordNames: ["Character", "Epic Hero"] }), "Character");
+  assert.equal(unitSummaryGroupLabel({ keywordNames: ["Battleline"] }), "Battleline");
+  assert.equal(unitSummaryGroupLabel({ keywordNames: ["Dedicated Transport"] }), "Dedicated Transport");
+  assert.equal(unitSummaryGroupLabel({ keywordNames: ["Infantry"] }), "Other");
+
+  assert.deepEqual(
+    unitSummaryGroups([
+      { id: "other-1", keywordNames: ["Infantry"] },
+      { id: "battleline-1", keywordNames: ["Battleline"] },
+      { id: "character-1", keywordNames: ["Character"] },
+      { id: "transport-1", keywordNames: ["Dedicated Transport"] },
+      { id: "other-2", keywordNames: [] },
+    ]).map((group) => [group.label, group.rows.map((row) => row.id)]),
+    [
+      ["Character", ["character-1"]],
+      ["Battleline", ["battleline-1"]],
+      ["Dedicated Transport", ["transport-1"]],
+      ["Other", ["other-1", "other-2"]],
+    ]
   );
 });
 
