@@ -84,6 +84,8 @@ Builder not-found теперь различает missing roster и missing unit
 юнит показывает `Unit Not Found` и breadcrumbs к родительскому ростеру.
 Builder CSS полностью очищен от legacy `border-width: 2px` bevel borders в
 исходном файле; оставшиеся акценты используют 1px token borders.
+Codex CSS также очищен от legacy bevel borders/inset shadows на rule/list/table
+surfaces; guard закрепляет 1px token-border направление для нового shell.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

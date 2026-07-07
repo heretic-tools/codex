@@ -170,10 +170,7 @@
       background: #7a1018;
       color: var(--light);
       text-shadow: none;
-      box-shadow:
-        inset 1px 1px 0 #d66868,
-        inset -1px -1px 0 #3b0508,
-        1px 1px 0 var(--ink);
+      box-shadow: none;
     }
 
     .codex-root-page .launcher.has-faction-image .label,
@@ -204,10 +201,9 @@
       min-width: 0;
       padding: 14px;
       background: var(--app-panel);
-      border-style: solid;
-      border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
-      box-shadow: inset 1px 1px 0 #dfdfdf, 1px 1px 0 var(--ink);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      box-shadow: none;
     }
 
     .rule-card h2,
@@ -261,7 +257,7 @@
     }
 
     .rule-card.has-accent {
-      border-left-width: 6px;
+      border-left-width: 4px;
       border-left-color: var(--rule-card-accent);
     }
 
@@ -270,18 +266,17 @@
     }
 
     .rule-card.is-boxed-text {
-      background: #d7d7d7;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
-      box-shadow: inset -1px -1px 0 #efefef, inset 1px 1px 0 var(--shadow);
+      background: var(--app-surface-2);
+      border-color: var(--app-border);
+      box-shadow: none;
     }
 
     .rule-table-wrap {
       min-width: 0;
       margin-top: 10px;
       overflow-x: auto;
-      border-style: solid;
-      border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
     }
 
     .rule-table {
@@ -327,9 +322,8 @@
       width: 100%;
       height: auto;
       background: #fff;
-      border-style: solid;
-      border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
     }
 
     .rule-image-card figcaption {
@@ -516,8 +510,8 @@
       display: grid;
       gap: 5px;
       padding-bottom: 8px;
-      border-bottom: 2px solid var(--shadow);
-      box-shadow: 0 1px 0 var(--light);
+      border-bottom: 1px solid var(--app-border);
+      box-shadow: none;
     }
 
     .unit-summary-kicker,
@@ -557,10 +551,9 @@
       gap: 5px;
       min-height: 21px;
       padding: 2px 6px;
-      background: #d7d7d7;
-      border-style: solid;
-      border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      background: var(--app-surface-2);
+      border: 1px solid var(--app-border);
+      border-radius: 0;
       font-size: 12px;
       line-height: 1;
     }
@@ -605,13 +598,11 @@
       padding: 2px 7px;
       background: #000080;
       color: #fff;
+      border: 1px solid rgba(255, 255, 255, .42);
       font-size: 10px;
       font-weight: 800;
       line-height: 1.1;
       text-shadow: 1px 1px 0 rgba(0, 0, 0, .6);
-      border-style: solid;
-      border-width: 2px;
-      border-color: rgba(255, 255, 255, .5) rgba(0, 0, 0, .5) rgba(0, 0, 0, .5) rgba(255, 255, 255, .5);
     }
 
     .disposition-take-and-hold   { background: #1a7a1a; }
@@ -629,12 +620,11 @@
       padding: 2px 7px;
       background: var(--app-panel);
       color: var(--ink);
+      border: 1px solid var(--app-border);
+      border-radius: 0;
       font-size: 10px;
       font-weight: 800;
       line-height: 1.1;
-      border-style: solid;
-      border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
     }
 
     .detachment-badge-row {
@@ -694,29 +684,29 @@
 
     .unit-stat-table thead tr {
       background: linear-gradient(90deg, var(--title), var(--title-hot));
-      box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .35), inset -2px -2px 0 var(--mid);
+      box-shadow: none;
     }
 
     .unit-stat-table thead th {
       background: transparent;
       color: var(--light);
-      border-width: 2px 0;
+      border-width: 1px 0;
       border-style: solid;
-      border-color: var(--light) transparent var(--mid);
+      border-color: var(--app-border) transparent var(--app-border);
       text-shadow: 1px 1px 0 var(--ink);
     }
 
     .unit-stat-table thead th:first-child {
-      border-left: 2px solid var(--light);
+      border-left: 1px solid var(--app-border);
     }
 
     .unit-stat-table thead th:last-child {
-      border-right: 2px solid var(--mid);
+      border-right: 1px solid var(--app-border);
     }
 
     .unit-stat-table tbody th,
     .unit-stat-table tbody td {
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border-color: var(--app-border);
     }
 
     .unit-stat-table tbody th {
@@ -1018,10 +1008,10 @@
       background:
         linear-gradient(180deg, rgba(255, 255, 255, .38), transparent 36%),
         #efe2c2;
-      border-style: solid;
-      border-width: 2px 2px 2px 6px;
-      border-color: #fff8df #8f7e5b #8f7e5b #8a6a2e;
-      box-shadow: inset 1px 1px 0 #fffaf0, 1px 1px 0 var(--ink);
+      border: 1px solid #8f7e5b;
+      border-left-width: 4px;
+      border-left-color: #8a6a2e;
+      box-shadow: none;
       font-size: 13px;
       line-height: 1.36;
     }
@@ -1146,10 +1136,9 @@
       padding: 12px;
       color: var(--ink);
       background: var(--app-panel);
-      border-style: solid;
-      border-width: 2px;
-      border-color: var(--light) var(--shadow) var(--shadow) var(--light);
-      box-shadow: inset 1px 1px 0 #dfdfdf;
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+      box-shadow: none;
       text-align: left;
     }
 
@@ -1239,9 +1228,8 @@
     .empty-state {
       padding: 14px;
       background: var(--app-panel);
-      border-style: solid;
-      border-width: 2px;
-      border-color: var(--shadow) var(--light) var(--light) var(--shadow);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
       line-height: 1.4;
     }
 
@@ -1277,11 +1265,10 @@
 
       .rule-table tr {
         display: grid;
-        background: #d7d7d7;
-        border-style: solid;
-        border-width: 2px;
-        border-color: var(--shadow) var(--light) var(--light) var(--shadow);
-        box-shadow: inset 1px 1px 0 #9a9a9a, inset -1px -1px 0 #efefef;
+        background: var(--app-surface-2);
+        border: 1px solid var(--app-border);
+        border-radius: var(--app-radius);
+        box-shadow: none;
       }
 
       .rule-table th,

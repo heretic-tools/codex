@@ -33,6 +33,14 @@ test("modern Codex table surfaces override legacy light backgrounds", () => {
   assert.ok(modernLayer.includes("background: var(--app-surface-2);"));
 });
 
+test("Codex CSS no longer keeps legacy bevel borders", () => {
+  const source = codexCss();
+
+  assert.doesNotMatch(source, /border-width:\s*2px/);
+  assert.doesNotMatch(source, /box-shadow:\s*inset/);
+  assert.doesNotMatch(source, /var\(--light\).*var\(--shadow\)|var\(--shadow\).*var\(--light\)/);
+});
+
 test("modern Codex layer keeps one mobile max-width block", () => {
   const source = codexCss();
   const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
