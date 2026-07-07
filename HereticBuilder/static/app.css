@@ -541,13 +541,44 @@ h1 {
 }
 
 .theme-toggle {
-  min-height: 34px;
-  padding: 6px 9px;
+  position: relative;
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+  padding: 0;
   color: var(--app-accent);
   font-family: var(--app-font-mono);
   font-size: 12px;
   line-height: 1;
   text-transform: uppercase;
+}
+
+.theme-toggle::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  display: block;
+  background: linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%);
+  border: 2px solid currentColor;
+  border-radius: 999px;
+}
+
+.theme-toggle[data-theme="light"]::before {
+  background: currentColor;
+  box-shadow: inset 0 0 0 5px var(--app-surface);
+}
+
+.theme-toggle [data-theme-toggle-label] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .support-mark {

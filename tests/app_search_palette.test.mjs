@@ -44,3 +44,16 @@ test("shared mobile shell controls keep 44px touch targets", () => {
   assert.ok(mobileLayer.includes("width: 44px;"));
   assert.ok(mobileLayer.includes("height: 44px;"));
 });
+
+test("theme toggle is a compact icon button with hidden text state", () => {
+  const source = staticSource("app.css");
+
+  assert.ok(source.includes(".theme-toggle::before"));
+  assert.ok(source.includes('content: "";'));
+  assert.ok(source.includes("width: 44px;"));
+  assert.ok(source.includes("min-width: 44px;"));
+  assert.ok(source.includes("min-height: 44px;"));
+  assert.ok(source.includes(".theme-toggle[data-theme=\"light\"]::before"));
+  assert.ok(source.includes(".theme-toggle [data-theme-toggle-label]"));
+  assert.ok(source.includes("clip: rect(0, 0, 0, 0);"));
+});
