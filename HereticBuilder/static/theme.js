@@ -36,6 +36,7 @@
     document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
       const next = nextTheme(theme);
       button.setAttribute("aria-label", `Switch to ${next} theme`);
+      button.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
       button.setAttribute("title", `Switch to ${next} theme`);
       button.dataset.theme = theme;
       const label = button.querySelector("[data-theme-toggle-label]");
