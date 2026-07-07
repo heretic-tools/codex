@@ -166,6 +166,8 @@ Unit overview section получил accessible label с именем юнита
 Models, чтобы unit detail не начинался с безымянной панели.
 Unit-level Warlord select теперь называется `Choose Warlord for <unit>`, не
 путаясь с roster-level Warlord picker.
+Unit-level allegiance/ability select тоже называет конкретный unit в
+accessible label.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

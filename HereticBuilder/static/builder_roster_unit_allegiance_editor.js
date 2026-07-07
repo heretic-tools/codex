@@ -13,6 +13,10 @@ function allegianceChangeMessage(unit) {
   return `Allegiance changed for ${unit.name || "Unit"}`;
 }
 
+function allegianceSelectLabel(model, unit) {
+  return `Choose ${model?.label || "allegiance"} for ${unit?.name || "unit"}`;
+}
+
 function updateUnitAllegianceFromEditor(roster, unit, allegianceAbilityId, context, onUpdate, onUndoableUpdate = null) {
   return applyRosterUpdate({
     message: allegianceChangeMessage(unit),
@@ -41,7 +45,7 @@ function renderAllegianceEditor({
     return null;
   }
   const select = document.createElement("select");
-  labelControl(select, `Choose ${model.label || "allegiance"}`);
+  labelControl(select, allegianceSelectLabel(model, unit));
   for (const row of model.options) {
     select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
   }
@@ -72,4 +76,4 @@ function renderAllegianceEditor({
   return wrap;
 }
 
-export { allegianceChangeMessage, renderAllegianceEditor, updateUnitAllegianceFromEditor };
+export { allegianceChangeMessage, allegianceSelectLabel, renderAllegianceEditor, updateUnitAllegianceFromEditor };

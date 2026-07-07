@@ -13,6 +13,7 @@ import {
   rosterWithUnitAllegianceAbility,
 } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
+  allegianceSelectLabel,
   renderAllegianceEditor,
   updateUnitAllegianceFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_allegiance_editor.js";
@@ -116,7 +117,8 @@ test("unit allegiance editor hides controls until an actionable option exists", 
     assert.equal(node.tagName, "label");
     assert.equal(node.dataset.unitDetailTarget, "allegiance");
     assert.equal(node.children[1].tagName, "select");
-    assert.equal(node.children[1].title, `Choose ${node.children[0].textContent}`);
+    assert.equal(allegianceSelectLabel({ label: node.children[0].textContent }, visible.unit), `Choose ${node.children[0].textContent} for ${visible.unit.name}`);
+    assert.equal(node.children[1].title, `Choose ${node.children[0].textContent} for ${visible.unit.name}`);
     assert.equal(node.children[1].attributes.get("aria-label"), node.children[1].title);
     const status = node.children.find((child) => child.className === "field-status allegiance-availability-status");
     assert.match(status.textContent, /\d+ available/);
