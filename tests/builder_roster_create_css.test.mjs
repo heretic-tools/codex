@@ -37,3 +37,13 @@ test("roster create battle size picker uses flat theme tokens", () => {
   assert.ok(source.includes(".battle-size-option:has(input:focus-visible)"));
   assert.doesNotMatch(source, /\.battle-size-option \{[^}]+border-width: 2px;/);
 });
+
+test("Builder shared controls no longer keep a bevel fallback", () => {
+  const source = builderCss();
+  const sharedControlBlock = source.match(/\.builder-row,\n\.plain-button,\n\.primary-button,\n\.remove-button,\n\.validation-action-button \{[^}]+\}/)?.[0] || "";
+
+  assert.ok(sharedControlBlock.includes("border: 1px solid var(--builder-border);"));
+  assert.ok(sharedControlBlock.includes("box-shadow: none;"));
+  assert.doesNotMatch(sharedControlBlock, /border-width:\s*2px/);
+  assert.doesNotMatch(sharedControlBlock, /border-color:\s*var\(--builder-light\).*var\(--builder-shadow\)/s);
+});

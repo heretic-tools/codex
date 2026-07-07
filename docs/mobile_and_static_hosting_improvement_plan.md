@@ -78,6 +78,8 @@ Unit-detail upgrade/enhancement editor теперь называет секци�
 Roster unit rows используют тот же словарь для compact summary, поэтому
 выбранные upgrade-опции больше не подписываются как `Enhancements`, а shared
 CSS shell перестал держать legacy `--window` alias.
+Builder shared controls больше не держат старый 2px bevel fallback в базовом
+слое CSS, а Codex static CSS очищен от оставшихся Win95/titlebar терминов.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

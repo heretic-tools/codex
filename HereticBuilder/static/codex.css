@@ -512,7 +512,7 @@
         var(--app-panel);
     }
 
-    .unit-summary-titlebar {
+    .unit-summary-header {
       display: grid;
       gap: 5px;
       padding-bottom: 8px;
@@ -620,7 +620,7 @@
     .disposition-purge-the-foe   { background: #800000; }
     .disposition-reconnaissance  { background: #138a8a; }
 
-    /* Neutral meta badge (e.g. DP, Combat Patrol) — gray Win95 chip. */
+    /* Neutral meta badge (e.g. DP, Combat Patrol). */
     .meta-badge {
       flex: 0 0 auto;
       justify-self: start;
@@ -1572,8 +1572,8 @@
       }
     }
 
-/* Modern Codex layer. Generated pages keep their class names, but the visual
-   surface is no longer a faux desktop window. */
+/* Modern Codex layer. Generated pages keep their class names while the shared
+   app shell owns the visual surface. */
 .codex-page .breadcrumb-menu-item {
   text-decoration: none;
 }
