@@ -1,3 +1,4 @@
+import { modelCountLabel } from "./builder_count_labels.js";
 import { warlordSelectionContext } from "./builder_roster_warlord_options.js";
 import { warlordCandidateStatus } from "./builder_warlord_rules.js";
 
@@ -6,8 +7,7 @@ function currentWarlordTargetId(unit) {
 }
 
 function unitWarlordOptionLabel(miniature) {
-  const count = miniature.count || 0;
-  return `${miniature.name} (${count} ${count === 1 ? "model" : "models"})`;
+  return `${miniature.name} (${modelCountLabel(miniature.count)})`;
 }
 
 function unitWarlordSelectModel(roster, unit) {

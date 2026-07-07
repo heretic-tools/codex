@@ -1,3 +1,5 @@
+import { modelCountLabel } from "./builder_count_labels.js";
+
 const ATTACHMENT_TYPES = [
   { value: "leader", label: "Leader" },
   { value: "support", label: "Support" },
@@ -7,7 +9,7 @@ function unitLabel(unit, prefix = "", units = []) {
   const name = unit.name || "Unit";
   const sameName = units.filter((item) => (item.name || "Unit") === name);
   const duplicateSuffix = sameName.length > 1 ? ` #${sameName.findIndex((item) => item.id === unit.id) + 1}` : "";
-  const label = `${name}${duplicateSuffix} (${unit.modelCount || 0})`;
+  const label = `${name}${duplicateSuffix} (${modelCountLabel(unit.modelCount)})`;
   return prefix ? `${prefix}: ${label}` : label;
 }
 

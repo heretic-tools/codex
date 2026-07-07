@@ -25,6 +25,7 @@ import {
   warlordOptionLabel,
   warlordPickerModel,
 } from "../HereticBuilder/static/builder_roster_warlord_options.js";
+import { unitLabel } from "../HereticBuilder/static/builder_roster_attachment_types.js";
 
 function warlordValue(unit) {
   return JSON.stringify({
@@ -162,6 +163,16 @@ test("unit warlord select labels use concise placeholder and readable model coun
 
   assert.equal(model.options[0].label, "Not Warlord");
   assert.equal(model.options[1].label, "Captain (1 model)");
+});
+
+test("attachment unit labels use readable model counts", () => {
+  const units = [
+    { id: "leader-1", modelCount: 1, name: "Captain" },
+    { id: "leader-2", modelCount: 2, name: "Captain" },
+  ];
+
+  assert.equal(unitLabel(units[0], "Leader", units), "Leader: Captain #1 (1 model)");
+  assert.equal(unitLabel(units[1], "Support", units), "Support: Captain #2 (2 models)");
 });
 
 test("unit warlord select model keeps the current invalid candidate visible and enabled", () => {

@@ -1,3 +1,4 @@
+import { modelCountLabel } from "./builder_count_labels.js";
 import { rosterUnitSummaries } from "./builder_model.js";
 import { state } from "./builder_state.js";
 import { warlordCandidateStatus } from "./builder_warlord_rules.js";
@@ -12,9 +13,8 @@ function warlordOptionValue(unit, miniature) {
 function warlordOptionLabel(unit, miniature) {
   const unitName = unit.name || "Unit";
   const miniatureName = miniature.name || "Model";
-  const count = miniature.count || 0;
   const name = unitName === miniatureName ? unitName : `${unitName} / ${miniatureName}`;
-  return `${name} (${count} ${count === 1 ? "model" : "models"})`;
+  return `${name} (${modelCountLabel(miniature.count)})`;
 }
 
 function selectedWarlordValue(units) {

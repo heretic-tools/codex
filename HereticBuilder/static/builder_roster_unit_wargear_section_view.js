@@ -1,3 +1,4 @@
+import { modelCountLabel } from "./builder_count_labels.js";
 import { wargearGroupsFor } from "./builder_roster_unit_wargear_groups.js";
 import { renderWargearScope } from "./builder_roster_unit_wargear_view.js";
 import {
@@ -14,8 +15,7 @@ function wargearScopeHasContent(groups, target, validation) {
 }
 
 function miniatureWargearHeading(miniature) {
-  const count = miniature.count || 0;
-  return `${miniature.name} (${count} ${count === 1 ? "model" : "models"})`;
+  return `${miniature.name} (${modelCountLabel(miniature.count)})`;
 }
 
 function appendWargearScope(wargear, {
