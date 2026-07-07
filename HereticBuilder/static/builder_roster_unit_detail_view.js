@@ -35,11 +35,13 @@ function stickyEnhancementsLabel(sectionTitle = "") {
 }
 
 function unitDetailStickyActionDescriptors({
+  hasAllegiance = false,
   hasComposition = false,
   hasEnhancements = false,
   enhancementsLabel = "Upgrades",
   hasValidation = false,
   hasWargear = false,
+  hasWarlord = false,
 } = {}) {
   const actions = [];
   if (hasValidation) {
@@ -48,6 +50,12 @@ function unitDetailStickyActionDescriptors({
   actions.push({ ariaLabel: "Review unit profile", label: "Unit", target: "overview" });
   if (hasComposition) {
     actions.push({ ariaLabel: "Edit unit composition", label: "Models", target: "composition" });
+  }
+  if (hasWarlord) {
+    actions.push({ ariaLabel: "Edit unit Warlord", label: "Warlord", target: "warlord" });
+  }
+  if (hasAllegiance) {
+    actions.push({ ariaLabel: "Edit unit ability", label: "Ability", target: "allegiance" });
   }
   if (hasWargear) {
     actions.push({ ariaLabel: "Edit unit wargear", label: "Wargear", target: "wargear" });
@@ -139,11 +147,13 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
   }
   const stickySummary = renderRosterStickySummary({
     actions: unitDetailStickyActionDescriptors({
+      hasAllegiance: overviewTargets.has("allegiance"),
       hasComposition: unitHasCompositionChoices(roster, summary),
       hasEnhancements: Boolean(enhancementsEditor),
       enhancementsLabel: enhancementsEditor?.dataset.sectionTitle || "Upgrades",
       hasValidation,
       hasWargear: Boolean(wargear),
+      hasWarlord: overviewTargets.has("warlord"),
     }).map((action) => ({
       ...action,
       action: "unit-detail",

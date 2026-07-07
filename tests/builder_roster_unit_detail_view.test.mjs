@@ -73,15 +73,19 @@ test("unit validation actions route diagnostics to unit detail editors", () => {
 test("unit detail sticky actions expose only available local sections", () => {
   assert.deepEqual(
     unitDetailStickyActionDescriptors({
+      hasAllegiance: true,
       hasComposition: true,
       hasEnhancements: true,
       hasValidation: true,
       hasWargear: true,
+      hasWarlord: true,
     }),
     [
       { ariaLabel: "Review unit issues", label: "Issues", target: "validation" },
       { ariaLabel: "Review unit profile", label: "Unit", target: "overview" },
       { ariaLabel: "Edit unit composition", label: "Models", target: "composition" },
+      { ariaLabel: "Edit unit Warlord", label: "Warlord", target: "warlord" },
+      { ariaLabel: "Edit unit ability", label: "Ability", target: "allegiance" },
       { ariaLabel: "Edit unit wargear", label: "Wargear", target: "wargear" },
       { ariaLabel: "Edit unit upgrades", label: "Upgrades", target: "enhancements" },
     ]

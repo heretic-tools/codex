@@ -123,6 +123,9 @@ card, так что mobile hit target совпадает с интерфейсо
 Базовый Builder CSS fallback очищен от оставшихся 2px light/shadow bevel
 borders на empty/read-only/metric/validation/wargear surfaces; modern layer
 больше не зависит от перекрытия старого Windows-style вида.
+Unit-detail sticky actions теперь показывают `Warlord` и `Ability` только
+когда соответствующие локальные controls реально отрендерены в overview; для
+Pactbound Zealots/Chosen это даёт прямой mobile shortcut к `Mark of Chaos`.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
