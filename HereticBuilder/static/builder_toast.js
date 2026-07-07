@@ -39,4 +39,18 @@ function showUndoToast({ message, onUndo, timeoutMs = 5000 }) {
   return toast;
 }
 
-export { dismissToast, showUndoToast };
+function showStatusToast({ message, timeoutMs = 4000, tone = "info" }) {
+  dismissToast();
+  const toast = document.createElement("div");
+  toast.className = `builder-toast status-toast tone-${tone}`;
+  toast.setAttribute("role", tone === "error" ? "alert" : "status");
+  toast.appendChild(textNode("span", "toast-message", message));
+  toastHost().appendChild(toast);
+  activeToast = toast;
+  if (timeoutMs > 0) {
+    activeTimer = window.setTimeout(dismissToast, timeoutMs);
+  }
+  return toast;
+}
+
+export { dismissToast, showStatusToast, showUndoToast };

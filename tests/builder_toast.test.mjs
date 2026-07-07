@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-const { dismissToast, showUndoToast } = await import("../HereticBuilder/static/builder_toast.js");
+const { dismissToast, showStatusToast, showUndoToast } = await import("../HereticBuilder/static/builder_toast.js");
 
 function mockElement(tagName) {
   return {
@@ -65,6 +65,39 @@ test("undo toast renders a restore action and dismisses after undo", async () =>
 
     assert.equal(restored, true);
     assert.equal(toast.removed, true);
+  } finally {
+    dismissToast();
+    global.document = previousDocument;
+    global.window = previousWindow;
+  }
+});
+
+test("status toast renders a non-blocking message without an action", () => {
+  const previousDocument = global.document;
+  const previousWindow = global.window;
+  const body = mockElement("body");
+  global.document = {
+    body,
+    documentElement: mockElement("html"),
+    createElement: mockElement,
+  };
+  global.window = {
+    clearTimeout: () => {},
+    setTimeout: () => 1,
+  };
+
+  try {
+    const toast = showStatusToast({
+      message: "Import failed",
+      timeoutMs: 0,
+      tone: "error",
+    });
+
+    assert.equal(body.children[0], toast);
+    assert.equal(toast.className, "builder-toast status-toast tone-error");
+    assert.equal(toast.attributes.get("role"), "alert");
+    assert.equal(toast.children.length, 1);
+    assert.equal(toast.children[0].textContent, "Import failed");
   } finally {
     dismissToast();
     global.document = previousDocument;

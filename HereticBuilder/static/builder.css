@@ -1546,6 +1546,14 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, .16);
 }
 
+.builder-toast.tone-success {
+  border-left-color: var(--builder-ok);
+}
+
+.builder-toast.tone-error {
+  border-left-color: var(--builder-error);
+}
+
 .toast-message {
   min-width: 0;
   overflow-wrap: anywhere;

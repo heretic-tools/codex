@@ -950,6 +950,8 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_roster_export_download\\.js\\?v=${version}`));
     assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_roster_import_save\\.js\\?v=${version}`));
     assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
+    assert.match(rosterTransferActionsSource, new RegExp(`\\.\\/builder_toast\\.js\\?v=${version}`));
+    assert.doesNotMatch(rosterTransferActionsSource, /alert\(/);
 
     const rosterImportSaveSource = readFileSync(join(outDir, "static", "builder_roster_import_save.js"), "utf8");
     assert.match(rosterImportSaveSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
