@@ -11,6 +11,7 @@ import { renderEnhancementsEditor } from "./builder_roster_unit_detail_editors.j
 import { renderRosterStickySummary } from "./builder_roster_overview_view.js";
 import { renderRosterUnitOverview, unitDisplayName } from "./builder_roster_unit_overview_view.js";
 import { renderRosterUnitWargearSection } from "./builder_roster_unit_wargear_section_view.js";
+import { state } from "./builder_state.js";
 
 function validationWithoutMessages(validation, excludedMessages) {
   const excluded = new Set(excludedMessages || []);
@@ -85,7 +86,11 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
   if (validationHasMessages(otherValidation)) {
     const rosterIssuesView = renderValidation(otherValidation, {
       context: validationContext,
-      groupAction: (group) => renderRosterValidationActionLink(group, { roster, unitById }),
+      groupAction: (group) => renderRosterValidationActionLink(group, {
+        datasheetById: state.catalog.datasheetById,
+        roster,
+        unitById,
+      }),
       title: "Roster Issues",
     });
     if (!hasValidation) {

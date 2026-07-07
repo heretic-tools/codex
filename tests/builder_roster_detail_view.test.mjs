@@ -3,7 +3,10 @@ import test from "node:test";
 
 global.document = { querySelector: () => null };
 
-const { rosterValidationActionTarget } = await import("../HereticBuilder/static/builder_roster_detail_view.js");
+const {
+  rosterValidationActionTarget,
+  scrollToRosterFocusTarget,
+} = await import("../HereticBuilder/static/builder_roster_detail_view.js");
 const { validationActionLabel } = await import("../HereticBuilder/static/builder_roster_validation_actions.js");
 
 test("roster validation actions prefer exact scoped editor targets", () => {
@@ -298,4 +301,84 @@ test("roster validation actions point multi-scope groups to list editors", () =>
     }),
     { kind: "target", target: "attachments", text: "Attached" }
   );
+});
+
+function fakeClassList() {
+  const calls = [];
+  return {
+    calls,
+    add(name) {
+      calls.push(["add", name]);
+    },
+    remove(name) {
+      calls.push(["remove", name]);
+    },
+  };
+}
+
+test("roster focus target can prefill the unit search field", () => {
+  const previousDocument = global.document;
+  const previousWindow = global.window;
+  const previousCss = global.CSS;
+  const previousEvent = global.Event;
+  const calls = [];
+  const classList = fakeClassList();
+  const search = {
+    value: "",
+    dispatchEvent(event) {
+      calls.push(["input", event.type]);
+    },
+    focus(options) {
+      calls.push(["focus", options]);
+    },
+    scrollIntoView(options) {
+      calls.push(["scroll", options]);
+    },
+  };
+  const section = {
+    classList,
+    matches() {
+      return false;
+    },
+    querySelector(selector) {
+      return selector === "[data-focus-target]" ? search : null;
+    },
+  };
+
+  global.CSS = { escape: (value) => value };
+  global.Event = class {
+    constructor(type) {
+      this.type = type;
+    }
+  };
+  global.window = {
+    CSS: global.CSS,
+    setTimeout(handler) {
+      calls.push(["timeout", 900]);
+      handler();
+    },
+  };
+  global.document = {
+    querySelector(selector) {
+      return selector === '[data-editor-target="units"]' ? section : null;
+    },
+  };
+
+  try {
+    scrollToRosterFocusTarget("unitSearch:Abaddon the Despoiler");
+
+    assert.equal(search.value, "Abaddon the Despoiler");
+    assert.deepEqual(calls[0], ["input", "input"]);
+    assert.deepEqual(calls[1], ["scroll", { behavior: "smooth", block: "center" }]);
+    assert.deepEqual(calls[2], ["focus", { preventScroll: true }]);
+    assert.deepEqual(classList.calls, [
+      ["add", "is-attention-target"],
+      ["remove", "is-attention-target"],
+    ]);
+  } finally {
+    global.document = previousDocument;
+    global.window = previousWindow;
+    global.CSS = previousCss;
+    global.Event = previousEvent;
+  }
 });

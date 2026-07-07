@@ -7,6 +7,7 @@ const {
   rosterFocusTargetForValidationAction,
   scrollToUnitDetailTarget,
   unitFocusHref,
+  unitSearchFocusTarget,
 } = await import("../HereticBuilder/static/builder_roster_unit_detail_actions.js");
 
 function fakeClassList() {
@@ -169,6 +170,7 @@ test("unit detail roster issue links point back to roster editor targets", () =>
       unitFocusHref("roster 1", "unit 1", "wargear:model-1"),
       "#/roster/roster%201/unit/unit%201/focus/wargear%3Amodel-1"
     );
+    assert.equal(unitSearchFocusTarget("Abaddon the Despoiler"), "unitSearch:Abaddon the Despoiler");
 
     const detachmentLink = renderRosterValidationActionLink({
       attachmentIds: [],
@@ -201,6 +203,22 @@ test("unit detail roster issue links point back to roster editor targets", () =>
     assert.equal(unitLink.textContent, "Open Unit");
     assert.equal(unitLink.href, "#/roster/roster%201/unit/unit%201/focus/composition");
     assert.equal(unitLink.title, "Open unit: Chosen");
+
+    const findLink = renderRosterValidationActionLink({
+      attachmentIds: [],
+      code: "detachment.datasheets_missing",
+      datasheetIds: ["datasheet-1"],
+      texts: ["Add Abaddon the Despoiler."],
+      unitIds: [],
+    }, {
+      datasheetById: new Map([["datasheet-1", { name: "Abaddon the Despoiler" }]]),
+      roster: { id: "roster 1" },
+      unitById: new Map(),
+    });
+
+    assert.equal(findLink.textContent, "Find");
+    assert.equal(findLink.href, "#/roster/roster%201/focus/unitSearch%3AAbaddon%20the%20Despoiler");
+    assert.equal(findLink.title, "Find unit: Abaddon the Despoiler");
   } finally {
     global.document = previousDocument;
   }

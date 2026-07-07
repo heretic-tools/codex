@@ -6,9 +6,21 @@ import {
   renderValidationGroupAction,
   rosterValidationActionTarget,
 } from "./builder_roster_validation_actions.js";
-import { scrollToEditorTarget } from "./builder_roster_validation_action_scroll.js";
+import {
+  scrollToEditorTarget,
+  scrollToUnitSearch,
+} from "./builder_roster_validation_action_scroll.js";
 import { validationContextForRoster } from "./builder_validation_context.js";
 import { renderValidation } from "./builder_validation_view.js";
+
+function scrollToRosterFocusTarget(focusTarget) {
+  const prefix = "unitSearch:";
+  if (String(focusTarget || "").startsWith(prefix)) {
+    scrollToUnitSearch(focusTarget.slice(prefix.length));
+    return;
+  }
+  scrollToEditorTarget(focusTarget);
+}
 
 function renderRosterDetailView({
   focusTarget = "",
@@ -68,9 +80,9 @@ function renderRosterDetailView({
   sidebar.append(overview, validationView);
   root.append(stickySummary, sidebar, editor);
   if (focusTarget) {
-    window.requestAnimationFrame(() => scrollToEditorTarget(focusTarget));
+    window.requestAnimationFrame(() => scrollToRosterFocusTarget(focusTarget));
   }
   return root;
 }
 
-export { renderRosterDetailView, rosterValidationActionTarget };
+export { renderRosterDetailView, rosterValidationActionTarget, scrollToRosterFocusTarget };

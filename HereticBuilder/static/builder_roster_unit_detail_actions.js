@@ -51,6 +51,10 @@ function rosterFocusTargetForValidationAction(action) {
   return "";
 }
 
+function unitSearchFocusTarget(query = "") {
+  return query ? `unitSearch:${query}` : "units";
+}
+
 function rosterFocusHref(rosterId, target = "") {
   const rosterPath = `/roster/${encodeURIComponent(rosterId || "")}`;
   return `#${target ? `${rosterPath}/focus/${encodeURIComponent(target)}` : rosterPath}`;
@@ -69,7 +73,7 @@ function validationActionLink(action, group, href, context = {}) {
   return labelValidationAction(node, validationActionLabel(action, group, context));
 }
 
-function renderRosterValidationActionLink(group, { roster, unitById = new Map() } = {}) {
+function renderRosterValidationActionLink(group, { datasheetById = new Map(), roster, unitById = new Map() } = {}) {
   const action = rosterValidationActionTarget(group);
   if (!action || !roster?.id) {
     return null;
@@ -91,6 +95,15 @@ function renderRosterValidationActionLink(group, { roster, unitById = new Map() 
       rosterFocusHref(roster.id, detachmentAction.target)
     );
   }
+  if (action.kind === "unitSearch") {
+    const query = datasheetById.get(action.datasheetId)?.name || "";
+    return validationActionLink(
+      action,
+      group,
+      rosterFocusHref(roster.id, unitSearchFocusTarget(query)),
+      { query }
+    );
+  }
   const focusTarget = rosterFocusTargetForValidationAction(action);
   return validationActionLink(action, group, rosterFocusHref(roster.id, focusTarget));
 }
@@ -102,6 +115,7 @@ export {
   rosterFocusTargetForValidationAction,
   scrollToUnitDetailTarget,
   unitFocusHref,
+  unitSearchFocusTarget,
   validationActionLabel as unitValidationActionLabel,
   unitValidationActionTarget,
 };
