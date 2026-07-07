@@ -18,6 +18,13 @@ function modernMobileLayer(source = builderCss()) {
   return source.slice(source.lastIndexOf("@media (max-width: 760px)"));
 }
 
+test("Builder CSS keeps one consolidated mobile max-width layer", () => {
+  const source = builderCss();
+  const matches = source.match(/@media \(max-width: 760px\)/g) || [];
+
+  assert.equal(matches.length, 1);
+});
+
 test("mobile roster summary is a bottom safe-area bar", () => {
   const source = builderCss();
   const mobileLayer = modernMobileLayer(source);

@@ -917,55 +917,6 @@
   text-decoration: none;
 }
 
-@media (max-width: 760px) {
-  .builder-shell {
-    width: 100%;
-    margin: 0 auto;
-  }
-
-  .builder-grid,
-  .builder-row,
-  .builder-transfer-row,
-  .attachment-control-row {
-    grid-template-columns: 1fr;
-  }
-
-  .detachment-control-row,
-  .unit-control-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .detachment-control-row .builder-search-field,
-  .unit-control-row .builder-search-field {
-    grid-column: 1 / -1;
-  }
-
-  .transfer-button + .transfer-button {
-    margin-top: -2px;
-    margin-left: 0;
-  }
-
-  .unit-enhancements-section,
-  .unit-wargear-section {
-    grid-column: auto;
-    grid-row: auto;
-  }
-
-  .row-meta {
-    justify-content: space-between;
-  }
-
-  .validation-row-head {
-    grid-template-columns: 22px minmax(0, 1fr);
-  }
-
-  .validation-row-meta {
-    grid-column: 2;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
-}
-
 /* Modern app layer. Keeps the existing Builder DOM contract while replacing the
    old bevel-control look with compact mobile-first product UI. */
 .builder-shell {
@@ -1600,6 +1551,26 @@
 
   .transfer-button + .transfer-button {
     margin-top: 0;
+  }
+
+  .unit-enhancements-section,
+  .unit-wargear-section {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .row-meta {
+    justify-content: space-between;
+  }
+
+  .validation-row-head {
+    grid-template-columns: 22px minmax(0, 1fr);
+  }
+
+  .validation-row-meta {
+    grid-column: 2;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .roster-overview-controls {
