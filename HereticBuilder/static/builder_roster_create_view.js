@@ -1,15 +1,32 @@
 import { field, option, textNode } from "./builder_dom.js";
 import { labelControl } from "./builder_roster_control_labels.js";
 
-function rosterNameDate(value = new Date()) {
-  const date = value instanceof Date ? value : new Date(value);
-  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
+function escapePattern(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function defaultRosterName(factionName, value = new Date()) {
+function rosterNumberFromName(name, factionName) {
+  const pattern = new RegExp(`^${escapePattern(factionName)} roster (\\d+)$`, "i");
+  const match = String(name || "").trim().match(pattern);
+  return match ? Number(match[1]) : 0;
+}
+
+function nextRosterNumberForFaction(rosters, factionKeywordId, factionName) {
+  const used = new Set((rosters || [])
+    .filter((roster) => roster.factionKeywordId === factionKeywordId)
+    .map((roster) => rosterNumberFromName(roster.name, factionName))
+    .filter((value) => Number.isInteger(value) && value > 0));
+  let number = 1;
+  while (used.has(number)) {
+    number += 1;
+  }
+  return number;
+}
+
+function defaultRosterName(factionName, options = {}) {
   const name = String(factionName || "").trim() || "New";
-  const date = rosterNameDate(value);
-  return date ? `${name} Roster ${date}` : `${name} Roster`;
+  const number = nextRosterNumberForFaction(options.rosters, options.factionKeywordId, name);
+  return `${name} roster ${number}`;
 }
 
 function renderBattleSizePicker(battleSizes, defaultBattleSizeId) {
@@ -63,7 +80,7 @@ function renderBattleSizePicker(battleSizes, defaultBattleSizeId) {
   };
 }
 
-function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFactionId, factions, onSubmit }) {
+function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFactionId, factions, onSubmit, rosters = [] }) {
   const form = document.createElement("form");
   form.className = "builder-form roster-create-form";
   form.autocomplete = "off";
@@ -85,10 +102,14 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
   }
   faction.value = defaultFactionId || factions[0]?.id || "";
   const factionName = () => factions.find((row) => row.id === faction.value)?.name || factions[0]?.name || "";
-  name.value = defaultRosterName(factionName());
+  const generatedRosterName = () => defaultRosterName(factionName(), {
+    factionKeywordId: faction.value,
+    rosters,
+  });
+  name.value = generatedRosterName();
   faction.addEventListener("change", () => {
     if (nameIsPristine) {
-      name.value = defaultRosterName(factionName());
+      name.value = generatedRosterName();
     }
   });
 
@@ -111,10 +132,16 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
     await onSubmit({
       battleSizeId: battleSize.value(),
       factionKeywordId: faction.value,
-      name: name.value.trim() || defaultRosterName(factionName()),
+      name: name.value.trim() || generatedRosterName(),
     });
   });
   return form;
 }
 
-export { defaultRosterName, renderBattleSizePicker, renderRosterCreateView, rosterNameDate };
+export {
+  defaultRosterName,
+  nextRosterNumberForFaction,
+  renderBattleSizePicker,
+  renderRosterCreateView,
+  rosterNumberFromName,
+};

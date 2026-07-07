@@ -16,10 +16,13 @@ function createMockElement(tagName) {
     children: [],
     className: "",
     dataset: {},
+    hidden: false,
+    id: "",
     tagName,
     textContent: "",
     title: "",
     type: "",
+    value: "",
     append(...nodes) {
       for (const node of nodes) {
         this.appendChild(node);
@@ -33,6 +36,12 @@ function createMockElement(tagName) {
     addEventListener(name, handler) {
       this.listeners ||= new Map();
       this.listeners.set(name, handler);
+    },
+    focus() {
+      this.focused = true;
+    },
+    select() {
+      this.selected = true;
     },
     setAttribute(name, value) {
       this.attributes.set(name, value);
@@ -78,7 +87,7 @@ test("roster overview hides Warlord picker before units exist", () => {
       onDelete: () => {},
       onDuplicate: () => {},
       onUpdate: () => {},
-      roster: { detachmentIds: [], units: [] },
+      roster: { detachmentIds: [], id: "roster-1", name: "Heretic Astartes roster 1", units: [] },
       summary: { battleSizeName: "Strike Force", factionName: "Heretic Astartes" },
       validation: {
         messages: [],
@@ -94,12 +103,67 @@ test("roster overview hides Warlord picker before units exist", () => {
 
     assert.equal(overview.textContent.includes("Warlord"), false);
     assert.equal(overview.textContent.includes("Add units first"), false);
+    assert.ok(overview.textContent.includes("Rename Roster"));
     assert.ok(overview.textContent.includes("Duplicate Roster"));
     assert.ok(overview.textContent.includes("Delete Roster"));
-    assert.equal(overview.children[2].children[0].title, "Duplicate roster");
-    assert.equal(overview.children[2].children[0].attributes.get("aria-label"), "Duplicate roster");
-    assert.equal(overview.children[2].children[1].title, "Delete roster");
-    assert.equal(overview.children[2].children[1].attributes.get("aria-label"), "Delete roster");
+    assert.equal(overview.children[2].children[0].title, "Rename roster");
+    assert.equal(overview.children[2].children[0].attributes.get("aria-label"), "Rename roster");
+    assert.equal(overview.children[2].children[1].className, "roster-rename-form");
+    assert.equal(overview.children[2].children[1].hidden, true);
+    assert.equal(overview.children[2].children[2].title, "Duplicate roster");
+    assert.equal(overview.children[2].children[2].attributes.get("aria-label"), "Duplicate roster");
+    assert.equal(overview.children[2].children[3].title, "Delete roster");
+    assert.equal(overview.children[2].children[3].attributes.get("aria-label"), "Delete roster");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("roster overview rename form emits an undoable roster update", async () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    let renameEvent = null;
+    const roster = { detachmentIds: [], id: "roster-1", name: "Old Name", units: [] };
+    const overview = renderRosterOverview({
+      onDelete: () => {},
+      onUndoableUpdate: (event) => {
+        renameEvent = event;
+      },
+      onUpdate: () => {},
+      roster,
+      summary: { battleSizeName: "Strike Force", factionName: "Heretic Astartes" },
+      validation: {
+        messages: [],
+        points: {
+          detachmentLimit: 3,
+          detachmentPoints: 0,
+          limit: 2000,
+          total: 0,
+        },
+        state: "valid",
+      },
+    });
+    const controls = overview.children[2];
+    const renameButton = controls.children[0];
+    const renameForm = controls.children[1];
+    const input = renameForm.children[0];
+
+    renameButton.listeners.get("click")();
+    assert.equal(renameForm.hidden, false);
+    assert.equal(input.focused, true);
+    assert.equal(input.selected, true);
+
+    input.value = " New Name ";
+    await renameForm.listeners.get("submit")({ preventDefault() {} });
+
+    assert.equal(renameForm.hidden, true);
+    assert.equal(renameEvent.message, "Roster renamed");
+    assert.equal(renameEvent.previousRoster, roster);
+    assert.deepEqual(renameEvent.nextRoster, { ...roster, name: "New Name" });
   } finally {
     global.document = previousDocument;
   }

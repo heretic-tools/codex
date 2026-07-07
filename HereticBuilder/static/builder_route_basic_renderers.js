@@ -36,6 +36,7 @@ async function renderCreate() {
     defaultFactionId: state.catalog.bootstrap.defaultFactionId,
     factions: state.catalog.factions,
     onSubmit: createRoster,
+    rosters: state.rosters,
   }));
 }
 

@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   defaultRosterName,
+  nextRosterNumberForFaction,
   renderRosterCreateView,
-  rosterNameDate,
+  rosterNumberFromName,
 } from "../HereticBuilder/static/builder_roster_create_view.js";
 
 function createMockElement(tagName) {
@@ -62,38 +63,44 @@ function createView(options = {}) {
   });
 }
 
-test("roster create view derives default names from faction and date", async () => {
-  assert.equal(rosterNameDate(new Date("2026-07-06T12:00:00Z")), "2026-07-06");
-  assert.equal(defaultRosterName("Heretic Astartes", new Date("2026-07-06T12:00:00Z")), "Heretic Astartes Roster 2026-07-06");
-  assert.equal(defaultRosterName("", Number.NaN), "New Roster");
+test("roster create view derives default names from faction and free local number", async () => {
+  assert.equal(rosterNumberFromName("Heretic Astartes roster 3", "Heretic Astartes"), 3);
+  assert.equal(rosterNumberFromName("Heretic Astartes ROSTER 4", "Heretic Astartes"), 4);
+  assert.equal(rosterNumberFromName("Custom Heretic Astartes roster 3", "Heretic Astartes"), 0);
+  assert.equal(defaultRosterName("Heretic Astartes"), "Heretic Astartes roster 1");
+  assert.equal(defaultRosterName(""), "New roster 1");
+  assert.equal(
+    nextRosterNumberForFaction([
+      { factionKeywordId: "heretic-astartes", name: "Heretic Astartes roster 1" },
+      { factionKeywordId: "heretic-astartes", name: "Heretic Astartes roster 3" },
+      { factionKeywordId: "adeptus-astartes", name: "Adeptus Astartes roster 2" },
+      { factionKeywordId: "heretic-astartes", name: "Custom name" },
+    ], "heretic-astartes", "Heretic Astartes"),
+    2
+  );
 
   const previousDocument = global.document;
-  const previousDate = global.Date;
-  class FixedDate extends Date {
-    constructor(...args) {
-      super(...(args.length ? args : ["2026-07-06T12:00:00Z"]));
-    }
-
-    static now() {
-      return new Date("2026-07-06T12:00:00Z").getTime();
-    }
-  }
-  global.Date = FixedDate;
   global.document = {
     createElement: createMockElement,
   };
 
   try {
-    const form = createView();
+    const form = createView({
+      rosters: [
+        { factionKeywordId: "heretic-astartes", name: "Heretic Astartes roster 1" },
+        { factionKeywordId: "adeptus-astartes", name: "Adeptus Astartes roster 1" },
+        { factionKeywordId: "adeptus-astartes", name: "Adeptus Astartes roster 2" },
+      ],
+    });
     const nameField = form.children[0];
     const factionField = form.children[1];
     const nameInput = nameField.children[1];
     const factionSelect = factionField.children[1];
 
-    assert.equal(nameInput.value, "Heretic Astartes Roster 2026-07-06");
+    assert.equal(nameInput.value, "Heretic Astartes roster 2");
     factionSelect.value = "adeptus-astartes";
     await factionSelect.dispatch("change");
-    assert.equal(nameInput.value, "Adeptus Astartes Roster 2026-07-06");
+    assert.equal(nameInput.value, "Adeptus Astartes roster 3");
 
     nameInput.value = "My list";
     await nameInput.dispatch("input");
@@ -101,7 +108,6 @@ test("roster create view derives default names from faction and date", async () 
     await factionSelect.dispatch("change");
     assert.equal(nameInput.value, "My list");
   } finally {
-    global.Date = previousDate;
     global.document = previousDocument;
   }
 });
@@ -168,13 +174,6 @@ test("roster create view uses battle size radio choices for submit state", async
 
 test("roster create view submit falls back to the generated name", async () => {
   const previousDocument = global.document;
-  const previousDate = global.Date;
-  class FixedDate extends Date {
-    constructor(...args) {
-      super(...(args.length ? args : ["2026-07-06T12:00:00Z"]));
-    }
-  }
-  global.Date = FixedDate;
   global.document = {
     createElement: createMockElement,
   };
@@ -185,6 +184,9 @@ test("roster create view submit falls back to the generated name", async () => {
       onSubmit: (value) => {
         submitted = value;
       },
+      rosters: [
+        { factionKeywordId: "heretic-astartes", name: "Heretic Astartes roster 1" },
+      ],
     });
     const nameInput = form.children[0].children[1];
     nameInput.value = "   ";
@@ -194,10 +196,9 @@ test("roster create view submit falls back to the generated name", async () => {
     assert.deepEqual(submitted, {
       battleSizeId: "strike-force",
       factionKeywordId: "heretic-astartes",
-      name: "Heretic Astartes Roster 2026-07-06",
+      name: "Heretic Astartes roster 2",
     });
   } finally {
-    global.Date = previousDate;
     global.document = previousDocument;
   }
 });

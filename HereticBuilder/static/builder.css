@@ -1131,6 +1131,22 @@
   min-width: 0;
 }
 
+.roster-rename-form {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+
+.roster-rename-form[hidden] {
+  display: none;
+}
+
+.roster-rename-form input {
+  min-width: 0;
+}
+
+.rename-roster-button,
 .delete-roster-button {
   white-space: nowrap;
 }
@@ -1672,6 +1688,10 @@
   }
 
   .roster-overview-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .roster-rename-form {
     grid-template-columns: 1fr;
   }
 

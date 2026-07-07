@@ -1,5 +1,7 @@
 import { button, textNode } from "./builder_dom.js";
 import { labelControl } from "./builder_roster_control_labels.js";
+import { rosterWithName } from "./builder_roster_name_actions.js";
+import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import {
   scrollToEditorTarget,
   triggerEditorTargetPrimaryAction,
@@ -92,6 +94,40 @@ function renderStickySummaryActions(actions = []) {
   return wrap;
 }
 
+function renderRenameRosterForm({ formId, onUndoableUpdate, onUpdate, roster }) {
+  const form = document.createElement("form");
+  form.className = "roster-rename-form";
+  form.hidden = true;
+  const input = document.createElement("input");
+  input.autocomplete = "off";
+  input.maxLength = 80;
+  input.name = "rosterName";
+  input.value = roster.name || "";
+  input.setAttribute("aria-label", "Roster name");
+  input.setAttribute("title", "Roster name");
+  const save = labelControl(textNode("button", "plain-button", "Save"), "Save roster name");
+  save.type = "submit";
+  const cancel = labelControl(button("plain-button", "Cancel", () => {
+    input.value = roster.name || "";
+    form.hidden = true;
+  }), "Cancel roster rename");
+  form.append(input, save, cancel);
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const nextRoster = rosterWithName(roster, input.value);
+    form.hidden = true;
+    await applyRosterUpdate({
+      message: "Roster renamed",
+      nextRoster,
+      onUndoableUpdate,
+      onUpdate,
+      previousRoster: roster,
+    });
+  });
+  form.id = formId;
+  return { form, input };
+}
+
 function renderRosterOverview({ onDelete, onDuplicate = null, onUndoableUpdate = null, onUpdate, roster, summary, validation }) {
   const overview = document.createElement("section");
   overview.className = `builder-section roster-overview-card has-validation-${rosterOverviewStateClass(validation)}`;
@@ -106,10 +142,25 @@ function renderRosterOverview({ onDelete, onDuplicate = null, onUndoableUpdate =
   appendRosterMetrics(metrics, roster, validation);
   const controls = document.createElement("div");
   controls.className = "roster-overview-controls";
+  const renameFormId = `rename-roster-${roster.id || "local"}`;
+  const rename = renderRenameRosterForm({
+    formId: renameFormId,
+    onUndoableUpdate,
+    onUpdate,
+    roster,
+  });
   const warlordPicker = renderWarlordPicker({ onUndoableUpdate, onUpdate, roster });
   if (warlordPicker) {
     controls.appendChild(warlordPicker);
   }
+  controls.append(
+    labelControl(button("plain-button rename-roster-button", "Rename Roster", () => {
+      rename.form.hidden = false;
+      rename.input.focus?.();
+      rename.input.select?.();
+    }), "Rename roster")
+  );
+  controls.appendChild(rename.form);
   if (onDuplicate) {
     controls.append(
       labelControl(button("plain-button duplicate-roster-button", "Duplicate Roster", async () => onDuplicate(roster)), "Duplicate roster")
