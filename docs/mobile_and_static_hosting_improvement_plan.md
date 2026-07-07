@@ -189,7 +189,7 @@ Acceptance:
 
 Deliverables:
 
-- Обновить `.github/workflows/deploy.yml`, если Фазы 1-2 меняют шаги генерации (например, добавление `export-builder-data` перед `build`, если он ещё не входит в единый `build`).
+- Обновить `.github/workflows/deploy.yml`, если Фазы 1-2 меняют шаги генерации (например, добавление `export-builder-data` перед `build`, если он ещё не входит в единый `build`). **Сделано для текущего Pages workflow:** `.github/workflows/pages.yml` теперь оставляет Codex repo на `builder.py build`, но в standalone `builder` repo собирает `builder.py build-builder --out dist --base-path "/${{ github.event.repository.name }}"`.
 - Прогнать полный `npm test`.
 - Локальная статическая сборка (`python3 HereticBuilder/tools/builder.py build --out dist ...` и `build-builder`), затем smoke-тест в `preview_start`/`preview_resize(mobile)`/`preview_resize(desktop)` по каждому из изменённых экранов.
 - Обновить `README.md`, если появились новые команды/шаги сборки (например, генерация manifest/service worker, если она не полностью автоматическая часть `builder.py build`).
