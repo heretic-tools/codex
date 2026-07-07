@@ -157,6 +157,19 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportTe
   trigger.textContent = "...";
   trigger.title = rosterActionLabel(roster, "More actions");
   trigger.setAttribute("aria-label", trigger.title);
+  trigger.setAttribute("aria-expanded", "false");
+  node.addEventListener("toggle", () => {
+    trigger.setAttribute("aria-expanded", node.open ? "true" : "false");
+  });
+  node.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && node.open) {
+      event.preventDefault?.();
+      event.stopPropagation?.();
+      node.open = false;
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.focus?.();
+    }
+  });
   const panel = document.createElement("div");
   panel.className = "roster-actions-panel";
   if (onRename) {

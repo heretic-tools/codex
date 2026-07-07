@@ -145,6 +145,8 @@ Roster unit row actions теперь включают visible compact summary
 detachment Codex links закреплены на 44px mobile touch target.
 Create roster flow получил explicit `aria-label`/tooltip labels для name,
 faction и battle-size controls, сохраняя текущий compact mobile layout.
+Roster list quick-actions menu синхронизирует `aria-expanded` с native
+`details` state и закрывается по Escape с возвратом фокуса на trigger.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

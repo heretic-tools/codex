@@ -215,6 +215,7 @@ test("roster list item keeps quick actions outside the open-row button", async (
     assert.equal(item.children[1].tagName, "details");
     assert.equal(item.children[1].children[0].className, "roster-actions-trigger");
     assert.equal(item.children[1].children[0].attributes.get("aria-label"), "More actions: Black Crusade");
+    assert.equal(item.children[1].children[0].attributes.get("aria-expanded"), "false");
     assert.equal(item.children[1].children[1].children[0].textContent, "Rename");
     assert.equal(item.children[1].children[1].children[1].textContent, "Duplicate");
     assert.equal(item.children[1].children[1].children[2].textContent, "Export JSON");
@@ -233,6 +234,26 @@ test("roster list item keeps quick actions outside the open-row button", async (
     assert.deepEqual(calls, ["exportText"]);
     assert.equal(event.stopped, true);
     assert.equal(item.children[1].open, false);
+
+    item.children[1].open = true;
+    await item.children[1].listeners.get("toggle")();
+    assert.equal(item.children[1].children[0].attributes.get("aria-expanded"), "true");
+    const keyEvent = {
+      key: "Escape",
+      prevented: false,
+      stopped: false,
+      preventDefault() {
+        this.prevented = true;
+      },
+      stopPropagation() {
+        this.stopped = true;
+      },
+    };
+    await item.children[1].listeners.get("keydown")(keyEvent);
+    assert.equal(item.children[1].open, false);
+    assert.equal(keyEvent.prevented, true);
+    assert.equal(keyEvent.stopped, true);
+    assert.equal(item.children[1].children[0].attributes.get("aria-expanded"), "false");
   } finally {
     global.document = previousDocument;
   }
