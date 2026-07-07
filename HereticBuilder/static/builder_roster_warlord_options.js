@@ -12,8 +12,9 @@ function warlordOptionValue(unit, miniature) {
 function warlordOptionLabel(unit, miniature) {
   const unitName = unit.name || "Unit";
   const miniatureName = miniature.name || "Model";
+  const count = miniature.count || 0;
   const name = unitName === miniatureName ? unitName : `${unitName} / ${miniatureName}`;
-  return `${name} (${miniature.count || 0})`;
+  return `${name} (${count} ${count === 1 ? "model" : "models"})`;
 }
 
 function selectedWarlordValue(units) {

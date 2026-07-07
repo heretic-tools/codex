@@ -84,14 +84,14 @@ test("warlord picker labels collapse duplicate unit and model names", () => {
       { name: "Abaddon the Despoiler" },
       { count: 1, name: "Abaddon the Despoiler" }
     ),
-    "Abaddon the Despoiler (1)"
+    "Abaddon the Despoiler (1 model)"
   );
   assert.equal(
     warlordOptionLabel(
       { name: "Intercessor Squad" },
       { count: 1, name: "Intercessor Sergeant" }
     ),
-    "Intercessor Squad / Intercessor Sergeant (1)"
+    "Intercessor Squad / Intercessor Sergeant (1 model)"
   );
 });
 
