@@ -1,4 +1,5 @@
 import { rosterUnitSummaries } from "./builder_model.js";
+import { attachmentEditorAvailable } from "./builder_roster_attachment_editor_view.js";
 import { renderRosterEditor } from "./builder_roster_editor_view.js";
 import { renderRosterOverview, renderRosterStickySummary } from "./builder_roster_overview_view.js";
 import {
@@ -43,13 +44,16 @@ function renderRosterDetailView({
     roster,
     validation: validationResult,
   });
+  const stickyActions = [
+    { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
+    { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
+    { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
+  ];
+  if (attachmentEditorAvailable(roster, units)) {
+    stickyActions.push({ ariaLabel: "Add attached unit", label: "Attach", target: "attachments" });
+  }
   const stickySummary = renderRosterStickySummary({
-    actions: [
-      { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
-      { ariaLabel: "Add detachment", label: "+ Detach", primary: true, target: "detachments" },
-      { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
-      { ariaLabel: "Add attached unit", label: "Attach", target: "attachments" },
-    ],
+    actions: stickyActions,
     roster,
     validation: validationResult,
   });

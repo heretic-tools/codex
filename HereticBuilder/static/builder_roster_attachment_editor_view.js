@@ -14,15 +14,22 @@ function attachmentControlsAvailable(bodyguards) {
   return Boolean(bodyguards.length);
 }
 
+function attachmentEditorAvailable(roster, units = rosterUnitSummaries(roster), bodyguards = bodyguardRows(roster, units)) {
+  return Boolean((roster.attachments || []).length || attachmentControlsAvailable(bodyguards));
+}
+
 function renderAttachmentEditor({ newId, onUndoableUpdate = null, onUnitOpen, onUpdate, roster, validation }) {
+  const units = rosterUnitSummaries(roster);
+  const unitsById = new Map(units.map((unit) => [unit.id, unit]));
+  const bodyguards = bodyguardRows(roster, units);
+  if (!attachmentEditorAvailable(roster, units, bodyguards)) {
+    return null;
+  }
+
   const root = document.createElement("section");
   root.className = "builder-section";
   root.dataset.editorTarget = "attachments";
   root.append(sectionTitle(`Attached Units (${(roster.attachments || []).length})`));
-
-  const units = rosterUnitSummaries(roster);
-  const unitsById = new Map(units.map((unit) => [unit.id, unit]));
-  const bodyguards = bodyguardRows(roster, units);
 
   const list = document.createElement("div");
   list.className = "editor-list";
@@ -50,4 +57,9 @@ function renderAttachmentEditor({ newId, onUndoableUpdate = null, onUnitOpen, on
   return root;
 }
 
-export { attachmentControlsAvailable, attachmentUnavailableMessage, renderAttachmentEditor };
+export {
+  attachmentControlsAvailable,
+  attachmentEditorAvailable,
+  attachmentUnavailableMessage,
+  renderAttachmentEditor,
+};

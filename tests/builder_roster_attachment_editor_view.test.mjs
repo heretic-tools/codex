@@ -5,6 +5,7 @@ import { withCatalog } from "./builder_validation_helpers.mjs";
 
 const {
   attachmentControlsAvailable,
+  attachmentEditorAvailable,
   attachmentUnavailableMessage,
 } = await import("../HereticBuilder/static/builder_roster_attachment_editor_view.js");
 const {
@@ -135,6 +136,12 @@ test("attached unit empty state stays terse when valid pairs exist", () => {
 test("attached unit controls render only when a valid bodyguard exists", () => {
   assert.equal(attachmentControlsAvailable([]), false);
   assert.equal(attachmentControlsAvailable([{ id: "bodyguard" }]), true);
+});
+
+test("attached unit editor hides until there is a valid pair or existing attachment", () => {
+  assert.equal(attachmentEditorAvailable({ attachments: [] }, [], []), false);
+  assert.equal(attachmentEditorAvailable({ attachments: [] }, [], [{ id: "bodyguard" }]), true);
+  assert.equal(attachmentEditorAvailable({ attachments: [{ id: "attachment-1" }] }, [], []), true);
 });
 
 test("attached unit controls stay collapsed behind an add disclosure", () => {
