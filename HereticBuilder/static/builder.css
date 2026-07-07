@@ -1387,7 +1387,7 @@
 }
 
 .roster-action-button {
-  min-height: 38px;
+  min-height: 44px;
   width: 100%;
   padding: 8px 10px;
   color: var(--builder-ink);
@@ -1895,6 +1895,7 @@
   .remove-button,
   .attachment-member .remove-button,
   .search-clear-button,
+  .roster-action-button,
   .roster-sticky-summary-action,
   .toast-action,
   .toast-dismiss,

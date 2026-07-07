@@ -113,6 +113,8 @@ heading text и accessible labels не загрязнялись управляю
 Codex datasheet/detachment detail links теперь генерируются как canonical
 directory hrefs с trailing slash, чтобы GitHub Pages/static preview не делали
 лишний redirect при переходе из списков.
+Builder roster quick-actions menu (`Rename`, `Duplicate`, exports, delete)
+доведен до 44px mobile touch target и проверен на `/builder/` без page overflow.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
