@@ -82,9 +82,11 @@ function renderStickySummaryActions(actions = []) {
       ? () => triggerEditorTargetPrimaryAction(action.target)
       : () => scrollToEditorTarget(action.target));
     const node = button("roster-sticky-summary-action", action.label, handler);
+    const label = action.ariaLabel || `Go to ${action.label}`;
     node.dataset.summaryTarget = action.target;
     node.dataset.summaryAction = action.action || (action.primary ? "primary" : "scroll");
-    node.setAttribute("aria-label", action.ariaLabel || `Go to ${action.label}`);
+    node.title = label;
+    node.setAttribute("aria-label", label);
     wrap.appendChild(node);
   });
   return wrap;

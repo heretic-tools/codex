@@ -215,14 +215,17 @@ test("roster sticky summary can expose mobile section jump actions", () => {
     assert.equal(actions.children[0].textContent, "Issues");
     assert.equal(actions.children[0].dataset.summaryTarget, "validation");
     assert.equal(actions.children[0].dataset.summaryAction, "scroll");
+    assert.equal(actions.children[0].title, "Review roster issues");
     assert.equal(actions.children[0].attributes.get("aria-label"), "Review roster issues");
     assert.equal(actions.children[1].textContent, "+ Unit");
     assert.equal(actions.children[1].dataset.summaryTarget, "units");
     assert.equal(actions.children[1].dataset.summaryAction, "primary");
+    assert.equal(actions.children[1].title, "Add unit");
     assert.equal(actions.children[1].attributes.get("aria-label"), "Add unit");
     assert.equal(actions.children[2].textContent, "Wargear");
     assert.equal(actions.children[2].dataset.summaryTarget, "wargear");
     assert.equal(actions.children[2].dataset.summaryAction, "unit-detail");
+    assert.equal(actions.children[2].title, "Edit unit wargear");
     assert.equal(actions.children[2].attributes.get("aria-label"), "Edit unit wargear");
     actions.children[2].listeners.get("click")();
     assert.equal(customActionClicked, true);
