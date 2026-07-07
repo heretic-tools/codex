@@ -231,13 +231,14 @@
 }
 
 .validation-state-badge {
-  padding: 2px 5px;
-  background: var(--builder-paper);
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-light) var(--builder-shadow) var(--builder-shadow) var(--builder-light);
+  padding: 3px 7px;
+  background: var(--builder-panel);
+  border: 1px solid var(--builder-border);
+  border-radius: 0;
+  font-family: var(--builder-mono);
   font-size: 11px;
-  line-height: 1;
+  font-weight: 850;
+  line-height: 1.1;
   text-transform: uppercase;
 }
 
@@ -326,13 +327,14 @@
 .builder-control-row input,
 .builder-control-row select {
   min-width: 0;
-  min-height: 34px;
-  padding: 4px 6px;
+  min-height: 42px;
+  padding: 8px 10px;
   color: var(--builder-ink);
   background: var(--builder-paper);
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  box-shadow: none;
+  outline: none;
 }
 
 .add-button {
@@ -408,9 +410,8 @@
   display: block;
   overflow: hidden;
   background: #000;
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
+  border: 0;
+  border-radius: var(--builder-radius);
 }
 
 .roster-unit-art {
@@ -489,15 +490,15 @@
 .meta-badge,
 .disposition-badge {
   display: inline-block;
-  padding: 2px 5px;
+  padding: 3px 7px;
   color: var(--builder-ink);
   background: var(--builder-paper);
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-light) var(--builder-shadow) var(--builder-shadow) var(--builder-light);
+  border: 1px solid var(--builder-border);
+  border-radius: 0;
+  font-family: var(--builder-mono);
   font-size: 11px;
-  font-weight: 800;
-  line-height: 1;
+  font-weight: 850;
+  line-height: 1.1;
   white-space: nowrap;
 }
 
@@ -542,13 +543,14 @@
 .field input,
 .field select {
   width: 100%;
-  min-height: 34px;
-  padding: 4px 6px;
+  min-height: 42px;
+  padding: 8px 10px;
   color: var(--builder-ink);
   background: var(--builder-paper);
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  box-shadow: none;
+  outline: none;
 }
 
 .battle-size-picker {
@@ -568,26 +570,26 @@
 .battle-size-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .battle-size-option {
   position: relative;
   min-width: 0;
-  min-height: 48px;
+  min-height: 54px;
   display: grid;
   align-content: center;
   gap: 2px;
-  padding: 7px 8px;
+  padding: 8px 10px;
   color: var(--builder-ink);
-  background: var(--builder-panel);
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-light) var(--builder-shadow) var(--builder-shadow) var(--builder-light);
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
   cursor: pointer;
 }
 
 .battle-size-option + .battle-size-option {
-  margin-left: -2px;
+  margin-left: 0;
 }
 
 .battle-size-option input {
@@ -784,20 +786,22 @@
 }
 
 .wargear-option-row input[type="number"] {
-  width: 58px;
-  padding: 2px 4px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
   color: var(--builder-ink);
   background: var(--builder-paper);
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  box-shadow: none;
+  outline: none;
 }
 
 .wargear-count-stepper {
-  width: 112px;
-  min-width: 112px;
+  width: 128px;
+  min-width: 128px;
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr) 30px;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
   align-items: stretch;
   justify-self: end;
 }
@@ -805,19 +809,21 @@
 .wargear-count-stepper input[type="number"] {
   width: 100%;
   justify-self: stretch;
-  margin: 0 -2px;
+  margin: 0;
+  border-radius: 0;
   text-align: center;
 }
 
 .wargear-count-button {
-  min-width: 30px;
-  min-height: 30px;
+  min-width: 42px;
+  min-height: 42px;
   padding: 0;
   color: var(--builder-ink);
-  background: var(--builder-panel);
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-light) var(--builder-shadow) var(--builder-shadow) var(--builder-light);
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  box-shadow: none;
+  font-size: 16px;
   font-weight: 900;
   line-height: 1;
 }
@@ -937,14 +943,14 @@
 
 .validation-count {
   min-width: 22px;
-  padding: 2px 5px;
-  background: var(--builder-paper);
-  border-style: solid;
-  border-width: 2px;
-  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
+  padding: 3px 7px;
+  background: var(--builder-panel);
+  border: 1px solid var(--builder-border);
+  border-radius: 0;
+  font-family: var(--builder-mono);
   font-size: 11px;
-  font-weight: 800;
-  line-height: 1;
+  font-weight: 850;
+  line-height: 1.1;
   text-align: center;
 }
 

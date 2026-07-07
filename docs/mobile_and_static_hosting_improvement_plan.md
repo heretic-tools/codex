@@ -82,6 +82,8 @@ Builder shared controls больше не держат старый 2px bevel fa
 слое CSS, а Codex static CSS очищен от оставшихся Win95/titlebar терминов.
 Builder not-found теперь различает missing roster и missing unit: удалённый
 юнит показывает `Unit Not Found` и breadcrumbs к родительскому ростеру.
+Builder CSS полностью очищен от legacy `border-width: 2px` bevel borders в
+исходном файле; оставшиеся акценты используют 1px token borders.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

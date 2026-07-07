@@ -47,3 +47,7 @@ test("Builder shared controls no longer keep a bevel fallback", () => {
   assert.doesNotMatch(sharedControlBlock, /border-width:\s*2px/);
   assert.doesNotMatch(sharedControlBlock, /border-color:\s*var\(--builder-light\).*var\(--builder-shadow\)/s);
 });
+
+test("Builder CSS does not keep legacy 2px bevel borders", () => {
+  assert.doesNotMatch(builderCss(), /border-width:\s*2px/);
+});
