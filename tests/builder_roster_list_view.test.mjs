@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  rosterActionLabel,
   rosterDetachmentCountLabel,
   rosterLine,
+  rosterListItem,
   rosterModifiedLabel,
   rosterOpenLabel,
   rosterPointsLabel,
@@ -158,6 +160,49 @@ test("roster row renders polished validation and points labels", () => {
   }
 });
 
+test("roster list item keeps quick actions outside the open-row button", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+  const calls = [];
+
+  try {
+    assert.equal(rosterActionLabel({ name: "Black Crusade" }, "Duplicate"), "Duplicate: Black Crusade");
+    const item = rosterListItem(
+      { id: "ABCDEF12-3456", name: "Black Crusade" },
+      () => calls.push("open"),
+      () => ({
+        battleSizeName: "Strike Force",
+        detachmentBadges: [],
+        detachmentCount: 0,
+        factionName: "Heretic Astartes",
+        pointsLimit: 2000,
+        pointsTotal: 0,
+        unitCount: 0,
+        validationState: "invalid",
+      }),
+      {
+        onDelete: () => calls.push("delete"),
+        onDuplicate: () => calls.push("duplicate"),
+      }
+    );
+
+    assert.equal(item.className, "roster-list-item");
+    assert.equal(item.children[0].className, "builder-row roster-row");
+    assert.equal(item.children[0].tagName, "button");
+    assert.equal(item.children[1].className, "roster-actions-menu");
+    assert.equal(item.children[1].tagName, "details");
+    assert.equal(item.children[1].children[0].className, "roster-actions-trigger");
+    assert.equal(item.children[1].children[0].attributes.get("aria-label"), "More actions: Black Crusade");
+    assert.equal(item.children[1].children[1].children[0].textContent, "Duplicate");
+    assert.equal(item.children[1].children[1].children[1].textContent, "Delete Roster");
+    assert.equal(item.children[0].children.some((child) => child.className === "roster-actions-menu"), false);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
 test("roster list disables export while there are no local rosters", () => {
   const previousDocument = global.document;
   global.document = {
@@ -203,6 +248,9 @@ test("roster list disables export while there are no local rosters", () => {
         validationState: "invalid",
       }),
     });
+    const listItem = withRoster.children[0].children[0];
+    assert.equal(listItem.className, "roster-list-item");
+    assert.equal(listItem.children.length, 1);
     assert.equal(withRoster.children[2].children[0].disabled, false);
   } finally {
     global.document = previousDocument;

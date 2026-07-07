@@ -2,19 +2,31 @@ import { button, textNode } from "./builder_dom.js";
 import { labelControl } from "./builder_roster_control_labels.js";
 import {
   rosterDetachmentBadgeClass,
-  rosterLine,
+  rosterListItem,
   rosterValidationBadgeClass,
   rosterValidationBadgeLabel,
 } from "./builder_roster_list_rows.js";
 
-function renderRosterListView({ onCreate, onExport, onImport, onOpen, rosters, summarizeRoster }) {
+function renderRosterListView({
+  onCreate,
+  onDelete,
+  onDuplicate,
+  onExport,
+  onImport,
+  onOpen,
+  rosters,
+  summarizeRoster,
+}) {
   const root = document.createElement("section");
   root.className = "builder-stack";
   const list = document.createElement("div");
   list.className = "builder-list";
   if (rosters.length) {
     for (const roster of rosters) {
-      list.appendChild(rosterLine(roster, onOpen, summarizeRoster));
+      list.appendChild(rosterListItem(roster, onOpen, summarizeRoster, {
+        onDelete,
+        onDuplicate,
+      }));
     }
   } else {
     list.appendChild(textNode("p", "empty-list", "No rosters yet"));

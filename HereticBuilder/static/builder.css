@@ -1304,6 +1304,85 @@
   border-color: var(--builder-border);
 }
 
+.roster-list-item {
+  min-width: 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+}
+
+.roster-list-item .roster-row {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.roster-actions-menu {
+  min-width: 44px;
+  position: relative;
+}
+
+.roster-actions-trigger {
+  min-width: 44px;
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0 9px;
+  color: var(--builder-ink);
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-left: 0;
+  border-radius: 0 var(--builder-radius) var(--builder-radius) 0;
+  cursor: pointer;
+  font-family: var(--builder-mono);
+  font-size: 18px;
+  font-weight: 850;
+  line-height: 1;
+  list-style: none;
+}
+
+.roster-actions-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.roster-actions-trigger:hover,
+.roster-actions-menu[open] .roster-actions-trigger {
+  border-color: var(--builder-shadow);
+}
+
+.roster-actions-panel {
+  min-width: 158px;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 32;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .18);
+}
+
+.roster-action-button {
+  min-height: 38px;
+  width: 100%;
+  padding: 8px 10px;
+  color: var(--builder-ink);
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--builder-radius) - 2px);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.roster-action-button:hover,
+.roster-action-button:focus-visible {
+  background: var(--builder-panel);
+}
+
 .row-text strong {
   min-width: 0;
 }

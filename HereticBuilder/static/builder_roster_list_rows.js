@@ -104,6 +104,10 @@ function rosterOpenLabel(roster, summary = null) {
   return `Open roster: ${parts.join(", ")}`;
 }
 
+function rosterActionLabel(roster, action) {
+  return `${action}: ${roster.name || "New Roster"}`;
+}
+
 function appendDetachmentBadges(parent, badges) {
   for (const badge of badges || []) {
     const node = textNode("span", rosterDetachmentBadgeClass(badge.disposition), badge.name || "Detachment");
@@ -125,6 +129,48 @@ function rosterPointsMeter(summary) {
   meter.setAttribute("aria-hidden", "true");
   meter.setAttribute("style", `--roster-points-progress: ${value}%`);
   return meter;
+}
+
+function rosterActionButton(text, roster, onClick) {
+  const node = button("roster-action-button", text, () => onClick(roster));
+  const label = rosterActionLabel(roster, text);
+  node.title = label;
+  node.setAttribute("aria-label", label);
+  return node;
+}
+
+function rosterActionsMenu(roster, { onDelete, onDuplicate } = {}) {
+  if (!onDelete && !onDuplicate) {
+    return null;
+  }
+  const node = document.createElement("details");
+  node.className = "roster-actions-menu";
+  const trigger = document.createElement("summary");
+  trigger.className = "roster-actions-trigger";
+  trigger.textContent = "...";
+  trigger.title = rosterActionLabel(roster, "More actions");
+  trigger.setAttribute("aria-label", trigger.title);
+  const panel = document.createElement("div");
+  panel.className = "roster-actions-panel";
+  if (onDuplicate) {
+    panel.appendChild(rosterActionButton("Duplicate", roster, onDuplicate));
+  }
+  if (onDelete) {
+    panel.appendChild(rosterActionButton("Delete Roster", roster, onDelete));
+  }
+  node.append(trigger, panel);
+  return node;
+}
+
+function rosterListItem(roster, onOpen, summarizeRoster, actions = {}) {
+  const node = document.createElement("div");
+  node.className = "roster-list-item";
+  node.appendChild(rosterLine(roster, onOpen, summarizeRoster));
+  const menu = rosterActionsMenu(roster, actions);
+  if (menu) {
+    node.appendChild(menu);
+  }
+  return node;
 }
 
 function rosterLine(roster, onOpen, summarizeRoster) {
@@ -155,9 +201,12 @@ function rosterLine(roster, onOpen, summarizeRoster) {
 }
 
 export {
+  rosterActionLabel,
+  rosterActionsMenu,
   rosterDetachmentCountLabel,
   rosterDetachmentBadgeClass,
   rosterLine,
+  rosterListItem,
   rosterModifiedLabel,
   rosterOpenLabel,
   rosterPointsLabel,

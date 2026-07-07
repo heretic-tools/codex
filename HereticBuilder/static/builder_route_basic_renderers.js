@@ -8,6 +8,8 @@ import { state } from "./builder_state.js";
 import { lightweightRosterSummary } from "./builder_roster_runtime.js";
 import {
   createRoster,
+  deleteRoster,
+  duplicateRoster,
   exportRosters,
   importRosters,
 } from "./builder_roster_io_actions.js";
@@ -18,6 +20,8 @@ async function renderList(render) {
   const { renderRosterListView } = await loadListView();
   el.root.appendChild(renderRosterListView({
     onCreate: () => navigate("/new"),
+    onDelete: deleteRoster,
+    onDuplicate: duplicateRoster,
     onExport: exportRosters,
     onImport: (file) => importRosters(file, render),
     onOpen: (roster) => navigate(`/roster/${encodeURIComponent(roster.id)}`),
