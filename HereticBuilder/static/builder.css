@@ -1559,16 +1559,20 @@
     padding: 12px;
   }
 
+  .app-frame:has(.roster-sticky-summary) .app-footer {
+    display: none;
+  }
+
   .builder-panel-content:has(.roster-sticky-summary) {
-    padding-bottom: calc(184px + env(safe-area-inset-bottom));
+    padding-bottom: calc(132px + env(safe-area-inset-bottom));
   }
 
   .builder-panel-content:has(.unit-detail-grid .roster-sticky-summary) {
-    padding-bottom: calc(134px + env(safe-area-inset-bottom));
+    padding-bottom: calc(82px + env(safe-area-inset-bottom));
   }
 
   .builder-panel-content:has(.unit-detail-grid .roster-sticky-summary.has-actions) {
-    padding-bottom: calc(184px + env(safe-area-inset-bottom));
+    padding-bottom: calc(132px + env(safe-area-inset-bottom));
   }
 
   .builder-grid,
@@ -1620,7 +1624,7 @@
   .unit-detail-grid .roster-sticky-summary {
     position: fixed;
     right: max(8px, env(safe-area-inset-right));
-    bottom: calc(62px + env(safe-area-inset-bottom));
+    bottom: max(8px, env(safe-area-inset-bottom));
     left: max(8px, env(safe-area-inset-left));
     z-index: 29;
     display: grid;
@@ -1713,7 +1717,7 @@
   }
 
   .builder-toast {
-    bottom: calc(176px + env(safe-area-inset-bottom));
+    bottom: calc(132px + env(safe-area-inset-bottom));
   }
 }
 

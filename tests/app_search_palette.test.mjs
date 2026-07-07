@@ -49,6 +49,8 @@ test("shared app header keeps long titles from clipping action controls", () => 
   const appSource = staticSource("app.css");
   const builderSource = staticSource("builder.css");
 
+  assert.ok(appSource.includes(".shell {\n  width: min(1120px, 100%);\n  min-width: 0;"));
+  assert.ok(appSource.includes(".app-header {\n  min-width: 0;"));
   assert.ok(appSource.includes(".app-header > .title"));
   assert.ok(appSource.includes("flex: 1 1 auto;"));
   assert.ok(appSource.includes(".app-header-actions"));
