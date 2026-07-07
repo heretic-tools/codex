@@ -1,4 +1,5 @@
 import { option, textNode } from "./builder_dom.js";
+import { labelControl } from "./builder_roster_control_labels.js";
 import { enhancementLabel } from "./builder_roster_unit_enhancement_labels.js";
 import { enhancementSelectRows } from "./builder_roster_unit_enhancement_options.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
@@ -18,6 +19,7 @@ function renderEnhancementSelect({
   validationContext = {},
 }) {
   const select = document.createElement("select");
+  labelControl(select, `Choose enhancement for ${label || unit?.name || "unit"}`);
   select.appendChild(option("", "No enhancement"));
   for (const row of enhancementSelectRows({ currentId, enhancements, keywordIds, miniature, roster, targetKind, unit, units })) {
     select.appendChild(option(

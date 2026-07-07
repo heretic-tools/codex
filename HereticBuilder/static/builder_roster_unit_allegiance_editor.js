@@ -1,5 +1,6 @@
 import { option, textNode } from "./builder_dom.js";
 import { rosterWithUnitAllegianceAbility } from "./builder_roster_actions.js";
+import { labelControl } from "./builder_roster_control_labels.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { allegianceEditorOptions } from "./builder_roster_unit_allegiance_options.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
@@ -36,6 +37,7 @@ function renderAllegianceEditor({
     return null;
   }
   const select = document.createElement("select");
+  labelControl(select, `Choose ${model.label || "allegiance"}`);
   for (const row of model.options) {
     select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
   }

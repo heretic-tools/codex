@@ -306,6 +306,8 @@ test("unit composition editor hides read-only value when only one valid composit
     assert.equal(multiNode.tagName, "label");
     assert.equal(multiNode.className, "field");
     assert.equal(multiNode.children[1].tagName, "select");
+    assert.equal(multiNode.children[1].title, "Choose composition");
+    assert.equal(multiNode.children[1].attributes.get("aria-label"), "Choose composition");
     assert.ok(multiNode.children[1].children.length > 1);
   } finally {
     global.document = previousDocument;

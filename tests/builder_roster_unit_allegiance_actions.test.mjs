@@ -116,6 +116,8 @@ test("unit allegiance editor hides controls until an actionable option exists", 
     assert.equal(node.tagName, "label");
     assert.equal(node.dataset.unitDetailTarget, "allegiance");
     assert.equal(node.children[1].tagName, "select");
+    assert.equal(node.children[1].title, `Choose ${node.children[0].textContent}`);
+    assert.equal(node.children[1].attributes.get("aria-label"), node.children[1].title);
   } finally {
     global.document = previousDocument;
   }

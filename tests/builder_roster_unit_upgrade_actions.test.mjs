@@ -192,6 +192,32 @@ test("unit enhancement editor stays visible for enhancement validation", () => {
   }
 });
 
+test("unit enhancement editor labels enhancement selects", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithFixtureUnit(ENHANCEMENT_FIXTURES.unit);
+    const summary = unitSummary(roster, unit);
+    const node = renderEnhancementsEditor({
+      onUpdate: () => {},
+      roster,
+      unit: summary,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+    const field = node.children.find((child) => child.className === "field enhancement-field");
+    const select = field.children.find((child) => child.tagName === "select");
+
+    assert.equal(select.title, `Choose enhancement for ${field.children[0].textContent}`);
+    assert.equal(select.attributes.get("aria-label"), select.title);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
 test("builder roster actions write compact enhancement selections", () => {
   const { roster, unit } = rosterWithFixtureUnit(ENHANCEMENT_FIXTURES.unit);
   const withUnitEnhancement = rosterWithUnitEnhancement(roster, unit.id, ENHANCEMENT_FIXTURES.unit.enhancementId);
