@@ -137,6 +137,9 @@ status (`available / locked`) из уже рассчитанных candidate sta
 Тот же availability-pattern вынесен в общий helper и применён к allegiance
 ability controls; Mark of Chaos/аналогичные обязательные выборы показывают
 сколько опций доступно прямо в unit detail.
+Composition controls на unit detail получили context-aware accessible label
+(`Choose composition for <unit>`) и compact option-count status, связанный с
+select через `aria-describedby`.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

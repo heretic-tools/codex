@@ -17,6 +17,7 @@ import {
   rosterWithUnitWargearCount,
 } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
+  compositionOptionsStatus,
   renderCompositionEditor,
   unitHasCompositionChoices,
   updateUnitCompositionFromEditor,
@@ -344,12 +345,20 @@ test("unit composition editor hides read-only value when only one valid composit
     assert.equal(multiNode.tagName, "label");
     assert.equal(multiNode.className, "field");
     assert.equal(multiNode.children[1].tagName, "select");
-    assert.equal(multiNode.children[1].title, "Choose composition");
-    assert.equal(multiNode.children[1].attributes.get("aria-label"), "Choose composition");
+    assert.equal(multiNode.children[1].title, `Choose composition for ${multi.unit.name}`);
+    assert.equal(multiNode.children[1].attributes.get("aria-label"), multiNode.children[1].title);
     assert.ok(multiNode.children[1].children.length > 1);
+    const status = multiNode.children.find((child) => child.className === "field-status composition-options-status");
+    assert.equal(status.textContent, `${multiNode.children[1].children.length} options`);
+    assert.equal(multiNode.children[1].attributes.get("aria-describedby"), status.id);
   } finally {
     global.document = previousDocument;
   }
+});
+
+test("unit composition status labels option counts", () => {
+  assert.equal(compositionOptionsStatus([{ id: "only" }]), "1 option");
+  assert.equal(compositionOptionsStatus([{ id: "a" }, { id: "b" }]), "2 options");
 });
 
 test("unit composition shortcuts appear only for editable composition choices", () => {

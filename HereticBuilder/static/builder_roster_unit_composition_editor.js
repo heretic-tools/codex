@@ -1,5 +1,6 @@
 import { option, textNode } from "./builder_dom.js";
 import { rosterWithUnitComposition } from "./builder_roster_actions.js";
+import { safeDomId } from "./builder_roster_control_availability.js";
 import { labelControl } from "./builder_roster_control_labels.js";
 import { ensurePrecomputedLoadoutsForDatasheets } from "./builder_precomputed_loadouts_runtime.js";
 import { compositionSelectModel } from "./builder_roster_unit_composition_options.js";
@@ -24,6 +25,11 @@ function unitHasCompositionChoices(roster, unit) {
   return compositionSelectModel(roster, unit).options.length > 1;
 }
 
+function compositionOptionsStatus(options = []) {
+  const count = options.length;
+  return `${count} ${count === 1 ? "option" : "options"}`;
+}
+
 function renderCompositionEditor({
   onUndoableUpdate = null,
   onUpdate,
@@ -44,7 +50,7 @@ function renderCompositionEditor({
   wrap.appendChild(textNode("span", "", "Composition"));
   if (hasChoices) {
     const select = document.createElement("select");
-    labelControl(select, "Choose composition");
+    labelControl(select, `Choose composition for ${unit?.name || "unit"}`);
     for (const row of model.options) {
       select.appendChild(option(row.value, row.label));
     }
@@ -55,6 +61,10 @@ function renderCompositionEditor({
       await updateUnitCompositionFromEditor(roster, unit, select.value, onUpdate, onUndoableUpdate);
     });
     wrap.appendChild(select);
+    const status = textNode("span", "field-status composition-options-status", compositionOptionsStatus(model.options));
+    status.id = `composition-options-${safeDomId(unit?.id)}`;
+    select.setAttribute("aria-describedby", status.id);
+    wrap.appendChild(status);
   } else {
     wrap.className = "field field-readonly";
     wrap.appendChild(textNode(
@@ -71,6 +81,7 @@ function renderCompositionEditor({
 
 export {
   compositionChangeMessage,
+  compositionOptionsStatus,
   renderCompositionEditor,
   unitHasCompositionChoices,
   updateUnitCompositionFromEditor,
