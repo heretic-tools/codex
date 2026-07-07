@@ -160,6 +160,10 @@ a {
   gap: 8px;
 }
 
+.app-header > .title {
+  flex: 1 1 auto;
+}
+
 .favorite-toggle {
   min-height: 34px;
   display: inline-flex;

@@ -45,6 +45,18 @@ test("shared mobile shell controls keep 44px touch targets", () => {
   assert.ok(mobileLayer.includes("height: 44px;"));
 });
 
+test("shared app header keeps long titles from clipping action controls", () => {
+  const appSource = staticSource("app.css");
+  const builderSource = staticSource("builder.css");
+
+  assert.ok(appSource.includes(".app-header > .title"));
+  assert.ok(appSource.includes("flex: 1 1 auto;"));
+  assert.ok(appSource.includes(".app-header-actions"));
+  assert.ok(appSource.includes("flex: 0 0 auto;"));
+  assert.ok(builderSource.includes(".builder-app-header-actions"));
+  assert.ok(builderSource.includes("flex: 0 0 auto;"));
+});
+
 test("theme toggle is a compact icon button with hidden text state", () => {
   const source = staticSource("app.css");
 
