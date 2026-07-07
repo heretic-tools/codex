@@ -172,9 +172,22 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportTe
   trigger.textContent = "...";
   trigger.title = rosterActionLabel(roster, "More actions");
   trigger.setAttribute("aria-label", trigger.title);
+  trigger.setAttribute("aria-haspopup", "menu");
   trigger.setAttribute("aria-expanded", "false");
+  const closeOutside = (event) => {
+    if (node.open && !node.contains(event.target)) {
+      node.open = false;
+      trigger.setAttribute("aria-expanded", "false");
+      document.removeEventListener?.("pointerdown", closeOutside, true);
+    }
+  };
   node.addEventListener("toggle", () => {
     trigger.setAttribute("aria-expanded", node.open ? "true" : "false");
+    if (node.open) {
+      document.addEventListener?.("pointerdown", closeOutside, true);
+    } else {
+      document.removeEventListener?.("pointerdown", closeOutside, true);
+    }
   });
   node.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && node.open) {
@@ -182,6 +195,7 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportTe
       event.stopPropagation?.();
       node.open = false;
       trigger.setAttribute("aria-expanded", "false");
+      document.removeEventListener?.("pointerdown", closeOutside, true);
       trigger.focus?.();
     }
   });

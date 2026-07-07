@@ -62,6 +62,16 @@ function createMockElement(tagName) {
       }
       return null;
     },
+    contains(target) {
+      let node = target;
+      while (node) {
+        if (node === this) {
+          return true;
+        }
+        node = node.parentNode;
+      }
+      return false;
+    },
     setAttribute(name, value) {
       this.attributes.set(name, String(value));
     },
@@ -186,8 +196,17 @@ test("roster row renders polished validation and points labels", () => {
 
 test("roster list item keeps quick actions outside the open-row button", async () => {
   const previousDocument = global.document;
+  const documentListeners = new Map();
   global.document = {
     createElement: createMockElement,
+    addEventListener(name, handler) {
+      documentListeners.set(name, handler);
+    },
+    removeEventListener(name, handler) {
+      if (documentListeners.get(name) === handler) {
+        documentListeners.delete(name);
+      }
+    },
   };
   const calls = [];
 
@@ -222,6 +241,7 @@ test("roster list item keeps quick actions outside the open-row button", async (
     assert.equal(item.children[1].tagName, "details");
     assert.equal(item.children[1].children[0].className, "roster-actions-trigger");
     assert.equal(item.children[1].children[0].attributes.get("aria-label"), "More actions: Black Crusade");
+    assert.equal(item.children[1].children[0].attributes.get("aria-haspopup"), "menu");
     assert.equal(item.children[1].children[0].attributes.get("aria-expanded"), "false");
     assert.equal(item.children[1].children[1].children[0].textContent, "Rename");
     assert.equal(item.children[1].children[1].children[1].textContent, "Duplicate");
@@ -245,6 +265,15 @@ test("roster list item keeps quick actions outside the open-row button", async (
     item.children[1].open = true;
     await item.children[1].listeners.get("toggle")();
     assert.equal(item.children[1].children[0].attributes.get("aria-expanded"), "true");
+    assert.equal(typeof documentListeners.get("pointerdown"), "function");
+    const outsideNode = createMockElement("div");
+    documentListeners.get("pointerdown")({ target: outsideNode });
+    assert.equal(item.children[1].open, false);
+    assert.equal(item.children[1].children[0].attributes.get("aria-expanded"), "false");
+    assert.equal(documentListeners.has("pointerdown"), false);
+
+    item.children[1].open = true;
+    await item.children[1].listeners.get("toggle")();
     const keyEvent = {
       key: "Escape",
       prevented: false,
@@ -261,6 +290,7 @@ test("roster list item keeps quick actions outside the open-row button", async (
     assert.equal(keyEvent.prevented, true);
     assert.equal(keyEvent.stopped, true);
     assert.equal(item.children[1].children[0].attributes.get("aria-expanded"), "false");
+    assert.equal(documentListeners.has("pointerdown"), false);
   } finally {
     global.document = previousDocument;
   }

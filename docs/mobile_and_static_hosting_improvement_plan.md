@@ -150,6 +150,9 @@ Roster list quick-actions menu синхронизирует `aria-expanded` с n
 Roster list open-row labels теперь включают visible detachment badge names
 compact-форматом, чтобы экранные считыватели не теряли главный визуальный
 контекст строки.
+Roster list quick-actions menu дополнительно закрывается по outside
+pointerdown и объявляет себя как popup-menu, чтобы мобильный popover не
+зависал поверх списка после тапа в другое место.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
