@@ -10,6 +10,7 @@ const {
   validationWithoutMessages,
 } = await import("../HereticBuilder/static/builder_roster_unit_detail_view.js");
 const {
+  miniatureWargearHeading,
   renderRosterUnitWargearSection,
   wargearScopeHasContent,
 } = await import("../HereticBuilder/static/builder_roster_unit_wargear_section_view.js");
@@ -181,6 +182,11 @@ test("unit wargear section hides empty scopes unless they carry wargear validati
   }), true);
 });
 
+test("unit wargear model headings include readable model counts", () => {
+  assert.equal(miniatureWargearHeading({ count: 1, name: "Abaddon the Despoiler" }), "Abaddon the Despoiler (1 model)");
+  assert.equal(miniatureWargearHeading({ count: 10, name: "Cultist" }), "Cultist (10 models)");
+});
+
 test("unit wargear section hides when no scopes render", () => {
   const previousDocument = global.document;
   global.document = {
@@ -215,13 +221,20 @@ test("unit wargear renderer uses flat sections without nested builder-section ca
   const previousCatalog = state.catalog;
   state.catalog = {
     ...previousCatalog,
-    wargearGroupsByDatasheetId: new Map([["datasheet-1", [{ id: "group-1", datasheetId: "datasheet-1" }]]]),
+    wargearGroupsByDatasheetId: new Map([["datasheet-1", [{
+      id: "group-1",
+      datasheetId: "datasheet-1",
+      miniatureId: "miniature-1",
+    }]]]),
   };
 
   try {
     const section = renderRosterUnitWargearSection({
       roster: {},
-      unit: { datasheetId: "datasheet-1", miniatures: [] },
+      unit: {
+        datasheetId: "datasheet-1",
+        miniatures: [{ count: 1, miniatureId: "miniature-1", name: "Model" }],
+      },
       validation: { messages: [] },
       validationContext: {},
     });
@@ -237,6 +250,7 @@ test("unit wargear renderer uses flat sections without nested builder-section ca
 
     assert.equal(section.className, "unit-wargear-section");
     assert.equal(section.dataset.unitDetailTarget, "wargear");
+    assert.ok(section.textContent.includes("Model (1 model)"));
     assert.equal(scope.className, "wargear-scope");
   } finally {
     global.document = previousDocument;

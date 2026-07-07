@@ -13,6 +13,11 @@ function wargearScopeHasContent(groups, target, validation) {
   return Boolean(validationForWargearScope(validation, targetId).messages.length);
 }
 
+function miniatureWargearHeading(miniature) {
+  const count = miniature.count || 0;
+  return `${miniature.name} (${count} ${count === 1 ? "model" : "models"})`;
+}
+
 function appendWargearScope(wargear, {
   groups,
   heading,
@@ -60,7 +65,7 @@ function renderRosterUnitWargearSection({ onUndoableUpdate = null, onUpdate, ros
   for (const miniature of unit.miniatures || []) {
     renderedScopes += appendWargearScope(wargear, {
       groups: wargearGroupsFor(unit, miniature.miniatureId),
-      heading: `${miniature.name} (${miniature.count || 0})`,
+      heading: miniatureWargearHeading(miniature),
       onUndoableUpdate,
       onUpdate,
       roster,
@@ -76,4 +81,4 @@ function renderRosterUnitWargearSection({ onUndoableUpdate = null, onUpdate, ros
   return wargear;
 }
 
-export { renderRosterUnitWargearSection, wargearScopeHasContent };
+export { miniatureWargearHeading, renderRosterUnitWargearSection, wargearScopeHasContent };
