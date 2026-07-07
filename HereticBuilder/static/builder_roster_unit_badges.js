@@ -24,6 +24,7 @@ function unitSourceBadgeNode(unit) {
   }
   const badge = textNode("span", "meta-badge", text);
   badge.title = `Allied: ${alliedFactionName(unit.allyType)}`;
+  badge.setAttribute("aria-label", badge.title);
   return badge;
 }
 

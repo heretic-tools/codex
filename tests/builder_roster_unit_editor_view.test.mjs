@@ -22,6 +22,7 @@ import {
   unitOptionValue,
   unitSourceBadgeText,
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
+import { unitSourceBadgeNode } from "../HereticBuilder/static/builder_roster_unit_badges.js";
 import { renderUnitRow } from "../HereticBuilder/static/builder_roster_unit_rows.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -178,6 +179,7 @@ test("unit option values round-trip ally type and datasheet id", () => {
 });
 
 test("unit source badge names selected allied unit source", () => {
+  const previousDocument = global.document;
   state.catalog = realCatalog;
   const faction = factionNamed("Heretic Astartes");
   const alliedRows = realCatalog.factionAlliedFactionsByFactionId.get(faction.id) || [];
@@ -189,6 +191,18 @@ test("unit source badge names selected allied unit source", () => {
   assert.equal(unitSourceBadgeText({ allyType: "native" }), "");
   assert.match(unitSourceBadgeText({ allyType: longAllied.alliedFactionId }), /^Allied: /);
   assert.ok(unitSourceBadgeText({ allyType: longAllied.alliedFactionId }).endsWith("..."));
+
+  global.document = { createElement: createMockElement };
+  try {
+    const badge = unitSourceBadgeNode({ allyType: longAllied.alliedFactionId });
+    assert.equal(badge.className, "meta-badge");
+    assert.match(badge.textContent, /^Allied: /);
+    assert.ok(badge.textContent.endsWith("..."));
+    assert.match(badge.title, /^Allied: /);
+    assert.equal(badge.attributes.get("aria-label"), badge.title);
+  } finally {
+    global.document = previousDocument;
+  }
 });
 
 test("unit row open label names the row action", () => {
