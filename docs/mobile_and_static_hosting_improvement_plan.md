@@ -117,6 +117,9 @@ Builder roster quick-actions menu (`Rename`, `Duplicate`, exports, delete)
 доведен до 44px mobile touch target и проверен на `/builder/` без page overflow.
 Mobile roster/unit detail content padding увеличен под sticky summary actions,
 чтобы нижний bar не перекрывал `Add Unit` и другие последние controls.
+Create roster battle-size radio controls теперь занимают всю видимую option
+card, так что mobile hit target совпадает с интерфейсом, а focus-ring остаётся
+на карточке.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

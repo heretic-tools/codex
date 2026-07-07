@@ -23,6 +23,7 @@ test("roster create form keeps confirm as the only full-width action", () => {
 });
 
 test("roster create battle size picker uses flat theme tokens", () => {
+  const fullSource = builderCss();
   const source = modernLayer();
 
   assert.ok(source.includes(".battle-size-options"));
@@ -35,6 +36,11 @@ test("roster create battle size picker uses flat theme tokens", () => {
   assert.ok(source.includes(".battle-size-option.is-selected"));
   assert.ok(source.includes("border-color: var(--builder-blue);"));
   assert.ok(source.includes(".battle-size-option:has(input:focus-visible)"));
+  assert.ok(fullSource.includes(".battle-size-option input"));
+  assert.ok(fullSource.includes("inset: 0;"));
+  assert.ok(fullSource.includes("inline-size: 100%;"));
+  assert.ok(fullSource.includes("block-size: 100%;"));
+  assert.ok(fullSource.includes("opacity: 0;"));
   assert.doesNotMatch(source, /\.battle-size-option \{[^}]+border-width: 2px;/);
 });
 
