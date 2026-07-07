@@ -9,6 +9,8 @@ function rosterValidationCodeActionTarget(code) {
     case "warlord.not_selected":
       return { kind: "target", target: "warlord", text: "Pick" };
     case "allied_unit.required_detachment_not_selected":
+    case "allegiance_ability.required_detachment_missing":
+    case "enhancement.required_detachment_missing":
     case "roster.detachment_missing":
     case "roster.detachment_not_selected":
     case "roster.detachment_points_limit_exceeded":

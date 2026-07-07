@@ -161,12 +161,19 @@ test("roster validation actions route broad rule families to useful editors", ()
 
   for (const code of [
     "allied_unit.required_detachment_not_selected",
+    "allegiance_ability.required_detachment_missing",
+    "enhancement.required_detachment_missing",
     "roster.detachment_missing",
   ]) {
     assert.deepEqual(
       rosterValidationActionTarget({ attachmentIds: [], code, detachmentIds: [], unitIds: [] }),
       { kind: "target", target: "detachments", text: "Detachments" },
       code
+    );
+    assert.deepEqual(
+      rosterValidationActionTarget({ attachmentIds: [], code, detachmentIds: [], unitIds: ["unit-1"] }),
+      { kind: "target", target: "detachments", text: "Detachments" },
+      `${code} with unit scope`
     );
   }
 
