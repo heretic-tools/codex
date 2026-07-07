@@ -156,6 +156,8 @@ pointerdown и объявляет себя как popup-menu, чтобы моб�
 Список ростеров теперь держит открытым только одно quick-actions menu за раз:
 открытие второго `...` аккуратно закрывает предыдущее и снимает его outside
 listener.
+Attached Units `Add attached unit` disclosure синхронизирует `aria-expanded`
+и закрывается по Escape с возвратом фокуса на summary.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

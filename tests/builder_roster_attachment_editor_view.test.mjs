@@ -67,6 +67,7 @@ function createMockElement(tagName) {
     className: "",
     dataset: {},
     disabled: false,
+    focused: false,
     hidden: false,
     listeners: new Map(),
     tagName,
@@ -86,6 +87,9 @@ function createMockElement(tagName) {
     },
     addEventListener(name, handler) {
       this.listeners.set(name, handler);
+    },
+    focus() {
+      this.focused = true;
     },
     replaceChildren(...nodes) {
       this.children = [];
@@ -175,8 +179,31 @@ test("attached unit controls stay collapsed behind an add disclosure", () => {
       assert.equal(controls.children[0].tagName, "summary");
       assert.equal(controls.children[0].className, "plain-button attachment-add-summary");
       assert.equal(controls.children[0].textContent, "Add attached unit");
+      assert.equal(controls.children[0].attributes.get("aria-label"), "Add attached unit");
+      assert.equal(controls.children[0].attributes.get("aria-expanded"), "false");
       assert.equal(controls.children[1].className, "builder-control-row attachment-control-row");
       assert.equal(controls.children[1].children.length, 4);
+
+      controls.open = true;
+      controls.listeners.get("toggle")();
+      assert.equal(controls.children[0].attributes.get("aria-expanded"), "true");
+      const keyEvent = {
+        key: "Escape",
+        prevented: false,
+        stopped: false,
+        preventDefault() {
+          this.prevented = true;
+        },
+        stopPropagation() {
+          this.stopped = true;
+        },
+      };
+      controls.listeners.get("keydown")(keyEvent);
+      assert.equal(controls.open, false);
+      assert.equal(controls.children[0].attributes.get("aria-expanded"), "false");
+      assert.equal(controls.children[0].focused, true);
+      assert.equal(keyEvent.prevented, true);
+      assert.equal(keyEvent.stopped, true);
     });
   } finally {
     global.document = previousDocument;

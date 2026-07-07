@@ -31,6 +31,22 @@ function renderAttachmentControls({ bodyguards, newId, onUndoableUpdate = null, 
   const summary = document.createElement("summary");
   summary.className = "plain-button attachment-add-summary";
   summary.textContent = "Add attached unit";
+  summary.title = "Add attached unit";
+  summary.setAttribute("aria-label", "Add attached unit");
+  summary.setAttribute("aria-expanded", "false");
+  const syncExpanded = () => {
+    summary.setAttribute("aria-expanded", disclosure.open ? "true" : "false");
+  };
+  disclosure.addEventListener("toggle", syncExpanded);
+  disclosure.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && disclosure.open) {
+      event.preventDefault?.();
+      event.stopPropagation?.();
+      disclosure.open = false;
+      syncExpanded();
+      summary.focus?.();
+    }
+  });
 
   const controls = document.createElement("div");
   controls.className = "builder-control-row attachment-control-row";
