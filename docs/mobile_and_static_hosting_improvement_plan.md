@@ -147,6 +147,9 @@ Create roster flow получил explicit `aria-label`/tooltip labels для na
 faction и battle-size controls, сохраняя текущий compact mobile layout.
 Roster list quick-actions menu синхронизирует `aria-expanded` с native
 `details` state и закрывается по Escape с возвратом фокуса на trigger.
+Roster list open-row labels теперь включают visible detachment badge names
+compact-форматом, чтобы экранные считыватели не теряли главный визуальный
+контекст строки.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

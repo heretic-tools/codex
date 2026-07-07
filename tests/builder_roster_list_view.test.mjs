@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  compactRosterBadgeNames,
   rosterActionLabel,
   rosterDetachmentCountLabel,
   rosterLine,
@@ -122,9 +123,15 @@ test("roster row open label names the row action", () => {
   assert.equal(rosterOpenLabel({ name: "Black Crusade" }), "Open roster: Black Crusade");
   assert.equal(rosterOpenLabel({ id: "ABCDEF12-3456", name: "Black Crusade" }), "Open roster: Black Crusade, ID ABCDEF12");
   assert.equal(rosterOpenLabel({}), "Open roster: New Roster");
+  assert.equal(compactRosterBadgeNames([
+    { name: "Pactbound Zealots" },
+    { name: "Cabal of Chaos" },
+    { name: "Soulforged Warpack" },
+  ]), "Pactbound Zealots, Cabal of Chaos +1");
   assert.equal(
     rosterOpenLabel({ id: "ABCDEF12-3456", modifiedAt: "2026-07-05T10:00:00.000Z", name: "Black Crusade" }, {
       battleSizeName: "Strike Force",
+      detachmentBadges: [{ name: "Pactbound Zealots" }],
       detachmentCount: 1,
       factionName: "Heretic Astartes",
       pointsLimit: 2000,
@@ -132,7 +139,7 @@ test("roster row open label names the row action", () => {
       unitCount: 2,
       validationState: "valid",
     }),
-    "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units, Updated 2026-07-05, ID ABCDEF12"
+    "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, Detachments: Pactbound Zealots, 1 detachment, 2 units, Updated 2026-07-05, ID ABCDEF12"
   );
 });
 
@@ -159,7 +166,7 @@ test("roster row renders polished validation and points labels", () => {
     }));
 
     assert.equal(row.className, "builder-row roster-row");
-    assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units, Updated 2026-07-05, ID ABCDEF12");
+    assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, Detachments: Veterans, 1 detachment, 2 units, Updated 2026-07-05, ID ABCDEF12");
     assert.equal(row.attributes.get("aria-label"), row.title);
     assert.ok(row.textContent.includes("Black Crusade"));
     assert.ok(row.textContent.includes("Valid"));

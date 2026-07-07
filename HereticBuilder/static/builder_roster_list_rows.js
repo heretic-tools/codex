@@ -82,6 +82,19 @@ function rosterIdLabel(id) {
   return value ? `ID ${value.slice(0, 8).toUpperCase()}` : "";
 }
 
+function compactRosterBadgeNames(badges = [], limit = 2) {
+  const names = (badges || [])
+    .map((badge) => String(badge?.name || "").trim())
+    .filter(Boolean);
+  if (!names.length) {
+    return "";
+  }
+  if (names.length <= limit) {
+    return names.join(", ");
+  }
+  return `${names.slice(0, limit).join(", ")} +${names.length - limit}`;
+}
+
 function rosterOpenLabel(roster, summary = null) {
   const name = roster.name || "New Roster";
   const idLabel = rosterIdLabel(roster.id);
@@ -89,6 +102,7 @@ function rosterOpenLabel(roster, summary = null) {
     return `Open roster: ${[name, idLabel].filter(Boolean).join(", ")}`;
   }
   const validationState = summary.validationState || "invalid";
+  const badgeNames = compactRosterBadgeNames(summary.detachmentBadges || []);
   const parts = [
     name,
     [summary.factionName, summary.battleSizeName].filter(Boolean).join(" / "),
@@ -96,6 +110,7 @@ function rosterOpenLabel(roster, summary = null) {
     summary.pointsLimit !== undefined || summary.pointsTotal !== undefined
       ? `${rosterPointsLabel(summary.pointsTotal || 0, summary.pointsLimit)} points`
       : "",
+    badgeNames ? `Detachments: ${badgeNames}` : "",
     rosterDetachmentCountLabel(summary.detachmentCount || 0),
     rosterUnitCountLabel(summary.unitCount || 0),
     roster.modifiedAt ? rosterModifiedLabel(roster.modifiedAt) : "",
@@ -230,6 +245,7 @@ function rosterLine(roster, onOpen, summarizeRoster) {
 }
 
 export {
+  compactRosterBadgeNames,
   rosterActionLabel,
   rosterActionsMenu,
   rosterDetachmentCountLabel,
