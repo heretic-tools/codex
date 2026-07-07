@@ -25,11 +25,12 @@ function scrollToElement(node) {
   if (!node) {
     return;
   }
-  node.scrollIntoView({ behavior: "smooth", block: "center" });
   const focusTarget = node.querySelector("[data-focus-target]")
     || (node.matches("button, input, select, textarea, a")
       ? node
       : node.querySelector("button, input, select, textarea, a"));
+  const scrollTarget = focusTarget || node;
+  scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
   focusTarget?.focus({ preventScroll: true });
   node.classList.add("is-attention-target");
   window.setTimeout(() => node.classList.remove("is-attention-target"), 900);
