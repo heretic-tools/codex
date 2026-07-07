@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   rosterDetachmentCountLabel,
   rosterLine,
+  rosterOpenLabel,
   rosterPointsLabel,
   rosterUnitCountLabel,
 } from "../HereticBuilder/static/builder_roster_list_rows.js";
@@ -75,6 +76,11 @@ test("roster list pluralizes detachment counts", () => {
   assert.equal(rosterDetachmentCountLabel(2), "2 detachments");
 });
 
+test("roster row open label names the row action", () => {
+  assert.equal(rosterOpenLabel({ name: "Black Crusade" }), "Open roster: Black Crusade");
+  assert.equal(rosterOpenLabel({}), "Open roster: New Roster");
+});
+
 test("roster row renders polished validation and points labels", () => {
   const previousDocument = global.document;
   global.document = {
@@ -94,6 +100,8 @@ test("roster row renders polished validation and points labels", () => {
     }));
 
     assert.equal(row.className, "builder-row roster-row");
+    assert.equal(row.title, "Open roster: Black Crusade");
+    assert.equal(row.attributes.get("aria-label"), "Open roster: Black Crusade");
     assert.ok(row.textContent.includes("Black Crusade"));
     assert.ok(row.textContent.includes("Valid"));
     assert.ok(row.textContent.includes("285 / 2000"));

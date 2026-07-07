@@ -38,6 +38,10 @@ function rosterDetachmentBadgeClass(disposition) {
   return slug ? `disposition-badge disposition-${slug}` : "meta-badge";
 }
 
+function rosterOpenLabel(roster) {
+  return `Open roster: ${roster.name || "New Roster"}`;
+}
+
 function appendDetachmentBadges(parent, badges) {
   for (const badge of badges || []) {
     const node = textNode("span", rosterDetachmentBadgeClass(badge.disposition), badge.name || "Detachment");
@@ -52,6 +56,9 @@ function rosterLine(roster, onOpen, summarizeRoster) {
   const summary = summarizeRoster(roster);
   const validationState = summary.validationState || "invalid";
   const node = button("builder-row roster-row", "", () => onOpen(roster));
+  const openLabel = rosterOpenLabel(roster);
+  node.title = openLabel;
+  node.setAttribute("aria-label", openLabel);
   const text = document.createElement("span");
   text.className = "row-text";
   text.append(
@@ -75,6 +82,7 @@ export {
   rosterDetachmentCountLabel,
   rosterDetachmentBadgeClass,
   rosterLine,
+  rosterOpenLabel,
   rosterPointsLabel,
   rosterUnitCountLabel,
   rosterValidationBadgeClass,
