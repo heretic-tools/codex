@@ -33,7 +33,8 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
   }
   const text = button("unit-open-button", "", () => onUnitOpen(summary));
   text.className = "unit-open-button row-text";
-  const openLabel = unitOpenLabel(summary);
+  const sourceLabel = unitSourceBadgeText(summary);
+  const openLabel = unitOpenLabel(summary, { sourceLabel });
   text.title = openLabel;
   text.setAttribute("aria-label", openLabel);
   const image = unitImageNode(summary.datasheetId);
@@ -47,7 +48,7 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
   if (summary.isWarlord) {
     text.append(textNode("span", "meta-badge", "Warlord"));
   }
-  const sourceBadge = unitSourceBadgeNode(summary);
+  const sourceBadge = sourceLabel ? unitSourceBadgeNode(summary) : null;
   if (sourceBadge) {
     text.append(sourceBadge);
   }

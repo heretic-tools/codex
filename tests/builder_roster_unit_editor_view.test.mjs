@@ -208,6 +208,19 @@ test("unit source badge names selected allied unit source", () => {
 test("unit row open label names the row action", () => {
   assert.equal(unitOpenLabel({ name: "Chosen" }), "Open unit: Chosen");
   assert.equal(unitOpenLabel({}), "Open unit: Unit");
+  assert.equal(
+    unitOpenLabel({
+      isWarlord: true,
+      modelCount: 1,
+      name: "Abaddon the Despoiler",
+      points: 285,
+    }),
+    "Open unit: Abaddon the Despoiler, 1 model, 285 pts, Warlord"
+  );
+  assert.equal(
+    unitOpenLabel({ modelCount: 2, name: "War Dogs", points: 140 }, { sourceLabel: "Allied: Chaos Knights" }),
+    "Open unit: War Dogs, 2 models, 140 pts, Allied: Chaos Knights"
+  );
 });
 
 test("unit rows pluralize model counts", () => {
@@ -234,6 +247,8 @@ test("unit rows pluralize model counts", () => {
     );
 
     assert.ok(row.textContent.includes("1 model"));
+    assert.equal(row.children[0].title, "Open unit: Chosen, 1 model, 80 pts");
+    assert.equal(row.children[0].attributes.get("aria-label"), "Open unit: Chosen, 1 model, 80 pts");
     assert.equal(row.textContent.includes("1 models"), false);
   } finally {
     state.catalog = previousCatalog;
