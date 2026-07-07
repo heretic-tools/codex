@@ -13,6 +13,7 @@ function renderRosterListView({
   onDuplicate,
   onExport,
   onExportRoster,
+  onExportRosterText,
   onImport,
   onOpen,
   onRename,
@@ -29,6 +30,7 @@ function renderRosterListView({
         onDelete,
         onDuplicate,
         onExport: onExportRoster,
+        onExportText: onExportRosterText,
         onRename,
       }));
     }

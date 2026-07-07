@@ -4,7 +4,10 @@ import {
 } from "./builder_module_loaders.js";
 import { currentDataVersion } from "./builder_roster_runtime.js";
 import { ensureCatalog } from "./builder_catalog_runtime.js";
-import { downloadRosterExport } from "./builder_roster_export_download.js";
+import {
+  downloadRosterExport,
+  downloadRosterTextExport,
+} from "./builder_roster_export_download.js";
 import { saveImportedRosters } from "./builder_roster_import_save.js";
 import { state } from "./builder_state.js";
 import { newId } from "./builder_storage.js";
@@ -33,6 +36,19 @@ async function exportRoster(roster) {
   }
 }
 
+async function exportRosterText(roster) {
+  try {
+    await ensureCatalog();
+    const { validateRoster } = await loadRules();
+    const { rosterTextExport } = await import("./builder_roster_text_export.js");
+    const text = rosterTextExport(roster, validateRoster(roster));
+    downloadRosterTextExport(text, roster);
+    showStatusToast({ message: `${roster.name || "Roster"} text export ready`, tone: "success" });
+  } catch (error) {
+    showStatusToast({ message: error.message || "Failed to export roster text", tone: "error" });
+  }
+}
+
 async function importRosters(file, render) {
   try {
     const { parseImportedRosters, rostersWithNonConflictingIds } = await loadTransfer();
@@ -57,6 +73,7 @@ async function importRosters(file, render) {
 
 export {
   exportRoster,
+  exportRosterText,
   exportRosters,
   importRosters,
 };

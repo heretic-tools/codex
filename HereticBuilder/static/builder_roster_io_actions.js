@@ -10,6 +10,7 @@ import { state } from "./builder_state.js";
 import { newId, removeRoster, saveRoster } from "./builder_storage.js";
 export {
   exportRoster,
+  exportRosterText,
   exportRosters,
   importRosters,
 } from "./builder_roster_transfer_actions.js";

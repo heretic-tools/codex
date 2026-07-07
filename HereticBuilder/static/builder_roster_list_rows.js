@@ -139,8 +139,8 @@ function rosterActionButton(text, roster, onClick) {
   return node;
 }
 
-function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onRename } = {}) {
-  if (!onDelete && !onDuplicate && !onExport && !onRename) {
+function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportText, onRename } = {}) {
+  if (!onDelete && !onDuplicate && !onExport && !onExportText && !onRename) {
     return null;
   }
   const node = document.createElement("details");
@@ -160,6 +160,9 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onRename }
   }
   if (onExport) {
     panel.appendChild(rosterActionButton("Export JSON", roster, onExport));
+  }
+  if (onExportText) {
+    panel.appendChild(rosterActionButton("Export Text", roster, onExportText));
   }
   if (onDelete) {
     panel.appendChild(rosterActionButton("Delete Roster", roster, onDelete));
