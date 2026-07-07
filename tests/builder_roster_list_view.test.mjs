@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { rosterLine, rosterPointsLabel } from "../HereticBuilder/static/builder_roster_list_rows.js";
 import {
+  renderRosterListView,
   rosterDetachmentBadgeClass,
   rosterValidationBadgeClass,
   rosterValidationBadgeLabel,
@@ -13,9 +14,13 @@ function createMockElement(tagName) {
     attributes: new Map(),
     children: [],
     className: "",
+    disabled: false,
+    hidden: false,
     tagName,
     textContent: "",
     title: "",
+    type: "",
+    value: "",
     append(...nodes) {
       for (const node of nodes) {
         this.appendChild(node);
@@ -76,6 +81,50 @@ test("roster row renders polished validation and points labels", () => {
     assert.ok(row.textContent.includes("Valid"));
     assert.ok(row.textContent.includes("285 / 2000"));
     assert.equal(row.textContent.includes("valid"), false);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("roster list disables export while there are no local rosters", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const empty = renderRosterListView({
+      onCreate: () => {},
+      onExport: () => {},
+      onImport: () => {},
+      onOpen: () => {},
+      rosters: [],
+      summarizeRoster: () => ({}),
+    });
+    const emptyTransfer = empty.children[2];
+    assert.equal(emptyTransfer.children[0].textContent, "Export Rosters");
+    assert.equal(emptyTransfer.children[0].disabled, true);
+    assert.equal(emptyTransfer.children[1].textContent, "Import Rosters");
+    assert.equal(emptyTransfer.children[1].disabled, false);
+
+    const withRoster = renderRosterListView({
+      onCreate: () => {},
+      onExport: () => {},
+      onImport: () => {},
+      onOpen: () => {},
+      rosters: [{ id: "roster-1", name: "Roster" }],
+      summarizeRoster: () => ({
+        battleSizeName: "Strike Force",
+        detachmentBadges: [],
+        detachmentCount: 0,
+        factionName: "Heretic Astartes",
+        pointsLimit: 2000,
+        pointsTotal: 0,
+        unitCount: 0,
+        validationState: "invalid",
+      }),
+    });
+    assert.equal(withRoster.children[2].children[0].disabled, false);
   } finally {
     global.document = previousDocument;
   }

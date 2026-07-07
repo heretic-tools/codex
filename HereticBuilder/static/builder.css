@@ -183,6 +183,7 @@
   border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
 }
 
+.builder-row:disabled,
 .plain-button:disabled,
 .primary-button:disabled,
 .remove-button:disabled {
@@ -1252,11 +1253,13 @@
   border-color: var(--builder-shadow);
 }
 
+.builder-row:disabled,
 .plain-button:disabled,
 .primary-button:disabled,
 .remove-button:disabled {
   color: var(--app-muted, #697078);
   background: var(--builder-panel);
+  border-color: var(--builder-border);
 }
 
 .row-text strong {

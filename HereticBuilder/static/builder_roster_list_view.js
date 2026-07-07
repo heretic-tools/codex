@@ -31,8 +31,10 @@ function renderRosterListView({ onCreate, onExport, onImport, onOpen, rosters, s
       await onImport(file);
     }
   });
+  const exportButton = button("builder-row transfer-button", "Export Rosters", onExport);
+  exportButton.disabled = !rosters.length;
   transfer.append(
-    button("builder-row transfer-button", "Export Rosters", onExport),
+    exportButton,
     button("builder-row transfer-button", "Import Rosters", () => input.click()),
     input
   );
