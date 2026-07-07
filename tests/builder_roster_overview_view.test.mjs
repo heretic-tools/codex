@@ -15,6 +15,7 @@ import { rosterWithAddedUnit } from "../HereticBuilder/static/builder_roster_act
 const {
   renderRosterOverview,
   renderRosterStickySummary,
+  rosterMetricsLabel,
   rosterOverviewStateClass,
   rosterOverviewStatusLabel,
 } = await import("../HereticBuilder/static/builder_roster_overview_view.js");
@@ -115,15 +116,19 @@ test("roster overview hides Warlord picker before units exist", () => {
     assert.ok(overview.textContent.includes("Rename Roster"));
     assert.ok(overview.textContent.includes("Duplicate Roster"));
     assert.ok(overview.textContent.includes("Delete Roster"));
-    assert.equal(overview.children[2].children[0].title, "Rename roster");
-    assert.equal(overview.children[2].children[0].attributes.get("aria-label"), "Rename roster");
+    assert.equal(
+      overview.attributes.get("aria-label"),
+      "Roster overview: Heretic Astartes / Strike Force; Valid; Points 0 of 2000, DP 0 of 3, Units 0"
+    );
+    assert.equal(overview.children[2].children[0].title, "Rename roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[0].attributes.get("aria-label"), "Rename roster: Heretic Astartes roster 1");
     assert.equal(overview.children[2].children[1].className, "roster-rename-form");
     assert.equal(overview.children[2].children[1].dataset.editorTarget, "rename");
     assert.equal(overview.children[2].children[1].hidden, true);
-    assert.equal(overview.children[2].children[2].title, "Duplicate roster");
-    assert.equal(overview.children[2].children[2].attributes.get("aria-label"), "Duplicate roster");
-    assert.equal(overview.children[2].children[3].title, "Delete roster");
-    assert.equal(overview.children[2].children[3].attributes.get("aria-label"), "Delete roster");
+    assert.equal(overview.children[2].children[2].title, "Duplicate roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[2].attributes.get("aria-label"), "Duplicate roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[3].title, "Delete roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[3].attributes.get("aria-label"), "Delete roster: Heretic Astartes roster 1");
   } finally {
     global.document = previousDocument;
   }
@@ -274,7 +279,18 @@ test("roster sticky summary exposes compact points and validation state", () => 
     });
 
     assert.equal(summary.className, "roster-sticky-summary has-validation-warning");
-    assert.equal(summary.attributes.get("aria-label"), "Roster sticky summary: Valid / 1 warning");
+    assert.equal(rosterMetricsLabel({ units: [{}, {}] }, {
+      points: {
+        detachmentLimit: 3,
+        detachmentPoints: 1,
+        limit: 2000,
+        total: 465,
+      },
+    }), "Points 465 of 2000, DP 1 of 3, Units 2");
+    assert.equal(
+      summary.attributes.get("aria-label"),
+      "Roster sticky summary: Valid / 1 warning; Points 465 of 2000, DP 1 of 3, Units 2"
+    );
     assert.equal(summary.children[0].textContent, "1 warning");
     assert.equal(summary.children[1].children[0].children[1].textContent, "465 / 2000");
     assert.equal(summary.children[1].children[1].children[1].textContent, "1 / 3");

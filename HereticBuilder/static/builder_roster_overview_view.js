@@ -53,6 +53,32 @@ function appendRosterMetrics(metrics, roster, validation) {
   );
 }
 
+function metricLabel(label, current, limit = null) {
+  return limit ? `${label} ${current} of ${limit}` : `${label} ${current}`;
+}
+
+function rosterMetricsLabel(roster, validation) {
+  const detachmentLimit = validation.points.detachmentLimit || 0;
+  return [
+    metricLabel("Points", validation.points.total, validation.points.limit),
+    metricLabel("DP", validation.points.detachmentPoints || 0, detachmentLimit),
+    metricLabel("Units", (roster.units || []).length),
+  ].join(", ");
+}
+
+function rosterOverviewLabel(prefix, roster, validation, summary = null) {
+  const parts = [
+    summary ? `${summary.factionName} / ${summary.battleSizeName}` : "",
+    validationSummary(validation),
+    rosterMetricsLabel(roster, validation),
+  ].filter(Boolean);
+  return `${prefix}: ${parts.join("; ")}`;
+}
+
+function rosterOverviewActionLabel(roster, action) {
+  return `${action}: ${roster.name || "New Roster"}`;
+}
+
 function renderRosterStickySummary({ actions = [], roster, validation }) {
   const summary = document.createElement("aside");
   summary.className = [
@@ -71,7 +97,7 @@ function renderRosterStickySummary({ actions = [], roster, validation }) {
     summary.appendChild(renderStickySummaryActions(actions));
   }
   summary.dataset.validationSummary = validationSummary(validation);
-  summary.setAttribute("aria-label", `Roster sticky summary: ${validationSummary(validation)}`);
+  summary.setAttribute("aria-label", rosterOverviewLabel("Roster sticky summary", roster, validation));
   return summary;
 }
 
@@ -160,16 +186,16 @@ function renderRosterOverview({ onDelete, onDuplicate = null, onUndoableUpdate =
       rename.form.hidden = false;
       rename.input.focus?.();
       rename.input.select?.();
-    }), "Rename roster")
+    }), rosterOverviewActionLabel(roster, "Rename roster"))
   );
   controls.appendChild(rename.form);
   if (onDuplicate) {
     controls.append(
-      labelControl(button("plain-button duplicate-roster-button", "Duplicate Roster", async () => onDuplicate(roster)), "Duplicate roster")
+      labelControl(button("plain-button duplicate-roster-button", "Duplicate Roster", async () => onDuplicate(roster)), rosterOverviewActionLabel(roster, "Duplicate roster"))
     );
   }
   controls.append(
-    labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), "Delete roster")
+    labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), rosterOverviewActionLabel(roster, "Delete roster"))
   );
   overview.append(
     head,
@@ -177,13 +203,14 @@ function renderRosterOverview({ onDelete, onDuplicate = null, onUndoableUpdate =
     controls
   );
   overview.dataset.validationSummary = validationSummary(validation);
-  overview.setAttribute("aria-label", `Roster overview: ${validationSummary(validation)}`);
+  overview.setAttribute("aria-label", rosterOverviewLabel("Roster overview", roster, validation, summary));
   return overview;
 }
 
 export {
   renderRosterOverview,
   renderRosterStickySummary,
+  rosterMetricsLabel,
   rosterOverviewStateClass,
   rosterOverviewStatusLabel,
 };

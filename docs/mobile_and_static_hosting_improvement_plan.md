@@ -160,6 +160,8 @@ Attached Units `Add attached unit` disclosure синхронизирует `aria
 и закрывается по Escape с возвратом фокуса на summary.
 Поиск в `Add Detachment` и `Add Unit` теперь очищается по Escape и сразу
 восстанавливает список доступных options, как inline `x`.
+Roster overview и sticky summary теперь включают Points/DP/Units в
+accessible label, а Rename/Duplicate/Delete называют конкретный ростер.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
