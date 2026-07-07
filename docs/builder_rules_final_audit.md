@@ -20,7 +20,7 @@ The static builder now has a one-to-one validation implementation for every rule
 2. Static wargear validation did not strictly separate unit-level wargear from model-level wargear.
 3. Static default model wargear did not use the Python closest-valid-loadout normalization path.
 
-Old local rosters are intentionally not supported. The static client now uses `heretic-builder-local-v2`, and the active data model is:
+Old local rosters are intentionally not supported. The static client now uses `heretic-builder-thin-v1`, and the active data model is:
 
 - unit-level wargear: `unit.wargear`
 - model-level wargear: `unit.miniatures[].wargear`
@@ -43,7 +43,7 @@ Static implementation:
 - Shared model/rule helpers: `HereticBuilder/static/builder_model.js:10-638`
 - Loadout math shared by defaults and validator: `HereticBuilder/static/builder_loadout_math.js:3-231`
 - Rule modules: `HereticBuilder/static/builder_*_rules.js`
-- Local storage schema boundary: `HereticBuilder/static/builder_storage.js:3-57`
+- Local storage schema boundary: `HereticBuilder/static/builder_storage_db.js:3-47`
 
 DB audit result:
 
@@ -289,7 +289,7 @@ Every table used by the Python validation path is exported and loaded by the sta
 
 The validation engine is implemented ahead of parts of the visible editor surface. Allied unit source selection is present in the roster editor; some rules can only be exercised once UI controls are added for Warlord, allegiance ability choices, attachments, and enhancements. This is not a validation gap: the data shape and validator already support those selections.
 
-The static app does not export or read server roster tables. User roster data is stored locally in IndexedDB. Old local roster data is intentionally abandoned by the `heretic-builder-local-v2` store name.
+The static app does not export or read server roster tables. User roster data is stored locally in IndexedDB. Old local roster data is intentionally abandoned by the `heretic-builder-thin-v1` store name.
 
 Combat Patrol units remain filtered out of the normal datasheet picker, while Combat Patrol validation rules remain implemented because catalog data can still contain Combat Patrol detachments and enhancements.
 

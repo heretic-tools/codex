@@ -5,7 +5,7 @@ const LEGACY_MINIATURE_FIELDS = ["enhancementIds"];
 function requireNoLegacyFields(row, fieldNames, label) {
   const found = fieldNames.filter((fieldName) => Object.hasOwn(row || {}, fieldName));
   if (found.length) {
-    throw new Error(`${label} uses legacy roster fields: ${found.join(", ")}`);
+    throw new Error(`Old roster format is not supported: ${label} contains ${found.join(", ")}.`);
   }
 }
 

@@ -179,7 +179,7 @@ test("Builder roster import rejects unsupported or invalid files", () => {
     factionKeywordId: "faction-1",
     battleSizeId: "size-1",
     attachedUnits: [],
-  }], 879)), /legacy roster fields: attachedUnits/);
+  }], 879)), /Old roster format is not supported: Roster contains attachedUnits/);
   assert.throws(() => parseImportedRosters(serializeRosters([{
     id: "roster-1",
     factionKeywordId: "faction-1",
@@ -190,7 +190,7 @@ test("Builder roster import rejects unsupported or invalid files", () => {
       compositionId: "composition-1",
       enhancementIds: [],
     }],
-  }], 879)), /legacy roster fields: enhancementIds/);
+  }], 879)), /Old roster format is not supported: Roster unit contains enhancementIds/);
   assert.throws(() => parseImportedRosters(serializeRosters([{
     id: "roster-1",
     factionKeywordId: "faction-1",
@@ -204,5 +204,5 @@ test("Builder roster import rejects unsupported or invalid files", () => {
         enhancementIds: [],
       }],
     }],
-  }], 879)), /legacy roster fields: enhancementIds/);
+  }], 879)), /Old roster format is not supported: Roster miniature contains enhancementIds/);
 });
