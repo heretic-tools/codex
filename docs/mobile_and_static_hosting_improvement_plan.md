@@ -51,6 +51,9 @@ actionable validation-поверхности. Transfer/import pipeline боль�
 unsupported и продолжают reject-иться с понятной ошибкой.
 Validation action routing теперь отдаёт attached-unit diagnostics приоритет
 attachment row/editor, даже если сообщение одновременно содержит `unitId`.
+Mobile sticky summary actions используют adaptive `auto-fit` сетку вместо
+фиксированных четырёх колонок, чтобы unit detail с пятью shortcuts не ломал
+нижнюю панель.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
