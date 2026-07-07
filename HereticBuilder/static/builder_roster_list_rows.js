@@ -132,7 +132,14 @@ function rosterPointsMeter(summary) {
 }
 
 function rosterActionButton(text, roster, onClick) {
-  const node = button("roster-action-button", text, () => onClick(roster));
+  const node = button("roster-action-button", text, async (event) => {
+    event?.stopPropagation?.();
+    const menu = node.closest?.(".roster-actions-menu");
+    if (menu) {
+      menu.open = false;
+    }
+    await onClick(roster);
+  });
   const label = rosterActionLabel(roster, text);
   node.title = label;
   node.setAttribute("aria-label", label);

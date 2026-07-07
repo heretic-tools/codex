@@ -39,6 +39,10 @@ progress по очкам и дату обновления в строки рос
 юниты по ролям `Character` / `Battleline` / `Dedicated Transport` / `Other`,
 добавил действие `Duplicate Roster` на overview экране с пересчетом локального
 validation cache, а undo/status toast actions получили явные accessible labels.
+Следующий короткий срез закрепил корректное поведение roster list quick-actions:
+`Delete Roster` из меню `...` удаляет запись из IndexedDB и сразу
+перерисовывает текущий `#/` список без reload/hashchange, а non-navigation
+actions вроде `Export Text` закрывают popover-меню после клика.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

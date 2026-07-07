@@ -28,6 +28,9 @@ function createMockElement(tagName) {
     className: "",
     disabled: false,
     hidden: false,
+    listeners: new Map(),
+    open: false,
+    parentNode: null,
     tagName,
     textContent: "",
     title: "",
@@ -39,11 +42,25 @@ function createMockElement(tagName) {
       }
     },
     appendChild(node) {
+      node.parentNode = this;
       this.children.push(node);
       this.textContent += node.textContent || "";
       return node;
     },
-    addEventListener() {},
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    closest(selector) {
+      const className = selector.startsWith(".") ? selector.slice(1) : selector;
+      let node = this;
+      while (node) {
+        if (String(node.className || "").split(/\s+/).includes(className)) {
+          return node;
+        }
+        node = node.parentNode;
+      }
+      return null;
+    },
     setAttribute(name, value) {
       this.attributes.set(name, String(value));
     },
@@ -160,7 +177,7 @@ test("roster row renders polished validation and points labels", () => {
   }
 });
 
-test("roster list item keeps quick actions outside the open-row button", () => {
+test("roster list item keeps quick actions outside the open-row button", async () => {
   const previousDocument = global.document;
   global.document = {
     createElement: createMockElement,
@@ -204,6 +221,18 @@ test("roster list item keeps quick actions outside the open-row button", () => {
     assert.equal(item.children[1].children[1].children[3].textContent, "Export Text");
     assert.equal(item.children[1].children[1].children[4].textContent, "Delete Roster");
     assert.equal(item.children[0].children.some((child) => child.className === "roster-actions-menu"), false);
+
+    item.children[1].open = true;
+    const event = {
+      stopped: false,
+      stopPropagation() {
+        this.stopped = true;
+      },
+    };
+    await item.children[1].children[1].children[3].listeners.get("click")(event);
+    assert.deepEqual(calls, ["exportText"]);
+    assert.equal(event.stopped, true);
+    assert.equal(item.children[1].open, false);
   } finally {
     global.document = previousDocument;
   }
