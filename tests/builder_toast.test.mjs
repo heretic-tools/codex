@@ -96,8 +96,16 @@ test("status toast renders a non-blocking message without an action", () => {
     assert.equal(body.children[0], toast);
     assert.equal(toast.className, "builder-toast status-toast tone-error");
     assert.equal(toast.attributes.get("role"), "alert");
-    assert.equal(toast.children.length, 1);
+    assert.equal(toast.children.length, 2);
     assert.equal(toast.children[0].textContent, "Import failed");
+    assert.equal(toast.children[1].className, "remove-button toast-dismiss");
+    assert.equal(toast.children[1].textContent, "x");
+    assert.equal(toast.children[1].title, "Dismiss message");
+    assert.equal(toast.children[1].attributes.get("aria-label"), "Dismiss message");
+
+    toast.children[1].events.get("click")();
+
+    assert.equal(toast.removed, true);
   } finally {
     dismissToast();
     global.document = previousDocument;

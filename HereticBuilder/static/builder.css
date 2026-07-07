@@ -1561,6 +1561,10 @@
   padding: 5px 10px;
 }
 
+.toast-dismiss {
+  flex: none;
+}
+
 @media (max-width: 760px) {
   .builder-panel-content {
     padding: 12px;
@@ -1713,6 +1717,7 @@
   .search-clear-button,
   .roster-sticky-summary-action,
   .toast-action,
+  .toast-dismiss,
   .wargear-count-button {
     min-width: 44px;
     min-height: 44px;
