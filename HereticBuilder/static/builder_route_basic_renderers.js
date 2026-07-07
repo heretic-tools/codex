@@ -22,7 +22,7 @@ async function renderList(render) {
   const { renderRosterListView } = await loadListView();
   el.root.appendChild(renderRosterListView({
     onCreate: () => navigate("/new"),
-    onDelete: deleteRoster,
+    onDelete: (roster) => deleteRoster(roster, render),
     onDuplicate: duplicateRoster,
     onExport: exportRosters,
     onExportRoster: exportRoster,

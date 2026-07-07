@@ -27,10 +27,25 @@ async function createRoster(values) {
   navigate(`/roster/${encodeURIComponent(roster.id)}`);
 }
 
-async function deleteRoster(roster) {
+function shouldRenderAfterDelete(roster) {
+  const rosterId = roster?.id;
+  if (!rosterId) {
+    return false;
+  }
+  if (state.route.name === "roster" || state.route.name === "unit") {
+    return state.route.rosterId !== rosterId;
+  }
+  return state.route.name === "list";
+}
+
+async function deleteRoster(roster, render = null) {
   await removeRoster(roster.id);
   await refreshRosters();
-  navigate("/");
+  if (render && shouldRenderAfterDelete(roster)) {
+    await render();
+  } else {
+    navigate("/");
+  }
   const { showUndoToast } = await import("./builder_toast.js");
   showUndoToast({
     message: `${roster.name || "Roster"} deleted`,
@@ -68,5 +83,6 @@ export {
   deleteRoster,
   duplicateRoster,
   restoreRoster,
+  shouldRenderAfterDelete,
   updateRoster,
 };
