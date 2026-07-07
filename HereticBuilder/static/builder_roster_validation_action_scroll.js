@@ -36,10 +36,21 @@ function scrollToUnitSearch(query = "") {
   scrollToElement(unitSection);
 }
 
+function expandDisclosure(node) {
+  const disclosure = node.matches?.("details:not([open])")
+    ? node
+    : node.querySelector?.("details:not([open])");
+  if (disclosure) {
+    disclosure.open = true;
+  }
+  return disclosure || null;
+}
+
 function scrollToElement(node) {
   if (!node) {
     return;
   }
+  expandDisclosure(node);
   const focusTarget = node.querySelector("[data-focus-target]")
     || (node.matches("button, input, select, textarea, a")
       ? node
@@ -52,6 +63,7 @@ function scrollToElement(node) {
 }
 
 export {
+  expandDisclosure,
   scrollToEditorRow,
   scrollToEditorTarget,
   scrollToUnitSearch,

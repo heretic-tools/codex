@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 const {
+  expandDisclosure,
   scrollToEditorTarget,
   triggerEditorTargetPrimaryAction,
 } = await import("../HereticBuilder/static/builder_roster_validation_action_scroll.js");
@@ -71,6 +72,68 @@ test("editor target jumps center the first focusable control", () => {
       ["add", "is-attention-target"],
       ["remove", "is-attention-target"],
     ]);
+  } finally {
+    global.document = previousDocument;
+    global.window = previousWindow;
+    global.CSS = previousCss;
+  }
+});
+
+test("editor target jump opens collapsed disclosure before focusing controls", () => {
+  const previousDocument = global.document;
+  const previousWindow = global.window;
+  const previousCss = global.CSS;
+  const calls = [];
+  const classList = fakeClassList();
+  const disclosure = { open: false };
+  const select = {
+    focus(options) {
+      calls.push(["focus", options]);
+    },
+    scrollIntoView(options) {
+      calls.push(["select-scroll", options]);
+    },
+  };
+  const section = {
+    classList,
+    matches() {
+      return false;
+    },
+    querySelector(selector) {
+      if (selector === "details:not([open])") {
+        return disclosure.open ? null : disclosure;
+      }
+      if (selector === "button, input, select, textarea, a") {
+        return disclosure.open ? select : null;
+      }
+      return null;
+    },
+  };
+
+  global.CSS = { escape: (value) => value };
+  global.window = {
+    CSS: global.CSS,
+    setTimeout(handler) {
+      calls.push(["timeout", 900]);
+      handler();
+    },
+  };
+  global.document = {
+    querySelector(selector) {
+      return selector === '[data-editor-target="attachments"]' ? section : null;
+    },
+  };
+
+  try {
+    assert.equal(expandDisclosure(section), disclosure);
+    assert.equal(disclosure.open, true);
+    disclosure.open = false;
+
+    scrollToEditorTarget("attachments");
+
+    assert.equal(disclosure.open, true);
+    assert.deepEqual(calls[0], ["select-scroll", { behavior: "smooth", block: "center" }]);
+    assert.deepEqual(calls[1], ["focus", { preventScroll: true }]);
   } finally {
     global.document = previousDocument;
     global.window = previousWindow;
