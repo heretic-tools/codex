@@ -22,12 +22,20 @@ function updateWargearCountFromEditor(roster, unit, target, optionRow, count, on
   });
 }
 
+function wargearControlLabel(label, group) {
+  const context = String(group?.instructionText || "").replace(/\s+/g, " ").trim();
+  if (!context || context === label) {
+    return label;
+  }
+  return `${label} - ${context}`;
+}
+
 function renderWargearOption({ group, label, onUndoableUpdate = null, onUpdate, optionRow, roster, target, unit }) {
   const row = document.createElement("div");
   row.className = "wargear-option-row";
   row.append(textNode("span", "", label));
   row.appendChild(countControl({
-    label,
+    label: wargearControlLabel(label, group),
     optionRow,
     target,
     onChange: async (count) => updateWargearCountFromEditor(
@@ -68,5 +76,6 @@ function renderWargearGroup({ group, onUndoableUpdate = null, onUpdate, roster, 
 export {
   renderWargearGroup,
   updateWargearCountFromEditor,
+  wargearControlLabel,
   wargearChangeMessage,
 };

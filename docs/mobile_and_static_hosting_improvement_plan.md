@@ -57,6 +57,9 @@ Mobile sticky summary actions используют adaptive `auto-fit` сетк�
 Roster-level Warlord picker теперь скрывается, если в текущем ростере нет
 ни одного выбираемого Warlord target, а `Pick one Warlord` ведёт к Units,
 когда пользователю сначала нужно добавить подходящий Character.
+Unit detail wargear controls получили контекстные accessible labels, чтобы
+одинаковые visible названия вроде `Power fist` в разных choice groups не
+сливались для клавиатурной/assistive-навигации.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

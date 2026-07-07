@@ -29,6 +29,7 @@ import {
 } from "../HereticBuilder/static/builder_roster_unit_overview_view.js";
 import {
   updateWargearCountFromEditor,
+  wargearControlLabel,
 } from "../HereticBuilder/static/builder_roster_unit_wargear_options_view.js";
 import {
   countControl,
@@ -261,6 +262,19 @@ test("unit wargear count control exposes a mobile stepper", async () => {
   } finally {
     global.document = previousDocument;
   }
+});
+
+test("unit wargear controls include group context in accessible labels", () => {
+  assert.equal(
+    wargearControlLabel("Power fist", { instructionText: "This model's close combat weapon can be replaced." }),
+    "Power fist - This model's close combat weapon can be replaced."
+  );
+  assert.equal(
+    wargearControlLabel("Power fist", { instructionText: "  This model's\nclose combat weapon   can be replaced. " }),
+    "Power fist - This model's close combat weapon can be replaced."
+  );
+  assert.equal(wargearControlLabel("Power fist", { instructionText: "Power fist" }), "Power fist");
+  assert.equal(wargearControlLabel("Power fist", {}), "Power fist");
 });
 
 test("unit composition editor hides read-only value when only one valid composition is available", () => {
