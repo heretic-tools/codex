@@ -48,6 +48,7 @@ function unitHasWargearControls(unit) {
 function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, unit, validation, validationContext }) {
   const overview = document.createElement("section");
   overview.className = "builder-section unit-overview-card";
+  overview.dataset.unitDetailTarget = "overview";
   const image = unitImageNode(unit.datasheetId, "unit-detail-art-frame");
   if (image) {
     overview.appendChild(image);

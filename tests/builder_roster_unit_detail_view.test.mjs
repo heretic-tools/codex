@@ -4,6 +4,7 @@ import test from "node:test";
 global.document = { querySelector: () => null };
 
 const {
+  unitDetailStickyActionDescriptors,
   unitValidationActionTarget,
   validationHasMessages,
   validationWithoutMessages,
@@ -61,6 +62,25 @@ test("unit validation actions route diagnostics to unit detail editors", () => {
   for (const [code, expected] of cases) {
     assert.deepEqual(unitValidationActionTarget({ code }), expected, code);
   }
+});
+
+test("unit detail sticky actions expose only available local sections", () => {
+  assert.deepEqual(
+    unitDetailStickyActionDescriptors({ hasEnhancements: true, hasValidation: true, hasWargear: true }),
+    [
+      { ariaLabel: "Review unit issues", label: "Issues", target: "validation" },
+      { ariaLabel: "Review unit profile", label: "Unit", target: "overview" },
+      { ariaLabel: "Edit unit wargear", label: "Wargear", target: "wargear" },
+      { ariaLabel: "Edit unit upgrades", label: "Upgrades", target: "enhancements" },
+    ]
+  );
+
+  assert.deepEqual(
+    unitDetailStickyActionDescriptors({ hasWargear: false }),
+    [
+      { ariaLabel: "Review unit profile", label: "Unit", target: "overview" },
+    ]
+  );
 });
 
 test("unit validation actions ignore diagnostics without a local editor", () => {

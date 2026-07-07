@@ -1532,6 +1532,10 @@
     padding-bottom: calc(134px + env(safe-area-inset-bottom));
   }
 
+  .builder-panel-content:has(.unit-detail-grid .roster-sticky-summary.has-actions) {
+    padding-bottom: calc(184px + env(safe-area-inset-bottom));
+  }
+
   .builder-grid,
   .builder-row,
   .builder-transfer-row,

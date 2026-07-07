@@ -53,7 +53,11 @@ function appendRosterMetrics(metrics, roster, validation) {
 
 function renderRosterStickySummary({ actions = [], roster, validation }) {
   const summary = document.createElement("aside");
-  summary.className = `roster-sticky-summary has-validation-${rosterOverviewStateClass(validation)}`;
+  summary.className = [
+    "roster-sticky-summary",
+    `has-validation-${rosterOverviewStateClass(validation)}`,
+    actions.length ? "has-actions" : "",
+  ].filter(Boolean).join(" ");
   const metrics = document.createElement("div");
   metrics.className = "roster-sticky-summary-metrics";
   appendRosterMetrics(metrics, roster, validation);
@@ -73,12 +77,13 @@ function renderStickySummaryActions(actions = []) {
   const wrap = document.createElement("div");
   wrap.className = "roster-sticky-summary-actions";
   actions.forEach((action) => {
-    const handler = action.primary
+    const handler = action.onClick
+      || (action.primary
       ? () => triggerEditorTargetPrimaryAction(action.target)
-      : () => scrollToEditorTarget(action.target);
+      : () => scrollToEditorTarget(action.target));
     const node = button("roster-sticky-summary-action", action.label, handler);
     node.dataset.summaryTarget = action.target;
-    node.dataset.summaryAction = action.primary ? "primary" : "scroll";
+    node.dataset.summaryAction = action.action || (action.primary ? "primary" : "scroll");
     node.setAttribute("aria-label", action.ariaLabel || `Go to ${action.label}`);
     wrap.appendChild(node);
   });

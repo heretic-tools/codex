@@ -116,10 +116,20 @@ test("roster sticky summary can expose mobile section jump actions", () => {
   };
 
   try {
+    let customActionClicked = false;
     const summary = renderRosterStickySummary({
       actions: [
         { ariaLabel: "Review roster issues", label: "Issues", target: "validation" },
         { ariaLabel: "Add unit", label: "+ Unit", primary: true, target: "units" },
+        {
+          action: "unit-detail",
+          ariaLabel: "Edit unit wargear",
+          label: "Wargear",
+          onClick: () => {
+            customActionClicked = true;
+          },
+          target: "wargear",
+        },
       ],
       roster: { units: [] },
       validation: {
@@ -135,8 +145,9 @@ test("roster sticky summary can expose mobile section jump actions", () => {
     });
 
     const actions = summary.children[2];
+    assert.equal(summary.className, "roster-sticky-summary has-validation-ok has-actions");
     assert.equal(actions.className, "roster-sticky-summary-actions");
-    assert.equal(actions.children.length, 2);
+    assert.equal(actions.children.length, 3);
     assert.equal(actions.children[0].className, "roster-sticky-summary-action");
     assert.equal(actions.children[0].textContent, "Issues");
     assert.equal(actions.children[0].dataset.summaryTarget, "validation");
@@ -146,6 +157,12 @@ test("roster sticky summary can expose mobile section jump actions", () => {
     assert.equal(actions.children[1].dataset.summaryTarget, "units");
     assert.equal(actions.children[1].dataset.summaryAction, "primary");
     assert.equal(actions.children[1].attributes.get("aria-label"), "Add unit");
+    assert.equal(actions.children[2].textContent, "Wargear");
+    assert.equal(actions.children[2].dataset.summaryTarget, "wargear");
+    assert.equal(actions.children[2].dataset.summaryAction, "unit-detail");
+    assert.equal(actions.children[2].attributes.get("aria-label"), "Edit unit wargear");
+    actions.children[2].listeners.get("click")();
+    assert.equal(customActionClicked, true);
   } finally {
     global.document = previousDocument;
   }
