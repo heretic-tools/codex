@@ -30,6 +30,7 @@ import {
 import {
   updateWargearCountFromEditor,
   wargearControlLabel,
+  wargearGroupTitle,
 } from "../HereticBuilder/static/builder_roster_unit_wargear_options_view.js";
 import {
   countControl,
@@ -275,6 +276,19 @@ test("unit wargear controls include group context in accessible labels", () => {
   );
   assert.equal(wargearControlLabel("Power fist", { instructionText: "Power fist" }), "Power fist");
   assert.equal(wargearControlLabel("Power fist", {}), "Power fist");
+});
+
+test("unit wargear group headings stay compact while instructions remain separate", () => {
+  assert.equal(wargearGroupTitle({ instructionText: "Default Wargear" }, 0), "Default Wargear");
+  assert.equal(
+    wargearGroupTitle({ instructionText: "This model's close combat weapon can be replaced." }, 0),
+    "Choice 1"
+  );
+  assert.equal(
+    wargearGroupTitle({ instructionText: "This model's bolt pistol can be replaced." }, 2),
+    "Choice 3"
+  );
+  assert.equal(wargearGroupTitle({}, 0), "Wargear");
 });
 
 test("unit composition editor hides read-only value when only one valid composition is available", () => {

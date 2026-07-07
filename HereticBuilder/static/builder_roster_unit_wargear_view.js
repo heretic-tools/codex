@@ -24,9 +24,12 @@ function renderScope({ groups, heading, onUndoableUpdate = null, onUpdate, roste
     wrap.appendChild(textNode("p", "empty-list", "No wargear options"));
     return wrap;
   }
-  for (const group of groups) {
-    wrap.appendChild(renderWargearGroup({ group, onUndoableUpdate, onUpdate, roster, target, unit }));
-  }
+  let choiceIndex = 0;
+  groups.forEach((group, groupIndex) => {
+    const instruction = String(group?.instructionText || "").replace(/\s+/g, " ").trim().toLowerCase();
+    const displayIndex = instruction === "default wargear" ? groupIndex : choiceIndex++;
+    wrap.appendChild(renderWargearGroup({ group, groupIndex: displayIndex, onUndoableUpdate, onUpdate, roster, target, unit }));
+  });
   return wrap;
 }
 

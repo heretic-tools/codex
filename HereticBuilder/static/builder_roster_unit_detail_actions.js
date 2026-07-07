@@ -32,7 +32,7 @@ function renderRosterTargetActionFromUnitDetail(group, roster) {
   if (!roster?.id) {
     return null;
   }
-  const action = rosterValidationActionTarget(group);
+  const action = rosterValidationActionTarget(group, { roster });
   if (action?.kind === "target" && action.target === "detachments") {
     return validationActionLink(action, group, rosterFocusHref(roster.id, action.target));
   }
@@ -88,10 +88,29 @@ function validationActionLink(action, group, href, context = {}) {
   return labelValidationAction(node, validationActionLabel(action, group, context));
 }
 
-function renderRosterValidationActionLink(group, { datasheetById = new Map(), roster, unitById = new Map() } = {}) {
-  const action = rosterValidationActionTarget(group);
+function localValidationActionButton(action, group, localTargets = new Set()) {
+  if (action?.kind !== "target" || !localTargets.has(action.target)) {
+    return null;
+  }
+  return labelValidationAction(
+    button("validation-action-button", action.text, () => scrollToUnitDetailTarget(action.target)),
+    validationActionLabel(action, group)
+  );
+}
+
+function renderRosterValidationActionLink(group, {
+  datasheetById = new Map(),
+  localTargets = new Set(),
+  roster,
+  unitById = new Map(),
+} = {}) {
+  const action = rosterValidationActionTarget(group, { roster });
   if (!action || !roster?.id) {
     return null;
+  }
+  const localAction = localValidationActionButton(action, group, localTargets);
+  if (localAction) {
+    return localAction;
   }
   if (action.kind === "unit") {
     const unit = unitById.get(action.unitId);

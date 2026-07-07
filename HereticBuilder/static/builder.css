@@ -744,6 +744,19 @@
   line-height: 1.1;
 }
 
+.wargear-group-instruction {
+  margin: -2px 0 0;
+  padding: 6px 7px;
+  color: var(--builder-muted);
+  background: var(--builder-panel);
+  border: 2px solid var(--builder-light);
+  border-right-color: var(--builder-shadow);
+  border-bottom-color: var(--builder-shadow);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 .wargear-option-row {
   min-height: 34px;
   display: grid;
@@ -1628,6 +1641,7 @@
 .metric-line,
 .validation-item,
 .wargear-group-title,
+.wargear-group-instruction,
 .wargear-option-row {
   background: var(--builder-paper);
   border: 1px solid var(--builder-border);
@@ -1653,6 +1667,10 @@
 }
 
 .wargear-option-row {
+  margin-top: 0;
+}
+
+.wargear-group-instruction {
   margin-top: 0;
 }
 

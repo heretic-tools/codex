@@ -73,6 +73,11 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
     validation: unitValidation,
     validationContext,
   });
+  const overviewTargets = new Set(
+    Array.from(overview.querySelectorAll("[data-unit-detail-target]"))
+      .map((node) => node.dataset.unitDetailTarget)
+      .filter(Boolean)
+  );
   const wargear = renderRosterUnitWargearSection({
     onUndoableUpdate,
     onUpdate,
@@ -99,6 +104,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
       context: validationContext,
       groupAction: (group) => renderRosterValidationActionLink(group, {
         datasheetById: state.catalog.datasheetById,
+        localTargets: overviewTargets,
         roster,
         unitById,
       }),

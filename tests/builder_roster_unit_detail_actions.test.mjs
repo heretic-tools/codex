@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+global.document = {
+  querySelector: () => null,
+};
+
 const {
   renderUnitValidationAction,
   renderRosterValidationActionLink,
@@ -20,6 +24,24 @@ function fakeClassList() {
     },
     remove(name) {
       calls.push(["remove", name]);
+    },
+  };
+}
+
+function fakeActionElement(tagName) {
+  return {
+    attributes: new Map(),
+    className: "",
+    href: "",
+    listeners: new Map(),
+    tagName,
+    textContent: "",
+    type: "",
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
     },
   };
 }
@@ -144,16 +166,7 @@ test("unit detail roster issue links point back to roster editor targets", () =>
   const previousDocument = global.document;
   global.document = {
     createElement(tagName) {
-      return {
-        attributes: new Map(),
-        className: "",
-        href: "",
-        tagName,
-        textContent: "",
-        setAttribute(name, value) {
-          this.attributes.set(name, String(value));
-        },
-      };
+      return fakeActionElement(tagName);
     },
   };
 
@@ -225,20 +238,73 @@ test("unit detail roster issue links point back to roster editor targets", () =>
   }
 });
 
+test("unit detail roster issue actions can focus local editor targets", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement(tagName) {
+      return fakeActionElement(tagName);
+    },
+  };
+
+  try {
+    const action = renderRosterValidationActionLink({
+      attachmentIds: [],
+      code: "roster.detachment_not_selected",
+      detachmentIds: [],
+      texts: ["Pick a detachment."],
+      unitIds: [],
+    }, {
+      localTargets: new Set(["detachments"]),
+      roster: { id: "roster 1" },
+      unitById: new Map(),
+    });
+
+    assert.equal(action.tagName, "button");
+    assert.equal(action.type, "button");
+    assert.equal(action.className, "validation-action-button");
+    assert.equal(action.textContent, "Detachments");
+    assert.equal(action.title, "Detachments: Pick a detachment.");
+    assert.equal(action.attributes.get("aria-label"), action.title);
+    assert.equal(typeof action.listeners.get("click"), "function");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit detail roster issue actions pass roster context to target resolver", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement(tagName) {
+      return fakeActionElement(tagName);
+    },
+  };
+
+  try {
+    const action = renderRosterValidationActionLink({
+      attachmentIds: [],
+      code: "mandatory_warlord.not_selected",
+      detachmentIds: [],
+      texts: ["Pick one Warlord."],
+      unitIds: [],
+    }, {
+      roster: { id: "roster 1", units: [] },
+      unitById: new Map(),
+    });
+
+    assert.equal(action.tagName, "a");
+    assert.equal(action.textContent, "Units");
+    assert.equal(action.href, "#/roster/roster%201/focus/units");
+    assert.equal(action.title, "Units: Pick one Warlord.");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
 test("unit detail detachment requirement actions link back to roster detachments", () => {
   const previousDocument = global.document;
   global.document = {
     createElement(tagName) {
-      return {
-        attributes: new Map(),
-        className: "",
-        href: "",
-        tagName,
-        textContent: "",
-        setAttribute(name, value) {
-          this.attributes.set(name, String(value));
-        },
-      };
+      return fakeActionElement(tagName);
     },
   };
 

@@ -30,6 +30,17 @@ function wargearControlLabel(label, group) {
   return `${label} - ${context}`;
 }
 
+function wargearGroupTitle(group, index = 0) {
+  const instruction = String(group?.instructionText || "").replace(/\s+/g, " ").trim();
+  if (!instruction) {
+    return "Wargear";
+  }
+  if (instruction.toLowerCase() === "default wargear") {
+    return "Default Wargear";
+  }
+  return `Choice ${index + 1}`;
+}
+
 function renderWargearOption({ group, label, onUndoableUpdate = null, onUpdate, optionRow, roster, target, unit }) {
   const row = document.createElement("div");
   row.className = "wargear-option-row";
@@ -54,10 +65,15 @@ function renderWargearOption({ group, label, onUndoableUpdate = null, onUpdate, 
   return row;
 }
 
-function renderWargearGroup({ group, onUndoableUpdate = null, onUpdate, roster, target, unit }) {
+function renderWargearGroup({ group, groupIndex = 0, onUndoableUpdate = null, onUpdate, roster, target, unit }) {
   const wrap = document.createElement("div");
   wrap.className = "wargear-group";
-  wrap.appendChild(textNode("h3", "wargear-group-title", group.instructionText || "Wargear"));
+  const title = wargearGroupTitle(group, groupIndex);
+  const instruction = String(group.instructionText || "").replace(/\s+/g, " ").trim();
+  wrap.appendChild(textNode("h3", "wargear-group-title", title));
+  if (instruction && instruction !== title) {
+    wrap.appendChild(textNode("p", "wargear-group-instruction", instruction));
+  }
   for (const row of wargearOptionRowsForGroup(group)) {
     wrap.appendChild(renderWargearOption({
       group,
@@ -77,5 +93,6 @@ export {
   renderWargearGroup,
   updateWargearCountFromEditor,
   wargearControlLabel,
+  wargearGroupTitle,
   wargearChangeMessage,
 };

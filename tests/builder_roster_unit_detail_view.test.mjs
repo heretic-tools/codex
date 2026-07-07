@@ -48,6 +48,10 @@ function createMockElement(tagName) {
   };
 }
 
+function flatNodes(node) {
+  return [node, ...(node.children || []).flatMap((child) => flatNodes(child))];
+}
+
 test("unit validation actions route diagnostics to unit detail editors", () => {
   const cases = [
     ["wargear_loadout.invalid_model_wargear", { target: "wargear", text: "Wargear" }],
@@ -258,6 +262,51 @@ test("unit wargear renderer uses flat sections without nested builder-section ca
     assert.equal(section.dataset.unitDetailTarget, "wargear");
     assert.ok(section.textContent.includes("Model (1 model)"));
     assert.equal(scope.className, "wargear-scope");
+  } finally {
+    global.document = previousDocument;
+    state.catalog = previousCatalog;
+  }
+});
+
+test("unit wargear scope numbers choice headings after default wargear", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+    querySelector: () => null,
+  };
+  const previousCatalog = state.catalog;
+  state.catalog = {
+    ...previousCatalog,
+    wargearOptionsByGroupId: new Map(),
+  };
+
+  try {
+    const scope = renderWargearScope({
+      groups: [
+        { id: "default", instructionText: "Default Wargear" },
+        { id: "choice-1", instructionText: "This model's bolt pistol can be replaced." },
+        { id: "choice-2", instructionText: "This model's close combat weapon can be replaced." },
+      ],
+      heading: "Unit Wargear",
+      roster: {},
+      target: {},
+      unit: { datasheetId: "datasheet-1" },
+      validation: { messages: [] },
+      validationContext: {},
+    });
+    const nodes = flatNodes(scope);
+    const headings = nodes
+      .filter((node) => node.className === "wargear-group-title")
+      .map((node) => node.textContent);
+    const instructions = nodes
+      .filter((node) => node.className === "wargear-group-instruction")
+      .map((node) => node.textContent);
+
+    assert.deepEqual(headings, ["Default Wargear", "Choice 1", "Choice 2"]);
+    assert.deepEqual(instructions, [
+      "This model's bolt pistol can be replaced.",
+      "This model's close combat weapon can be replaced.",
+    ]);
   } finally {
     global.document = previousDocument;
     state.catalog = previousCatalog;

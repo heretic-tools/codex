@@ -60,6 +60,14 @@ Roster-level Warlord picker теперь скрывается, если в те�
 Unit detail wargear controls получили контекстные accessible labels, чтобы
 одинаковые visible названия вроде `Power fist` в разных choice groups не
 сливались для клавиатурной/assistive-навигации.
+Unit-detail roster issues теперь используют локальный Warlord control, когда
+он уже есть на странице юнита: `Pick one Warlord` фокусит select на месте,
+а detachment/unit-level issues по-прежнему ведут deep-link назад в roster
+editor.
+Unit-detail Wargear перестал использовать длинные instruction-абзацы как
+семантические заголовки: группы рендерят компактные `Default Wargear` /
+`Choice N` headings, сохраняя полный текст правила отдельной строкой внутри
+группы.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
