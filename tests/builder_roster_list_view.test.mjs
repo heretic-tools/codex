@@ -79,6 +79,18 @@ test("roster list pluralizes detachment counts", () => {
 test("roster row open label names the row action", () => {
   assert.equal(rosterOpenLabel({ name: "Black Crusade" }), "Open roster: Black Crusade");
   assert.equal(rosterOpenLabel({}), "Open roster: New Roster");
+  assert.equal(
+    rosterOpenLabel({ name: "Black Crusade" }, {
+      battleSizeName: "Strike Force",
+      detachmentCount: 1,
+      factionName: "Heretic Astartes",
+      pointsLimit: 2000,
+      pointsTotal: 285,
+      unitCount: 2,
+      validationState: "valid",
+    }),
+    "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units"
+  );
 });
 
 test("roster row renders polished validation and points labels", () => {
@@ -100,8 +112,8 @@ test("roster row renders polished validation and points labels", () => {
     }));
 
     assert.equal(row.className, "builder-row roster-row");
-    assert.equal(row.title, "Open roster: Black Crusade");
-    assert.equal(row.attributes.get("aria-label"), "Open roster: Black Crusade");
+    assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units");
+    assert.equal(row.attributes.get("aria-label"), row.title);
     assert.ok(row.textContent.includes("Black Crusade"));
     assert.ok(row.textContent.includes("Valid"));
     assert.ok(row.textContent.includes("285 / 2000"));

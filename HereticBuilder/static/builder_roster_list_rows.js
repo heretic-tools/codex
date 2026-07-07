@@ -38,8 +38,23 @@ function rosterDetachmentBadgeClass(disposition) {
   return slug ? `disposition-badge disposition-${slug}` : "meta-badge";
 }
 
-function rosterOpenLabel(roster) {
-  return `Open roster: ${roster.name || "New Roster"}`;
+function rosterOpenLabel(roster, summary = null) {
+  const name = roster.name || "New Roster";
+  if (!summary) {
+    return `Open roster: ${name}`;
+  }
+  const validationState = summary.validationState || "invalid";
+  const parts = [
+    name,
+    [summary.factionName, summary.battleSizeName].filter(Boolean).join(" / "),
+    rosterValidationBadgeLabel(validationState),
+    summary.pointsLimit !== undefined || summary.pointsTotal !== undefined
+      ? `${rosterPointsLabel(summary.pointsTotal || 0, summary.pointsLimit)} points`
+      : "",
+    rosterDetachmentCountLabel(summary.detachmentCount || 0),
+    rosterUnitCountLabel(summary.unitCount || 0),
+  ].filter(Boolean);
+  return `Open roster: ${parts.join(", ")}`;
 }
 
 function appendDetachmentBadges(parent, badges) {
@@ -56,7 +71,7 @@ function rosterLine(roster, onOpen, summarizeRoster) {
   const summary = summarizeRoster(roster);
   const validationState = summary.validationState || "invalid";
   const node = button("builder-row roster-row", "", () => onOpen(roster));
-  const openLabel = rosterOpenLabel(roster);
+  const openLabel = rosterOpenLabel(roster, summary);
   node.title = openLabel;
   node.setAttribute("aria-label", openLabel);
   const text = document.createElement("span");
