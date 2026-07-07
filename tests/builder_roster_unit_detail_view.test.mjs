@@ -19,6 +19,10 @@ const {
   renderWargearScope,
 } = await import("../HereticBuilder/static/builder_roster_unit_wargear_view.js");
 const {
+  renderRosterUnitOverview,
+  unitOverviewLabel,
+} = await import("../HereticBuilder/static/builder_roster_unit_overview_view.js");
+const {
   state,
 } = await import("./builder_validation_helpers.mjs");
 const {
@@ -27,6 +31,7 @@ const {
 
 function createMockElement(tagName) {
   return {
+    attributes: new Map(),
     children: [],
     className: "",
     dataset: {},
@@ -45,6 +50,9 @@ function createMockElement(tagName) {
     after() {},
     querySelector() {
       return null;
+    },
+    setAttribute(name, value) {
+      this.attributes.set(name, value);
     },
   };
 }
@@ -125,6 +133,56 @@ test("unit detail sticky action label follows the rendered upgrades section", ()
       { ariaLabel: "Edit unit enhancements & upgrades", label: "Upgrades", target: "enhancements" },
     ]
   );
+});
+
+test("unit overview exposes points and model count in its accessible label", () => {
+  const previousDocument = global.document;
+  const previousCatalog = state.catalog;
+  global.document = {
+    createElement: createMockElement,
+  };
+  state.catalog = {
+    allegianceAbilityGroupById: new Map(),
+    alliedFactionParentsByAlliedFactionId: new Map(),
+    compositionMiniaturesByCompositionId: new Map(),
+    compositionsByDatasheetId: new Map(),
+    datasheetById: new Map(),
+    detachmentById: new Map(),
+    factionById: new Map(),
+    factionKeywordById: new Map(),
+    requiredDetachmentsByCompositionId: new Map(),
+    requiredFactionKeywordsByCompositionId: new Map(),
+    unitImagesByDatasheetId: new Map(),
+    wargearGroupsByDatasheetId: new Map(),
+  };
+
+  try {
+    const unit = {
+      datasheetId: "chosen",
+      id: "unit-1",
+      modelCount: 5,
+      name: "Chosen",
+      points: 125,
+    };
+    const overview = renderRosterUnitOverview({
+      onUpdate: () => {},
+      roster: {
+        detachmentIds: [],
+        factionKeywordId: "heretic-astartes",
+        units: [],
+      },
+      unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    assert.equal(unitOverviewLabel(unit), "Unit overview: Chosen; Points 125; Models 5");
+    assert.equal(overview.attributes.get("aria-label"), "Unit overview: Chosen; Points 125; Models 5");
+    assert.equal(overview.children[0].className, "unit-overview-summary");
+  } finally {
+    state.catalog = previousCatalog;
+    global.document = previousDocument;
+  }
 });
 
 test("unit validation actions ignore diagnostics without a local editor", () => {

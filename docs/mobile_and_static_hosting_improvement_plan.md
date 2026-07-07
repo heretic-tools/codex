@@ -162,6 +162,8 @@ Attached Units `Add attached unit` disclosure синхронизирует `aria
 восстанавливает список доступных options, как inline `x`.
 Roster overview и sticky summary теперь включают Points/DP/Units в
 accessible label, а Rename/Duplicate/Delete называют конкретный ростер.
+Unit overview section получил accessible label с именем юнита, Points и
+Models, чтобы unit detail не начинался с безымянной панели.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

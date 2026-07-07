@@ -37,6 +37,10 @@ function unitOverviewMetric(label, value) {
   return metric;
 }
 
+function unitOverviewLabel(unit) {
+  return `Unit overview: ${unit.name || "Unit"}; Points ${unit.points || 0}; Models ${unit.modelCount || 0}`;
+}
+
 function unitCodexLink(roster, unit) {
   const href = datasheetCodexHref(roster, unit.datasheetId);
   if (!href) {
@@ -63,6 +67,7 @@ function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, u
   const overview = document.createElement("section");
   overview.className = "builder-section unit-overview-card";
   overview.dataset.unitDetailTarget = "overview";
+  overview.setAttribute("aria-label", unitOverviewLabel(unit));
   const image = unitImageNode(unit.datasheetId, "unit-detail-art-frame");
   if (image) {
     overview.appendChild(image);
@@ -115,5 +120,6 @@ export {
   unitCodexLink,
   unitDisplayName,
   unitHasWargearControls,
+  unitOverviewLabel,
   unitOverviewMetric,
 };
