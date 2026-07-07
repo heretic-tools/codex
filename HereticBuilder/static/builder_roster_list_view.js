@@ -16,7 +16,7 @@ function renderRosterListView({ onCreate, onExport, onImport, onOpen, rosters, s
       list.appendChild(rosterLine(roster, onOpen, summarizeRoster));
     }
   } else {
-    list.appendChild(textNode("p", "empty-list", "No rosters"));
+    list.appendChild(textNode("p", "empty-list", "No rosters yet"));
   }
   const transfer = document.createElement("div");
   transfer.className = "builder-transfer-row";

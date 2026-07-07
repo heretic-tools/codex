@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { rosterLine, rosterPointsLabel } from "../HereticBuilder/static/builder_roster_list_rows.js";
+import {
+  rosterLine,
+  rosterPointsLabel,
+  rosterUnitCountLabel,
+} from "../HereticBuilder/static/builder_roster_list_rows.js";
 import {
   renderRosterListView,
   rosterDetachmentBadgeClass,
@@ -58,6 +62,12 @@ test("roster list formats points consistently with roster detail", () => {
   assert.equal(rosterPointsLabel(80, null), "80");
 });
 
+test("roster list pluralizes unit counts", () => {
+  assert.equal(rosterUnitCountLabel(0), "0 units");
+  assert.equal(rosterUnitCountLabel(1), "1 unit");
+  assert.equal(rosterUnitCountLabel(2), "2 units");
+});
+
 test("roster row renders polished validation and points labels", () => {
   const previousDocument = global.document;
   global.document = {
@@ -102,6 +112,7 @@ test("roster list disables export while there are no local rosters", () => {
       summarizeRoster: () => ({}),
     });
     const emptyTransfer = empty.children[2];
+    assert.equal(empty.children[0].children[0].textContent, "No rosters yet");
     assert.equal(emptyTransfer.children[0].textContent, "Export Rosters");
     assert.equal(emptyTransfer.children[0].disabled, true);
     assert.equal(emptyTransfer.children[1].textContent, "Import Rosters");
