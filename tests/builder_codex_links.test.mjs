@@ -7,6 +7,7 @@ import {
   state,
 } from "./builder_validation_helpers.mjs";
 import {
+  datasheetCodexHref,
   detachmentCodexHref,
   factionCodexHref,
   slugifyName,
@@ -19,5 +20,9 @@ test("builder codex links mirror static codex slug routes", () => {
   assert.equal(
     detachmentCodexHref(factionNamed("Heretic Astartes").id, detachmentNamed("Pactbound Zealots").id),
     "/faction/heretic-astartes/detachment/pactbound-zealots"
+  );
+  assert.equal(
+    datasheetCodexHref(factionNamed("Heretic Astartes").id, realCatalog.datasheets.find((row) => row.name === "Abaddon the Despoiler").id),
+    "/faction/heretic-astartes/datasheet/abaddon-the-despoiler"
   );
 });

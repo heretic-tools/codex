@@ -354,6 +354,36 @@ test("unit overview shows reset action after wargear changes", () => {
 
     const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
     assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
+    assert.equal(buttons[0].title, "Reset wargear");
+    assert.equal(buttons[0].attributes.get("aria-label"), "Reset wargear");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit overview links to the Codex datasheet", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithWargearUnit();
+    const overview = renderRosterUnitOverview({
+      onUpdate: () => {},
+      roster,
+      unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    const links = flatNodes(overview).filter((node) => node.tagName === "a");
+    assert.equal(links.length, 1);
+    assert.equal(links[0].className, "plain-button");
+    assert.equal(links[0].textContent, "Codex");
+    assert.match(links[0].href, /^\/faction\/heretic-astartes\/datasheet\//);
+    assert.equal(links[0].title, `Open Codex datasheet: ${unit.name}`);
+    assert.equal(links[0].attributes.get("aria-label"), `Open Codex datasheet: ${unit.name}`);
   } finally {
     global.document = previousDocument;
   }

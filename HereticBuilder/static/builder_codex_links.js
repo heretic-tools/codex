@@ -1,4 +1,4 @@
-import { availableDetachments } from "./builder_model.js";
+import { availableDatasheets, availableDetachments, availableUnitSources } from "./builder_model.js";
 import { state } from "./builder_state.js";
 
 function slugifyName(value) {
@@ -40,4 +40,31 @@ function detachmentCodexHref(factionKeywordId, detachmentId) {
   return slug ? `${factionHref}/detachment/${slug}` : "";
 }
 
-export { detachmentCodexHref, factionCodexHref, scopedSlugMap, slugifyName };
+function datasheetsForFactionCodex(factionKeywordId) {
+  const roster = { detachmentIds: [], factionKeywordId };
+  return availableUnitSources(roster)
+    .flatMap((source) => availableDatasheets(roster, source.value)
+      .map((datasheet) => ({ ...datasheet, allyType: source.value })));
+}
+
+function datasheetCodexHref(rosterOrFactionKeywordId, datasheetId) {
+  const factionKeywordId = typeof rosterOrFactionKeywordId === "string"
+    ? rosterOrFactionKeywordId
+    : rosterOrFactionKeywordId?.factionKeywordId;
+  const factionHref = factionCodexHref(factionKeywordId);
+  const datasheet = state.catalog.datasheetById.get(datasheetId);
+  if (!factionHref || !datasheet) {
+    return "";
+  }
+  const datasheets = datasheetsForFactionCodex(factionKeywordId);
+  const slugById = scopedSlugMap(datasheets);
+  return `${factionHref}/datasheet/${slugById.get(datasheetId) || slugifyName(datasheet.name)}`;
+}
+
+export {
+  datasheetCodexHref,
+  detachmentCodexHref,
+  factionCodexHref,
+  scopedSlugMap,
+  slugifyName,
+};
