@@ -12,6 +12,7 @@ function renderRosterListView({
   onDelete,
   onDuplicate,
   onExport,
+  onExportRoster,
   onImport,
   onOpen,
   onRename,
@@ -27,6 +28,7 @@ function renderRosterListView({
       list.appendChild(rosterListItem(roster, onOpen, summarizeRoster, {
         onDelete,
         onDuplicate,
+        onExport: onExportRoster,
         onRename,
       }));
     }

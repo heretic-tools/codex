@@ -9,6 +9,7 @@ import { newRosterDocument } from "./builder_roster_create_model.js";
 import { state } from "./builder_state.js";
 import { newId, removeRoster, saveRoster } from "./builder_storage.js";
 export {
+  exportRoster,
   exportRosters,
   importRosters,
 } from "./builder_roster_transfer_actions.js";

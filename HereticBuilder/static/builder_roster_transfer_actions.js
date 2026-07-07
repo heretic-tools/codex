@@ -10,12 +10,24 @@ import { state } from "./builder_state.js";
 import { newId } from "./builder_storage.js";
 import { showStatusToast } from "./builder_toast.js";
 
+async function exportRosterDocuments(rosters, successMessage = "Roster export ready") {
+  const { serializeRosters } = await loadTransfer();
+  const payload = serializeRosters(rosters, currentDataVersion());
+  downloadRosterExport(payload);
+  showStatusToast({ message: successMessage, tone: "success" });
+}
+
 async function exportRosters() {
   try {
-    const { serializeRosters } = await loadTransfer();
-    const payload = serializeRosters(state.rosters, currentDataVersion());
-    downloadRosterExport(payload);
-    showStatusToast({ message: "Roster export ready", tone: "success" });
+    await exportRosterDocuments(state.rosters);
+  } catch (error) {
+    showStatusToast({ message: error.message || "Failed to export rosters", tone: "error" });
+  }
+}
+
+async function exportRoster(roster) {
+  try {
+    await exportRosterDocuments([roster], `${roster.name || "Roster"} export ready`);
   } catch (error) {
     showStatusToast({ message: error.message || "Failed to export rosters", tone: "error" });
   }
@@ -44,6 +56,7 @@ async function importRosters(file, render) {
 }
 
 export {
+  exportRoster,
   exportRosters,
   importRosters,
 };

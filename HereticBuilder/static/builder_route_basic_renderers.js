@@ -10,6 +10,7 @@ import {
   createRoster,
   deleteRoster,
   duplicateRoster,
+  exportRoster,
   exportRosters,
   importRosters,
 } from "./builder_roster_io_actions.js";
@@ -23,6 +24,7 @@ async function renderList(render) {
     onDelete: deleteRoster,
     onDuplicate: duplicateRoster,
     onExport: exportRosters,
+    onExportRoster: exportRoster,
     onImport: (file) => importRosters(file, render),
     onOpen: (roster) => navigate(`/roster/${encodeURIComponent(roster.id)}`),
     onRename: (roster) => navigate(`/roster/${encodeURIComponent(roster.id)}/focus/rename`),
