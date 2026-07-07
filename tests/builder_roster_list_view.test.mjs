@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   rosterDetachmentCountLabel,
   rosterLine,
+  rosterModifiedLabel,
   rosterOpenLabel,
   rosterPointsLabel,
   rosterPointsProgressClass,
@@ -92,12 +93,18 @@ test("roster list pluralizes detachment counts", () => {
   assert.equal(rosterDetachmentCountLabel(2), "2 detachments");
 });
 
+test("roster list formats modified dates compactly", () => {
+  assert.equal(rosterModifiedLabel("2026-07-05T10:00:00.000Z"), "Updated 2026-07-05");
+  assert.equal(rosterModifiedLabel("not-a-date"), "Updated unknown");
+  assert.equal(rosterModifiedLabel(""), "Updated unknown");
+});
+
 test("roster row open label names the row action", () => {
   assert.equal(rosterOpenLabel({ name: "Black Crusade" }), "Open roster: Black Crusade");
   assert.equal(rosterOpenLabel({ id: "ABCDEF12-3456", name: "Black Crusade" }), "Open roster: Black Crusade, ID ABCDEF12");
   assert.equal(rosterOpenLabel({}), "Open roster: New Roster");
   assert.equal(
-    rosterOpenLabel({ id: "ABCDEF12-3456", name: "Black Crusade" }, {
+    rosterOpenLabel({ id: "ABCDEF12-3456", modifiedAt: "2026-07-05T10:00:00.000Z", name: "Black Crusade" }, {
       battleSizeName: "Strike Force",
       detachmentCount: 1,
       factionName: "Heretic Astartes",
@@ -106,7 +113,7 @@ test("roster row open label names the row action", () => {
       unitCount: 2,
       validationState: "valid",
     }),
-    "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units, ID ABCDEF12"
+    "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units, Updated 2026-07-05, ID ABCDEF12"
   );
 });
 
@@ -117,7 +124,11 @@ test("roster row renders polished validation and points labels", () => {
   };
 
   try {
-    const row = rosterLine({ id: "ABCDEF12-3456", name: "Black Crusade" }, () => {}, () => ({
+    const row = rosterLine({
+      id: "ABCDEF12-3456",
+      modifiedAt: "2026-07-05T10:00:00.000Z",
+      name: "Black Crusade",
+    }, () => {}, () => ({
       battleSizeName: "Strike Force",
       detachmentBadges: [{ disposition: "Take and Hold", name: "Veterans" }],
       detachmentCount: 1,
@@ -129,12 +140,13 @@ test("roster row renders polished validation and points labels", () => {
     }));
 
     assert.equal(row.className, "builder-row roster-row");
-    assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units, ID ABCDEF12");
+    assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units, Updated 2026-07-05, ID ABCDEF12");
     assert.equal(row.attributes.get("aria-label"), row.title);
     assert.ok(row.textContent.includes("Black Crusade"));
     assert.ok(row.textContent.includes("Valid"));
     assert.ok(row.textContent.includes("285 / 2000"));
     assert.ok(row.textContent.includes("1 detachment"));
+    assert.ok(row.textContent.includes("Updated 2026-07-05"));
     assert.equal(row.textContent.includes("valid"), false);
     assert.equal(row.textContent.includes("det."), false);
     assert.equal(row.children[2].className, "roster-points-meter points-ok");

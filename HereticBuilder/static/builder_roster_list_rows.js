@@ -61,6 +61,17 @@ function rosterDetachmentCountLabel(count) {
   return `${count} ${count === 1 ? "detachment" : "detachments"}`;
 }
 
+function rosterModifiedLabel(value) {
+  if (!value) {
+    return "Updated unknown";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Updated unknown";
+  }
+  return `Updated ${date.toISOString().slice(0, 10)}`;
+}
+
 function rosterDetachmentBadgeClass(disposition) {
   const slug = dispositionSlug(disposition);
   return slug ? `disposition-badge disposition-${slug}` : "meta-badge";
@@ -87,6 +98,7 @@ function rosterOpenLabel(roster, summary = null) {
       : "",
     rosterDetachmentCountLabel(summary.detachmentCount || 0),
     rosterUnitCountLabel(summary.unitCount || 0),
+    roster.modifiedAt ? rosterModifiedLabel(roster.modifiedAt) : "",
     idLabel,
   ].filter(Boolean);
   return `Open roster: ${parts.join(", ")}`;
@@ -135,7 +147,8 @@ function rosterLine(roster, onOpen, summarizeRoster) {
     textNode("span", `validation-state-badge state-${rosterValidationBadgeClass(validationState)}`, rosterValidationBadgeLabel(validationState)),
     textNode("span", "", rosterPointsLabel(summary.pointsTotal, summary.pointsLimit)),
     textNode("span", "", rosterDetachmentCountLabel(summary.detachmentCount)),
-    textNode("span", "", rosterUnitCountLabel(summary.unitCount))
+    textNode("span", "", rosterUnitCountLabel(summary.unitCount)),
+    textNode("span", "", rosterModifiedLabel(roster.modifiedAt))
   );
   node.append(text, meta, rosterPointsMeter(summary));
   return node;
@@ -145,6 +158,7 @@ export {
   rosterDetachmentCountLabel,
   rosterDetachmentBadgeClass,
   rosterLine,
+  rosterModifiedLabel,
   rosterOpenLabel,
   rosterPointsLabel,
   rosterPointsProgressClass,
