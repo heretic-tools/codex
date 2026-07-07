@@ -9,6 +9,7 @@ const CORE_ASSETS = [
   "./index.html",
   "./manifest.webmanifest",
   "./static/app.css",
+  "./static/builder.css",
   "./static/codex.css",
   "./static/theme.js",
   "./static/pwa.js",

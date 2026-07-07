@@ -871,12 +871,14 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(pwaSource, /data-offline-status/);
     assert.match(pwaSource, /primeOfflineShell/);
     assert.match(pwaSource, /shellAssetUrls/);
+    assert.match(pwaSource, /navigator\.serviceWorker\.ready\.then\(send\)/);
     assert.match(pwaSource, /link\[rel="stylesheet"\]\[href\], link\[rel="manifest"\]\[href\]/);
     assert.match(pwaSource, /type: "CACHE_URLS"/);
 
     const serviceWorkerSource = readFileSync(join(outDir, "service-worker.js"), "utf8");
     assert.match(serviceWorkerSource, /CACHE_VERSION = "pwa-v2"/);
     assert.match(serviceWorkerSource, /\.\/static\/app\.css/);
+    assert.match(serviceWorkerSource, /\.\/static\/builder\.css/);
     assert.doesNotMatch(serviceWorkerSource, /desktop\.css/);
     assert.match(serviceWorkerSource, /builder-data/);
     assert.match(serviceWorkerSource, /isBuilderDataMetadataPath/);

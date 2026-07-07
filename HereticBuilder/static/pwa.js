@@ -68,13 +68,25 @@
   function primeOfflineShell(registration) {
     const send = () => {
       const worker = registration.active || navigator.serviceWorker.controller;
-      worker?.postMessage({ type: "CACHE_URLS", urls: shellAssetUrls() });
+      if (!worker) {
+        return false;
+      }
+      worker.postMessage({ type: "CACHE_URLS", urls: shellAssetUrls() });
+      return true;
+    };
+    const sendWhenReady = () => {
+      if (send()) {
+        return;
+      }
+      navigator.serviceWorker.ready.then(send).catch(() => {
+        // Cache priming is opportunistic; the app still works online.
+      });
     };
     if (document.readyState === "complete") {
-      window.setTimeout(send, 0);
+      window.setTimeout(sendWhenReady, 0);
       return;
     }
-    window.addEventListener("load", () => window.setTimeout(send, 0), { once: true });
+    window.addEventListener("load", () => window.setTimeout(sendWhenReady, 0), { once: true });
   }
 
   function initPwa() {
