@@ -21,6 +21,7 @@ import {
   unitWarlordOptionLabel,
   unitWarlordSelectModel,
 } from "../HereticBuilder/static/builder_roster_unit_warlord_options.js";
+import { enhancementSelectModels } from "../HereticBuilder/static/builder_roster_unit_enhancement_models.js";
 import {
   warlordOptionLabel,
   warlordPickerModel,
@@ -173,6 +174,31 @@ test("attachment unit labels use readable model counts", () => {
 
   assert.equal(unitLabel(units[0], "Leader", units), "Leader: Captain #1 (1 model)");
   assert.equal(unitLabel(units[1], "Support", units), "Support: Captain #2 (2 models)");
+});
+
+test("enhancement model labels use readable model counts", () => {
+  state.catalog = realCatalog;
+  const enhancement = realCatalog.enhancements.find((item) => item.enhancementType === "miniature");
+  assert.ok(enhancement, "Expected a miniature enhancement");
+  const captain = enhancementTargetUnit({
+    id: "enhancement-label-captain",
+    datasheetName: "Captain",
+    miniatureName: "Captain",
+    factionNames: ["Adeptus Astartes"],
+  });
+  captain.miniatures[0].count = 2;
+  captain.miniatureEnhancements = [{
+    id: enhancement.id,
+    targetId: captain.miniatures[0].rosterUnitMiniatureId,
+  }];
+
+  const models = enhancementSelectModels({
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [captain],
+  }, captain);
+
+  assert.equal(models.find((model) => model.targetKind === "miniature")?.label, "Captain (2 models)");
 });
 
 test("unit warlord select model keeps the current invalid candidate visible and enabled", () => {

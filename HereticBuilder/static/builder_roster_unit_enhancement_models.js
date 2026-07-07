@@ -1,3 +1,4 @@
+import { modelCountLabel } from "./builder_count_labels.js";
 import {
   currentMiniatureEnhancementId,
   enhancementOptionsFor,
@@ -31,7 +32,7 @@ function miniatureEnhancementSelectModels(roster, unit) {
       currentId,
       enhancements,
       keywordIds: miniatureEnhancementKeywordIds(unit, miniature),
-      label: `${miniature.name} (${miniature.count || 0})`,
+      label: `${miniature.name} (${modelCountLabel(miniature.count)})`,
       miniature,
       targetId,
       targetKind: "miniature",
