@@ -636,7 +636,7 @@
 
 .roster-create-form .form-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   margin-top: 2px;
 }
 
@@ -978,6 +978,10 @@
 
 .builder-section {
   gap: 10px;
+}
+
+.roster-create-form .form-actions {
+  grid-template-columns: 1fr;
 }
 
 .roster-overview-card {
@@ -1363,6 +1367,33 @@
   border-radius: var(--builder-radius);
   box-shadow: none;
   outline: none;
+}
+
+.battle-size-options {
+  gap: 8px;
+}
+
+.battle-size-option {
+  min-height: 54px;
+  padding: 8px 10px;
+  background: var(--builder-paper);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
+}
+
+.battle-size-option + .battle-size-option {
+  margin-left: 0;
+}
+
+.battle-size-option.is-selected {
+  background: var(--builder-panel);
+  border-color: var(--builder-blue);
+}
+
+.battle-size-option:has(input:focus-visible) {
+  border-color: var(--builder-blue);
+  outline: 2px solid rgba(40, 95, 159, .28);
+  outline-offset: 2px;
 }
 
 .wargear-count-stepper {
