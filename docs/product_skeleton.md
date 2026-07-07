@@ -36,7 +36,7 @@
 | Create roster | `#/new` | Ввести имя, выбрать фракцию, выбрать battle size, подтвердить. | Header `Create Roster`, breadcrumbs для возврата к `Builder`, три поля формы, primary action `Confirm`. |
 | Roster detail | `#/roster/:rosterId` | Смотреть статус ростера, выбрать Warlord, удалить ростер, добавлять/удалять detachments, units, attached units, переходить в Codex по detachment, переходить в unit detail. | Название ростера в header, компактный overview с faction/battle size, validation state, points, DP, units, bottom summary с actions `Issues`, `+ Detach`, `+ Unit`, `Attach`, блок validation messages, затем редакторы detachments/units/attachments. |
 | Unit detail | `#/roster/:rosterId/unit/:unitId` | Вернуться в ростер через breadcrumbs, менять composition, Warlord state, allegiance, enhancements/upgrades, wargear по моделям. | Название юнита в header, breadcrumbs до parent roster, локальная unit validation только при наличии сообщений, критичные действия редактирования, wargear сгруппирован по моделям при наличии controls/messages и не требует desktop-wide layout. |
-| Not found | unknown roster/unit | Вернуться к Builder list. | Понятное сообщение, без пустого экрана. |
+| Not found | unknown roster/unit | Вернуться к Builder list через breadcrumbs. | Понятное сообщение, без пустого экрана и без дублирующей кнопки Back. |
 
 Builder не должен иметь старую совместимость со старыми локальными ростерами:
 это новое приложение. Единственная допустимая совместимость — чтение текущей
