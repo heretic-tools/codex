@@ -296,6 +296,63 @@ test("roster list item keeps quick actions outside the open-row button", async (
   }
 });
 
+test("roster list keeps only one quick-actions menu open", async () => {
+  const previousDocument = global.document;
+  const documentListeners = new Map();
+  global.document = {
+    createElement: createMockElement,
+    addEventListener(name, handler) {
+      documentListeners.set(name, handler);
+    },
+    removeEventListener(name, handler) {
+      if (documentListeners.get(name) === handler) {
+        documentListeners.delete(name);
+      }
+    },
+  };
+  const summarizeRoster = (roster) => ({
+    battleSizeName: "Strike Force",
+    detachmentBadges: [],
+    detachmentCount: 0,
+    factionName: roster.factionName,
+    pointsLimit: 2000,
+    pointsTotal: 0,
+    unitCount: 0,
+    validationState: "invalid",
+  });
+
+  try {
+    const first = rosterListItem(
+      { factionName: "Heretic Astartes", id: "one", name: "First Roster" },
+      () => {},
+      summarizeRoster,
+      { onDelete: () => {} }
+    );
+    const second = rosterListItem(
+      { factionName: "World Eaters", id: "two", name: "Second Roster" },
+      () => {},
+      summarizeRoster,
+      { onDelete: () => {} }
+    );
+
+    first.children[1].open = true;
+    await first.children[1].listeners.get("toggle")();
+    assert.equal(first.children[1].open, true);
+    assert.equal(first.children[1].children[0].attributes.get("aria-expanded"), "true");
+    assert.equal(typeof documentListeners.get("pointerdown"), "function");
+
+    second.children[1].open = true;
+    await second.children[1].listeners.get("toggle")();
+    assert.equal(first.children[1].open, false);
+    assert.equal(first.children[1].children[0].attributes.get("aria-expanded"), "false");
+    assert.equal(second.children[1].open, true);
+    assert.equal(second.children[1].children[0].attributes.get("aria-expanded"), "true");
+    assert.equal(typeof documentListeners.get("pointerdown"), "function");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
 test("roster list disables export while there are no local rosters", () => {
   const previousDocument = global.document;
   global.document = {

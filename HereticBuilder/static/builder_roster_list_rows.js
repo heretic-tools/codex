@@ -1,6 +1,9 @@
 import { button, textNode } from "./builder_dom.js";
 import { dispositionSlug } from "./builder_roster_editor_dom.js";
 
+let activeRosterActionsClose = null;
+let activeRosterActionsMenu = null;
+
 function rosterValidationBadgeClass(validationState) {
   if (validationState === "valid") {
     return "ok";
@@ -150,7 +153,9 @@ function rosterActionButton(text, roster, onClick) {
   const node = button("roster-action-button", text, async (event) => {
     event?.stopPropagation?.();
     const menu = node.closest?.(".roster-actions-menu");
-    if (menu) {
+    if (typeof menu?.closeRosterActionsMenu === "function") {
+      menu.closeRosterActionsMenu();
+    } else if (menu) {
       menu.open = false;
     }
     await onClick(roster);
@@ -174,29 +179,49 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportTe
   trigger.setAttribute("aria-label", trigger.title);
   trigger.setAttribute("aria-haspopup", "menu");
   trigger.setAttribute("aria-expanded", "false");
-  const closeOutside = (event) => {
-    if (node.open && !node.contains(event.target)) {
-      node.open = false;
-      trigger.setAttribute("aria-expanded", "false");
-      document.removeEventListener?.("pointerdown", closeOutside, true);
+  const clearActiveMenu = () => {
+    if (activeRosterActionsMenu === node) {
+      activeRosterActionsMenu = null;
+      activeRosterActionsClose = null;
     }
   };
-  node.addEventListener("toggle", () => {
+  const syncOpenState = () => {
     trigger.setAttribute("aria-expanded", node.open ? "true" : "false");
     if (node.open) {
       document.addEventListener?.("pointerdown", closeOutside, true);
     } else {
       document.removeEventListener?.("pointerdown", closeOutside, true);
+      clearActiveMenu();
     }
+  };
+  const closeMenu = ({ focusTrigger = false } = {}) => {
+    node.open = false;
+    syncOpenState();
+    if (focusTrigger) {
+      trigger.focus?.();
+    }
+  };
+  const closeOutside = (event) => {
+    if (node.open && !node.contains(event.target)) {
+      closeMenu();
+    }
+  };
+  node.closeRosterActionsMenu = closeMenu;
+  node.addEventListener("toggle", () => {
+    if (node.open) {
+      if (activeRosterActionsMenu && activeRosterActionsMenu !== node) {
+        activeRosterActionsClose?.();
+      }
+      activeRosterActionsMenu = node;
+      activeRosterActionsClose = closeMenu;
+    }
+    syncOpenState();
   });
   node.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && node.open) {
       event.preventDefault?.();
       event.stopPropagation?.();
-      node.open = false;
-      trigger.setAttribute("aria-expanded", "false");
-      document.removeEventListener?.("pointerdown", closeOutside, true);
-      trigger.focus?.();
+      closeMenu({ focusTrigger: true });
     }
   });
   const panel = document.createElement("div");
