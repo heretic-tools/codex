@@ -38,10 +38,16 @@ function rosterDetachmentBadgeClass(disposition) {
   return slug ? `disposition-badge disposition-${slug}` : "meta-badge";
 }
 
+function rosterIdLabel(id) {
+  const value = String(id || "").trim();
+  return value ? `ID ${value.slice(0, 8).toUpperCase()}` : "";
+}
+
 function rosterOpenLabel(roster, summary = null) {
   const name = roster.name || "New Roster";
+  const idLabel = rosterIdLabel(roster.id);
   if (!summary) {
-    return `Open roster: ${name}`;
+    return `Open roster: ${[name, idLabel].filter(Boolean).join(", ")}`;
   }
   const validationState = summary.validationState || "invalid";
   const parts = [
@@ -53,6 +59,7 @@ function rosterOpenLabel(roster, summary = null) {
       : "",
     rosterDetachmentCountLabel(summary.detachmentCount || 0),
     rosterUnitCountLabel(summary.unitCount || 0),
+    idLabel,
   ].filter(Boolean);
   return `Open roster: ${parts.join(", ")}`;
 }

@@ -78,9 +78,10 @@ test("roster list pluralizes detachment counts", () => {
 
 test("roster row open label names the row action", () => {
   assert.equal(rosterOpenLabel({ name: "Black Crusade" }), "Open roster: Black Crusade");
+  assert.equal(rosterOpenLabel({ id: "ABCDEF12-3456", name: "Black Crusade" }), "Open roster: Black Crusade, ID ABCDEF12");
   assert.equal(rosterOpenLabel({}), "Open roster: New Roster");
   assert.equal(
-    rosterOpenLabel({ name: "Black Crusade" }, {
+    rosterOpenLabel({ id: "ABCDEF12-3456", name: "Black Crusade" }, {
       battleSizeName: "Strike Force",
       detachmentCount: 1,
       factionName: "Heretic Astartes",
@@ -89,7 +90,7 @@ test("roster row open label names the row action", () => {
       unitCount: 2,
       validationState: "valid",
     }),
-    "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units"
+    "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units, ID ABCDEF12"
   );
 });
 
@@ -100,7 +101,7 @@ test("roster row renders polished validation and points labels", () => {
   };
 
   try {
-    const row = rosterLine({ name: "Black Crusade" }, () => {}, () => ({
+    const row = rosterLine({ id: "ABCDEF12-3456", name: "Black Crusade" }, () => {}, () => ({
       battleSizeName: "Strike Force",
       detachmentBadges: [{ disposition: "Take and Hold", name: "Veterans" }],
       detachmentCount: 1,
@@ -112,7 +113,7 @@ test("roster row renders polished validation and points labels", () => {
     }));
 
     assert.equal(row.className, "builder-row roster-row");
-    assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units");
+    assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, 1 detachment, 2 units, ID ABCDEF12");
     assert.equal(row.attributes.get("aria-label"), row.title);
     assert.ok(row.textContent.includes("Black Crusade"));
     assert.ok(row.textContent.includes("Valid"));
