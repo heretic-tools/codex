@@ -301,6 +301,14 @@
     meta.textContent = context || resultText(item.type);
     link.append(meta);
 
+    const excerptText = resultText(item.excerpt);
+    if (excerptText) {
+      const excerpt = document.createElement("span");
+      excerpt.className = "app-search-result-excerpt";
+      excerpt.textContent = excerptText;
+      link.append(excerpt);
+    }
+
     return link;
   }
 

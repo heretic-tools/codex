@@ -25,6 +25,7 @@ test("app search exposes a keyboard palette shortcut and grouped results", () =>
   assert.ok(source.includes('link.setAttribute("aria-label", label)'));
   assert.ok(source.includes("function focusResult"));
   assert.ok(source.includes('event.key === "ArrowDown"'));
+  assert.ok(source.includes("app-search-result-excerpt"));
 });
 
 test("app search grouped result styles stay inside the shared app shell", () => {
@@ -32,6 +33,7 @@ test("app search grouped result styles stay inside the shared app shell", () => 
 
   assert.ok(source.includes(".app-search-result-group"));
   assert.ok(source.includes(".app-search-result-group-title"));
+  assert.ok(source.includes(".app-search-result-excerpt"));
   assert.ok(source.includes("background: var(--app-surface-2);"));
   assert.ok(source.includes("border-bottom: 1px solid var(--app-border);"));
 });
