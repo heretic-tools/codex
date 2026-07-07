@@ -14,11 +14,14 @@
   resultList.className = "app-search-results-list";
   resultList.setAttribute("role", "list");
   results.removeAttribute("role");
+  results.id = results.id || "app-search-results";
   results.replaceChildren(resultList);
+  input.setAttribute("aria-controls", results.id);
 
   clearButton.className = "app-search-clear";
   clearButton.type = "button";
   clearButton.setAttribute("aria-label", "Clear search");
+  clearButton.title = "Clear search";
   clearButton.textContent = "x";
   input.after(clearButton);
 
@@ -235,6 +238,26 @@
     return String(value || "").trim();
   }
 
+  function resultLinkLabel(item) {
+    const type = resultText(item.type) || "Result";
+    const title = resultText(item.title) || "Untitled";
+    return `Open ${type}: ${title}`;
+  }
+
+  function resultLinks() {
+    return Array.from(resultList.querySelectorAll(".app-search-result"));
+  }
+
+  function focusResult(index) {
+    const links = resultLinks();
+    if (!links.length) {
+      return false;
+    }
+    const targetIndex = ((index % links.length) + links.length) % links.length;
+    links[targetIndex].focus();
+    return true;
+  }
+
   function renderMessage(message) {
     const item = document.createElement("div");
     item.className = "app-search-message";
@@ -260,8 +283,11 @@
 
   function resultLink(item) {
     const link = document.createElement("a");
+    const label = resultLinkLabel(item);
     link.className = "app-search-result";
     link.href = siteHref(item.href);
+    link.title = label;
+    link.setAttribute("aria-label", label);
     link.setAttribute("role", "listitem");
 
     const title = document.createElement("span");
@@ -337,6 +363,34 @@
     input.focus();
   });
 
+  resultList.addEventListener("keydown", (event) => {
+    const link = event.target?.closest?.(".app-search-result");
+    if (!link) {
+      return;
+    }
+    const links = resultLinks();
+    const index = links.indexOf(link);
+    if (index < 0) {
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      focusResult(index + 1);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (index === 0) {
+        input.focus();
+      } else {
+        focusResult(index - 1);
+      }
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      clearResults();
+      input.focus();
+    }
+  });
+
   window.addEventListener("resize", positionResults);
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", positionResults);
@@ -347,6 +401,12 @@
   input.addEventListener("focus", scheduleSearch);
   input.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
+      event.preventDefault();
+    }
+    if (event.key === "ArrowDown" && focusResult(0)) {
+      event.preventDefault();
+    }
+    if (event.key === "ArrowUp" && focusResult(-1)) {
       event.preventDefault();
     }
     if (event.key === "Escape") {
