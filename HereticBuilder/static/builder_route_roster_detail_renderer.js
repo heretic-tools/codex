@@ -18,7 +18,10 @@ import { updateRosterWithUndo } from "./builder_roster_update_with_undo.js";
 async function renderRoster(render) {
   const roster = currentRoster();
   if (!roster) {
-    await renderNotFound();
+    await renderNotFound({
+      message: "This roster is no longer available.",
+      title: "Roster Not Found",
+    });
     return;
   }
   const [{ renderRosterDetailView }, { rosterSummary, validateRoster }] = await Promise.all([

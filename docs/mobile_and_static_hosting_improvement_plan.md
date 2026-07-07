@@ -80,6 +80,8 @@ Roster unit rows используют тот же словарь для compact 
 CSS shell перестал держать legacy `--window` alias.
 Builder shared controls больше не держат старый 2px bevel fallback в базовом
 слое CSS, а Codex static CSS очищен от оставшихся Win95/titlebar терминов.
+Builder not-found теперь различает missing roster и missing unit: удалённый
+юнит показывает `Unit Not Found` и breadcrumbs к родительскому ростеру.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

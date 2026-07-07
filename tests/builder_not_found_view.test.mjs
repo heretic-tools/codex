@@ -45,11 +45,43 @@ test("not found view relies on breadcrumbs for navigation", () => {
   }
 });
 
-test("not found route titles the page as a missing roster", () => {
+test("not found view can describe a missing unit without adding local navigation", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const view = renderNotFoundView({
+      message: "This unit is no longer in the roster.",
+      title: "Unit Not Found",
+    });
+
+    assert.equal(view.children[0].textContent, "Unit Not Found");
+    assert.equal(view.children[1].textContent, "This unit is no longer in the roster.");
+    assert.equal(view.textContent.includes("Back"), false);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("not found routes title missing roster and unit pages by context", () => {
   const source = readFileSync(
     join(projectRoot, "HereticBuilder", "static", "builder_route_not_found_renderer.js"),
     "utf8"
   );
+  const rosterSource = readFileSync(
+    join(projectRoot, "HereticBuilder", "static", "builder_route_roster_detail_renderer.js"),
+    "utf8"
+  );
+  const unitSource = readFileSync(
+    join(projectRoot, "HereticBuilder", "static", "builder_route_unit_detail_renderer.js"),
+    "utf8"
+  );
 
-  assert.ok(source.includes('setPageTitle("Roster Not Found")'));
+  assert.ok(source.includes("setPageTitle(title)"));
+  assert.ok(rosterSource.includes('title: "Roster Not Found"'));
+  assert.ok(unitSource.includes('title: "Roster Not Found"'));
+  assert.ok(unitSource.includes('title: "Unit Not Found"'));
+  assert.ok(unitSource.includes("breadcrumbs: rosterBreadcrumbs(roster)"));
 });

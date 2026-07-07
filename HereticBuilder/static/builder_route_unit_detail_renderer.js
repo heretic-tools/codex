@@ -12,9 +12,20 @@ import { updateRosterWithUndo } from "./builder_roster_update_with_undo.js";
 
 async function renderUnit(render) {
   const roster = currentRoster();
-  const unit = roster?.units?.find((item) => item.id === state.route.unitId);
-  if (!roster || !unit) {
-    await renderNotFound();
+  if (!roster) {
+    await renderNotFound({
+      message: "This roster is no longer available.",
+      title: "Roster Not Found",
+    });
+    return;
+  }
+  const unit = roster.units?.find((item) => item.id === state.route.unitId);
+  if (!unit) {
+    await renderNotFound({
+      breadcrumbs: rosterBreadcrumbs(roster),
+      message: "This unit is no longer in the roster.",
+      title: "Unit Not Found",
+    });
     return;
   }
   const [{ renderRosterUnitDetailView, unitDisplayName }, { validateRoster }] = await Promise.all([
