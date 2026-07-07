@@ -60,6 +60,8 @@ test("undo toast renders a restore action and dismisses after undo", async () =>
     assert.equal(toast.attributes.get("role"), "status");
     assert.equal(toast.children[0].textContent, "Chosen removed");
     assert.equal(toast.children[1].textContent, "Undo");
+    assert.equal(toast.children[1].title, "Undo: Chosen removed");
+    assert.equal(toast.children[1].attributes.get("aria-label"), "Undo: Chosen removed");
 
     await toast.children[1].events.get("click")();
 

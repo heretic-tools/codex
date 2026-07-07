@@ -26,11 +26,11 @@ function showUndoToast({ message, onUndo, timeoutMs = 5000 }) {
   toast.setAttribute("role", "status");
   toast.append(
     textNode("span", "toast-message", message),
-    button("plain-button toast-action", "Undo", async () => {
+    labelControl(button("plain-button toast-action", "Undo", async () => {
       const restore = onUndo;
       dismissToast();
       await restore?.();
-    })
+    }), `Undo: ${message || "last change"}`)
   );
   toastHost().appendChild(toast);
   activeToast = toast;
