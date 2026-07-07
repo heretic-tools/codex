@@ -47,11 +47,11 @@ def faction_href(faction):
 
 def datasheet_href(faction, datasheet, datasheet_slug=None):
     slug = datasheet_slug or slugify_name(entity_name(datasheet))
-    return f"{faction_href(faction)}/datasheet/{slug}"
+    return f"{faction_href(faction)}/datasheet/{slug}/"
 
 def detachment_href(faction, detachment, detachment_slug=None):
     slug = detachment_slug or slugify_name(entity_name(detachment))
-    return f"{faction_href(faction)}/detachment/{slug}"
+    return f"{faction_href(faction)}/detachment/{slug}/"
 
 def normalize_rule_section_code(value):
     match = re.fullmatch(r"\s*(\d{1,2})(?:\..*)?\s*", str(value or ""))

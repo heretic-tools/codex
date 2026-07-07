@@ -110,6 +110,9 @@ Shared breadcrumbs на узком mobile viewport доведены до 44px to
 Codex mobile collapsible cards теперь сохраняют чистый title до DOM-мутации и
 рендерят кнопку Show/Hide рядом с direct `h2/h3`, а не внутри heading, чтобы
 heading text и accessible labels не загрязнялись управляющим текстом.
+Codex datasheet/detachment detail links теперь генерируются как canonical
+directory hrefs с trailing slash, чтобы GitHub Pages/static preview не делали
+лишний redirect при переходе из списков.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

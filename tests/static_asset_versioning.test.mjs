@@ -48,3 +48,23 @@ test("GitHub Pages workflow can build standalone Builder separately", () => {
   assert.match(workflow, /github\.event\.repository\.name == 'builder'/);
   assert.ok(workflow.includes('builder.py build-builder --out dist --base-path "/${{ github.event.repository.name }}"'));
 });
+
+test("Codex detail route helpers emit canonical directory hrefs", () => {
+  const output = execFileSync("python3", ["-c", `
+import sys
+sys.path.insert(0, "HereticBuilder/tools")
+from roster_builder_codex_common import datasheet_href, detachment_href
+
+faction = {"name": "Heretic Astartes"}
+print(datasheet_href(faction, {"name": "Abaddon the Despoiler"}))
+print(detachment_href(faction, {"name": "Pactbound Zealots"}))
+`], {
+    cwd: projectRoot,
+    encoding: "utf8",
+  }).trim().split("\n");
+
+  assert.deepEqual(output, [
+    "/codex/faction/heretic-astartes/datasheet/abaddon-the-despoiler/",
+    "/codex/faction/heretic-astartes/detachment/pactbound-zealots/",
+  ]);
+});
