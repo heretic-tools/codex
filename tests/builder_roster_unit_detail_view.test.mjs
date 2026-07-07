@@ -100,7 +100,7 @@ test("unit detail sticky actions expose only available local sections", () => {
 });
 
 test("unit detail sticky action label follows the rendered upgrades section", () => {
-  assert.equal(stickyEnhancementsLabel("Enhancements"), "Enhancements");
+  assert.equal(stickyEnhancementsLabel("Enhancements"), "Enhance");
   assert.equal(stickyEnhancementsLabel("Upgrades"), "Upgrades");
   assert.equal(stickyEnhancementsLabel("Enhancements & Upgrades"), "Upgrades");
 
@@ -111,7 +111,7 @@ test("unit detail sticky action label follows the rendered upgrades section", ()
     }),
     [
       { ariaLabel: "Review unit profile", label: "Unit", target: "overview" },
-      { ariaLabel: "Edit unit enhancements", label: "Enhancements", target: "enhancements" },
+      { ariaLabel: "Edit unit enhancements", label: "Enhance", target: "enhancements" },
     ]
   );
 

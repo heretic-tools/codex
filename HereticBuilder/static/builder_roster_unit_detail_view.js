@@ -31,7 +31,13 @@ function validationHasMessages(validation) {
 }
 
 function stickyEnhancementsLabel(sectionTitle = "") {
-  return sectionTitle === "Enhancements & Upgrades" ? "Upgrades" : (sectionTitle || "Upgrades");
+  if (sectionTitle === "Enhancements & Upgrades") {
+    return "Upgrades";
+  }
+  if (sectionTitle === "Enhancements") {
+    return "Enhance";
+  }
+  return sectionTitle || "Upgrades";
 }
 
 function unitDetailStickyActionDescriptors({

@@ -126,6 +126,10 @@ borders на empty/read-only/metric/validation/wargear surfaces; modern layer
 Unit-detail sticky actions теперь показывают `Warlord` и `Ability` только
 когда соответствующие локальные controls реально отрендерены в overview; для
 Pactbound Zealots/Chosen это даёт прямой mobile shortcut к `Mark of Chaos`.
+Character/enhancement mobile smoke выявил внутреннее переполнение текста в
+нижней панели при 6 shortcuts; sticky buttons закреплены на compact mono 11px,
+а visible label для pure `Enhancements` сокращён до `Enhance` при сохранении
+полного `aria-label`.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

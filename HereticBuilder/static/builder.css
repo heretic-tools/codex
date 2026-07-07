@@ -1115,6 +1115,13 @@
   white-space: nowrap;
 }
 
+.builder-page .roster-sticky-summary-action {
+  font-family: var(--builder-mono);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
 .roster-sticky-summary-action:hover,
 .roster-sticky-summary-action:focus-visible {
   border-color: var(--builder-shadow);

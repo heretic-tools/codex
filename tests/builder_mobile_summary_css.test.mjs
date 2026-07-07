@@ -45,6 +45,8 @@ test("mobile roster summary is a bottom safe-area bar", () => {
   assert.ok(mobileLayer.includes(".roster-sticky-summary .roster-sticky-summary-metrics"));
   assert.ok(mobileLayer.includes(".roster-sticky-summary-actions"));
   assert.ok(source.includes("grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));"));
+  assert.ok(source.includes(".builder-page .roster-sticky-summary-action"));
+  assert.ok(source.includes("font-size: 11px;"));
   assert.ok(mobileLayer.includes(".builder-toast"));
   assert.ok(mobileLayer.includes("bottom: calc(132px + env(safe-area-inset-bottom));"));
   assert.ok(source.includes(".roster-sticky-summary-actions"));
