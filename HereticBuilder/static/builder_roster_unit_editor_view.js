@@ -55,8 +55,22 @@ function unitSummaryGroups(summaries) {
     byLabel.get(unitSummaryGroupLabel(summary)).push(summary);
   }
   return UNIT_SUMMARY_GROUPS
-    .map((label) => ({ label, rows: byLabel.get(label) || [] }))
+    .map((label) => ({
+      label,
+      rows: (byLabel.get(label) || []).slice().sort(unitSummarySort),
+    }))
     .filter((group) => group.rows.length);
+}
+
+function unitSummarySort(left, right) {
+  const nameOrder = String(left?.name || "").localeCompare(String(right?.name || ""), undefined, {
+    sensitivity: "base",
+  });
+  if (nameOrder) {
+    return nameOrder;
+  }
+  return (left?.points || 0) - (right?.points || 0)
+    || String(left?.id || "").localeCompare(String(right?.id || ""));
 }
 
 function unitGroupHeading(group) {
@@ -100,6 +114,7 @@ export {
   unitCandidateStatus,
   unitSummaryGroupLabel,
   unitSummaryGroups,
+  unitSummarySort,
   unitModelCountLabel,
   unitOptionValue,
   unitOpenLabel,

@@ -37,6 +37,7 @@ Tactical Mono** — плотный тактический интерфейс с 
 Дополнение от 2026-07-07: очередной Builder UX проход добавил визуальный
 progress по очкам и дату обновления в строки ростеров, сгруппировал выбранные
 юниты по ролям `Character` / `Battleline` / `Dedicated Transport` / `Other`,
+а строки внутри групп теперь стабильно сортируются по имени, очкам и id,
 добавил действие `Duplicate Roster` на overview экране с пересчетом локального
 validation cache, а undo/status toast actions получили явные accessible labels.
 Следующий короткий срез закрепил корректное поведение roster list quick-actions:

@@ -22,6 +22,7 @@ import {
   unitOptionValue,
   unitSummaryGroupLabel,
   unitSummaryGroups,
+  unitSummarySort,
   unitSourceBadgeText,
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
 import { unitSourceBadgeNode } from "../HereticBuilder/static/builder_roster_unit_badges.js";
@@ -205,6 +206,24 @@ test("unit summaries are grouped by roster role for scanning", () => {
       ["Other", ["other-1", "other-2"]],
     ]
   );
+});
+
+test("unit summaries sort inside role groups for stable scanning", () => {
+  assert.deepEqual(
+    unitSummaryGroups([
+      { id: "other-expensive", keywordNames: [], name: "Chosen", points: 90 },
+      { id: "other-cheap", keywordNames: [], name: "Chosen", points: 80 },
+      { id: "character-late", keywordNames: ["Character"], name: "Master of Possession", points: 70 },
+      { id: "character-first", keywordNames: ["Character"], name: "Abaddon the Despoiler", points: 285 },
+      { id: "other-alpha", keywordNames: [], name: "Cultist Mob", points: 50 },
+    ]).map((group) => [group.label, group.rows.map((row) => row.id)]),
+    [
+      ["Character", ["character-first", "character-late"]],
+      ["Other", ["other-cheap", "other-expensive", "other-alpha"]],
+    ]
+  );
+
+  assert.ok(unitSummarySort({ name: "Chosen", points: 80 }, { name: "Chosen", points: 90 }) < 0);
 });
 
 test("unit source badge names selected allied unit source", () => {
