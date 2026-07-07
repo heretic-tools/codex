@@ -27,7 +27,7 @@ function scrollToRosterFocusTarget(focusTarget) {
 
 function rosterDetailStickyActionDescriptors(validation, { hasAttachments = false } = {}) {
   const actions = [];
-  if ((validation?.messages || []).length) {
+  if (rosterDetailHasValidationMessages(validation)) {
     actions.push({ ariaLabel: "Review roster issues", label: "Issues", target: "validation" });
   }
   actions.push(
@@ -38,6 +38,10 @@ function rosterDetailStickyActionDescriptors(validation, { hasAttachments = fals
     actions.push({ ariaLabel: "Add attached unit", label: "Attach", target: "attachments" });
   }
   return actions;
+}
+
+function rosterDetailHasValidationMessages(validation) {
+  return Boolean((validation?.messages || []).length);
 }
 
 function renderRosterDetailView({
@@ -86,13 +90,16 @@ function renderRosterDetailView({
     roster,
     validation: validationResult,
   });
-  const validationView = renderValidation(validationResult, {
-    context: validationContextForRoster(roster),
-    groupAction: (group) => renderValidationGroupAction(group, { onUnitOpen, roster, unitById }),
-    title: "Roster Validation",
-  });
-  validationView.dataset.editorTarget = "validation";
-  sidebar.append(overview, validationView);
+  sidebar.appendChild(overview);
+  if (rosterDetailHasValidationMessages(validationResult)) {
+    const validationView = renderValidation(validationResult, {
+      context: validationContextForRoster(roster),
+      groupAction: (group) => renderValidationGroupAction(group, { onUnitOpen, roster, unitById }),
+      title: "Roster Validation",
+    });
+    validationView.dataset.editorTarget = "validation";
+    sidebar.appendChild(validationView);
+  }
   root.append(stickySummary, sidebar, editor);
   if (focusTarget) {
     window.requestAnimationFrame(() => scrollToRosterFocusTarget(focusTarget));
@@ -102,6 +109,7 @@ function renderRosterDetailView({
 
 export {
   renderRosterDetailView,
+  rosterDetailHasValidationMessages,
   rosterDetailStickyActionDescriptors,
   rosterValidationActionTarget,
   scrollToRosterFocusTarget,

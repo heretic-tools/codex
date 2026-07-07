@@ -44,7 +44,8 @@ validation cache, а undo/status toast actions получили явные acces
 перерисовывает текущий `#/` список без reload/hashchange, а non-navigation
 actions вроде `Export Text` закрывают popover-меню после клика. Roster detail
 sticky shortcuts теперь не показывают `Issues`, когда validation messages нет,
-сохраняя `Issues` только для реально actionable validation-поверхности.
+сохраняя `Issues` и саму `Roster Validation` секцию только для реально
+actionable validation-поверхности.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

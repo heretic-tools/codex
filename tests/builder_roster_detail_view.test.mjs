@@ -4,6 +4,7 @@ import test from "node:test";
 global.document = { querySelector: () => null };
 
 const {
+  rosterDetailHasValidationMessages,
   rosterDetailStickyActionDescriptors,
   rosterValidationActionTarget,
   scrollToRosterFocusTarget,
@@ -43,6 +44,9 @@ test("roster validation actions prefer exact scoped editor targets", () => {
 });
 
 test("roster detail sticky actions only show Issues when validation has messages", () => {
+  assert.equal(rosterDetailHasValidationMessages({ messages: [] }), false);
+  assert.equal(rosterDetailHasValidationMessages({ messages: [{ level: "warning" }] }), true);
+
   assert.deepEqual(
     rosterDetailStickyActionDescriptors({ messages: [] }),
     [
