@@ -1,4 +1,5 @@
 import { field, option, textNode } from "./builder_dom.js";
+import { labelControl } from "./builder_roster_control_labels.js";
 
 function rosterNameDate(value = new Date()) {
   const date = value instanceof Date ? value : new Date(value);
@@ -101,8 +102,9 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
 
   const actions = document.createElement("div");
   actions.className = "form-actions";
-  actions.appendChild(textNode("button", "primary-button", "Confirm"));
-  actions.lastChild.type = "submit";
+  const confirm = labelControl(textNode("button", "primary-button", "Confirm"), "Confirm roster setup");
+  confirm.type = "submit";
+  actions.appendChild(confirm);
   form.appendChild(actions);
   form.addEventListener("submit", async (event) => {
     event.preventDefault();

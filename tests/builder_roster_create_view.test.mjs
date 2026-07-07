@@ -119,6 +119,8 @@ test("roster create view keeps the form focused on confirmation", async () => {
     assert.equal(actions.className, "form-actions");
     assert.equal(actions.children.length, 1);
     assert.equal(actions.children[0].textContent, "Confirm");
+    assert.equal(actions.children[0].title, "Confirm roster setup");
+    assert.equal(actions.children[0].attributes.get("aria-label"), "Confirm roster setup");
     assert.equal(form.textContent.includes("Back"), false);
   } finally {
     global.document = previousDocument;
