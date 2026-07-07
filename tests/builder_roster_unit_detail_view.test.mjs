@@ -81,7 +81,7 @@ test("unit detail sticky actions expose only available local sections", () => {
     [
       { ariaLabel: "Review unit issues", label: "Issues", target: "validation" },
       { ariaLabel: "Review unit profile", label: "Unit", target: "overview" },
-      { ariaLabel: "Edit unit composition", label: "Composition", target: "composition" },
+      { ariaLabel: "Edit unit composition", label: "Models", target: "composition" },
       { ariaLabel: "Edit unit wargear", label: "Wargear", target: "wargear" },
       { ariaLabel: "Edit unit upgrades", label: "Upgrades", target: "enhancements" },
     ]

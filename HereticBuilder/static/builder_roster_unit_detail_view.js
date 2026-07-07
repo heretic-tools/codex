@@ -47,7 +47,7 @@ function unitDetailStickyActionDescriptors({
   }
   actions.push({ ariaLabel: "Review unit profile", label: "Unit", target: "overview" });
   if (hasComposition) {
-    actions.push({ ariaLabel: "Edit unit composition", label: "Composition", target: "composition" });
+    actions.push({ ariaLabel: "Edit unit composition", label: "Models", target: "composition" });
   }
   if (hasWargear) {
     actions.push({ ariaLabel: "Edit unit wargear", label: "Wargear", target: "wargear" });

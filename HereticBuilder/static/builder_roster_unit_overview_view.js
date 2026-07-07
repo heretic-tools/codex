@@ -99,8 +99,9 @@ function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, u
         await ensurePrecomputedLoadoutsForDatasheets([unit.datasheetId]);
         await resetWargearFromOverview(roster, unit, onUpdate, onUndoableUpdate);
       });
-      reset.title = "Reset wargear";
-      reset.setAttribute("aria-label", "Reset wargear");
+      const resetLabel = `Reset wargear for ${unit.name || "Unit"}`;
+      reset.title = resetLabel;
+      reset.setAttribute("aria-label", resetLabel);
       actions.appendChild(reset);
     }
     overview.appendChild(actions);

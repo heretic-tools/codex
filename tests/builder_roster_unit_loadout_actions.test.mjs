@@ -402,8 +402,8 @@ test("unit overview shows reset action after wargear changes", () => {
 
     const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
     assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
-    assert.equal(buttons[0].title, "Reset wargear");
-    assert.equal(buttons[0].attributes.get("aria-label"), "Reset wargear");
+    assert.equal(buttons[0].title, `Reset wargear for ${unit.name}`);
+    assert.equal(buttons[0].attributes.get("aria-label"), `Reset wargear for ${unit.name}`);
   } finally {
     global.document = previousDocument;
   }

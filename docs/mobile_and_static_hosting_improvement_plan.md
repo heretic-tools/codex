@@ -68,6 +68,9 @@ Unit-detail Wargear перестал использовать длинные ins
 семантические заголовки: группы рендерят компактные `Default Wargear` /
 `Choice N` headings, сохраняя полный текст правила отдельной строкой внутри
 группы.
+Unit-detail sticky shortcut для редактируемой composition теперь короче
+показывается как `Models`, сохраняя доступное имя `Edit unit composition`,
+а `Reset Wargear` получает unit-specific accessible label.
 Wargear control labels теперь используют эти компактные group headings
 (`Power fist - Choice 1`) вместо повторения полного instruction-абзаца на
 каждом checkbox/stepper.
