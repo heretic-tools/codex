@@ -1,4 +1,16 @@
-function rosterValidationCodeActionTarget(code) {
+import {
+  warlordPickerHasSelectableTarget,
+  warlordPickerModel,
+} from "./builder_roster_warlord_options.js";
+
+function warlordValidationActionTarget(roster) {
+  if (roster && !warlordPickerHasSelectableTarget(warlordPickerModel(roster))) {
+    return { kind: "target", target: "units", text: "Units" };
+  }
+  return { kind: "target", target: "warlord", text: "Pick" };
+}
+
+function rosterValidationCodeActionTarget(code, { roster = null } = {}) {
   switch (code) {
     case "mandatory_warlord.not_selected":
     case "mandatory_warlord.detachment_not_selected":
@@ -7,7 +19,7 @@ function rosterValidationCodeActionTarget(code) {
     case "warlord.invalid_generic":
     case "warlord.multiple_selected":
     case "warlord.not_selected":
-      return { kind: "target", target: "warlord", text: "Pick" };
+      return warlordValidationActionTarget(roster);
     case "allied_unit.required_detachment_not_selected":
     case "allegiance_ability.required_detachment_missing":
     case "enhancement.required_detachment_missing":

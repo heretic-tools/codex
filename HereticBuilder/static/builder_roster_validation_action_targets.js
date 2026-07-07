@@ -1,7 +1,7 @@
 import { rosterValidationCodeActionTarget } from "./builder_roster_validation_code_action_targets.js";
 import { unitValidationActionTarget } from "./builder_roster_unit_validation_targets.js";
 
-function rosterValidationActionTarget(group) {
+function rosterValidationActionTarget(group, { roster = null } = {}) {
   const attachmentIds = group.attachmentIds || [];
   const datasheetIds = group.datasheetIds || [];
   const detachmentIds = group.detachmentIds || [];
@@ -13,7 +13,7 @@ function rosterValidationActionTarget(group) {
   ].includes(group.code)) {
     return { datasheetId: datasheetIds[0], kind: "unitSearch", text: "Find" };
   }
-  const codeTarget = rosterValidationCodeActionTarget(group.code);
+  const codeTarget = rosterValidationCodeActionTarget(group.code, { roster });
   if (codeTarget) {
     return codeTarget;
   }

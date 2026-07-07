@@ -66,4 +66,13 @@ function warlordPickerModel(roster) {
   };
 }
 
-export { warlordOptionLabel, warlordPickerModel, warlordSelectionContext };
+function warlordPickerHasSelectableTarget(model) {
+  return (model?.options || []).some((row) => row.value && !row.disabled);
+}
+
+export {
+  warlordOptionLabel,
+  warlordPickerHasSelectableTarget,
+  warlordPickerModel,
+  warlordSelectionContext,
+};

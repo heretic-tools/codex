@@ -3,6 +3,15 @@ import test from "node:test";
 
 global.document = { querySelector: () => null };
 
+import {
+  availableDatasheets,
+  battleSizeNamed,
+  factionNamed,
+  realCatalog,
+  state,
+} from "./builder_validation_helpers.mjs";
+import { rosterWithAddedUnit } from "../HereticBuilder/static/builder_roster_actions.js";
+
 const {
   renderRosterOverview,
   renderRosterStickySummary,
@@ -116,6 +125,58 @@ test("roster overview hides Warlord picker before units exist", () => {
     assert.equal(overview.children[2].children[3].title, "Delete roster");
     assert.equal(overview.children[2].children[3].attributes.get("aria-label"), "Delete roster");
   } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("roster overview hides Warlord picker when no unit can be selected as Warlord", () => {
+  const previousDocument = global.document;
+  const previousCatalog = state.catalog;
+  global.document = {
+    createElement: createMockElement,
+  };
+  state.catalog = realCatalog;
+
+  try {
+    const faction = factionNamed("Adeptus Astartes");
+    const roster = {
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [],
+      factionKeywordId: faction.id,
+      id: "roster-1",
+      name: "Adeptus Astartes roster 1",
+      units: [],
+    };
+    const aggressors = availableDatasheets(roster, "native")
+      .find((datasheet) => datasheet.name === "Aggressor Squad");
+    assert.ok(aggressors);
+    const rosterWithAggressors = rosterWithAddedUnit(roster, {
+      datasheetId: aggressors.id,
+      unitId: "unit-1",
+    });
+    const overview = renderRosterOverview({
+      onDelete: () => {},
+      onDuplicate: () => {},
+      onUpdate: () => {},
+      roster: rosterWithAggressors,
+      summary: { battleSizeName: "Strike Force", factionName: "Adeptus Astartes" },
+      validation: {
+        messages: [{ code: "warlord.not_selected", level: "error", text: "Pick one Warlord." }],
+        points: {
+          detachmentLimit: 3,
+          detachmentPoints: 0,
+          limit: 2000,
+          total: 90,
+        },
+        state: "invalid",
+      },
+    });
+
+    assert.equal(overview.textContent.includes("Warlord"), false);
+    assert.equal(overview.textContent.includes("not eligible"), false);
+    assert.ok(overview.textContent.includes("Rename Roster"));
+  } finally {
+    state.catalog = previousCatalog;
     global.document = previousDocument;
   }
 });

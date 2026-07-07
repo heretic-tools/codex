@@ -54,6 +54,9 @@ attachment row/editor, даже если сообщение одновремен
 Mobile sticky summary actions используют adaptive `auto-fit` сетку вместо
 фиксированных четырёх колонок, чтобы unit detail с пятью shortcuts не ломал
 нижнюю панель.
+Roster-level Warlord picker теперь скрывается, если в текущем ростере нет
+ни одного выбираемого Warlord target, а `Pick one Warlord` ведёт к Units,
+когда пользователю сначала нужно добавить подходящий Character.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

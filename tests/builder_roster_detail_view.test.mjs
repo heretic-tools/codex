@@ -3,6 +3,15 @@ import test from "node:test";
 
 global.document = { querySelector: () => null };
 
+import {
+  availableDatasheets,
+  battleSizeNamed,
+  factionNamed,
+  realCatalog,
+  state,
+} from "./builder_validation_helpers.mjs";
+import { rosterWithAddedUnit } from "../HereticBuilder/static/builder_roster_actions.js";
+
 const {
   rosterDetailHasValidationMessages,
   rosterDetailStickyActionDescriptors,
@@ -178,6 +187,40 @@ test("roster validation actions handle roster-level issues without scopes", () =
     }),
     { kind: "target", target: "units", text: "Units" }
   );
+});
+
+test("roster Warlord validation action routes to Units when no Warlord target is selectable", () => {
+  const previousCatalog = state.catalog;
+  state.catalog = realCatalog;
+
+  try {
+    const faction = factionNamed("Adeptus Astartes");
+    const roster = {
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [],
+      factionKeywordId: faction.id,
+      units: [],
+    };
+    const aggressors = availableDatasheets(roster, "native")
+      .find((datasheet) => datasheet.name === "Aggressor Squad");
+    assert.ok(aggressors);
+    const rosterWithAggressors = rosterWithAddedUnit(roster, {
+      datasheetId: aggressors.id,
+      unitId: "unit-1",
+    });
+
+    assert.deepEqual(
+      rosterValidationActionTarget({
+        attachmentIds: [],
+        code: "warlord.not_selected",
+        detachmentIds: [],
+        unitIds: [],
+      }, { roster: rosterWithAggressors }),
+      { kind: "target", target: "units", text: "Units" }
+    );
+  } finally {
+    state.catalog = previousCatalog;
+  }
 });
 
 test("roster validation actions route broad rule families to useful editors", () => {

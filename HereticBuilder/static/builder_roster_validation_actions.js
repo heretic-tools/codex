@@ -19,7 +19,7 @@ function validationActionButton(action, group, onClick, context = {}) {
 }
 
 function renderValidationGroupAction(group, { onUnitOpen, roster, unitById }) {
-  const action = rosterValidationActionTarget(group);
+  const action = rosterValidationActionTarget(group, { roster });
   if (!action) {
     return null;
   }
