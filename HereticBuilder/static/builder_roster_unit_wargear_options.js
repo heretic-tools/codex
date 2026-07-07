@@ -1,9 +1,13 @@
 import { state } from "./builder_state.js";
 
 function wargearOptionLabel(optionRow) {
-  const item = state.catalog.wargearItemById.get(optionRow.wargearItemId);
+  const itemName = wargearOptionName(optionRow);
   const points = optionRow.points ? ` / ${optionRow.points} pts` : "";
-  return `${item?.name || "Wargear"}${points}`;
+  return `${itemName || "Wargear"}${points}`;
+}
+
+function wargearOptionName(optionRow = {}) {
+  return state.catalog.wargearItemById.get(optionRow.wargearItemId)?.name || "";
 }
 
 function wargearOptionRowsForGroup(group) {
@@ -16,5 +20,6 @@ function wargearOptionRowsForGroup(group) {
 
 export {
   wargearOptionLabel,
+  wargearOptionName,
   wargearOptionRowsForGroup,
 };

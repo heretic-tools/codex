@@ -2,15 +2,20 @@ import { textNode } from "./builder_dom.js";
 import { rosterWithUnitWargearCount } from "./builder_roster_actions.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { countControl } from "./builder_roster_unit_wargear_count_control.js";
-import { wargearOptionRowsForGroup } from "./builder_roster_unit_wargear_options.js";
+import {
+  wargearOptionName,
+  wargearOptionRowsForGroup,
+} from "./builder_roster_unit_wargear_options.js";
 
-function wargearChangeMessage(unit) {
-  return `Wargear changed for ${unit.name || "Unit"}`;
+function wargearChangeMessage(unit, optionRow = null) {
+  const optionName = wargearOptionName(optionRow);
+  const subject = optionName ? `${optionName} changed` : "Wargear changed";
+  return `${subject} for ${unit.name || "Unit"}`;
 }
 
 function updateWargearCountFromEditor(roster, unit, target, optionRow, count, onUpdate, onUndoableUpdate = null) {
   return applyRosterUpdate({
-    message: wargearChangeMessage(unit),
+    message: wargearChangeMessage(unit, optionRow),
     nextRoster: rosterWithUnitWargearCount(roster, unit.id, {
       count,
       optionId: optionRow.id,

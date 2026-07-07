@@ -71,6 +71,9 @@ Unit-detail Wargear перестал использовать длинные ins
 Wargear control labels теперь используют эти компактные group headings
 (`Power fist - Choice 1`) вместо повторения полного instruction-абзаца на
 каждом checkbox/stepper.
+Undo/status messages для прямого изменения wargear count теперь называют
+конкретный wargear item, если он резолвится из каталога, с прежним fallback
+`Wargear changed` для synthetic/edge rows.
 Unit-detail upgrade/enhancement editor теперь называет секцию и controls по
 фактическим типам доступных опций: `Upgrades`, `Enhancements` или
 `Enhancements & Upgrades`; unit-scope target отображается как `Whole unit`,

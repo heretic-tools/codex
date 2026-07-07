@@ -29,6 +29,7 @@ import {
 } from "../HereticBuilder/static/builder_roster_unit_overview_view.js";
 import {
   updateWargearCountFromEditor,
+  wargearChangeMessage,
   wargearControlLabel,
   wargearGroupTitle,
 } from "../HereticBuilder/static/builder_roster_unit_wargear_options_view.js";
@@ -266,6 +267,13 @@ test("unit wargear count control exposes a mobile stepper", async () => {
 });
 
 test("unit wargear controls include group context in accessible labels", () => {
+  state.catalog = realCatalog;
+  const namedOption = realCatalog.wargearOptions.find((row) => realCatalog.wargearItemById.get(row.wargearItemId)?.name);
+  assert.ok(namedOption, "Expected a named wargear option");
+  const itemName = realCatalog.wargearItemById.get(namedOption.wargearItemId).name;
+
+  assert.equal(wargearChangeMessage({ name: "Chosen" }, namedOption), `${itemName} changed for Chosen`);
+  assert.equal(wargearChangeMessage({ name: "Chosen" }, { wargearItemId: "missing" }), "Wargear changed for Chosen");
   assert.equal(
     wargearControlLabel("Power fist", { instructionText: "This model's close combat weapon can be replaced." }),
     "Power fist - Choice 1"
@@ -700,6 +708,8 @@ test("unit wargear editor emits undoable roster updates", async () => {
   assert.ok(group, "Expected a scoped wargear group");
   const optionRow = (realCatalog.wargearOptionsByGroupId.get(group.id) || [])[0];
   assert.ok(optionRow, "Expected a wargear option");
+  const itemName = realCatalog.wargearItemById.get(optionRow.wargearItemId)?.name;
+  assert.ok(itemName, "Expected a named wargear item");
   const target = group.miniatureId
     ? unit.miniatures.find((miniature) => miniature.miniatureId === group.miniatureId)
     : unit;
@@ -719,7 +729,7 @@ test("unit wargear editor emits undoable roster updates", async () => {
     }
   );
 
-  assert.equal(event.message, `Wargear changed for ${datasheet.name}`);
+  assert.equal(event.message, `${itemName} changed for ${datasheet.name}`);
   assert.equal(event.previousRoster, roster);
   assert.notEqual(event.nextRoster, roster);
 });
