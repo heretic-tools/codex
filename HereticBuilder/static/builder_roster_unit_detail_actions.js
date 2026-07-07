@@ -1,4 +1,5 @@
 import { button } from "./builder_dom.js";
+import { expandDisclosure } from "./builder_roster_validation_action_scroll.js";
 import { unitValidationActionTarget } from "./builder_roster_unit_validation_targets.js";
 import { labelValidationAction, validationActionLabel } from "./builder_validation_action_labels.js";
 
@@ -8,11 +9,13 @@ function scrollToUnitDetailTarget(target) {
   if (!node) {
     return;
   }
-  node.scrollIntoView({ behavior: "smooth", block: "center" });
+  expandDisclosure(node);
   const focusTarget = node.querySelector("[data-focus-target]")
     || (node.matches("button, input, select, textarea, a")
       ? node
       : node.querySelector("button, input, select, textarea, a"));
+  const scrollTarget = focusTarget || node;
+  scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
   focusTarget?.focus({ preventScroll: true });
   node.classList.add("is-attention-target");
   window.setTimeout(() => node.classList.remove("is-attention-target"), 900);
