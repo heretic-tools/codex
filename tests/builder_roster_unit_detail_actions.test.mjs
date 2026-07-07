@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 const {
+  renderUnitValidationAction,
   renderRosterValidationActionLink,
   rosterFocusHref,
   rosterFocusTargetForValidationAction,
@@ -219,6 +220,43 @@ test("unit detail roster issue links point back to roster editor targets", () =>
     assert.equal(findLink.textContent, "Find");
     assert.equal(findLink.href, "#/roster/roster%201/focus/unitSearch%3AAbaddon%20the%20Despoiler");
     assert.equal(findLink.title, "Find unit: Abaddon the Despoiler");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit detail detachment requirement actions link back to roster detachments", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement(tagName) {
+      return {
+        attributes: new Map(),
+        className: "",
+        href: "",
+        tagName,
+        textContent: "",
+        setAttribute(name, value) {
+          this.attributes.set(name, String(value));
+        },
+      };
+    },
+  };
+
+  try {
+    const action = renderUnitValidationAction({
+      code: "enhancement.required_detachment_missing",
+      texts: ["Dark Apotheosis requires the Veterans of the Long War detachment."],
+      unitIds: ["unit 1"],
+    }, {
+      roster: { id: "roster 1" },
+    });
+
+    assert.equal(action.tagName, "a");
+    assert.equal(action.className, "validation-action-button");
+    assert.equal(action.textContent, "Detachments");
+    assert.equal(action.href, "#/roster/roster%201/focus/detachments");
+    assert.equal(action.title, "Detachments: Dark Apotheosis requires the Veterans of the Long War detachment.");
+    assert.equal(action.attributes.get("aria-label"), action.title);
   } finally {
     global.document = previousDocument;
   }

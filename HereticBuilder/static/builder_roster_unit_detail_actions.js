@@ -28,7 +28,22 @@ function scrollToUnitDetailTarget(target) {
   window.setTimeout(() => node.classList.remove("is-attention-target"), 900);
 }
 
-function renderUnitValidationAction(group) {
+function renderRosterTargetActionFromUnitDetail(group, roster) {
+  if (!roster?.id) {
+    return null;
+  }
+  const action = rosterValidationActionTarget(group);
+  if (action?.kind === "target" && action.target === "detachments") {
+    return validationActionLink(action, group, rosterFocusHref(roster.id, action.target));
+  }
+  return null;
+}
+
+function renderUnitValidationAction(group, { roster = null } = {}) {
+  const rosterTargetAction = renderRosterTargetActionFromUnitDetail(group, roster);
+  if (rosterTargetAction) {
+    return rosterTargetAction;
+  }
   const action = unitValidationActionTarget(group);
   return action
     ? labelValidationAction(
@@ -109,6 +124,7 @@ function renderRosterValidationActionLink(group, { datasheetById = new Map(), ro
 }
 
 export {
+  renderRosterTargetActionFromUnitDetail,
   renderRosterValidationActionLink,
   renderUnitValidationAction,
   rosterFocusHref,

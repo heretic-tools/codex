@@ -87,7 +87,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
   if (validationHasMessages(unitValidation)) {
     const unitValidationView = renderValidation(unitValidation, {
       context: validationContext,
-      groupAction: renderUnitValidationAction,
+      groupAction: (group) => renderUnitValidationAction(group, { roster }),
       title: "Unit Validation",
     });
     unitValidationView.dataset.unitDetailTarget = "validation";
