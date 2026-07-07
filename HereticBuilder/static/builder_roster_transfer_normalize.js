@@ -1,9 +1,9 @@
 import {
-  LEGACY_ROSTER_FIELDS,
   normalizedListSummary,
   numberOrNull,
-  requireNoLegacyFields,
+  requireNoUnsupportedFields,
   stringArray,
+  UNSUPPORTED_ROSTER_FIELDS,
 } from "./builder_roster_transfer_normalize_helpers.js";
 import {
   normalizedAttachments,
@@ -13,7 +13,7 @@ import {
 } from "./builder_roster_transfer_normalize_units.js";
 
 function normalizedRoster(roster) {
-  requireNoLegacyFields(roster, LEGACY_ROSTER_FIELDS, "Roster");
+  requireNoUnsupportedFields(roster, UNSUPPORTED_ROSTER_FIELDS, "Roster");
   if (!roster || typeof roster !== "object" || !roster.id || !roster.factionKeywordId || !roster.battleSizeId) {
     throw new Error("Roster export file contains an invalid roster");
   }

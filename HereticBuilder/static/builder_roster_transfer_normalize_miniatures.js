@@ -1,8 +1,8 @@
 import {
-  LEGACY_MINIATURE_FIELDS,
   normalizedWargearMap,
   numberOrNull,
-  requireNoLegacyFields,
+  requireNoUnsupportedFields,
+  UNSUPPORTED_MINIATURE_FIELDS,
 } from "./builder_roster_transfer_normalize_helpers.js";
 
 function normalizedMiniatures(rows) {
@@ -10,7 +10,7 @@ function normalizedMiniatures(rows) {
     return [];
   }
   return rows.map((row) => {
-    requireNoLegacyFields(row, LEGACY_MINIATURE_FIELDS, "Roster miniature");
+    requireNoUnsupportedFields(row, UNSUPPORTED_MINIATURE_FIELDS, "Roster miniature");
     if (!row || typeof row !== "object" || typeof row.miniatureId !== "string" || !row.miniatureId) {
       throw new Error("Roster export file contains an invalid miniature row");
     }

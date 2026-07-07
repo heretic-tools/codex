@@ -1,8 +1,8 @@
 import {
-  LEGACY_UNIT_FIELDS,
   normalizedSelectionRows,
   normalizedWargearMap,
-  requireNoLegacyFields,
+  requireNoUnsupportedFields,
+  UNSUPPORTED_UNIT_FIELDS,
 } from "./builder_roster_transfer_normalize_helpers.js";
 import { normalizedMiniatures } from "./builder_roster_transfer_normalize_miniatures.js";
 
@@ -11,7 +11,7 @@ function normalizedUnits(rows) {
     return [];
   }
   return rows.map((row) => {
-    requireNoLegacyFields(row, LEGACY_UNIT_FIELDS, "Roster unit");
+    requireNoUnsupportedFields(row, UNSUPPORTED_UNIT_FIELDS, "Roster unit");
     if (
       !row
       || typeof row !== "object"

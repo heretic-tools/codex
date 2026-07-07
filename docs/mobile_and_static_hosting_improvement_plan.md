@@ -45,7 +45,9 @@ validation cache, а undo/status toast actions получили явные acces
 actions вроде `Export Text` закрывают popover-меню после клика. Roster detail
 sticky shortcuts теперь не показывают `Issues`, когда validation messages нет,
 сохраняя `Issues` и саму `Roster Validation` секцию только для реально
-actionable validation-поверхности.
+actionable validation-поверхности. Transfer/import pipeline больше не носит
+`legacy` naming для старых roster fields: old-format поля явно описаны как
+unsupported и продолжают reject-иться с понятной ошибкой.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

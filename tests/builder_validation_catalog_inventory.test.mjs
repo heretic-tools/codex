@@ -1029,7 +1029,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
       join(outDir, "static", "builder_roster_transfer_normalize_helpers.js"),
       "utf8",
     );
-    assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_legacy_fields\\.js\\?v=${version}`));
+    assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_unsupported_fields\\.js\\?v=${version}`));
     assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_list_summary\\.js\\?v=${version}`));
     assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_selection_rows\\.js\\?v=${version}`));
     assert.match(transferNormalizeHelpersSource, new RegExp(`\\.\\/builder_roster_transfer_wargear_map\\.js\\?v=${version}`));
