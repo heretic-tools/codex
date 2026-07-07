@@ -48,6 +48,8 @@ sticky shortcuts теперь не показывают `Issues`, когда val
 actionable validation-поверхности. Transfer/import pipeline больше не носит
 `legacy` naming для старых roster fields: old-format поля явно описаны как
 unsupported и продолжают reject-иться с понятной ошибкой.
+Validation action routing теперь отдаёт attached-unit diagnostics приоритет
+attachment row/editor, даже если сообщение одновременно содержит `unitId`.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

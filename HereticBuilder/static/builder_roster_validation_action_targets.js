@@ -17,6 +17,14 @@ function rosterValidationActionTarget(group) {
   if (codeTarget) {
     return codeTarget;
   }
+  if (String(group.code || "").startsWith("attached_unit.")) {
+    if (attachmentIds.length === 1) {
+      return { attribute: "attachment-id", kind: "row", text: "Show", value: attachmentIds[0] };
+    }
+    if (attachmentIds.length > 1) {
+      return { kind: "target", target: "attachments", text: "Attached" };
+    }
+  }
   if (unitIds.length === 1) {
     const unitTarget = unitValidationActionTarget(group);
     return {

@@ -41,6 +41,16 @@ test("roster validation actions prefer exact scoped editor targets", () => {
     }),
     { attribute: "attachment-id", kind: "row", text: "Show", value: "attachment-1" }
   );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: ["attachment-1"],
+      code: "attached_unit.must_be_attached",
+      detachmentIds: [],
+      unitIds: ["unit-1"],
+    }),
+    { attribute: "attachment-id", kind: "row", text: "Show", value: "attachment-1" }
+  );
 });
 
 test("roster detail sticky actions only show Issues when validation has messages", () => {
