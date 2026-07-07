@@ -1,7 +1,14 @@
 import { button } from "./builder_dom.js";
+import { rosterValidationActionTarget } from "./builder_roster_validation_action_targets.js";
 import { expandDisclosure } from "./builder_roster_validation_action_scroll.js";
 import { unitValidationActionTarget } from "./builder_roster_unit_validation_targets.js";
 import { labelValidationAction, validationActionLabel } from "./builder_validation_action_labels.js";
+
+const ROW_FOCUS_TARGETS = {
+  "attachment-id": "attachments",
+  "detachment-id": "detachments",
+  "unit-id": "units",
+};
 
 function scrollToUnitDetailTarget(target) {
   const selectorValue = window.CSS?.escape ? CSS.escape(target) : String(target).replace(/"/g, "");
@@ -31,9 +38,70 @@ function renderUnitValidationAction(group) {
     : null;
 }
 
+function rosterFocusTargetForValidationAction(action) {
+  if (action.kind === "target") {
+    return action.target;
+  }
+  if (action.kind === "row") {
+    return ROW_FOCUS_TARGETS[action.attribute] || "";
+  }
+  if (action.kind === "unitSearch") {
+    return "units";
+  }
+  return "";
+}
+
+function rosterFocusHref(rosterId, target = "") {
+  const rosterPath = `/roster/${encodeURIComponent(rosterId || "")}`;
+  return `#${target ? `${rosterPath}/focus/${encodeURIComponent(target)}` : rosterPath}`;
+}
+
+function unitFocusHref(rosterId, unitId, target = "") {
+  const unitPath = `/roster/${encodeURIComponent(rosterId || "")}/unit/${encodeURIComponent(unitId || "")}`;
+  return `#${target ? `${unitPath}/focus/${encodeURIComponent(target)}` : unitPath}`;
+}
+
+function validationActionLink(action, group, href, context = {}) {
+  const node = document.createElement("a");
+  node.className = "validation-action-button";
+  node.textContent = action.text;
+  node.href = href;
+  return labelValidationAction(node, validationActionLabel(action, group, context));
+}
+
+function renderRosterValidationActionLink(group, { roster, unitById = new Map() } = {}) {
+  const action = rosterValidationActionTarget(group);
+  if (!action || !roster?.id) {
+    return null;
+  }
+  if (action.kind === "unit") {
+    const unit = unitById.get(action.unitId);
+    return validationActionLink(
+      action,
+      group,
+      unitFocusHref(roster.id, action.unitId, action.focusTarget || ""),
+      { unit }
+    );
+  }
+  if (action.kind === "detachmentCodex") {
+    const detachmentAction = { kind: "target", target: "detachments", text: "Detachments" };
+    return validationActionLink(
+      detachmentAction,
+      group,
+      rosterFocusHref(roster.id, detachmentAction.target)
+    );
+  }
+  const focusTarget = rosterFocusTargetForValidationAction(action);
+  return validationActionLink(action, group, rosterFocusHref(roster.id, focusTarget));
+}
+
 export {
+  renderRosterValidationActionLink,
   renderUnitValidationAction,
+  rosterFocusHref,
+  rosterFocusTargetForValidationAction,
   scrollToUnitDetailTarget,
+  unitFocusHref,
   validationActionLabel as unitValidationActionLabel,
   unitValidationActionTarget,
 };

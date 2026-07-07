@@ -1,7 +1,8 @@
-import { unitSummary } from "./builder_model.js";
+import { rosterUnitSummaries, unitSummary } from "./builder_model.js";
 import { validationContextForRoster } from "./builder_validation_context.js";
 import { renderValidation, validationForUnit } from "./builder_validation_view.js";
 import {
+  renderRosterValidationActionLink,
   renderUnitValidationAction,
   scrollToUnitDetailTarget,
   unitValidationActionTarget,
@@ -45,6 +46,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
   const unitValidation = validationForUnit(validation, summary);
   const otherValidation = validationWithoutMessages(validation, unitValidation.messages);
   const validationContext = validationContextForRoster(roster);
+  const unitById = new Map(rosterUnitSummaries(roster).map((item) => [item.id, item]));
   const root = document.createElement("section");
   root.className = "builder-grid unit-detail-grid";
 
@@ -83,7 +85,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
   if (validationHasMessages(otherValidation)) {
     const rosterIssuesView = renderValidation(otherValidation, {
       context: validationContext,
-      groupAction: renderUnitValidationAction,
+      groupAction: (group) => renderRosterValidationActionLink(group, { roster, unitById }),
       title: "Roster Issues",
     });
     if (!hasValidation) {

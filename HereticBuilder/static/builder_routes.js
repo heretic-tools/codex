@@ -14,7 +14,11 @@ function parseRoute() {
         unitId: decodeURIComponent(parts[3]),
       };
     }
-    return { focusTarget: "", name: "roster", rosterId: decodeURIComponent(parts[1]) };
+    return {
+      focusTarget: parts[2] === "focus" && parts[3] ? decodeURIComponent(parts[3]) : "",
+      name: "roster",
+      rosterId: decodeURIComponent(parts[1]),
+    };
   }
   return { focusTarget: "", name: "list", rosterId: "" };
 }

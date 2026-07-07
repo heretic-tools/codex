@@ -22,6 +22,16 @@ test("builder route parser keeps optional unit-detail focus targets", () => {
   });
 });
 
+test("builder route parser keeps optional roster-detail focus targets", () => {
+  window.location.hash = "#/roster/roster%201/focus/detachments";
+
+  assert.deepEqual(parseRoute(), {
+    focusTarget: "detachments",
+    name: "roster",
+    rosterId: "roster 1",
+  });
+});
+
 test("builder route parser returns empty focus targets for other routes", () => {
   window.location.hash = "#/roster/roster-1";
   assert.deepEqual(parseRoute(), {

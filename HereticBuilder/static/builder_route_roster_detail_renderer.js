@@ -33,6 +33,7 @@ async function renderRoster(render) {
   el.title.textContent = roster.name || "New Roster";
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
+    focusTarget: state.route.focusTarget || "",
     newId,
     roster,
     onDelete: deleteRoster,

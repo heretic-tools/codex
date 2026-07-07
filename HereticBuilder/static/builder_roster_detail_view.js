@@ -6,10 +6,12 @@ import {
   renderValidationGroupAction,
   rosterValidationActionTarget,
 } from "./builder_roster_validation_actions.js";
+import { scrollToEditorTarget } from "./builder_roster_validation_action_scroll.js";
 import { validationContextForRoster } from "./builder_validation_context.js";
 import { renderValidation } from "./builder_validation_view.js";
 
 function renderRosterDetailView({
+  focusTarget = "",
   newId,
   onDelete,
   onUndoableUpdate = null,
@@ -65,6 +67,9 @@ function renderRosterDetailView({
   validationView.dataset.editorTarget = "validation";
   sidebar.append(overview, validationView);
   root.append(stickySummary, sidebar, editor);
+  if (focusTarget) {
+    window.requestAnimationFrame(() => scrollToEditorTarget(focusTarget));
+  }
   return root;
 }
 
