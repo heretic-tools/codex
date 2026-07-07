@@ -34,6 +34,15 @@ Tactical Mono** — плотный тактический интерфейс с 
 | P1 | PWA/offline | Первый срез сделан | Подтверждено, что Builder остаётся статическим GitHub Pages приложением без backend, а пользовательские данные хранятся локально. Добавлены root-level `manifest.webmanifest` и `service-worker.js`, регистрация через `pwa.js`, `viewport-fit=cover`, offline badge в header и standalone Builder build-контракт для GitHub Pages `/builder`. HTML shell и Builder metadata (`manifest.json`, `bootstrap.json`) идут network-first/no-cache с offline fallback, хэшированные data/static/assets остаются cache-first, а `pwa.js` после загрузки отправляет текущий HTML/manifest/CSS/scripts в SW для opportunistic shell cache priming и повторяет priming через `navigator.serviceWorker.ready`, если worker ещё не active. Build inventory guard закрепляет, что service worker precache использует `app.css` и `builder.css`, не держит старый `desktop.css`, и cache namespace поднят до `pwa-v2` после shell asset rename. | Проверить offline-поведение в браузере после первой загрузки и доработать cache strategy после стабилизации data chunking/search shard flow. |
 | P2 | Payload/chunking оптимизации | Частично сделано, отложено | Уже есть size/hash guards и часть payload/search-index оптимизаций. | Faction chunks и дальнейшую нарезку данных делать после стабилизации функционала и дизайна. |
 
+Дополнение от 2026-07-07: очередной Builder UX проход добавил визуальный
+progress по очкам и дату обновления в строки ростеров, сгруппировал выбранные
+юниты по ролям `Character` / `Battleline` / `Dedicated Transport` / `Other`,
+добавил действие `Duplicate Roster` на overview экране с пересчетом локального
+validation cache, а undo/status toast actions получили явные accessible labels.
+Все изменения остаются thin-client: используются уже сохраненные local roster
+documents, предрасчитанный catalog и локальный validator, без backend и без
+нового пользовательского формата хранения.
+
 ## Не входит в объём
 
 - Combat Patrol и остальной roster-validation parity tail — уже трекается в
