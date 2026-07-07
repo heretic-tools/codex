@@ -24,6 +24,13 @@ function removeDetachmentFromRow(roster, detachment, index, onUpdate, onUndoable
   });
 }
 
+function detachmentOpenLabel(roster, detachment) {
+  const name = detachment?.name || "Detachment";
+  const disposition = detachment ? detachmentDispositionName(detachment) : "";
+  const cost = detachment ? `${costForDetachment(detachment.id, roster.factionKeywordId)} DP` : "";
+  return `Open Codex detachment: ${[name, disposition, cost].filter(Boolean).join(", ")}`;
+}
+
 function renderDetachmentRow(roster, detachmentId, index, validation, onUpdate, onUndoableUpdate = null) {
   const detachment = state.catalog.detachmentById.get(detachmentId)
     || availableDetachments(roster.factionKeywordId).find((item) => item.id === detachmentId);
@@ -39,7 +46,7 @@ function renderDetachmentRow(roster, detachmentId, index, validation, onUpdate, 
   text.className = "row-text detachment-open-link";
   if (href) {
     text.href = href;
-    text.title = `Open Codex detachment: ${detachment?.name || "Detachment"}`;
+    text.title = detachmentOpenLabel(roster, detachment);
     text.setAttribute("aria-label", text.title);
   }
   text.append(textNode("strong", "", detachment?.name || "Unknown Detachment"));
@@ -62,4 +69,4 @@ function renderDetachmentRow(roster, detachmentId, index, validation, onUpdate, 
   return row;
 }
 
-export { removeDetachmentFromRow, renderDetachmentRow };
+export { detachmentOpenLabel, removeDetachmentFromRow, renderDetachmentRow };

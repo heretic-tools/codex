@@ -15,7 +15,10 @@ import {
   detachmentCandidateRows,
   detachmentCandidateStatus,
 } from "../HereticBuilder/static/builder_roster_detachment_editor_view.js";
-import { renderDetachmentRow } from "../HereticBuilder/static/builder_roster_detachment_rows.js";
+import {
+  detachmentOpenLabel,
+  renderDetachmentRow,
+} from "../HereticBuilder/static/builder_roster_detachment_rows.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -143,11 +146,13 @@ test("detachment rows label their Codex links", () => {
       () => {}
     );
     const link = row.children[0];
+    const expectedLabel = `Open Codex detachment: ${detachment.name}, ${detachmentDispositionName(detachment)}, ${costForDetachment(detachment.id, faction.id)} DP`;
 
+    assert.equal(detachmentOpenLabel({ factionKeywordId: faction.id }, detachment), expectedLabel);
     assert.equal(link.tagName, "a");
     assert.equal(link.href, "/faction/heretic-astartes/detachment/pactbound-zealots");
-    assert.equal(link.title, "Open Codex detachment: Pactbound Zealots");
-    assert.equal(link.attributes.get("aria-label"), "Open Codex detachment: Pactbound Zealots");
+    assert.equal(link.title, expectedLabel);
+    assert.equal(link.attributes.get("aria-label"), expectedLabel);
   } finally {
     global.document = previousDocument;
   }
