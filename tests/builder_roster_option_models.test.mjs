@@ -17,7 +17,10 @@ import {
   wargearOptionRowsForGroup,
 } from "../HereticBuilder/static/builder_roster_unit_wargear_options.js";
 import { wargearGroupsFor } from "../HereticBuilder/static/builder_roster_unit_wargear_groups.js";
-import { unitWarlordSelectModel } from "../HereticBuilder/static/builder_roster_unit_warlord_options.js";
+import {
+  unitWarlordOptionLabel,
+  unitWarlordSelectModel,
+} from "../HereticBuilder/static/builder_roster_unit_warlord_options.js";
 import {
   warlordOptionLabel,
   warlordPickerModel,
@@ -136,6 +139,29 @@ test("unit warlord select model disables invalid non-current candidates", () => 
 
   assert.equal(intercessorOption.disabled, true);
   assert.match(intercessorOption.label, /not eligible/);
+});
+
+test("unit warlord select labels use concise placeholder and readable model counts", () => {
+  assert.equal(unitWarlordOptionLabel({ count: 1, name: "Captain" }), "Captain (1 model)");
+  assert.equal(unitWarlordOptionLabel({ count: 2, name: "Sergeant" }), "Sergeant (2 models)");
+
+  state.catalog = realCatalog;
+  const captain = enhancementTargetUnit({
+    id: "unit-warlord-label-captain",
+    datasheetName: "Captain",
+    miniatureName: "Captain",
+    factionNames: ["Adeptus Astartes"],
+  });
+  const roster = {
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [captain],
+  };
+  const model = unitWarlordSelectModel(roster, captain);
+
+  assert.equal(model.options[0].label, "Not Warlord");
+  assert.equal(model.options[1].label, "Captain (1 model)");
 });
 
 test("unit warlord select model keeps the current invalid candidate visible and enabled", () => {

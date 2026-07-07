@@ -5,6 +5,11 @@ function currentWarlordTargetId(unit) {
   return (unit.miniatures || []).find((miniature) => miniature.isWarlord)?.rosterUnitMiniatureId || "";
 }
 
+function unitWarlordOptionLabel(miniature) {
+  const count = miniature.count || 0;
+  return `${miniature.name} (${count} ${count === 1 ? "model" : "models"})`;
+}
+
 function unitWarlordSelectModel(roster, unit) {
   const context = warlordSelectionContext(roster);
   const currentId = currentWarlordTargetId(unit);
@@ -12,14 +17,14 @@ function unitWarlordSelectModel(roster, unit) {
     context,
     currentId,
     options: [
-      { label: "No warlord for this unit", value: "" },
+      { label: "Not Warlord", value: "" },
       ...(unit.miniatures || []).map((miniature) => {
         const targetId = miniature.rosterUnitMiniatureId || miniature.id;
         const status = warlordCandidateStatus(roster, context.detachments, context.units, unit, miniature);
         const suffix = status.eligible ? "" : ` / ${status.reason}`;
         return {
           disabled: !status.eligible && targetId !== currentId,
-          label: `${miniature.name} (${miniature.count || 0})${suffix}`,
+          label: `${unitWarlordOptionLabel(miniature)}${suffix}`,
           status,
           value: targetId,
         };
@@ -30,5 +35,6 @@ function unitWarlordSelectModel(roster, unit) {
 
 export {
   currentWarlordTargetId,
+  unitWarlordOptionLabel,
   unitWarlordSelectModel,
 };
