@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  rosterDetachmentCountLabel,
   rosterLine,
   rosterPointsLabel,
   rosterUnitCountLabel,
@@ -68,6 +69,12 @@ test("roster list pluralizes unit counts", () => {
   assert.equal(rosterUnitCountLabel(2), "2 units");
 });
 
+test("roster list pluralizes detachment counts", () => {
+  assert.equal(rosterDetachmentCountLabel(0), "0 detachments");
+  assert.equal(rosterDetachmentCountLabel(1), "1 detachment");
+  assert.equal(rosterDetachmentCountLabel(2), "2 detachments");
+});
+
 test("roster row renders polished validation and points labels", () => {
   const previousDocument = global.document;
   global.document = {
@@ -90,7 +97,9 @@ test("roster row renders polished validation and points labels", () => {
     assert.ok(row.textContent.includes("Black Crusade"));
     assert.ok(row.textContent.includes("Valid"));
     assert.ok(row.textContent.includes("285 / 2000"));
+    assert.ok(row.textContent.includes("1 detachment"));
     assert.equal(row.textContent.includes("valid"), false);
+    assert.equal(row.textContent.includes("det."), false);
   } finally {
     global.document = previousDocument;
   }

@@ -16,6 +16,7 @@ import {
 import {
   removeUnitFromRow,
   renderUnitRow,
+  unitModelCountLabel,
   unitOpenLabel,
   unitSourceBadgeText,
 } from "./builder_roster_unit_rows.js";
@@ -52,6 +53,7 @@ export {
   renderUnitEditor,
   unitCandidateGroups,
   unitCandidateStatus,
+  unitModelCountLabel,
   unitOptionValue,
   unitOpenLabel,
   unitSourceBadgeText,

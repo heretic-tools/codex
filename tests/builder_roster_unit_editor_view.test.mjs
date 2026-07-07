@@ -17,12 +17,55 @@ import {
   removeUnitFromRow,
   unitCandidateGroups,
   unitCandidateStatus,
+  unitModelCountLabel,
   unitOpenLabel,
   unitOptionValue,
   unitSourceBadgeText,
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
+import { renderUnitRow } from "../HereticBuilder/static/builder_roster_unit_rows.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+
+function createMockClassList() {
+  const classes = new Set();
+  return {
+    add: (...names) => names.forEach((name) => classes.add(name)),
+    contains: (name) => classes.has(name),
+    remove: (...names) => names.forEach((name) => classes.delete(name)),
+    toggle: (name, value) => (value ? classes.add(name) : classes.delete(name)),
+  };
+}
+
+function createMockElement(tagName) {
+  return {
+    attributes: new Map(),
+    children: [],
+    classList: createMockClassList(),
+    className: "",
+    dataset: {},
+    style: {
+      removeProperty() {},
+    },
+    tagName,
+    textContent: "",
+    title: "",
+    type: "",
+    append(...nodes) {
+      for (const node of nodes) {
+        this.appendChild(node);
+      }
+    },
+    appendChild(node) {
+      this.children.push(node);
+      this.textContent += node.textContent || "";
+      return node;
+    },
+    addEventListener() {},
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    },
+  };
+}
 
 function regularDuplicateLimitedDatasheet(roster) {
   const datasheet = availableDatasheets(roster, "native").find((row) => {
@@ -151,6 +194,37 @@ test("unit source badge names selected allied unit source", () => {
 test("unit row open label names the row action", () => {
   assert.equal(unitOpenLabel({ name: "Chosen" }), "Open unit: Chosen");
   assert.equal(unitOpenLabel({}), "Open unit: Unit");
+});
+
+test("unit rows pluralize model counts", () => {
+  assert.equal(unitModelCountLabel(0), "0 models");
+  assert.equal(unitModelCountLabel(1), "1 model");
+  assert.equal(unitModelCountLabel(2), "2 models");
+
+  const previousDocument = global.document;
+  const previousCatalog = state.catalog;
+  global.document = {
+    createElement: createMockElement,
+  };
+  state.catalog = {
+    unitImagesByDatasheetId: new Map(),
+  };
+
+  try {
+    const row = renderUnitRow(
+      { attachments: [], units: [{ id: "unit-1", datasheetId: "chosen" }] },
+      { datasheetId: "chosen", id: "unit-1", modelCount: 1, name: "Chosen", points: 80 },
+      { messages: [] },
+      () => {},
+      () => {}
+    );
+
+    assert.ok(row.textContent.includes("1 model"));
+    assert.equal(row.textContent.includes("1 models"), false);
+  } finally {
+    state.catalog = previousCatalog;
+    global.document = previousDocument;
+  }
 });
 
 test("unit row removal can delegate to an undo-aware handler", async () => {

@@ -29,6 +29,10 @@ function rosterUnitCountLabel(count) {
   return `${count} ${count === 1 ? "unit" : "units"}`;
 }
 
+function rosterDetachmentCountLabel(count) {
+  return `${count} ${count === 1 ? "detachment" : "detachments"}`;
+}
+
 function rosterDetachmentBadgeClass(disposition) {
   const slug = dispositionSlug(disposition);
   return slug ? `disposition-badge disposition-${slug}` : "meta-badge";
@@ -60,7 +64,7 @@ function rosterLine(roster, onOpen, summarizeRoster) {
   meta.append(
     textNode("span", `validation-state-badge state-${rosterValidationBadgeClass(validationState)}`, rosterValidationBadgeLabel(validationState)),
     textNode("span", "", rosterPointsLabel(summary.pointsTotal, summary.pointsLimit)),
-    textNode("span", "", `${summary.detachmentCount} det.`),
+    textNode("span", "", rosterDetachmentCountLabel(summary.detachmentCount)),
     textNode("span", "", rosterUnitCountLabel(summary.unitCount))
   );
   node.append(text, meta);
@@ -68,6 +72,7 @@ function rosterLine(roster, onOpen, summarizeRoster) {
 }
 
 export {
+  rosterDetachmentCountLabel,
   rosterDetachmentBadgeClass,
   rosterLine,
   rosterPointsLabel,

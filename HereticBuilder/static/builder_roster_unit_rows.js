@@ -18,6 +18,10 @@ function removeUnitFromRow(roster, summary, onUpdate, onUndoableUpdate = null) {
   });
 }
 
+function unitModelCountLabel(count) {
+  return `${count} ${count === 1 ? "model" : "models"}`;
+}
+
 function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndoableUpdate = null) {
   const row = document.createElement("div");
   row.className = "builder-row editor-row unit-editor-row";
@@ -38,7 +42,7 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
   }
   text.append(
     textNode("strong", "", summary.name || "Unit"),
-    textNode("span", "", `${summary.modelCount || 0} models`)
+    textNode("span", "", unitModelCountLabel(summary.modelCount || 0))
   );
   if (summary.isWarlord) {
     text.append(textNode("span", "meta-badge", "Warlord"));
@@ -63,6 +67,7 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
 export {
   removeUnitFromRow,
   renderUnitRow,
+  unitModelCountLabel,
   unitOpenLabel,
   unitSourceBadgeText,
 };

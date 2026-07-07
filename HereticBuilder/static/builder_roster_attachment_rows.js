@@ -22,6 +22,10 @@ function removeAttachmentFromRow(roster, attachment, members, index, onUpdate, o
   });
 }
 
+function attachmentMemberCountLabel(count) {
+  return `${count} ${count === 1 ? "unit" : "units"}`;
+}
+
 function renderAttachmentRow(
   roster,
   attachment,
@@ -61,7 +65,7 @@ function renderAttachmentRow(
   const meta = document.createElement("span");
   meta.className = "row-meta";
   meta.append(
-    textNode("span", "", `${attachment.members?.length || 0} units`),
+    textNode("span", "", attachmentMemberCountLabel(attachment.members?.length || 0)),
     removeButton("Remove attached unit", async () => (
       removeAttachmentFromRow(roster, attachment, members, index, onUpdate, onUndoableUpdate)
     ))
@@ -70,4 +74,4 @@ function renderAttachmentRow(
   return row;
 }
 
-export { removeAttachmentFromRow, renderAttachmentRow };
+export { attachmentMemberCountLabel, removeAttachmentFromRow, renderAttachmentRow };

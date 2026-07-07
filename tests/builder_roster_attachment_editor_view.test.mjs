@@ -16,7 +16,9 @@ const {
   renderAttachmentControls,
 } = await import("../HereticBuilder/static/builder_roster_attachment_controls.js");
 const {
+  attachmentMemberCountLabel,
   removeAttachmentFromRow,
+  renderAttachmentRow,
 } = await import("../HereticBuilder/static/builder_roster_attachment_rows.js");
 const {
   removeAttachmentMemberFromRow,
@@ -299,6 +301,49 @@ test("attached unit removal emits an undoable roster update", async () => {
   assert.equal(event.message, "Chosen removed");
   assert.equal(event.previousRoster, roster);
   assert.deepEqual(event.nextRoster.attachments, []);
+});
+
+test("attached unit rows pluralize member counts", () => {
+  assert.equal(attachmentMemberCountLabel(0), "0 units");
+  assert.equal(attachmentMemberCountLabel(1), "1 unit");
+  assert.equal(attachmentMemberCountLabel(2), "2 units");
+
+  const roster = {
+    attachments: [
+      {
+        id: "attachment-1",
+        members: [
+          { attachmentType: "bodyguard", rosterUnitId: "bodyguard-1" },
+        ],
+      },
+    ],
+  };
+  const unitsById = new Map([
+    ["bodyguard-1", { datasheetId: "bodyguard-datasheet", id: "bodyguard-1", name: "Chosen" }],
+  ]);
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    let row = null;
+    withCatalog(attachmentCatalog(), () => {
+      row = renderAttachmentRow(
+        roster,
+        roster.attachments[0],
+        0,
+        unitsById,
+        { messages: [] },
+        () => {}
+      );
+    });
+
+    assert.ok(row.textContent.includes("1 unit"));
+    assert.equal(row.textContent.includes("1 units"), false);
+  } finally {
+    global.document = previousDocument;
+  }
 });
 
 test("attached unit member removal emits an undoable roster update", async () => {
