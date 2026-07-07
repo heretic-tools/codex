@@ -269,6 +269,13 @@ test("unit row open label names the row action", () => {
     unitOpenLabel({ modelCount: 2, name: "War Dogs", points: 140 }, { sourceLabel: "Allied: Chaos Knights" }),
     "Open unit: War Dogs, 2 models, 140 pts, Allied: Chaos Knights"
   );
+  assert.equal(
+    unitOpenLabel(
+      { modelCount: 5, name: "Chosen", points: 125 },
+      { summaryText: "Abilities: Khorne" }
+    ),
+    "Open unit: Chosen, 5 models, 125 pts, Abilities: Khorne"
+  );
 });
 
 test("unit rows pluralize model counts", () => {
@@ -416,6 +423,10 @@ test("unit rows render compact upgrade summary when present", () => {
 
     assert.ok(row.textContent.includes("Enhancements: Daemon Weapon / Abilities: Mark of Chaos"));
     assert.equal(row.children[0].children[2].className, "unit-row-summary");
+    assert.equal(
+      row.children[0].attributes.get("aria-label"),
+      "Open unit: Chosen, 1 model, 80 pts, Enhancements: Daemon Weapon / Abilities: Mark of Chaos"
+    );
   } finally {
     state.catalog = previousCatalog;
     global.document = previousDocument;

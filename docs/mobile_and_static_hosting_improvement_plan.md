@@ -140,6 +140,9 @@ ability controls; Mark of Chaos/аналогичные обязательные 
 Composition controls на unit detail получили context-aware accessible label
 (`Choose composition for <unit>`) и compact option-count status, связанный с
 select через `aria-describedby`.
+Roster unit row actions теперь включают visible compact summary
+(abilities/enhancements/wargear changes) в `aria-label`/`title`, а выбранные
+detachment Codex links закреплены на 44px mobile touch target.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

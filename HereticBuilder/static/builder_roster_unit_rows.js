@@ -35,7 +35,8 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
   const text = button("unit-open-button", "", () => onUnitOpen(summary));
   text.className = "unit-open-button row-text";
   const sourceLabel = unitSourceBadgeText(summary);
-  const openLabel = unitOpenLabel(summary, { sourceLabel });
+  const summaryText = unitRowSummaryText(summary);
+  const openLabel = unitOpenLabel(summary, { sourceLabel, summaryText });
   text.title = openLabel;
   text.setAttribute("aria-label", openLabel);
   const image = unitImageNode(summary.datasheetId);
@@ -46,7 +47,6 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
     textNode("strong", "", summary.name || "Unit"),
     textNode("span", "", unitModelCountLabel(summary.modelCount || 0))
   );
-  const summaryText = unitRowSummaryText(summary);
   if (summaryText) {
     text.append(textNode("span", "unit-row-summary", summaryText));
   }

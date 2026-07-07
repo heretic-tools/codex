@@ -157,3 +157,10 @@ test("detachment rows label their Codex links", () => {
     global.document = previousDocument;
   }
 });
+
+test("detachment Codex links keep mobile touch targets", () => {
+  const source = readFileSync(join(projectRoot, "HereticBuilder", "static", "builder.css"), "utf8");
+  const linkRule = source.slice(source.indexOf(".detachment-open-link {"), source.indexOf(".detachment-open-link:hover"));
+
+  assert.ok(linkRule.includes("min-height: 44px;"));
+});
