@@ -926,10 +926,18 @@
   .builder-grid,
   .builder-row,
   .builder-transfer-row,
-  .attachment-control-row,
+  .attachment-control-row {
+    grid-template-columns: 1fr;
+  }
+
   .detachment-control-row,
   .unit-control-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .detachment-control-row .builder-search-field,
+  .unit-control-row .builder-search-field {
+    grid-column: 1 / -1;
   }
 
   .transfer-button + .transfer-button {
@@ -1564,10 +1572,18 @@
   .builder-grid,
   .builder-row,
   .builder-transfer-row,
-  .attachment-control-row,
+  .attachment-control-row {
+    grid-template-columns: 1fr;
+  }
+
   .detachment-control-row,
   .unit-control-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .detachment-control-row .builder-search-field,
+  .unit-control-row .builder-search-field {
+    grid-column: 1 / -1;
   }
 
   .transfer-button + .transfer-button {
@@ -1630,6 +1646,7 @@
     grid-template-columns: minmax(0, 1fr) 44px;
   }
 
+  .add-button,
   .remove-button,
   .attachment-member .remove-button,
   .search-clear-button,

@@ -14,9 +14,13 @@ function builderSource(filename) {
   return readFileSync(join(projectRoot, "HereticBuilder", "static", filename), "utf8");
 }
 
+function modernMobileLayer(source = builderCss()) {
+  return source.slice(source.lastIndexOf("@media (max-width: 760px)"));
+}
+
 test("mobile roster summary is a bottom safe-area bar", () => {
   const source = builderCss();
-  const mobileLayer = source.slice(source.indexOf("@media (max-width: 760px)"));
+  const mobileLayer = modernMobileLayer(source);
 
   assert.ok(mobileLayer.includes(".builder-panel-content:has(.roster-sticky-summary)"));
   assert.ok(mobileLayer.includes("padding-bottom: calc(224px + env(safe-area-inset-bottom));"));
@@ -42,10 +46,11 @@ test("mobile roster summary actions are framed as primary add shortcuts", () => 
 });
 
 test("mobile Builder action controls keep 44px touch targets", () => {
-  const mobileLayer = builderCss().slice(builderCss().indexOf("@media (max-width: 760px)"));
+  const mobileLayer = modernMobileLayer();
 
   assert.ok(mobileLayer.includes(".builder-search-field"));
   assert.ok(mobileLayer.includes("grid-template-columns: minmax(0, 1fr) 44px;"));
+  assert.ok(mobileLayer.includes(".add-button,"));
   assert.ok(mobileLayer.includes(".remove-button,"));
   assert.ok(mobileLayer.includes(".attachment-member .remove-button,"));
   assert.ok(mobileLayer.includes(".search-clear-button,"));
@@ -55,4 +60,15 @@ test("mobile Builder action controls keep 44px touch targets", () => {
   assert.ok(mobileLayer.includes("min-width: 44px;"));
   assert.ok(mobileLayer.includes("min-height: 44px;"));
   assert.ok(mobileLayer.includes("grid-template-columns: 44px minmax(0, 1fr) 44px;"));
+});
+
+test("mobile unit and detachment add controls stay inline", () => {
+  const mobileLayer = modernMobileLayer();
+
+  assert.ok(mobileLayer.includes(".detachment-control-row,"));
+  assert.ok(mobileLayer.includes(".unit-control-row {"));
+  assert.ok(mobileLayer.includes("grid-template-columns: minmax(0, 1fr) auto;"));
+  assert.ok(mobileLayer.includes(".detachment-control-row .builder-search-field,"));
+  assert.ok(mobileLayer.includes(".unit-control-row .builder-search-field {"));
+  assert.ok(mobileLayer.includes("grid-column: 1 / -1;"));
 });
