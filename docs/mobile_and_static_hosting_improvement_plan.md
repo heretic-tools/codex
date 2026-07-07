@@ -73,6 +73,9 @@ Unit-detail sticky shortcut для редактируемой composition теп
 а `Reset Wargear` получает unit-specific accessible label.
 Wargear model scopes больше не показывают шумный счётчик вроде `2 groups` в
 header: сами `Default Wargear` / `Choice N` группы уже видны ниже.
+Builder→Codex links теперь генерируют canonical trailing-slash URLs, чтобы
+static preview/GitHub Pages не делали лишний directory redirect при открытии
+datasheet или detachment страницы из Builder.
 Wargear control labels теперь используют эти компактные group headings
 (`Power fist - Choice 1`) вместо повторения полного instruction-абзаца на
 каждом checkbox/stepper.

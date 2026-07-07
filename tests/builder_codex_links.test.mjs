@@ -16,13 +16,13 @@ import {
 test("builder codex links mirror static codex slug routes", () => {
   state.catalog = realCatalog;
   assert.equal(slugifyName("Emperor’s Children"), "emperors-children");
-  assert.equal(factionCodexHref(factionNamed("Heretic Astartes").id), "/faction/heretic-astartes");
+  assert.equal(factionCodexHref(factionNamed("Heretic Astartes").id), "/faction/heretic-astartes/");
   assert.equal(
     detachmentCodexHref(factionNamed("Heretic Astartes").id, detachmentNamed("Pactbound Zealots").id),
-    "/faction/heretic-astartes/detachment/pactbound-zealots"
+    "/faction/heretic-astartes/detachment/pactbound-zealots/"
   );
   assert.equal(
     datasheetCodexHref(factionNamed("Heretic Astartes").id, realCatalog.datasheets.find((row) => row.name === "Abaddon the Despoiler").id),
-    "/faction/heretic-astartes/datasheet/abaddon-the-despoiler"
+    "/faction/heretic-astartes/datasheet/abaddon-the-despoiler/"
   );
 });

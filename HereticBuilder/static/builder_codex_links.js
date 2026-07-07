@@ -27,7 +27,7 @@ function scopedSlugMap(rows, nameKey = "name", idKey = "id") {
 function factionCodexHref(factionKeywordId) {
   const faction = state.catalog.factionKeywordById.get(factionKeywordId)
     || state.catalog.factionById.get(factionKeywordId);
-  return faction ? `/faction/${slugifyName(faction.name)}` : "";
+  return faction ? `/faction/${slugifyName(faction.name)}/` : "";
 }
 
 function detachmentCodexHref(factionKeywordId, detachmentId) {
@@ -37,7 +37,7 @@ function detachmentCodexHref(factionKeywordId, detachmentId) {
   }
   const slugById = scopedSlugMap(availableDetachments(factionKeywordId));
   const slug = slugById.get(detachmentId);
-  return slug ? `${factionHref}/detachment/${slug}` : "";
+  return slug ? `${factionHref}detachment/${slug}/` : "";
 }
 
 function datasheetsForFactionCodex(factionKeywordId) {
@@ -58,7 +58,7 @@ function datasheetCodexHref(rosterOrFactionKeywordId, datasheetId) {
   }
   const datasheets = datasheetsForFactionCodex(factionKeywordId);
   const slugById = scopedSlugMap(datasheets);
-  return `${factionHref}/datasheet/${slugById.get(datasheetId) || slugifyName(datasheet.name)}`;
+  return `${factionHref}datasheet/${slugById.get(datasheetId) || slugifyName(datasheet.name)}/`;
 }
 
 export {
