@@ -4,6 +4,7 @@ import test from "node:test";
 global.document = { querySelector: () => null };
 
 const {
+  stickyEnhancementsLabel,
   unitDetailStickyActionDescriptors,
   unitValidationActionTarget,
   validationHasMessages,
@@ -90,6 +91,34 @@ test("unit detail sticky actions expose only available local sections", () => {
     unitDetailStickyActionDescriptors({ hasWargear: false }),
     [
       { ariaLabel: "Review unit profile", label: "Unit", target: "overview" },
+    ]
+  );
+});
+
+test("unit detail sticky action label follows the rendered upgrades section", () => {
+  assert.equal(stickyEnhancementsLabel("Enhancements"), "Enhancements");
+  assert.equal(stickyEnhancementsLabel("Upgrades"), "Upgrades");
+  assert.equal(stickyEnhancementsLabel("Enhancements & Upgrades"), "Upgrades");
+
+  assert.deepEqual(
+    unitDetailStickyActionDescriptors({
+      hasEnhancements: true,
+      enhancementsLabel: "Enhancements",
+    }),
+    [
+      { ariaLabel: "Review unit profile", label: "Unit", target: "overview" },
+      { ariaLabel: "Edit unit enhancements", label: "Enhancements", target: "enhancements" },
+    ]
+  );
+
+  assert.deepEqual(
+    unitDetailStickyActionDescriptors({
+      hasEnhancements: true,
+      enhancementsLabel: "Enhancements & Upgrades",
+    }),
+    [
+      { ariaLabel: "Review unit profile", label: "Unit", target: "overview" },
+      { ariaLabel: "Edit unit enhancements & upgrades", label: "Upgrades", target: "enhancements" },
     ]
   );
 });

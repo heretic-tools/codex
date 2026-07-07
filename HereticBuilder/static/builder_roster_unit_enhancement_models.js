@@ -15,7 +15,7 @@ function unitEnhancementSelectModel(roster, unit) {
     currentId,
     enhancements,
     keywordIds: unit.keywordIds || [],
-    label: "Unit",
+    label: "Whole unit",
     targetKind: "unit",
   };
 }

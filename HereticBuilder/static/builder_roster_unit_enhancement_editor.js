@@ -7,6 +7,7 @@ import {
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 import { enhancementSelectModels } from "./builder_roster_unit_enhancement_models.js";
+import { enhancementSectionTitle } from "./builder_roster_unit_enhancement_labels.js";
 import { enhancementSelectHasActionableRows } from "./builder_roster_unit_enhancement_options.js";
 import { renderEnhancementSelect } from "./builder_roster_unit_enhancement_select.js";
 import { state } from "./builder_state.js";
@@ -60,7 +61,9 @@ function renderEnhancementsEditor({
   const wrap = document.createElement("section");
   wrap.className = "builder-section unit-enhancements-section";
   wrap.dataset.unitDetailTarget = "enhancements";
-  wrap.appendChild(textNode("h2", "section-title", "Enhancements"));
+  const sectionTitle = enhancementSectionTitle(actionableModels.flatMap((model) => model.enhancements || []));
+  wrap.dataset.sectionTitle = sectionTitle;
+  wrap.appendChild(textNode("h2", "section-title", sectionTitle));
   if (sectionValidation) {
     wrap.appendChild(sectionValidation);
   }

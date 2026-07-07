@@ -30,9 +30,14 @@ function validationHasMessages(validation) {
   return Boolean((validation?.messages || []).length);
 }
 
+function stickyEnhancementsLabel(sectionTitle = "") {
+  return sectionTitle === "Enhancements & Upgrades" ? "Upgrades" : (sectionTitle || "Upgrades");
+}
+
 function unitDetailStickyActionDescriptors({
   hasComposition = false,
   hasEnhancements = false,
+  enhancementsLabel = "Upgrades",
   hasValidation = false,
   hasWargear = false,
 } = {}) {
@@ -48,7 +53,12 @@ function unitDetailStickyActionDescriptors({
     actions.push({ ariaLabel: "Edit unit wargear", label: "Wargear", target: "wargear" });
   }
   if (hasEnhancements) {
-    actions.push({ ariaLabel: "Edit unit upgrades", label: "Upgrades", target: "enhancements" });
+    const label = stickyEnhancementsLabel(enhancementsLabel);
+    actions.push({
+      ariaLabel: `Edit unit ${String(enhancementsLabel || label).toLowerCase()}`,
+      label,
+      target: "enhancements",
+    });
   }
   return actions;
 }
@@ -131,6 +141,7 @@ function renderRosterUnitDetailView({ focusTarget = "", onUndoableUpdate = null,
     actions: unitDetailStickyActionDescriptors({
       hasComposition: unitHasCompositionChoices(roster, summary),
       hasEnhancements: Boolean(enhancementsEditor),
+      enhancementsLabel: enhancementsEditor?.dataset.sectionTitle || "Upgrades",
       hasValidation,
       hasWargear: Boolean(wargear),
     }).map((action) => ({
@@ -156,6 +167,7 @@ export {
   unitDisplayName,
   unitDetailStickyActionDescriptors,
   unitValidationActionTarget,
+  stickyEnhancementsLabel,
   validationHasMessages,
   validationWithoutMessages,
 };

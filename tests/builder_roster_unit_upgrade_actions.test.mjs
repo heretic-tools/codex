@@ -20,6 +20,10 @@ import {
   renderEnhancementsEditor,
   updateEnhancementFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_enhancement_editor.js";
+import {
+  enhancementKindLabel,
+  enhancementSectionTitle,
+} from "../HereticBuilder/static/builder_roster_unit_enhancement_labels.js";
 
 const ENHANCEMENT_FIXTURES = {
   miniature: {
@@ -211,11 +215,31 @@ test("unit enhancement editor labels enhancement selects", () => {
     const field = node.children.find((child) => child.className === "field enhancement-field");
     const select = field.children.find((child) => child.tagName === "select");
 
-    assert.equal(select.title, `Choose enhancement for ${field.children[0].textContent}`);
+    assert.match(node.textContent, /Upgrades/);
+    assert.equal(node.dataset.sectionTitle, "Upgrades");
+    assert.equal(field.children[0].textContent, "Whole unit");
+    assert.equal(select.title, `Choose upgrade for ${field.children[0].textContent}`);
     assert.equal(select.attributes.get("aria-label"), select.title);
+    assert.equal(select.children[0].textContent, "No upgrade");
   } finally {
     global.document = previousDocument;
   }
+});
+
+test("unit enhancement labels distinguish enhancements, upgrades, and mixed lists", () => {
+  const enhancement = { enhancementType: "unit" };
+  const upgrade = { enhancementType: "upgrade" };
+
+  assert.equal(enhancementKindLabel([enhancement]), "enhancement");
+  assert.equal(enhancementKindLabel([enhancement], { plural: true }), "enhancements");
+  assert.equal(enhancementKindLabel([upgrade]), "upgrade");
+  assert.equal(enhancementKindLabel([upgrade], { plural: true }), "upgrades");
+  assert.equal(enhancementKindLabel([enhancement, upgrade]), "enhancement or upgrade");
+  assert.equal(enhancementKindLabel([enhancement, upgrade], { plural: true }), "enhancements or upgrades");
+
+  assert.equal(enhancementSectionTitle([enhancement]), "Enhancements");
+  assert.equal(enhancementSectionTitle([upgrade]), "Upgrades");
+  assert.equal(enhancementSectionTitle([enhancement, upgrade]), "Enhancements & Upgrades");
 });
 
 test("builder roster actions write compact enhancement selections", () => {

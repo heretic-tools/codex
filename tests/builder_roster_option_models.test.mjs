@@ -201,6 +201,27 @@ test("enhancement model labels use readable model counts", () => {
   assert.equal(models.find((model) => model.targetKind === "miniature")?.label, "Captain (2 models)");
 });
 
+test("unit-scope enhancement label names the whole unit target", () => {
+  state.catalog = realCatalog;
+  const enhancement = realCatalog.enhancements.find((item) => item.enhancementType !== "miniature");
+  assert.ok(enhancement, "Expected a unit-scope enhancement or upgrade");
+  const captain = enhancementTargetUnit({
+    id: "enhancement-label-whole-unit",
+    datasheetName: "Captain",
+    miniatureName: "Captain",
+    factionNames: ["Adeptus Astartes"],
+  });
+  captain.unitEnhancements = [{ id: enhancement.id }];
+
+  const models = enhancementSelectModels({
+    detachmentIds: [],
+    factionKeywordId: factionNamed("Adeptus Astartes").id,
+    units: [captain],
+  }, captain);
+
+  assert.equal(models.find((model) => model.targetKind === "unit")?.label, "Whole unit");
+});
+
 test("unit warlord select model keeps the current invalid candidate visible and enabled", () => {
   state.catalog = realCatalog;
   const intercessor = enhancementTargetUnit({
