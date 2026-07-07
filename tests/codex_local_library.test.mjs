@@ -131,6 +131,24 @@ test("Codex local favorite button toggles persisted state", () => {
   assert.equal(library.favorites().length, 0);
 });
 
+test("Codex local library links expose readable labels", () => {
+  const library = loadCodexLocal();
+  const record = library.currentPageRecord();
+  const root = fakeElement("div");
+
+  library.rememberRecent(record);
+  library.renderLocalLibrary(root);
+
+  assert.equal(library.localLibraryLinkLabel(record), "Open Datasheet: Jakhals");
+  const recentSection = root.children[1];
+  const recentList = recentSection.children[1];
+  const recentLink = recentList.children[0];
+  assert.equal(recentLink.className, "local-library-link");
+  assert.equal(recentLink.href, "/faction/world-eaters/datasheet/jakhals/");
+  assert.equal(recentLink.title, "Open Datasheet: Jakhals");
+  assert.equal(recentLink.attributes.get("aria-label"), "Open Datasheet: Jakhals");
+});
+
 test("Codex local library is wired into static templates and build assets", () => {
   const home = readFileSync(join(projectRoot, "HereticBuilder", "templates", "home.html"), "utf8");
   const codex = readFileSync(join(projectRoot, "HereticBuilder", "templates", "codex.html"), "utf8");

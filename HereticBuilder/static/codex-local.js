@@ -124,6 +124,10 @@
     return button;
   }
 
+  function localLibraryLinkLabel(item) {
+    return `Open ${item.type || "Codex"}: ${item.title}`;
+  }
+
   function renderList(root, title, items, emptyText) {
     const section = document.createElement("section");
     section.className = "local-library-section";
@@ -137,6 +141,9 @@
         const link = document.createElement("a");
         link.className = "local-library-link";
         link.href = item.href;
+        const label = localLibraryLinkLabel(item);
+        link.setAttribute("aria-label", label);
+        link.title = label;
         const name = document.createElement("span");
         name.className = "local-library-link-title";
         name.textContent = item.title;
@@ -169,6 +176,7 @@
     currentPageRecord,
     favoriteButton,
     favorites,
+    localLibraryLinkLabel,
     recents,
     rememberRecent,
     renderLocalLibrary,
