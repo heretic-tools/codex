@@ -516,9 +516,8 @@
   margin: 0;
   padding: 9px 10px;
   background: var(--builder-panel);
-  border: 2px solid var(--builder-light);
-  border-right-color: var(--builder-shadow);
-  border-bottom-color: var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
 }
 
 .builder-form {
@@ -604,7 +603,7 @@
 
 .battle-size-option.is-selected {
   background: var(--builder-paper);
-  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
+  border-color: var(--builder-blue);
 }
 
 .battle-size-option input:focus-visible + .battle-size-option-name {
@@ -632,9 +631,8 @@
   padding: 4px 6px;
   color: var(--builder-ink);
   background: var(--builder-panel);
-  border: 2px solid var(--builder-light);
-  border-right-color: var(--builder-shadow);
-  border-bottom-color: var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
   font-weight: 800;
 }
 
@@ -688,9 +686,8 @@
   margin: 0;
   padding: 7px 9px;
   background: var(--builder-panel);
-  border: 2px solid var(--builder-light);
-  border-right-color: var(--builder-shadow);
-  border-bottom-color: var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
 }
 
 .validation-item {
@@ -698,9 +695,9 @@
   padding: 7px 9px;
   background: var(--builder-panel);
   border-left: 5px solid var(--builder-shadow);
-  border-top: 2px solid var(--builder-light);
-  border-right: 2px solid var(--builder-shadow);
-  border-bottom: 2px solid var(--builder-shadow);
+  border-top: 1px solid var(--builder-border);
+  border-right: 1px solid var(--builder-border);
+  border-bottom: 1px solid var(--builder-border);
 }
 
 .unit-enhancements-section {
@@ -741,9 +738,8 @@
   padding: 5px 7px;
   color: var(--builder-ink);
   background: var(--builder-panel);
-  border: 2px solid var(--builder-light);
-  border-right-color: var(--builder-shadow);
-  border-bottom-color: var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius) var(--builder-radius) 0 0;
   font-size: 13px;
   line-height: 1.1;
 }
@@ -753,9 +749,8 @@
   padding: 6px 7px;
   color: var(--builder-muted);
   background: var(--builder-panel);
-  border: 2px solid var(--builder-light);
-  border-right-color: var(--builder-shadow);
-  border-bottom-color: var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
   font-size: 12px;
   line-height: 1.35;
   overflow-wrap: anywhere;
@@ -770,9 +765,8 @@
   margin-top: -2px;
   padding: 5px 7px;
   background: var(--builder-panel);
-  border: 2px solid var(--builder-light);
-  border-right-color: var(--builder-shadow);
-  border-bottom-color: var(--builder-shadow);
+  border: 1px solid var(--builder-border);
+  border-radius: var(--builder-radius);
 }
 
 .wargear-option-row span {
@@ -837,7 +831,7 @@
 }
 
 .wargear-count-button:not(:disabled):active {
-  border-color: var(--builder-shadow) var(--builder-light) var(--builder-light) var(--builder-shadow);
+  border-color: var(--builder-blue);
 }
 
 .validation-item + .validation-item {

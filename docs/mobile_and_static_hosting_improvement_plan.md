@@ -120,6 +120,9 @@ Mobile roster/unit detail content padding увеличен под sticky summary
 Create roster battle-size radio controls теперь занимают всю видимую option
 card, так что mobile hit target совпадает с интерфейсом, а focus-ring остаётся
 на карточке.
+Базовый Builder CSS fallback очищен от оставшихся 2px light/shadow bevel
+borders на empty/read-only/metric/validation/wargear surfaces; modern layer
+больше не зависит от перекрытия старого Windows-style вида.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
