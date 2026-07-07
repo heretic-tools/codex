@@ -18,7 +18,10 @@ import {
   renderWarlordEditor,
   updateUnitWarlordFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_warlord_editor.js";
-import { updateWarlordFromPicker } from "../HereticBuilder/static/builder_roster_warlord_picker.js";
+import {
+  renderWarlordPicker,
+  updateWarlordFromPicker,
+} from "../HereticBuilder/static/builder_roster_warlord_picker.js";
 
 function createMockElement(tagName) {
   return {
@@ -139,6 +142,43 @@ test("unit warlord editor stays visible when the unit has an eligible target", (
 
     assert.equal(node.tagName, "label");
     assert.equal(node.dataset.unitDetailTarget, "warlord");
+    assert.equal(node.children[1].tagName, "select");
+    assert.equal(node.children[1].title, "Choose Warlord");
+    assert.equal(node.children[1].attributes.get("aria-label"), "Choose Warlord");
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("roster warlord picker labels its select control", () => {
+  state.catalog = realCatalog;
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const roster = {
+      id: "visible-roster-warlord-picker",
+      name: "Visible Roster Warlord Picker",
+      factionKeywordId: factionNamed("Heretic Astartes").id,
+      battleSizeId: battleSizeNamed("Strike Force").id,
+      detachmentIds: [],
+      units: [],
+      attachments: [],
+    };
+    const datasheet = duplicateLimitedCharacterDatasheet(roster);
+    const withUnit = rosterWithAddedUnit(roster, {
+      datasheetId: datasheet.id,
+      unitId: "character-unit",
+    });
+    const node = renderWarlordPicker({
+      onUpdate: () => {},
+      roster: withUnit,
+    });
+
+    assert.equal(node.tagName, "label");
+    assert.equal(node.dataset.editorTarget, "warlord");
     assert.equal(node.children[1].tagName, "select");
     assert.equal(node.children[1].title, "Choose Warlord");
     assert.equal(node.children[1].attributes.get("aria-label"), "Choose Warlord");

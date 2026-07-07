@@ -1,4 +1,5 @@
 import { option, textNode } from "./builder_dom.js";
+import { WARLORD_SELECT_LABEL, labelControl } from "./builder_roster_control_labels.js";
 import { rosterWithWarlord } from "./builder_roster_actions.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { warlordPickerModel } from "./builder_roster_warlord_options.js";
@@ -26,6 +27,7 @@ function renderWarlordPicker({ onUndoableUpdate = null, onUpdate, roster }) {
     return null;
   }
   const select = document.createElement("select");
+  labelControl(select, WARLORD_SELECT_LABEL);
   select.dataset.focusTarget = "true";
   for (const row of model.options) {
     select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
