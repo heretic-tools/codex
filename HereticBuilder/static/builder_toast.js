@@ -1,4 +1,5 @@
 import { button, textNode } from "./builder_dom.js";
+import { labelControl } from "./builder_roster_control_labels.js";
 
 let activeTimer = null;
 let activeToast = null;
@@ -44,9 +45,7 @@ function showStatusToast({ message, timeoutMs = 4000, tone = "info" }) {
   const toast = document.createElement("div");
   toast.className = `builder-toast status-toast tone-${tone}`;
   toast.setAttribute("role", tone === "error" ? "alert" : "status");
-  const dismiss = button("remove-button toast-dismiss", "x", dismissToast);
-  dismiss.title = "Dismiss message";
-  dismiss.setAttribute("aria-label", "Dismiss message");
+  const dismiss = labelControl(button("remove-button toast-dismiss", "x", dismissToast), "Dismiss message");
   toast.append(
     textNode("span", "toast-message", message),
     dismiss
