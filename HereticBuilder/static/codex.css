@@ -1840,6 +1840,56 @@
     padding: 6px 12px;
   }
 
+  .unit-points-card .unit-table-wrap {
+    overflow: visible;
+  }
+
+  .unit-points-table,
+  .unit-points-table tbody {
+    display: block;
+  }
+
+  .unit-points-table thead {
+    display: none;
+  }
+
+  .unit-points-table .unit-points-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px;
+    padding: 10px 0;
+    border-top: 1px solid var(--app-border);
+  }
+
+  .unit-points-table .unit-points-row:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .unit-points-table .unit-points-row:last-child {
+    padding-bottom: 0;
+  }
+
+  .unit-points-table tbody th,
+  .unit-points-table tbody td {
+    display: block;
+    width: auto;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+
+  .unit-points-table tbody td:last-child {
+    align-self: center;
+    text-align: right;
+  }
+
+  .unit-points-table .unit-points-composition {
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
   .unit-weapons-card .unit-weapon-group {
     overflow-x: auto;
   }

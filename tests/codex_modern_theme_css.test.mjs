@@ -61,3 +61,17 @@ test("modern Codex weapon tables use a mobile frozen weapon column", () => {
   assert.ok(modernLayer.includes("left: 0;"));
   assert.ok(modernLayer.includes("min-width: 640px;"));
 });
+
+test("modern Codex points tables become readable mobile lists", () => {
+  const source = codexCss();
+  const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
+
+  assert.ok(modernLayer.includes(".unit-points-card .unit-table-wrap"));
+  assert.ok(modernLayer.includes("overflow: visible;"));
+  assert.ok(modernLayer.includes(".unit-points-table thead"));
+  assert.ok(modernLayer.includes("display: none;"));
+  assert.ok(modernLayer.includes(".unit-points-table .unit-points-row"));
+  assert.ok(modernLayer.includes("grid-template-columns: minmax(0, 1fr) auto;"));
+  assert.ok(modernLayer.includes(".unit-points-table tbody th"));
+  assert.ok(modernLayer.includes("background: transparent;"));
+});
