@@ -98,6 +98,10 @@ test("roster create view derives default names from faction and free local numbe
     const factionSelect = factionField.children[1];
 
     assert.equal(nameInput.value, "Heretic Astartes roster 2");
+    assert.equal(nameInput.title, "Roster name");
+    assert.equal(nameInput.attributes.get("aria-label"), "Roster name");
+    assert.equal(factionSelect.title, "Choose faction");
+    assert.equal(factionSelect.attributes.get("aria-label"), "Choose faction");
     factionSelect.value = "adeptus-astartes";
     await factionSelect.dispatch("change");
     assert.equal(nameInput.value, "Adeptus Astartes roster 3");
@@ -156,6 +160,10 @@ test("roster create view uses battle size radio choices for submit state", async
     assert.equal(picker.tagName, "fieldset");
     assert.equal(form.autocomplete, "off");
     assert.equal(strikeInput.autocomplete, "off");
+    assert.equal(incursionInput.title, "Incursion battle size, 1000 pts");
+    assert.equal(incursionInput.attributes.get("aria-label"), "Incursion battle size, 1000 pts");
+    assert.equal(strikeInput.title, "Strike Force battle size, 2000 pts");
+    assert.equal(strikeInput.attributes.get("aria-label"), "Strike Force battle size, 2000 pts");
     assert.equal(strikeInput.checked, true);
     assert.equal(strikeLabel.className, "battle-size-option is-selected");
 

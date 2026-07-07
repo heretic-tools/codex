@@ -143,6 +143,8 @@ select через `aria-describedby`.
 Roster unit row actions теперь включают visible compact summary
 (abilities/enhancements/wargear changes) в `aria-label`/`title`, а выбранные
 detachment Codex links закреплены на 44px mobile touch target.
+Create roster flow получил explicit `aria-label`/tooltip labels для name,
+faction и battle-size controls, сохраняя текущий compact mobile layout.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

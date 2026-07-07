@@ -57,6 +57,7 @@ function renderBattleSizePicker(battleSizes, defaultBattleSizeId) {
     input.value = row.id;
     input.autocomplete = "off";
     input.checked = row.id === selectedBattleSizeId;
+    labelControl(input, `${row.name} battle size, ${row.pointsLimit} pts`);
     input.addEventListener("change", () => {
       if (input.checked) {
         selectedBattleSizeId = input.value;
@@ -90,6 +91,7 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
   name.autocomplete = "off";
   name.placeholder = "Roster name";
   name.autofocus = true;
+  labelControl(name, "Roster name");
   let nameIsPristine = true;
   name.addEventListener("input", () => {
     nameIsPristine = false;
@@ -97,6 +99,7 @@ function renderRosterCreateView({ battleSizes, defaultBattleSizeId, defaultFacti
 
   const faction = document.createElement("select");
   faction.name = "factionKeywordId";
+  labelControl(faction, "Choose faction");
   for (const row of factions) {
     faction.appendChild(option(row.id, row.name));
   }
