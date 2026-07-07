@@ -1,6 +1,6 @@
 import { loadDetailView, loadRules } from "./builder_module_loaders.js";
 import { builderBreadcrumbs, navigate } from "./builder_routes.js";
-import { el, renderBreadcrumbs } from "./builder_shell.js";
+import { el, renderBreadcrumbs, setPageTitle } from "./builder_shell.js";
 import { state } from "./builder_state.js";
 import { newId } from "./builder_storage.js";
 import {
@@ -31,7 +31,7 @@ async function renderRoster(render) {
   await ensurePrecomputedLoadoutsForDatasheets(rosterDatasheetIds(roster));
   const validation = validateRoster(roster);
   await saveRosterCacheIfStale(roster, validation);
-  el.title.textContent = roster.name || "New Roster";
+  setPageTitle(roster.name || "New Roster");
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
     focusTarget: state.route.focusTarget || "",

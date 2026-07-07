@@ -3,7 +3,7 @@ import {
   loadListView,
 } from "./builder_module_loaders.js";
 import { baseBreadcrumbs, builderBreadcrumbs, navigate } from "./builder_routes.js";
-import { el, renderBreadcrumbs } from "./builder_shell.js";
+import { el, renderBreadcrumbs, setPageTitle } from "./builder_shell.js";
 import { state } from "./builder_state.js";
 import { lightweightRosterSummary } from "./builder_roster_runtime.js";
 import {
@@ -13,7 +13,7 @@ import {
 } from "./builder_roster_io_actions.js";
 
 async function renderList(render) {
-  el.title.textContent = "Builder";
+  setPageTitle("Builder");
   renderBreadcrumbs(baseBreadcrumbs());
   const { renderRosterListView } = await loadListView();
   el.root.appendChild(renderRosterListView({
@@ -27,7 +27,7 @@ async function renderList(render) {
 }
 
 async function renderCreate() {
-  el.title.textContent = "Create Roster";
+  setPageTitle("Create Roster");
   renderBreadcrumbs(builderBreadcrumbs());
   const { renderRosterCreateView } = await loadCreateView();
   el.root.appendChild(renderRosterCreateView({
