@@ -75,3 +75,15 @@ test("modern Codex points tables become readable mobile lists", () => {
   assert.ok(modernLayer.includes(".unit-points-table tbody th"));
   assert.ok(modernLayer.includes("background: transparent;"));
 });
+
+test("modern Codex statlines become labeled mobile stat grids", () => {
+  const source = codexCss();
+  const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
+
+  assert.ok(modernLayer.includes(".unit-statline-card .unit-stat-table-no-model"));
+  assert.ok(modernLayer.includes("grid-template-columns: repeat(3, minmax(0, 1fr));"));
+  assert.ok(modernLayer.includes("min-height: 48px;"));
+  assert.ok(modernLayer.includes(".unit-statline-card .unit-stat-table-no-model tbody td::before"));
+  assert.ok(modernLayer.includes("content: attr(data-label);"));
+  assert.ok(modernLayer.includes("font-family: var(--app-mono);"));
+});

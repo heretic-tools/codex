@@ -100,6 +100,11 @@ Builder CSS полностью очищен от legacy `border-width: 2px` beve
 исходном файле; оставшиеся акценты используют 1px token borders.
 Codex CSS также очищен от legacy bevel borders/inset shadows на rule/list/table
 surfaces; guard закрепляет 1px token-border направление для нового shell.
+Codex datasheet points tables на мобильном теперь превращаются в читаемый
+двухколоночный список без горизонтального overflow всей страницы.
+Codex datasheet statlines на мобильном теперь рендерятся как compact
+3-column stat grid с labels из существующих `data-label`, без изменения
+генерируемых данных и без нового JS.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
