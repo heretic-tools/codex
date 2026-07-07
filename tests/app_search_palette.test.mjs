@@ -60,6 +60,7 @@ test("shared mobile shell controls keep 44px touch targets", () => {
   assert.ok(mobileLayer.includes(".app-search-clear"));
   assert.ok(mobileLayer.includes("width: 44px;"));
   assert.ok(mobileLayer.includes("height: 44px;"));
+  assert.match(mobileLayer, /\.breadcrumb-menu-item\s*\{[\s\S]*min-height:\s*44px;/);
 });
 
 test("shared app header keeps long titles from clipping action controls", () => {

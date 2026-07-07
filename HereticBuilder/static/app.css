@@ -789,6 +789,19 @@ h1 {
     padding: 12px 14px;
   }
 
+  .breadcrumb-menu {
+    padding: 0 8px;
+  }
+
+  .breadcrumb-menu-item {
+    min-height: 44px;
+    padding: 8px 6px;
+  }
+
+  .breadcrumb-separator {
+    padding: 8px 2px;
+  }
+
   .favorite-toggle,
   .support-button,
   .theme-toggle,

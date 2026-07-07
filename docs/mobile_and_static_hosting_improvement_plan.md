@@ -105,6 +105,8 @@ Codex datasheet points tables на мобильном теперь превра�
 Codex datasheet statlines на мобильном теперь рендерятся как compact
 3-column stat grid с labels из существующих `data-label`, без изменения
 генерируемых данных и без нового JS.
+Shared breadcrumbs на узком mobile viewport доведены до 44px touch target
+без изменения самих маршрутов и breadcrumb-контракта.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
