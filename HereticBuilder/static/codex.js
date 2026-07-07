@@ -216,7 +216,9 @@
     card.classList.toggle("is-collapsed", collapsed);
     button.textContent = collapsed ? "Show" : "Hide";
     button.setAttribute("aria-expanded", collapsed ? "false" : "true");
-    button.setAttribute("aria-label", collapseButtonLabel(collapsed, title));
+    const label = collapseButtonLabel(collapsed, title);
+    button.setAttribute("aria-label", label);
+    button.title = label;
   }
 
   function enhanceCodexCollapsibleCard(card, index) {

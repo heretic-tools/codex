@@ -24,6 +24,7 @@ test("Codex info and detachment rule cards collapse on mobile as progressive enh
   assert.ok(source.includes("unit-info-card-collapse-button"));
   assert.ok(source.includes("codex-collapsible-card-button"));
   assert.ok(source.includes('button.setAttribute("aria-expanded"'));
+  assert.ok(source.includes("button.title = label"));
   assert.ok(source.includes('body.hidden = collapsed'));
   assert.ok(source.includes("media.addListener?.(applyMode)"));
 });
