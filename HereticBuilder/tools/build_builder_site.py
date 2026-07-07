@@ -90,6 +90,7 @@ def builder_asset_version():
         digest.update(path.read_bytes())
     for path in [
         *(STATIC_ROOT / filename for filename in BUILDER_STATIC_SUPPORT_FILES),
+        *(STATIC_ROOT / filename for filename in BUILDER_ROOT_STATIC_FILES),
         PROJECT_ROOT / "HereticBuilder" / "templates" / "builder.html",
     ]:
         digest.update(path.name.encode("utf-8"))
@@ -109,14 +110,25 @@ def copy_file(src, dest):
     shutil.copy2(src, dest)
 
 
-def copy_builder_assets(out_dir):
+def copy_builder_root_static_file(filename, out_dir, asset_version):
+    source = STATIC_ROOT / filename
+    dest = out_dir / filename
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if filename == "service-worker.js":
+        text = source.read_text(encoding="utf-8").replace("__HERETIC_ASSET_VERSION__", asset_version)
+        dest.write_text(text, encoding="utf-8")
+        return
+    copy_file(source, dest)
+
+
+def copy_builder_assets(out_dir, asset_version):
     static_dir = out_dir / "static"
     for path in sorted(STATIC_ROOT.glob("builder*.js")):
         copy_file(path, static_dir / path.name)
     for filename in BUILDER_STATIC_SUPPORT_FILES:
         copy_file(STATIC_ROOT / filename, static_dir / filename)
     for filename in BUILDER_ROOT_STATIC_FILES:
-        copy_file(STATIC_ROOT / filename, out_dir / filename)
+        copy_builder_root_static_file(filename, out_dir, asset_version)
 
     source_assets = HERETIC_BUILDER_ROOT / "assets"
     unit_images_dir = source_assets / "unit-images"
@@ -154,7 +166,7 @@ def build_builder_site(config):
 
     out_dir = prepare_out_dir(config.out, protected_dirs=(config.source,))
     asset_version = builder_asset_version()
-    copy_builder_assets(out_dir)
+    copy_builder_assets(out_dir, asset_version)
     version_builder_static_imports(out_dir, asset_version)
     write_builder_page(out_dir, config.base_path, asset_version)
     data_result = export_builder_data(config.db, out_dir / "builder-data")
