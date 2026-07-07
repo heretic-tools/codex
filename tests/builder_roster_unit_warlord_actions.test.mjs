@@ -140,6 +140,8 @@ test("unit warlord editor stays visible when the unit has an eligible target", (
     assert.equal(node.tagName, "label");
     assert.equal(node.dataset.unitDetailTarget, "warlord");
     assert.equal(node.children[1].tagName, "select");
+    assert.equal(node.children[1].title, "Choose Warlord");
+    assert.equal(node.children[1].attributes.get("aria-label"), "Choose Warlord");
   } finally {
     global.document = previousDocument;
   }

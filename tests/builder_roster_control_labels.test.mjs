@@ -10,6 +10,7 @@ import {
   DETACHMENT_SELECT_LABEL,
   SEARCH_CLEAR_LABEL,
   UNIT_SELECT_LABEL,
+  WARLORD_SELECT_LABEL,
   labelControl,
   searchControlLabel,
 } from "../HereticBuilder/static/builder_roster_control_labels.js";
@@ -29,6 +30,7 @@ test("roster control labels name generic selects and add buttons", () => {
   assert.equal(ATTACHMENT_TYPE_SELECT_LABEL, "Choose attachment type");
   assert.equal(DETACHMENT_SELECT_LABEL, "Choose detachment");
   assert.equal(UNIT_SELECT_LABEL, "Choose unit");
+  assert.equal(WARLORD_SELECT_LABEL, "Choose Warlord");
 });
 
 test("label control mirrors the label into title and aria-label", () => {

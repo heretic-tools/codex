@@ -7,6 +7,7 @@ const ATTACHMENT_BODYGUARD_SELECT_LABEL = "Choose bodyguard unit";
 const ATTACHMENT_TYPE_SELECT_LABEL = "Choose attachment type";
 const DETACHMENT_SELECT_LABEL = "Choose detachment";
 const UNIT_SELECT_LABEL = "Choose unit";
+const WARLORD_SELECT_LABEL = "Choose Warlord";
 
 function labelControl(node, label) {
   node.title = label;
@@ -28,6 +29,7 @@ export {
   DETACHMENT_SELECT_LABEL,
   SEARCH_CLEAR_LABEL,
   UNIT_SELECT_LABEL,
+  WARLORD_SELECT_LABEL,
   labelControl,
   searchControlLabel,
 };

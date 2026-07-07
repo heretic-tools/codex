@@ -1,4 +1,5 @@
 import { option, textNode } from "./builder_dom.js";
+import { WARLORD_SELECT_LABEL, labelControl } from "./builder_roster_control_labels.js";
 import { rosterWithWarlord } from "./builder_roster_actions.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
@@ -37,6 +38,7 @@ function renderWarlordEditor({
     return null;
   }
   const select = document.createElement("select");
+  labelControl(select, WARLORD_SELECT_LABEL);
   for (const row of model.options) {
     select.appendChild(option(row.value, row.label, { disabled: Boolean(row.disabled) }));
   }
