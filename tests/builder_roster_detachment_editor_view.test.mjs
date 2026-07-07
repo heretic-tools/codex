@@ -19,6 +19,7 @@ import {
   detachmentOpenLabel,
   renderDetachmentRow,
 } from "../HereticBuilder/static/builder_roster_detachment_rows.js";
+import { renderDetachmentControls } from "../HereticBuilder/static/builder_roster_detachment_controls.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -28,11 +29,15 @@ function createMockElement(tagName) {
     children: [],
     className: "",
     dataset: {},
+    disabled: false,
     href: "",
+    hidden: false,
+    listeners: new Map(),
     tagName,
     textContent: "",
     title: "",
     type: "",
+    value: "",
     append(...nodes) {
       for (const child of nodes) {
         this.appendChild(child);
@@ -43,7 +48,17 @@ function createMockElement(tagName) {
       this.textContent += child?.textContent || "";
       return child;
     },
-    addEventListener() {},
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    focus() {
+      this.focused = true;
+    },
+    replaceChildren(...nodes) {
+      this.children = [];
+      this.textContent = "";
+      this.append(...nodes);
+    },
     setAttribute(name, value) {
       this.attributes.set(name, String(value));
     },
@@ -111,6 +126,64 @@ test("detachment candidate rows filter by name and disposition", () => {
   assert.ok(dispositionRows.length);
   assert.ok(dispositionRows.every((row) => detachmentDispositionName(row.detachment) === firstDisposition));
   assert.deepEqual(detachmentCandidateRows(roster, validation, "definitely-no-detachment"), []);
+});
+
+test("detachment add search clears with Escape and refreshes options", () => {
+  const previousCatalog = state.catalog;
+  state.catalog = realCatalog;
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const controls = renderDetachmentControls({
+      onUpdate: () => {},
+      roster: {
+        detachmentIds: [],
+        factionKeywordId: factionNamed("Heretic Astartes").id,
+      },
+      validation: {
+        points: {
+          detachmentLimit: 10,
+          detachmentPoints: 0,
+        },
+      },
+    });
+    const searchWrap = controls.children[0];
+    const search = searchWrap.children[0];
+    const clearSearch = searchWrap.children[1];
+    const select = controls.children[1];
+    const add = controls.children[2];
+
+    search.value = "definitely-no-detachment";
+    search.listeners.get("input")();
+    assert.equal(clearSearch.hidden, false);
+    assert.equal(add.disabled, true);
+    assert.equal(select.disabled, true);
+
+    const event = {
+      key: "Escape",
+      prevented: false,
+      stopped: false,
+      preventDefault() {
+        this.prevented = true;
+      },
+      stopPropagation() {
+        this.stopped = true;
+      },
+    };
+    search.listeners.get("keydown")(event);
+    assert.equal(search.value, "");
+    assert.equal(clearSearch.hidden, true);
+    assert.equal(add.disabled, false);
+    assert.equal(select.disabled, false);
+    assert.equal(event.prevented, true);
+    assert.equal(event.stopped, true);
+  } finally {
+    state.catalog = previousCatalog;
+    global.document = previousDocument;
+  }
 });
 
 test("detachment editor focuses search when jumped from mobile summary", () => {

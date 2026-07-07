@@ -37,8 +37,7 @@ function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, v
   const searchWrap = document.createElement("span");
   searchWrap.className = "builder-search-field";
   const clearSearch = button("remove-button search-clear-button", "x", () => {
-    search.value = "";
-    refreshOptions();
+    clearSearchValue();
     search.focus();
   });
   labelControl(clearSearch, SEARCH_CLEAR_LABEL);
@@ -57,6 +56,14 @@ function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, v
   });
   labelControl(add, ADD_DETACHMENT_LABEL);
   add.dataset.editorPrimaryAction = "true";
+  const clearSearchValue = () => {
+    if (!search.value) {
+      return false;
+    }
+    search.value = "";
+    refreshOptions();
+    return true;
+  };
   const refreshOptions = () => {
     const rows = detachmentCandidateRows(roster, validation, search.value);
     const nodes = rows.map((row) => (
@@ -73,6 +80,12 @@ function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, v
     clearSearch.hidden = !search.value;
   };
   search.addEventListener("input", refreshOptions);
+  search.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && clearSearchValue()) {
+      event.preventDefault?.();
+      event.stopPropagation?.();
+    }
+  });
   refreshOptions();
 
   const controls = document.createElement("div");

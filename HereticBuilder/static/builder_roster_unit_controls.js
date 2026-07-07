@@ -61,14 +61,27 @@ function renderUnitControls({ newId, onUndoableUpdate = null, onUpdate, roster, 
   const refreshOptions = () => {
     refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelect, validation });
   };
-  const clearSearch = button("remove-button search-clear-button", "x", () => {
+  const clearSearchValue = () => {
+    if (!search.value) {
+      return false;
+    }
     search.value = "";
     refreshOptions();
+    return true;
+  };
+  const clearSearch = button("remove-button search-clear-button", "x", () => {
+    clearSearchValue();
     search.focus();
   });
   labelControl(clearSearch, SEARCH_CLEAR_LABEL);
   searchWrap.append(search, clearSearch);
   search.addEventListener("input", refreshOptions);
+  search.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && clearSearchValue()) {
+      event.preventDefault?.();
+      event.stopPropagation?.();
+    }
+  });
   refreshOptions();
 
   const controls = document.createElement("div");

@@ -31,6 +31,7 @@ import {
   compactNames,
   unitRowSummaryText,
 } from "../HereticBuilder/static/builder_roster_unit_row_summary.js";
+import { renderUnitControls } from "../HereticBuilder/static/builder_roster_unit_controls.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -51,6 +52,11 @@ function createMockElement(tagName) {
     classList: createMockClassList(),
     className: "",
     dataset: {},
+    disabled: false,
+    hidden: false,
+    listeners: new Map(),
+    name: "",
+    placeholder: "",
     style: {
       removeProperty() {},
     },
@@ -58,6 +64,7 @@ function createMockElement(tagName) {
     textContent: "",
     title: "",
     type: "",
+    value: "",
     append(...nodes) {
       for (const node of nodes) {
         this.appendChild(node);
@@ -68,7 +75,17 @@ function createMockElement(tagName) {
       this.textContent += node.textContent || "";
       return node;
     },
-    addEventListener() {},
+    addEventListener(name, handler) {
+      this.listeners.set(name, handler);
+    },
+    focus() {
+      this.focused = true;
+    },
+    replaceChildren(...nodes) {
+      this.children = [];
+      this.textContent = "";
+      this.append(...nodes);
+    },
     setAttribute(name, value) {
       this.attributes.set(name, String(value));
     },
@@ -170,6 +187,62 @@ test("unit candidate groups preserve duplicate-limit reasons after action guard"
 
   assert.ok(row?.candidate, "Expected duplicate-limited candidate summary to remain visible");
   assert.deepEqual(row.status, { severity: "error", reason: "limit 3 reached" });
+});
+
+test("unit add search clears with Escape and refreshes options", () => {
+  const previousDocument = global.document;
+  const previousCatalog = state.catalog;
+  state.catalog = realCatalog;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const controls = renderUnitControls({
+      newId: () => "unit-1",
+      onUpdate: () => {},
+      roster: {
+        battleSizeId: battleSizeNamed("Strike Force").id,
+        detachmentIds: [],
+        factionKeywordId: factionNamed("Heretic Astartes").id,
+        units: [],
+      },
+      validation: { points: { limit: 2000, total: 0 } },
+    });
+    const searchWrap = controls.children[0];
+    const search = searchWrap.children[0];
+    const clearSearch = searchWrap.children[1];
+    const unitSelect = controls.children[1];
+    const add = controls.children[2];
+
+    search.value = "definitely-no-unit";
+    search.listeners.get("input")();
+    assert.equal(clearSearch.hidden, false);
+    assert.equal(add.disabled, true);
+    assert.equal(unitSelect.disabled, true);
+
+    const event = {
+      key: "Escape",
+      prevented: false,
+      stopped: false,
+      preventDefault() {
+        this.prevented = true;
+      },
+      stopPropagation() {
+        this.stopped = true;
+      },
+    };
+    search.listeners.get("keydown")(event);
+    assert.equal(search.value, "");
+    assert.equal(clearSearch.hidden, true);
+    assert.equal(add.disabled, false);
+    assert.equal(unitSelect.disabled, false);
+    assert.equal(event.prevented, true);
+    assert.equal(event.stopped, true);
+  } finally {
+    state.catalog = previousCatalog;
+    global.document = previousDocument;
+  }
 });
 
 test("unit option values round-trip ally type and datasheet id", () => {
