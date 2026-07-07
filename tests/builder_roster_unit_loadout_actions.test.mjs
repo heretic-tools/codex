@@ -217,6 +217,11 @@ test("unit wargear count control exposes a mobile stepper", async () => {
     assert.equal(decrement.textContent, "-");
     assert.equal(decrement.attributes.get("aria-label"), "Decrease Plasma gun");
     assert.equal(decrement.disabled, false);
+    assert.equal(input.className, "wargear-count-input");
+    assert.equal(input.inputMode, "numeric");
+    assert.equal(input.pattern, "[0-9]*");
+    assert.equal(input.attributes.get("inputmode"), "numeric");
+    assert.equal(input.attributes.get("pattern"), "[0-9]*");
     assert.equal(input.type, "number");
     assert.equal(input.value, "1");
     assert.equal(input.attributes.get("aria-label"), "Plasma gun");

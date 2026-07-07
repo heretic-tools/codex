@@ -30,6 +30,11 @@ function countControl({ label = "Wargear", onChange, optionRow, target }) {
   const wrap = document.createElement("div");
   wrap.className = "wargear-count-stepper";
   const input = document.createElement("input");
+  input.className = "wargear-count-input";
+  input.inputMode = "numeric";
+  input.pattern = "[0-9]*";
+  input.setAttribute("inputmode", "numeric");
+  input.setAttribute("pattern", "[0-9]*");
   input.type = "number";
   input.min = "0";
   input.step = "1";
