@@ -17,6 +17,7 @@ import {
   rosterWithUnitEnhancement,
 } from "../HereticBuilder/static/builder_roster_actions.js";
 import {
+  enhancementChangeMessage,
   renderEnhancementsEditor,
   updateEnhancementFromEditor,
 } from "../HereticBuilder/static/builder_roster_unit_enhancement_editor.js";
@@ -240,6 +241,13 @@ test("unit enhancement labels distinguish enhancements, upgrades, and mixed list
   assert.equal(enhancementSectionTitle([enhancement]), "Enhancements");
   assert.equal(enhancementSectionTitle([upgrade]), "Upgrades");
   assert.equal(enhancementSectionTitle([enhancement, upgrade]), "Enhancements & Upgrades");
+
+  assert.equal(enhancementChangeMessage({ name: "Captain" }, [enhancement]), "Enhancement changed for Captain");
+  assert.equal(enhancementChangeMessage({ name: "Captain" }, [upgrade]), "Upgrade changed for Captain");
+  assert.equal(
+    enhancementChangeMessage({ name: "Captain" }, [enhancement, upgrade]),
+    "Enhancement or upgrade changed for Captain"
+  );
 });
 
 test("builder roster actions write compact enhancement selections", () => {
@@ -271,7 +279,11 @@ test("unit enhancement editor emits undoable roster updates", async () => {
   await updateEnhancementFromEditor(
     roster,
     { ...unit, name: "Captain" },
-    { targetKind: "unit", targetId: unit.id },
+    {
+      enhancements: [state.catalog.enhancementById.get(ENHANCEMENT_FIXTURES.unit.enhancementId)],
+      targetKind: "unit",
+      targetId: unit.id,
+    },
     ENHANCEMENT_FIXTURES.unit.enhancementId,
     {},
     () => {},
@@ -280,7 +292,7 @@ test("unit enhancement editor emits undoable roster updates", async () => {
     }
   );
 
-  assert.equal(event.message, "Enhancement changed for Captain");
+  assert.equal(event.message, "Upgrade changed for Captain");
   assert.equal(event.previousRoster, roster);
   assert.deepEqual(event.nextRoster.units[0].unitEnhancements, [{ id: ENHANCEMENT_FIXTURES.unit.enhancementId }]);
 });

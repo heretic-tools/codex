@@ -7,13 +7,20 @@ import {
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { renderUnitEditorValidation } from "./builder_roster_unit_editor_validation_view.js";
 import { enhancementSelectModels } from "./builder_roster_unit_enhancement_models.js";
-import { enhancementSectionTitle } from "./builder_roster_unit_enhancement_labels.js";
+import {
+  enhancementKindLabel,
+  enhancementSectionTitle,
+} from "./builder_roster_unit_enhancement_labels.js";
 import { enhancementSelectHasActionableRows } from "./builder_roster_unit_enhancement_options.js";
 import { renderEnhancementSelect } from "./builder_roster_unit_enhancement_select.js";
 import { state } from "./builder_state.js";
 
-function enhancementChangeMessage(unit) {
-  return `Enhancement changed for ${unit.name || "Unit"}`;
+function titleCaseLabel(value) {
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+}
+
+function enhancementChangeMessage(unit, enhancements = []) {
+  return `${titleCaseLabel(enhancementKindLabel(enhancements))} changed for ${unit.name || "Unit"}`;
 }
 
 function rosterWithEnhancementFromEditor(roster, unit, model, enhancementId, context) {
@@ -28,7 +35,7 @@ function rosterWithEnhancementFromEditor(roster, unit, model, enhancementId, con
 
 function updateEnhancementFromEditor(roster, unit, model, enhancementId, context, onUpdate, onUndoableUpdate = null) {
   return applyRosterUpdate({
-    message: enhancementChangeMessage(unit),
+    message: enhancementChangeMessage(unit, model?.enhancements || []),
     nextRoster: rosterWithEnhancementFromEditor(roster, unit, model, enhancementId, context),
     onUndoableUpdate,
     onUpdate,
@@ -72,7 +79,7 @@ function renderEnhancementsEditor({
     .map((id) => state.catalog.detachmentById.get(id))
     .filter(Boolean);
   if (!actionableModels.length) {
-    wrap.appendChild(textNode("p", "empty-list", "No enhancements available for selected detachments"));
+    wrap.appendChild(textNode("p", "empty-list", "No enhancements or upgrades available for selected detachments"));
     return wrap;
   }
 

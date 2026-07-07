@@ -75,6 +75,9 @@ Unit-detail upgrade/enhancement editor теперь называет секци�
 фактическим типам доступных опций: `Upgrades`, `Enhancements` или
 `Enhancements & Upgrades`; unit-scope target отображается как `Whole unit`,
 а не техническое `Unit`.
+Undo/status messages для тех же controls используют тот же словарь, поэтому
+upgrade-only выбор теперь сообщает `Upgrade changed`, а не старый общий
+`Enhancement changed`.
 Roster unit rows используют тот же словарь для compact summary, поэтому
 выбранные upgrade-опции больше не подписываются как `Enhancements`, а shared
 CSS shell перестал держать legacy `--window` alias.
