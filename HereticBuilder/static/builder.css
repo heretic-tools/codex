@@ -388,6 +388,17 @@
   text-decoration: underline;
 }
 
+.unit-row-summary {
+  flex-basis: 100%;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-muted, #697078);
+  font-size: 11px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .roster-unit-art-frame {
   width: 58px;
   height: 34px;

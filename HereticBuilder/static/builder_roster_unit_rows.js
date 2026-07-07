@@ -4,6 +4,7 @@ import { removeButton } from "./builder_roster_editor_dom.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { unitSourceBadgeNode, unitSourceBadgeText } from "./builder_roster_unit_badges.js";
 import { unitValidationStatus } from "./builder_roster_unit_validation_status.js";
+import { unitRowSummaryText } from "./builder_roster_unit_row_summary.js";
 import { enableSwipeAction } from "./builder_swipe_action.js";
 import { unitImageNode } from "./builder_unit_images.js";
 import { unitOpenLabel } from "./builder_unit_open_labels.js";
@@ -45,6 +46,10 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
     textNode("strong", "", summary.name || "Unit"),
     textNode("span", "", unitModelCountLabel(summary.modelCount || 0))
   );
+  const summaryText = unitRowSummaryText(summary);
+  if (summaryText) {
+    text.append(textNode("span", "unit-row-summary", summaryText));
+  }
   if (summary.isWarlord) {
     text.append(textNode("span", "meta-badge", "Warlord"));
   }

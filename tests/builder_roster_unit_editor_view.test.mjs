@@ -26,6 +26,10 @@ import {
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
 import { unitSourceBadgeNode } from "../HereticBuilder/static/builder_roster_unit_badges.js";
 import { renderUnitRow } from "../HereticBuilder/static/builder_roster_unit_rows.js";
+import {
+  compactNames,
+  unitRowSummaryText,
+} from "../HereticBuilder/static/builder_roster_unit_row_summary.js";
 
 const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -275,6 +279,106 @@ test("unit rows pluralize model counts", () => {
     assert.equal(row.children[0].title, "Open unit: Chosen, 1 model, 80 pts");
     assert.equal(row.children[0].attributes.get("aria-label"), "Open unit: Chosen, 1 model, 80 pts");
     assert.equal(row.textContent.includes("1 models"), false);
+  } finally {
+    state.catalog = previousCatalog;
+    global.document = previousDocument;
+  }
+});
+
+test("unit row summary exposes upgrades without dumping default wargear", () => {
+  const previousCatalog = state.catalog;
+  state.catalog = {
+    baseMiniatureLoadoutsByDatasheetId: new Map(),
+    baseMiniatureLoadoutsByMiniatureId: new Map(),
+    baseMiniatureLoadoutWargearOptionsByLoadoutId: new Map(),
+    compositionById: new Map(),
+    compositionMiniaturesByCompositionId: new Map(),
+    loadoutChoiceSetLoadoutsByChoiceSetId: new Map(),
+    loadoutChoiceSetsByDatasheetId: new Map(),
+    wargearGroupById: new Map(),
+    wargearGroupsByDatasheetId: new Map([["chosen", []]]),
+    wargearItemById: new Map([["plasma", { id: "plasma", name: "Plasma gun" }]]),
+    wargearOptionById: new Map([["plasma-option", {
+      id: "plasma-option",
+      points: 5,
+      wargearItemId: "plasma",
+    }]]),
+    wargearOptionsByGroupId: new Map(),
+  };
+
+  try {
+    assert.equal(compactNames(["one", "two", "three"], 2), "one, two +1");
+    assert.equal(
+      unitRowSummaryText({
+        allegianceAbilities: [{ name: "Mark of Chaos" }],
+        compositionId: "",
+        datasheetId: "chosen",
+        miniatureEnhancements: [{ name: "Talisman" }],
+        miniatures: [],
+        unitEnhancements: [{ name: "Daemon Weapon" }],
+        wargear: { "plasma-option": 2 },
+      }),
+      "Enhancements: Daemon Weapon, Talisman / Abilities: Mark of Chaos / Wargear: 2x Plasma gun"
+    );
+    assert.equal(unitRowSummaryText({
+      allegianceAbilities: [],
+      compositionId: "",
+      datasheetId: "chosen",
+      miniatureEnhancements: [],
+      miniatures: [],
+      unitEnhancements: [],
+      wargear: {},
+    }), "");
+  } finally {
+    state.catalog = previousCatalog;
+  }
+});
+
+test("unit rows render compact upgrade summary when present", () => {
+  const previousDocument = global.document;
+  const previousCatalog = state.catalog;
+  global.document = {
+    createElement: createMockElement,
+  };
+  state.catalog = {
+    baseMiniatureLoadoutsByDatasheetId: new Map(),
+    baseMiniatureLoadoutsByMiniatureId: new Map(),
+    baseMiniatureLoadoutWargearOptionsByLoadoutId: new Map(),
+    compositionById: new Map(),
+    compositionMiniaturesByCompositionId: new Map(),
+    loadoutChoiceSetLoadoutsByChoiceSetId: new Map(),
+    loadoutChoiceSetsByDatasheetId: new Map(),
+    unitImagesByDatasheetId: new Map(),
+    wargearGroupById: new Map(),
+    wargearGroupsByDatasheetId: new Map([["chosen", []]]),
+    wargearItemById: new Map(),
+    wargearOptionById: new Map(),
+    wargearOptionsByGroupId: new Map(),
+  };
+
+  try {
+    const row = renderUnitRow(
+      { attachments: [], units: [{ id: "unit-1", datasheetId: "chosen" }] },
+      {
+        allegianceAbilities: [{ name: "Mark of Chaos" }],
+        compositionId: "",
+        datasheetId: "chosen",
+        id: "unit-1",
+        miniatureEnhancements: [],
+        miniatures: [],
+        modelCount: 1,
+        name: "Chosen",
+        points: 80,
+        unitEnhancements: [{ name: "Daemon Weapon" }],
+        wargear: {},
+      },
+      { messages: [] },
+      () => {},
+      () => {}
+    );
+
+    assert.ok(row.textContent.includes("Enhancements: Daemon Weapon / Abilities: Mark of Chaos"));
+    assert.equal(row.children[0].children[2].className, "unit-row-summary");
   } finally {
     state.catalog = previousCatalog;
     global.document = previousDocument;
