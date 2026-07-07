@@ -118,6 +118,9 @@ test("unit allegiance editor hides controls until an actionable option exists", 
     assert.equal(node.children[1].tagName, "select");
     assert.equal(node.children[1].title, `Choose ${node.children[0].textContent}`);
     assert.equal(node.children[1].attributes.get("aria-label"), node.children[1].title);
+    const status = node.children.find((child) => child.className === "field-status allegiance-availability-status");
+    assert.match(status.textContent, /\d+ available/);
+    assert.equal(node.children[1].attributes.get("aria-describedby"), status.id);
   } finally {
     global.document = previousDocument;
   }

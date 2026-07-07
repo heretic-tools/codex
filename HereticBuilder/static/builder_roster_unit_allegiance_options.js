@@ -34,6 +34,7 @@ function allegianceEditorOptions(roster, unit) {
       ...rows.map((row) => ({
         disabled: !row.status.eligible && row.ability.id !== currentId,
         label: allegianceAbilityLabel(row.ability, row.status),
+        status: row.status,
         value: row.ability.id,
       })),
     ],

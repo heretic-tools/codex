@@ -134,6 +134,9 @@ Unit-detail enhancement/upgrades selects теперь показывают compa
 status (`available / locked`) из уже рассчитанных candidate statuses и связывают
 его с control через `aria-describedby`, чтобы locked причины были видны без
 открытия native select.
+Тот же availability-pattern вынесен в общий helper и применён к allegiance
+ability controls; Mark of Chaos/аналогичные обязательные выборы показывают
+сколько опций доступно прямо в unit detail.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

@@ -1,5 +1,9 @@
 import { option, textNode } from "./builder_dom.js";
 import { rosterWithUnitAllegianceAbility } from "./builder_roster_actions.js";
+import {
+  controlAvailabilitySummary,
+  safeDomId,
+} from "./builder_roster_control_availability.js";
 import { labelControl } from "./builder_roster_control_labels.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import { allegianceEditorOptions } from "./builder_roster_unit_allegiance_options.js";
@@ -55,6 +59,13 @@ function renderAllegianceEditor({
   wrap.className = "field";
   wrap.dataset.unitDetailTarget = "allegiance";
   wrap.append(textNode("span", "", model.label), select);
+  const availabilityText = controlAvailabilitySummary(model.options.filter((row) => row.value));
+  if (availabilityText) {
+    const availability = textNode("span", "field-status allegiance-availability-status", availabilityText);
+    availability.id = `allegiance-availability-${safeDomId(unit?.id)}`;
+    select.setAttribute("aria-describedby", availability.id);
+    wrap.appendChild(availability);
+  }
   if (validationNode) {
     wrap.appendChild(validationNode);
   }
