@@ -10,6 +10,9 @@ import {
   renderUnitControls,
 } from "./builder_roster_unit_controls.js";
 import {
+  textNode,
+} from "./builder_dom.js";
+import {
   emptyMessage,
   sectionTitle,
 } from "./builder_roster_editor_dom.js";
