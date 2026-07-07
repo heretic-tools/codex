@@ -1566,7 +1566,11 @@
   }
 
   .builder-panel-content:has(.roster-sticky-summary) {
-    padding-bottom: calc(224px + env(safe-area-inset-bottom));
+    padding-bottom: calc(184px + env(safe-area-inset-bottom));
+  }
+
+  .builder-panel-content:has(.unit-detail-grid .roster-sticky-summary) {
+    padding-bottom: calc(134px + env(safe-area-inset-bottom));
   }
 
   .builder-grid,
@@ -1598,12 +1602,13 @@
   .unit-detail-grid .roster-sticky-summary {
     position: fixed;
     right: max(8px, env(safe-area-inset-right));
-    bottom: calc(70px + env(safe-area-inset-bottom));
+    bottom: calc(62px + env(safe-area-inset-bottom));
     left: max(8px, env(safe-area-inset-left));
     z-index: 29;
     display: grid;
-    gap: 8px;
-    padding: 8px;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px;
+    padding: 6px;
     background: var(--builder-paper);
     border: 1px solid var(--builder-border);
     border-left: 4px solid var(--builder-ok);
@@ -1622,8 +1627,34 @@
   }
 
   .roster-sticky-summary .roster-status-pill {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
     justify-self: start;
     margin-left: 0;
+  }
+
+  .roster-sticky-summary .roster-sticky-summary-metrics {
+    grid-column: 2;
+    gap: 4px;
+  }
+
+  .roster-sticky-summary .roster-overview-metric {
+    min-height: 44px;
+    padding: 4px 5px;
+  }
+
+  .roster-sticky-summary .roster-overview-metric span {
+    font-size: 10px;
+  }
+
+  .roster-sticky-summary .roster-overview-metric strong {
+    font-size: 12px;
+  }
+
+  .roster-sticky-summary-actions {
+    grid-column: 1 / -1;
+    gap: 4px;
   }
 
   .roster-overview-card .roster-overview-metrics {
@@ -1664,7 +1695,7 @@
   }
 
   .builder-toast {
-    bottom: calc(216px + env(safe-area-inset-bottom));
+    bottom: calc(176px + env(safe-area-inset-bottom));
   }
 }
 

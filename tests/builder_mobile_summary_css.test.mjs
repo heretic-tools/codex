@@ -23,13 +23,18 @@ test("mobile roster summary is a bottom safe-area bar", () => {
   const mobileLayer = modernMobileLayer(source);
 
   assert.ok(mobileLayer.includes(".builder-panel-content:has(.roster-sticky-summary)"));
-  assert.ok(mobileLayer.includes("padding-bottom: calc(224px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes("padding-bottom: calc(184px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes(".builder-panel-content:has(.unit-detail-grid .roster-sticky-summary)"));
+  assert.ok(mobileLayer.includes("padding-bottom: calc(134px + env(safe-area-inset-bottom));"));
   assert.ok(mobileLayer.includes(".roster-detail-grid .roster-sticky-summary"));
   assert.ok(mobileLayer.includes("position: fixed;"));
-  assert.ok(mobileLayer.includes("bottom: calc(70px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes("bottom: calc(62px + env(safe-area-inset-bottom));"));
   assert.ok(mobileLayer.includes("left: max(8px, env(safe-area-inset-left));"));
+  assert.ok(mobileLayer.includes("grid-template-columns: auto minmax(0, 1fr);"));
+  assert.ok(mobileLayer.includes(".roster-sticky-summary .roster-sticky-summary-metrics"));
+  assert.ok(mobileLayer.includes(".roster-sticky-summary-actions"));
   assert.ok(mobileLayer.includes(".builder-toast"));
-  assert.ok(mobileLayer.includes("bottom: calc(216px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes("bottom: calc(176px + env(safe-area-inset-bottom));"));
   assert.ok(source.includes(".roster-sticky-summary-actions"));
   assert.ok(source.includes(".roster-sticky-summary-action"));
 });
