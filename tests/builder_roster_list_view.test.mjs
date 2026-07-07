@@ -185,6 +185,7 @@ test("roster list item keeps quick actions outside the open-row button", () => {
       {
         onDelete: () => calls.push("delete"),
         onDuplicate: () => calls.push("duplicate"),
+        onRename: () => calls.push("rename"),
       }
     );
 
@@ -195,8 +196,9 @@ test("roster list item keeps quick actions outside the open-row button", () => {
     assert.equal(item.children[1].tagName, "details");
     assert.equal(item.children[1].children[0].className, "roster-actions-trigger");
     assert.equal(item.children[1].children[0].attributes.get("aria-label"), "More actions: Black Crusade");
-    assert.equal(item.children[1].children[1].children[0].textContent, "Duplicate");
-    assert.equal(item.children[1].children[1].children[1].textContent, "Delete Roster");
+    assert.equal(item.children[1].children[1].children[0].textContent, "Rename");
+    assert.equal(item.children[1].children[1].children[1].textContent, "Duplicate");
+    assert.equal(item.children[1].children[1].children[2].textContent, "Delete Roster");
     assert.equal(item.children[0].children.some((child) => child.className === "roster-actions-menu"), false);
   } finally {
     global.document = previousDocument;

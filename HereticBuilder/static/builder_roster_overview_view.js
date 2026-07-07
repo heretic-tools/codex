@@ -97,9 +97,11 @@ function renderStickySummaryActions(actions = []) {
 function renderRenameRosterForm({ formId, onUndoableUpdate, onUpdate, roster }) {
   const form = document.createElement("form");
   form.className = "roster-rename-form";
+  form.dataset.editorTarget = "rename";
   form.hidden = true;
   const input = document.createElement("input");
   input.autocomplete = "off";
+  input.dataset.focusTarget = "true";
   input.maxLength = 80;
   input.name = "rosterName";
   input.value = roster.name || "";

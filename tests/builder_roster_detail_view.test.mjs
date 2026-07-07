@@ -389,3 +389,66 @@ test("roster focus target can prefill the unit search field", () => {
     global.Event = previousEvent;
   }
 });
+
+test("roster focus target opens and focuses rename form", () => {
+  const previousDocument = global.document;
+  const previousWindow = global.window;
+  const previousCss = global.CSS;
+  const calls = [];
+  const classList = fakeClassList();
+  const input = {
+    focus(options) {
+      calls.push(["focus", options]);
+    },
+    scrollIntoView(options) {
+      calls.push(["scroll", options]);
+    },
+  };
+  const renameForm = {
+    classList,
+    matches() {
+      return false;
+    },
+    querySelector(selector) {
+      return selector === "[data-focus-target]" ? input : null;
+    },
+  };
+  const renameButton = {
+    click() {
+      calls.push(["clickRename"]);
+    },
+  };
+
+  global.CSS = { escape: (value) => value };
+  global.window = {
+    CSS: global.CSS,
+    setTimeout(handler) {
+      calls.push(["timeout", 900]);
+      handler();
+    },
+  };
+  global.document = {
+    querySelector(selector) {
+      if (selector === ".rename-roster-button") {
+        return renameButton;
+      }
+      return selector === '[data-editor-target="rename"]' ? renameForm : null;
+    },
+  };
+
+  try {
+    scrollToRosterFocusTarget("rename");
+
+    assert.deepEqual(calls[0], ["clickRename"]);
+    assert.deepEqual(calls[1], ["scroll", { behavior: "smooth", block: "center" }]);
+    assert.deepEqual(calls[2], ["focus", { preventScroll: true }]);
+    assert.deepEqual(classList.calls, [
+      ["add", "is-attention-target"],
+      ["remove", "is-attention-target"],
+    ]);
+  } finally {
+    global.document = previousDocument;
+    global.window = previousWindow;
+    global.CSS = previousCss;
+  }
+});

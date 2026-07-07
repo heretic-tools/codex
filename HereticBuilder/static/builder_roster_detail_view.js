@@ -19,6 +19,9 @@ function scrollToRosterFocusTarget(focusTarget) {
     scrollToUnitSearch(focusTarget.slice(prefix.length));
     return;
   }
+  if (focusTarget === "rename") {
+    document.querySelector(".rename-roster-button")?.click();
+  }
   scrollToEditorTarget(focusTarget);
 }
 

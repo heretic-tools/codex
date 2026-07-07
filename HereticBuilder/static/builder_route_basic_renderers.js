@@ -25,6 +25,7 @@ async function renderList(render) {
     onExport: exportRosters,
     onImport: (file) => importRosters(file, render),
     onOpen: (roster) => navigate(`/roster/${encodeURIComponent(roster.id)}`),
+    onRename: (roster) => navigate(`/roster/${encodeURIComponent(roster.id)}/focus/rename`),
     rosters: state.rosters,
     summarizeRoster: lightweightRosterSummary,
   }));

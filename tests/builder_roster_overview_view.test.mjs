@@ -109,6 +109,7 @@ test("roster overview hides Warlord picker before units exist", () => {
     assert.equal(overview.children[2].children[0].title, "Rename roster");
     assert.equal(overview.children[2].children[0].attributes.get("aria-label"), "Rename roster");
     assert.equal(overview.children[2].children[1].className, "roster-rename-form");
+    assert.equal(overview.children[2].children[1].dataset.editorTarget, "rename");
     assert.equal(overview.children[2].children[1].hidden, true);
     assert.equal(overview.children[2].children[2].title, "Duplicate roster");
     assert.equal(overview.children[2].children[2].attributes.get("aria-label"), "Duplicate roster");
@@ -151,6 +152,7 @@ test("roster overview rename form emits an undoable roster update", async () => 
     const renameButton = controls.children[0];
     const renameForm = controls.children[1];
     const input = renameForm.children[0];
+    assert.equal(input.dataset.focusTarget, "true");
 
     renameButton.listeners.get("click")();
     assert.equal(renameForm.hidden, false);

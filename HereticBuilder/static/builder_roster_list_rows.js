@@ -139,8 +139,8 @@ function rosterActionButton(text, roster, onClick) {
   return node;
 }
 
-function rosterActionsMenu(roster, { onDelete, onDuplicate } = {}) {
-  if (!onDelete && !onDuplicate) {
+function rosterActionsMenu(roster, { onDelete, onDuplicate, onRename } = {}) {
+  if (!onDelete && !onDuplicate && !onRename) {
     return null;
   }
   const node = document.createElement("details");
@@ -152,6 +152,9 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate } = {}) {
   trigger.setAttribute("aria-label", trigger.title);
   const panel = document.createElement("div");
   panel.className = "roster-actions-panel";
+  if (onRename) {
+    panel.appendChild(rosterActionButton("Rename", roster, onRename));
+  }
   if (onDuplicate) {
     panel.appendChild(rosterActionButton("Duplicate", roster, onDuplicate));
   }
