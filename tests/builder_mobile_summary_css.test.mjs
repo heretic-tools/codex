@@ -72,8 +72,11 @@ test("mobile Builder action controls keep 44px touch targets", () => {
   assert.ok(mobileLayer.includes(".roster-sticky-summary-action,"));
   assert.ok(mobileLayer.includes(".toast-action,"));
   assert.ok(mobileLayer.includes(".wargear-count-button"));
+  assert.ok(mobileLayer.includes('.wargear-option-row input[type="checkbox"]'));
   assert.ok(mobileLayer.includes("min-width: 44px;"));
   assert.ok(mobileLayer.includes("min-height: 44px;"));
+  assert.ok(mobileLayer.includes("width: 44px;"));
+  assert.ok(mobileLayer.includes("height: 44px;"));
   assert.ok(mobileLayer.includes("grid-template-columns: 44px minmax(0, 1fr) 44px;"));
 });
 

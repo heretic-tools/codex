@@ -1442,6 +1442,13 @@
   border-color: var(--builder-shadow);
 }
 
+.wargear-option-row input[type="checkbox"] {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  accent-color: var(--builder-blue);
+}
+
 .builder-control-row input:focus,
 .builder-control-row select:focus,
 .field input:focus,
@@ -1691,7 +1698,8 @@
   .builder-control-row select,
   .field input,
   .field select,
-  .wargear-option-row input[type="number"] {
+  .wargear-option-row input[type="number"],
+  .wargear-option-row input[type="checkbox"] {
     min-height: 44px;
   }
 
@@ -1714,6 +1722,13 @@
     width: 132px;
     min-width: 132px;
     grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
+
+  .wargear-option-row input[type="checkbox"] {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    margin: 0;
   }
 
   .builder-toast {
