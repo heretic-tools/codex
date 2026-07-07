@@ -75,6 +75,9 @@ Unit-detail upgrade/enhancement editor теперь называет секци�
 фактическим типам доступных опций: `Upgrades`, `Enhancements` или
 `Enhancements & Upgrades`; unit-scope target отображается как `Whole unit`,
 а не техническое `Unit`.
+Roster unit rows используют тот же словарь для compact summary, поэтому
+выбранные upgrade-опции больше не подписываются как `Enhancements`, а shared
+CSS shell перестал держать legacy `--window` alias.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

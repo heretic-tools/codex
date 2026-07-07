@@ -348,6 +348,24 @@ test("unit row summary exposes upgrades without dumping default wargear", () => 
       unitEnhancements: [],
       wargear: {},
     }), "");
+    assert.equal(unitRowSummaryText({
+      allegianceAbilities: [],
+      compositionId: "",
+      datasheetId: "chosen",
+      miniatureEnhancements: [],
+      miniatures: [],
+      unitEnhancements: [{ enhancementType: "upgrade", name: "Death in the Dark" }],
+      wargear: {},
+    }), "Upgrades: Death in the Dark");
+    assert.equal(unitRowSummaryText({
+      allegianceAbilities: [],
+      compositionId: "",
+      datasheetId: "chosen",
+      miniatureEnhancements: [{ enhancementType: "miniature", name: "Shroud Field" }],
+      miniatures: [],
+      unitEnhancements: [{ enhancementType: "upgrade", name: "Death in the Dark" }],
+      wargear: {},
+    }), "Enhancements & Upgrades: Death in the Dark, Shroud Field");
   } finally {
     state.catalog = previousCatalog;
   }

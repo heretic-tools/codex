@@ -203,7 +203,7 @@
     .rule-card {
       min-width: 0;
       padding: 14px;
-      background: var(--window);
+      background: var(--app-panel);
       border-style: solid;
       border-width: 2px;
       border-color: var(--light) var(--shadow) var(--shadow) var(--light);
@@ -509,7 +509,7 @@
       min-height: 100%;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, .22), transparent 18%),
-        var(--window);
+        var(--app-panel);
     }
 
     .unit-summary-titlebar {
@@ -627,7 +627,7 @@
       display: inline-flex;
       align-items: center;
       padding: 2px 7px;
-      background: var(--window);
+      background: var(--app-panel);
       color: var(--ink);
       font-size: 10px;
       font-weight: 800;
@@ -657,7 +657,7 @@
       align-content: start;
       gap: 0;
       padding: 0;
-      background: var(--window);
+      background: var(--app-panel);
       border: 0;
       box-shadow: none;
     }
@@ -669,7 +669,7 @@
     .unit-table-wrap {
       max-width: 100%;
       overflow-x: auto;
-      background: var(--window);
+      background: var(--app-panel);
     }
 
     .unit-stat-table {
@@ -678,7 +678,7 @@
       table-layout: fixed;
       border-collapse: separate;
       border-spacing: 0;
-      background: var(--window);
+      background: var(--app-panel);
       font-size: 13px;
       line-height: 1.12;
     }
@@ -1145,7 +1145,7 @@
       align-content: start;
       padding: 12px;
       color: var(--ink);
-      background: var(--window);
+      background: var(--app-panel);
       border-style: solid;
       border-width: 2px;
       border-color: var(--light) var(--shadow) var(--shadow) var(--light);
@@ -1238,7 +1238,7 @@
 
     .empty-state {
       padding: 14px;
-      background: var(--window);
+      background: var(--app-panel);
       border-style: solid;
       border-width: 2px;
       border-color: var(--shadow) var(--light) var(--light) var(--shadow);

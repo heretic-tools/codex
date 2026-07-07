@@ -1,6 +1,7 @@
 import { selectedWargearEntries } from "./builder_model.js";
 import { state } from "./builder_state.js";
 import { unitHasDefaultWargear } from "./builder_roster_unit_wargear_default_actions.js";
+import { enhancementSectionTitle } from "./builder_roster_unit_enhancement_labels.js";
 
 function compactNames(names, limit = 2) {
   const values = (names || []).map((name) => String(name || "").trim()).filter(Boolean);
@@ -37,12 +38,13 @@ function unitWargearChanged(unit) {
 
 function unitRowSummaryParts(unit) {
   const parts = [];
-  const enhancements = compactNames([
-    ...(unit.unitEnhancements || []).map((enhancement) => enhancement.name),
-    ...(unit.miniatureEnhancements || []).map((enhancement) => enhancement.name),
-  ]);
+  const enhancementRows = [
+    ...(unit.unitEnhancements || []),
+    ...(unit.miniatureEnhancements || []),
+  ];
+  const enhancements = compactNames(enhancementRows.map((enhancement) => enhancement.name));
   if (enhancements) {
-    parts.push(`Enhancements: ${enhancements}`);
+    parts.push(`${enhancementSectionTitle(enhancementRows)}: ${enhancements}`);
   }
   const allegiance = compactNames((unit.allegianceAbilities || []).map((ability) => ability.name));
   if (allegiance) {
