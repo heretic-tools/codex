@@ -233,6 +233,9 @@ test("detachment rows label their Codex links", () => {
     assert.equal(link.href, "/faction/heretic-astartes/detachment/pactbound-zealots/");
     assert.equal(link.title, expectedLabel);
     assert.equal(link.attributes.get("aria-label"), expectedLabel);
+    assert.ok(link.children.some((child) => child.className === "meta-badge" && child.textContent === `${costForDetachment(detachment.id, faction.id)} DP`));
+    assert.equal(row.children[1].children.length, 1);
+    assert.equal(row.children[1].children[0].className, "remove-button");
   } finally {
     global.document = previousDocument;
   }
@@ -241,6 +244,13 @@ test("detachment rows label their Codex links", () => {
 test("detachment Codex links keep mobile touch targets", () => {
   const source = readFileSync(join(projectRoot, "HereticBuilder", "static", "builder.css"), "utf8");
   const linkRule = source.slice(source.indexOf(".detachment-open-link {"), source.indexOf(".detachment-open-link:hover"));
+  const mobileLayer = source.slice(source.lastIndexOf("@media (max-width: 760px)"));
 
   assert.ok(linkRule.includes("min-height: 44px;"));
+  assert.ok(mobileLayer.includes(".detachment-editor-row,"));
+  assert.ok(mobileLayer.includes(".unit-editor-row {"));
+  assert.ok(mobileLayer.includes("grid-template-columns: minmax(0, 1fr) auto;"));
+  assert.ok(mobileLayer.includes(".detachment-editor-row .row-meta,"));
+  assert.ok(mobileLayer.includes(".unit-editor-row .row-meta {"));
+  assert.ok(mobileLayer.includes("justify-content: flex-end;"));
 });

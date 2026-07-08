@@ -398,6 +398,9 @@ test("unit rows pluralize model counts", () => {
     );
 
     assert.ok(row.textContent.includes("1 model"));
+    assert.ok(row.children[0].children.some((child) => child.className === "meta-badge" && child.textContent === "80 pts"));
+    assert.equal(row.children[1].children.length, 1);
+    assert.equal(row.children[1].children[0].className, "remove-button");
     assert.equal(row.children[0].title, "Open unit: Chosen, 1 model, 80 pts");
     assert.equal(row.children[0].attributes.get("aria-label"), "Open unit: Chosen, 1 model, 80 pts");
     assert.equal(row.textContent.includes("1 models"), false);
@@ -518,7 +521,7 @@ test("unit rows render compact upgrade summary when present", () => {
     );
 
     assert.ok(row.textContent.includes("Enhancements: Daemon Weapon / Abilities: Mark of Chaos"));
-    assert.equal(row.children[0].children[2].className, "unit-row-summary");
+    assert.equal(row.children[0].children[3].className, "unit-row-summary");
     assert.equal(
       row.children[0].attributes.get("aria-label"),
       "Open unit: Chosen, 1 model, 80 pts, Enhancements: Daemon Weapon / Abilities: Mark of Chaos"

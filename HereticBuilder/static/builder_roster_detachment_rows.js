@@ -54,17 +54,15 @@ function renderDetachmentRow(roster, detachmentId, index, validation, onUpdate, 
   if (disposition) {
     text.append(textNode("span", `disposition-badge disposition-${dispositionSlug(disposition)}`, disposition));
   }
+  text.append(textNode("span", "meta-badge", `${detachment ? costForDetachment(detachment.id, roster.factionKeywordId) : 0} DP`));
   if (validationStatus) {
     text.append(textNode("span", `validation-state-badge state-${validationStatus.className}`, validationStatus.text));
   }
   const meta = document.createElement("span");
   meta.className = "row-meta";
-  meta.append(
-    textNode("span", "", `${detachment ? costForDetachment(detachment.id, roster.factionKeywordId) : 0} DP`),
-    removeButton("Remove detachment", async () => (
-      removeDetachmentFromRow(roster, detachment, index, onUpdate, onUndoableUpdate)
-    ))
-  );
+  meta.append(removeButton("Remove detachment", async () => (
+    removeDetachmentFromRow(roster, detachment, index, onUpdate, onUndoableUpdate)
+  )));
   row.append(text, meta);
   return row;
 }

@@ -100,6 +100,8 @@ test("mobile unit and detachment add controls stay inline", () => {
   assert.ok(mobileLayer.includes(".detachment-control-row,"));
   assert.ok(mobileLayer.includes(".unit-control-row {"));
   assert.ok(mobileLayer.includes("grid-template-columns: minmax(0, 1fr) auto;"));
+  assert.ok(mobileLayer.includes(".detachment-editor-row,"));
+  assert.ok(mobileLayer.includes(".unit-editor-row {"));
   assert.ok(mobileLayer.includes(".detachment-control-row .builder-search-field,"));
   assert.ok(mobileLayer.includes(".unit-control-row .builder-search-field {"));
   assert.ok(mobileLayer.includes("grid-column: 1 / -1;"));

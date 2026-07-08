@@ -45,7 +45,8 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
   }
   text.append(
     textNode("strong", "", summary.name || "Unit"),
-    textNode("span", "", unitModelCountLabel(summary.modelCount || 0))
+    textNode("span", "", unitModelCountLabel(summary.modelCount || 0)),
+    textNode("span", "meta-badge", `${summary.points || 0} pts`)
   );
   if (summaryText) {
     text.append(textNode("span", "unit-row-summary", summaryText));
@@ -62,10 +63,7 @@ function renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndo
   }
   const meta = document.createElement("span");
   meta.className = "row-meta";
-  meta.append(
-    textNode("span", "", `${summary.points || 0} pts`),
-    removeButton("Remove unit", removeUnit)
-  );
+  meta.append(removeButton("Remove unit", removeUnit));
   row.append(text, meta);
   return row;
 }

@@ -205,6 +205,14 @@ page-level horizontal overflow не найден, create flow целиком п�
 неинтерактивных status/metric cells, оставив сами action buttons 44px touch
 targets; повторный `/builder/` smoke с asset `eb522c1518d2` подтвердил
 `roster-sticky-summary` без console errors и page-level overflow.
+Selected detachment rows на mobile теперь держат disposition и DP в основной
+clickable части строки рядом с названием, а remove control остаётся отдельным
+44px action справа; `/builder/` smoke с asset `3b9ac142b2d1` подтвердил
+компактную строку без page-level overflow.
+Selected unit rows получили тот же compact mobile pattern: points badge
+переехал в clickable unit control, remove остался отдельным action справа, а
+в текущем smoke row height снизился примерно с 122px до 84px без page-level
+overflow и без изменения swipe/remove логики.
 
 ## Не входит в объём
 
