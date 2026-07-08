@@ -22,6 +22,14 @@ For the Codex repository, the workflow builds `dist/` with:
 python3 HereticBuilder/tools/builder.py build --out dist --base-path "/<repo-name>" --mount-codex-at-root
 ```
 
+The same Codex repository also publishes isolated beta entry points without
+changing the current production paths:
+
+```bash
+python3 HereticBuilder/tools/builder.py build --out dist/beta/codex --base-path "/<repo-name>/beta/codex" --mount-codex-at-root
+python3 HereticBuilder/tools/builder.py build-builder --out dist/beta/builder --base-path "/<repo-name>/beta/builder"
+```
+
 For the standalone Builder repository (`https://heretic-tools.github.io/builder/`),
 the workflow builds `dist/` with:
 

@@ -413,10 +413,14 @@ test("roster list disables export while there are no local rosters", () => {
       rosters: [],
       summarizeRoster: () => ({}),
     });
-    const emptyTransfer = empty.children[2];
+    const betaNotice = empty.children[1];
+    const emptyTransfer = empty.children[3];
     assert.equal(empty.children[0].children[0].textContent, "No rosters yet");
-    assert.equal(empty.children[1].title, "Create roster");
-    assert.equal(empty.children[1].attributes.get("aria-label"), "Create roster");
+    assert.equal(betaNotice.className, "builder-beta-notice");
+    assert.match(betaNotice.textContent, /Rosters are stored only in this browser/);
+    assert.match(betaNotice.textContent, /Export a backup/);
+    assert.equal(empty.children[2].title, "Create roster");
+    assert.equal(empty.children[2].attributes.get("aria-label"), "Create roster");
     assert.equal(emptyTransfer.children[0].textContent, "Export Rosters");
     assert.equal(emptyTransfer.children[0].disabled, true);
     assert.equal(emptyTransfer.children[0].title, "Export rosters");
@@ -446,7 +450,7 @@ test("roster list disables export while there are no local rosters", () => {
     const listItem = withRoster.children[0].children[0];
     assert.equal(listItem.className, "roster-list-item");
     assert.equal(listItem.children.length, 1);
-    assert.equal(withRoster.children[2].children[0].disabled, false);
+    assert.equal(withRoster.children[3].children[0].disabled, false);
   } finally {
     global.document = previousDocument;
   }

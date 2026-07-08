@@ -128,9 +128,16 @@ test("validation message list separates status, title, count, and action", () =>
     assert.equal(head.children[1].className, "validation-title-wrap");
     assert.equal(head.children[1].children[0].textContent, "Pick a detachment.");
     assert.equal(head.children[2].className, "validation-row-meta");
-    assert.equal(head.children[2].children[0].className, "validation-count");
-    assert.equal(head.children[2].children[0].attributes.get("aria-label"), "1 issue");
-    assert.equal(head.children[2].children[1].className, "validation-action-button");
+    assert.equal(head.children[2].children.length, 1);
+    assert.equal(head.children[2].children[0].className, "validation-action-button");
+
+    const groupedList = renderValidationMessages([
+      { level: "error", code: "roster.unit_limit_exceeded", text: "Ancient has 4 units; limit is 3." },
+      { level: "error", code: "roster.unit_limit_exceeded", text: "Ancient has 5 units; limit is 3." },
+    ]);
+    const groupedMeta = groupedList.children[0].children[0].children[2];
+    assert.equal(groupedMeta.children[0].className, "validation-count");
+    assert.equal(groupedMeta.children[0].attributes.get("aria-label"), "2 issues");
   } finally {
     global.document = previousDocument;
   }

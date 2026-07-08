@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -44,9 +45,33 @@ test("GitHub Pages workflow can build standalone Builder separately", () => {
   assert.match(workflow, /Build static Codex site/);
   assert.match(workflow, /github\.event\.repository\.name != 'builder'/);
   assert.match(workflow, /builder\.py build --out dist/);
+  assert.match(workflow, /Build beta index/);
+  assert.ok(workflow.includes('builder.py build-beta-index --out dist/beta --base-path "/${{ github.event.repository.name }}/beta"'));
+  assert.match(workflow, /Build beta Codex site/);
+  assert.ok(workflow.includes('builder.py build --out dist/beta/codex --base-path "/${{ github.event.repository.name }}/beta/codex" --mount-codex-at-root'));
+  assert.match(workflow, /Build beta Builder site/);
+  assert.ok(workflow.includes('builder.py build-builder --out dist/beta/builder --base-path "/${{ github.event.repository.name }}/beta/builder"'));
   assert.match(workflow, /Build standalone Builder site/);
   assert.match(workflow, /github\.event\.repository\.name == 'builder'/);
   assert.ok(workflow.includes('builder.py build-builder --out dist --base-path "/${{ github.event.repository.name }}"'));
+});
+
+test("beta index links to beta Codex and Builder entry points", () => {
+  const outDir = mkdtempSync(join(tmpdir(), "heretic-beta-index-"));
+  try {
+    const html = execFileSync("python3", ["HereticBuilder/tools/builder.py", "build-beta-index", "--out", outDir, "--base-path", "/codex/beta"], {
+      cwd: projectRoot,
+      encoding: "utf8",
+    });
+
+    assert.match(html, /Beta index:/);
+    const index = readFileSync(join(outDir, "index.html"), "utf8");
+    assert.match(index, /HereticTools Beta/);
+    assert.match(index, /href="\/codex\/beta\/codex\/"/);
+    assert.match(index, /href="\/codex\/beta\/builder\/"/);
+  } finally {
+    rmSync(outDir, { recursive: true, force: true });
+  }
 });
 
 test("Codex detail route helpers emit canonical directory hrefs", () => {

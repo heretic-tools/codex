@@ -31,6 +31,18 @@ jobs:
         if: github.event.repository.name != 'builder'
         run: python3 HereticBuilder/tools/builder.py build --out dist --base-path "/${{ github.event.repository.name }}" --mount-codex-at-root
 
+      - name: Build beta index
+        if: github.event.repository.name != 'builder'
+        run: python3 HereticBuilder/tools/builder.py build-beta-index --out dist/beta --base-path "/${{ github.event.repository.name }}/beta"
+
+      - name: Build beta Codex site
+        if: github.event.repository.name != 'builder'
+        run: python3 HereticBuilder/tools/builder.py build --out dist/beta/codex --base-path "/${{ github.event.repository.name }}/beta/codex" --mount-codex-at-root
+
+      - name: Build beta Builder site
+        if: github.event.repository.name != 'builder'
+        run: python3 HereticBuilder/tools/builder.py build-builder --out dist/beta/builder --base-path "/${{ github.event.repository.name }}/beta/builder"
+
       - name: Build standalone Builder site
         if: github.event.repository.name == 'builder'
         run: python3 HereticBuilder/tools/builder.py build-builder --out dist --base-path "/${{ github.event.repository.name }}"

@@ -37,6 +37,12 @@ function renderRosterListView({
   } else {
     list.appendChild(textNode("p", "empty-list", "No rosters yet"));
   }
+  const betaNotice = document.createElement("p");
+  betaNotice.className = "builder-beta-notice";
+  betaNotice.append(
+    textNode("strong", "", "Beta"),
+    textNode("span", "", " Rosters are stored only in this browser. Export a backup before clearing site data or switching devices.")
+  );
   const transfer = document.createElement("div");
   transfer.className = "builder-transfer-row";
   const input = document.createElement("input");
@@ -68,7 +74,7 @@ function renderRosterListView({
     importButton,
     input
   );
-  root.append(list, createButton, transfer);
+  root.append(list, betaNotice, createButton, transfer);
   return root;
 }
 

@@ -9,6 +9,11 @@ from build_builder_site import (
     build_builder_site_from_args,
     print_builder_site_build_result,
 )
+from build_beta_index import (
+    add_beta_index_arguments,
+    build_beta_index_from_args,
+    print_beta_index_result,
+)
 from export_builder_data import (
     add_export_builder_data_arguments,
     export_builder_data_from_args,
@@ -35,6 +40,12 @@ def parse_args():
     )
     add_builder_site_arguments(build_builder_parser)
 
+    build_beta_index_parser = subparsers.add_parser(
+        "build-beta-index",
+        help="Build the HereticTools beta index page.",
+    )
+    add_beta_index_arguments(build_beta_index_parser)
+
     export_builder_data_parser = subparsers.add_parser(
         "export-builder-data",
         help="Export catalog-only builder data for a static client.",
@@ -51,6 +62,9 @@ def main():
         return
     if args.command == "build-builder":
         print_builder_site_build_result(build_builder_site_from_args(args))
+        return
+    if args.command == "build-beta-index":
+        print_beta_index_result(build_beta_index_from_args(args))
         return
     if args.command == "export-builder-data":
         print_export_builder_data_result(export_builder_data_from_args(args))

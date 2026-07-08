@@ -163,7 +163,8 @@
 }
 
 .builder-row + .builder-row,
-.builder-list + .create-roster-button,
+.builder-list + .builder-beta-notice,
+.builder-beta-notice + .create-roster-button,
 .create-roster-button + .builder-transfer-row {
   margin-top: 0;
 }
@@ -777,6 +778,23 @@
   background: var(--builder-panel);
   border: 0;
   border-radius: 0;
+}
+
+.builder-beta-notice {
+  margin: 0;
+  padding: 9px 10px;
+  color: var(--builder-muted);
+  background: var(--builder-panel);
+  border: 0;
+  border-radius: 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.builder-beta-notice strong {
+  color: var(--builder-ink);
+  font-weight: 850;
+  text-transform: uppercase;
 }
 
 .builder-form {
@@ -1601,7 +1619,8 @@
 }
 
 .builder-row + .builder-row,
-.builder-list + .create-roster-button,
+.builder-list + .builder-beta-notice,
+.builder-beta-notice + .create-roster-button,
 .create-roster-button + .builder-transfer-row,
 .editor-row + .editor-row,
 .builder-control-row + .editor-list,

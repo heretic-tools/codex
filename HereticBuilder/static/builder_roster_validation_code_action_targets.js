@@ -49,6 +49,7 @@ function rosterValidationCodeActionTarget(code, { roster = null } = {}) {
     case "mandatory_warlord.not_present_in_roster":
     case "roster.empty":
     case "roster.points_limit_exceeded":
+    case "roster.unit_limit_exceeded":
       return { kind: "target", target: "units", text: "Units" };
     default:
       return null;

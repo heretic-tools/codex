@@ -350,6 +350,16 @@ test("roster validation code actions can override unit scopes", () => {
   assert.deepEqual(
     rosterValidationActionTarget({
       attachmentIds: [],
+      code: "roster.unit_limit_exceeded",
+      detachmentIds: [],
+      unitIds: ["duplicate-unit"],
+    }),
+    { kind: "target", target: "units", text: "Units" }
+  );
+
+  assert.deepEqual(
+    rosterValidationActionTarget({
+      attachmentIds: [],
       code: "warlord.multiple_selected",
       detachmentIds: [],
       unitIds: ["warlord-1", "warlord-2"],

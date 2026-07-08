@@ -85,7 +85,9 @@ function appendGroupedMessages(list, messages, context = {}, groupAction = null)
     titleWrap.appendChild(title);
     const meta = document.createElement("span");
     meta.className = "validation-row-meta";
-    meta.appendChild(validationCountBadge(group.count));
+    if (group.count > 1) {
+      meta.appendChild(validationCountBadge(group.count));
+    }
     if (action) {
       meta.appendChild(action);
     }
