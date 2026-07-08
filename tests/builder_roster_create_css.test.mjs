@@ -44,6 +44,13 @@ test("roster create battle size picker uses flat theme tokens", () => {
   assert.doesNotMatch(source, /\.battle-size-option \{[^}]+border-width: 2px;/);
 });
 
+test("roster overview actions fit the full delete roster label", () => {
+  const source = builderCss();
+  const actionsBlock = source.match(/\.roster-overview-action-row \{[^}]+\}/)?.[0] || "";
+
+  assert.ok(actionsBlock.includes("grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));"));
+});
+
 test("Builder shared controls no longer keep a bevel fallback", () => {
   const source = builderCss();
   const sharedControlBlock = source.match(/\.builder-row,\n\.plain-button,\n\.primary-button,\n\.remove-button,\n\.validation-action-button \{[^}]+\}/)?.[0] || "";

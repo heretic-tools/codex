@@ -196,7 +196,7 @@ function renderRosterOverview({ onDelete, onDuplicate = null, onUndoableUpdate =
     );
   }
   actionRow.append(
-    labelControl(button("plain-button delete-roster-button", "Delete", async () => onDelete(roster)), rosterOverviewActionLabel(roster, "Delete roster", summary))
+    labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), rosterOverviewActionLabel(roster, "Delete roster", summary))
   );
   controls.append(actionRow, rename.form);
   overview.append(

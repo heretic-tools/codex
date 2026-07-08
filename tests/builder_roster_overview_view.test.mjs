@@ -115,7 +115,7 @@ test("roster overview hides Warlord picker before units exist", () => {
     assert.equal(overview.textContent.includes("Add units first"), false);
     assert.ok(overview.textContent.includes("Rename"));
     assert.ok(overview.textContent.includes("Duplicate"));
-    assert.ok(overview.textContent.includes("Delete"));
+    assert.ok(overview.textContent.includes("Delete Roster"));
     assert.equal(
       overview.attributes.get("aria-label"),
       "Roster overview: Heretic Astartes / Strike Force; Valid; Points 0 of 2000, DP 0 of 3, Units 0"
@@ -128,6 +128,7 @@ test("roster overview hides Warlord picker before units exist", () => {
     assert.equal(overview.children[2].children[1].hidden, true);
     assert.equal(overview.children[2].children[0].children[1].title, "Duplicate roster: Heretic Astartes roster 1");
     assert.equal(overview.children[2].children[0].children[1].attributes.get("aria-label"), "Duplicate roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[0].children[2].textContent, "Delete Roster");
     assert.equal(overview.children[2].children[0].children[2].title, "Delete roster: Heretic Astartes roster 1");
     assert.equal(overview.children[2].children[0].children[2].attributes.get("aria-label"), "Delete roster: Heretic Astartes roster 1");
 
