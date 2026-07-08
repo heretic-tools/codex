@@ -943,6 +943,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(routeNotFoundRendererSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
 
     const rosterIoSource = readFileSync(join(outDir, "static", "builder_roster_io_actions.js"), "utf8");
+    assert.match(rosterIoSource, new RegExp(`\\.\\/builder_catalog_runtime\\.js\\?v=${version}`));
     assert.match(rosterIoSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
     assert.match(rosterIoSource, new RegExp(`\\.\\/builder_roster_create_model\\.js\\?v=${version}`));
     assert.match(rosterIoSource, new RegExp(`\\.\\/builder_toast\\.js\\?v=${version}`));

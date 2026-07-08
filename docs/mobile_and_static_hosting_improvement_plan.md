@@ -156,6 +156,10 @@ pointerdown и объявляет себя как popup-menu, чтобы моб�
 Список ростеров теперь держит открытым только одно quick-actions menu за раз:
 открытие второго `...` аккуратно закрывает предыдущее и снимает его outside
 listener.
+Live mobile smoke нашёл и закрепил regression: тап по второму `...` больше не
+теряется из-за раннего outside-close первого menu на `pointerdown`.
+Тот же smoke выявил физическое перекрытие следующего `...` открытой menu panel;
+на mobile panel теперь открывается влево от trigger, а не вниз поверх списка.
 Attached Units `Add attached unit` disclosure синхронизирует `aria-expanded`
 и закрывается по Escape с возвратом фокуса на summary.
 Поиск в `Add Detachment` и `Add Unit` теперь очищается по Escape и сразу

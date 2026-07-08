@@ -62,3 +62,11 @@ test("builder roster list stays bootstrap-only and does not validate rows", () =
   assert.doesNotMatch(entrySource, /refreshStaleRosterCaches/);
   assert.doesNotMatch(listSource, /validateRoster/);
 });
+
+test("builder roster list actions load the full catalog before validation", () => {
+  const actionSource = readFileSync(join(staticRoot, "builder_roster_io_actions.js"), "utf8");
+
+  assert.match(actionSource, /import \{ ensureCatalog \} from "\.\/builder_catalog_runtime\.js";/);
+  assert.match(actionSource, /async function loadValidationRules\(\) \{\s*await ensureCatalog\(\);\s*return loadRules\(\);\s*\}/);
+  assert.match(actionSource, /const \{ validateRoster \} = await loadValidationRules\(\);/);
+});

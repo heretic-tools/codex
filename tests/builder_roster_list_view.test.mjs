@@ -341,6 +341,10 @@ test("roster list keeps only one quick-actions menu open", async () => {
     assert.equal(first.children[1].children[0].attributes.get("aria-expanded"), "true");
     assert.equal(typeof documentListeners.get("pointerdown"), "function");
 
+    documentListeners.get("pointerdown")({ target: second.children[1].children[0] });
+    assert.equal(first.children[1].open, true);
+    assert.equal(first.children[1].children[0].attributes.get("aria-expanded"), "true");
+
     second.children[1].open = true;
     await second.children[1].listeners.get("toggle")();
     assert.equal(first.children[1].open, false);

@@ -202,6 +202,9 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportTe
     }
   };
   const closeOutside = (event) => {
+    if (event.target?.closest?.(".roster-actions-menu")) {
+      return;
+    }
     if (node.open && !node.contains(event.target)) {
       closeMenu();
     }

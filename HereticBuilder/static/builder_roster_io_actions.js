@@ -1,3 +1,4 @@
+import { ensureCatalog } from "./builder_catalog_runtime.js";
 import { loadRules } from "./builder_module_loaders.js";
 import { navigate } from "./builder_routes.js";
 import {
@@ -14,6 +15,11 @@ export {
   exportRosters,
   importRosters,
 } from "./builder_roster_transfer_actions.js";
+
+async function loadValidationRules() {
+  await ensureCatalog();
+  return loadRules();
+}
 
 async function createRoster(values) {
   const now = new Date().toISOString();
@@ -54,7 +60,7 @@ async function deleteRoster(roster, render = null) {
 }
 
 async function duplicateRoster(roster) {
-  const { validateRoster } = await loadRules();
+  const { validateRoster } = await loadValidationRules();
   const copy = duplicateRosterDocument(roster, {
     id: newId(),
     now: new Date().toISOString(),
@@ -65,14 +71,14 @@ async function duplicateRoster(roster) {
 }
 
 async function restoreRoster(roster) {
-  const { validateRoster } = await loadRules();
+  const { validateRoster } = await loadValidationRules();
   await saveRoster(rosterWithFreshListCache(roster, validateRoster(roster)));
   await refreshRosters();
   navigate(`/roster/${encodeURIComponent(roster.id)}`);
 }
 
 async function updateRoster(roster, render) {
-  const { validateRoster } = await loadRules();
+  const { validateRoster } = await loadValidationRules();
   await saveRoster(rosterWithFreshListCache(roster, validateRoster(roster)));
   await refreshRosters();
   await render();

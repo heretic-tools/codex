@@ -74,6 +74,8 @@ test("mobile Builder action controls keep 44px touch targets", () => {
   assert.ok(mobileLayer.includes(".attachment-member .remove-button,"));
   assert.ok(mobileLayer.includes(".search-clear-button,"));
   assert.ok(mobileLayer.includes(".roster-action-button,"));
+  assert.ok(mobileLayer.includes(".roster-actions-panel"));
+  assert.ok(mobileLayer.includes("right: calc(100% + 4px);"));
   assert.ok(mobileLayer.includes(".roster-sticky-summary-action,"));
   assert.ok(mobileLayer.includes(".toast-action,"));
   assert.ok(mobileLayer.includes(".wargear-count-button"));

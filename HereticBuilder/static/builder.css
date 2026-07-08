@@ -1892,6 +1892,11 @@
     justify-content: flex-start;
   }
 
+  .roster-actions-panel {
+    top: 0;
+    right: calc(100% + 4px);
+  }
+
   .builder-control-row input,
   .builder-control-row select,
   .field input,
