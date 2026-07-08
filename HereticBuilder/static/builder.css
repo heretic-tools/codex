@@ -1942,6 +1942,10 @@
     justify-content: flex-start;
   }
 
+  .roster-modified-label {
+    display: none;
+  }
+
   .roster-actions-panel {
     top: 0;
     right: calc(100% + 4px);

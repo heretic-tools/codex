@@ -282,7 +282,7 @@ function rosterLine(roster, onOpen, summarizeRoster, precomputedSummary = null) 
     textNode("span", "", rosterPointsLabel(summary.pointsTotal, summary.pointsLimit)),
     textNode("span", "", rosterDetachmentCountLabel(summary.detachmentCount)),
     textNode("span", "", rosterUnitCountLabel(summary.unitCount)),
-    textNode("span", "", rosterModifiedLabel(roster.modifiedAt))
+    textNode("span", "roster-modified-label", rosterModifiedLabel(roster.modifiedAt))
   );
   node.append(text, meta, rosterPointsMeter(summary));
   return node;

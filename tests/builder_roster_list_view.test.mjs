@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
   compactRosterBadgeNames,
@@ -21,6 +24,8 @@ import {
   rosterValidationBadgeClass,
   rosterValidationBadgeLabel,
 } from "../HereticBuilder/static/builder_roster_list_view.js";
+
+const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
 function createMockElement(tagName) {
   return {
@@ -187,6 +192,7 @@ test("roster row renders polished validation and points labels", () => {
     assert.ok(row.textContent.includes("285 / 2000"));
     assert.ok(row.textContent.includes("1 detachment"));
     assert.ok(row.textContent.includes("Updated 2026-07-05"));
+    assert.equal(row.children[1].children[4].className, "roster-modified-label");
     assert.equal(row.textContent.includes("valid"), false);
     assert.equal(row.textContent.includes("det."), false);
     assert.equal(row.children[2].className, "roster-points-meter points-ok");
@@ -443,4 +449,12 @@ test("roster list uses detachment disposition badge classes", () => {
     "disposition-badge disposition-take-and-hold"
   );
   assert.equal(rosterDetachmentBadgeClass(""), "meta-badge");
+});
+
+test("roster list hides modified date on mobile only", () => {
+  const source = readFileSync(join(projectRoot, "HereticBuilder", "static", "builder.css"), "utf8");
+  const mobileLayer = source.slice(source.lastIndexOf("@media (max-width: 760px)"));
+
+  assert.ok(mobileLayer.includes(".roster-modified-label {"));
+  assert.ok(mobileLayer.includes("display: none;"));
 });

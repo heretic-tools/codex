@@ -213,6 +213,10 @@ Selected unit rows получили тот же compact mobile pattern: points b
 переехал в clickable unit control, remove остался отдельным action справа, а
 в текущем smoke row height снизился примерно с 122px до 84px без page-level
 overflow и без изменения swipe/remove логики.
+Roster list на mobile больше не показывает вторичную дату обновления в
+визуальной meta-строке, но оставляет её в DOM/accessible open label и на
+desktop; smoke с asset `1e9cc4cc891a` подтвердил отсутствие page-level overflow
+и console errors.
 
 ## Не входит в объём
 
