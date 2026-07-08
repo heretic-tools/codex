@@ -381,6 +381,7 @@
 
 .unit-open-button {
   min-width: 0;
+  min-height: 44px;
   padding: 0;
   color: inherit;
   background: transparent;
