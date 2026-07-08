@@ -39,6 +39,10 @@ jobs:
         if: github.event.repository.name != 'builder'
         run: python3 ../production-codex/HereticBuilder/tools/builder.py build --source ../production-codex --out "$GITHUB_WORKSPACE/dist" --base-path "/${{ github.event.repository.name }}" --mount-codex-at-root
 
+      - name: Reset production service worker
+        if: github.event.repository.name != 'builder'
+        run: python3 HereticBuilder/tools/builder.py reset-service-worker --out dist --base-path "/${{ github.event.repository.name }}"
+
       - name: Build beta index
         if: github.event.repository.name != 'builder'
         run: python3 HereticBuilder/tools/builder.py build-beta-index --out dist/beta --base-path "/${{ github.event.repository.name }}/beta"

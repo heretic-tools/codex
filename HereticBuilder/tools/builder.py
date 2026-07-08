@@ -19,6 +19,11 @@ from export_builder_data import (
     export_builder_data_from_args,
     print_export_builder_data_result,
 )
+from reset_service_worker import (
+    add_service_worker_reset_arguments,
+    print_service_worker_reset_result,
+    reset_service_worker_from_args,
+)
 
 
 def parse_args():
@@ -52,6 +57,12 @@ def parse_args():
     )
     add_export_builder_data_arguments(export_builder_data_parser)
 
+    reset_service_worker_parser = subparsers.add_parser(
+        "reset-service-worker",
+        help="Patch a production static site to clear stale service workers.",
+    )
+    add_service_worker_reset_arguments(reset_service_worker_parser)
+
     return parser.parse_args()
 
 
@@ -68,6 +79,9 @@ def main():
         return
     if args.command == "export-builder-data":
         print_export_builder_data_result(export_builder_data_from_args(args))
+        return
+    if args.command == "reset-service-worker":
+        print_service_worker_reset_result(reset_service_worker_from_args(args))
         return
     raise SystemExit(f"Unknown command: {args.command}")
 

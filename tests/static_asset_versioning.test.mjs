@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
@@ -49,6 +49,8 @@ test("GitHub Pages workflow can build standalone Builder separately", () => {
   assert.match(workflow, /Checkout production Codex source/);
   assert.ok(workflow.includes('git worktree add ../production-codex "$PRODUCTION_CODEX_REF"'));
   assert.ok(workflow.includes('python3 ../production-codex/HereticBuilder/tools/builder.py build --source ../production-codex --out "$GITHUB_WORKSPACE/dist"'));
+  assert.match(workflow, /Reset production service worker/);
+  assert.ok(workflow.includes('builder.py reset-service-worker --out dist --base-path "/${{ github.event.repository.name }}"'));
   assert.match(workflow, /Build beta index/);
   assert.ok(workflow.includes('builder.py build-beta-index --out dist/beta --base-path "/${{ github.event.repository.name }}/beta"'));
   assert.match(workflow, /Build beta Codex site/);
@@ -58,6 +60,35 @@ test("GitHub Pages workflow can build standalone Builder separately", () => {
   assert.match(workflow, /Build standalone Builder site/);
   assert.match(workflow, /github\.event\.repository\.name == 'builder'/);
   assert.ok(workflow.includes('builder.py build-builder --out dist --base-path "/${{ github.event.repository.name }}"'));
+});
+
+test("service worker reset patches production HTML without touching beta pages", () => {
+  const outDir = mkdtempSync(join(tmpdir(), "heretic-sw-reset-"));
+  try {
+    writeFileSync(join(outDir, "index.html"), "<!doctype html><body>Prod</body>", "utf8");
+    mkdirSync(join(outDir, "chaos"), { recursive: true });
+    writeFileSync(join(outDir, "chaos", "index.html"), "<!doctype html><body>Chaos</body>", "utf8");
+    mkdirSync(join(outDir, "beta", "codex"), { recursive: true });
+    writeFileSync(join(outDir, "beta", "codex", "index.html"), "<!doctype html><body>Beta</body>", "utf8");
+
+    execFileSync("python3", ["HereticBuilder/tools/builder.py", "reset-service-worker", "--out", outDir, "--base-path", "/codex"], {
+      cwd: projectRoot,
+      encoding: "utf8",
+    });
+
+    const worker = readFileSync(join(outDir, "service-worker.js"), "utf8");
+    assert.match(worker, /registration\.unregister/);
+    assert.match(worker, /client\.navigate/);
+
+    const prod = readFileSync(join(outDir, "chaos", "index.html"), "utf8");
+    assert.match(prod, /navigator\.serviceWorker\.controller/);
+    assert.match(prod, /\/codex\/service-worker\.js/);
+
+    const beta = readFileSync(join(outDir, "beta", "codex", "index.html"), "utf8");
+    assert.doesNotMatch(beta, /serviceWorker/);
+  } finally {
+    rmSync(outDir, { recursive: true, force: true });
+  }
 });
 
 test("beta index links to beta Codex and Builder entry points", () => {
