@@ -13,6 +13,7 @@ import {
   updateRoster,
 } from "./builder_roster_io_actions.js";
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
+import { rosterDisplayName } from "./builder_roster_name_actions.js";
 import { updateRosterWithUndo } from "./builder_roster_update_with_undo.js";
 
 async function renderRoster(render) {
@@ -35,7 +36,7 @@ async function renderRoster(render) {
   await ensurePrecomputedLoadoutsForDatasheets(rosterDatasheetIds(roster));
   const validation = validateRoster(roster);
   await saveRosterCacheIfStale(roster, validation);
-  setPageTitle(roster.name || "New Roster");
+  setPageTitle(rosterDisplayName(roster));
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
     focusTarget: state.route.focusTarget || "",

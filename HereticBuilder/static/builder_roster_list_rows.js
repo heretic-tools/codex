@@ -1,5 +1,6 @@
 import { button, textNode } from "./builder_dom.js";
 import { dispositionSlug } from "./builder_roster_editor_dom.js";
+import { rosterDisplayName } from "./builder_roster_name_actions.js";
 
 let activeRosterActionsClose = null;
 let activeRosterActionsMenu = null;
@@ -99,7 +100,7 @@ function compactRosterBadgeNames(badges = [], limit = 2) {
 }
 
 function rosterOpenLabel(roster, summary = null) {
-  const name = roster.name || "New Roster";
+  const name = rosterDisplayName(roster, summary);
   const idLabel = rosterIdLabel(roster.id);
   if (!summary) {
     return `Open roster: ${[name, idLabel].filter(Boolean).join(", ")}`;
@@ -123,7 +124,7 @@ function rosterOpenLabel(roster, summary = null) {
 }
 
 function rosterActionLabel(roster, action) {
-  return `${action}: ${roster.name || "New Roster"}`;
+  return `${action}: ${rosterDisplayName(roster)}`;
 }
 
 function appendDetachmentBadges(parent, badges) {
@@ -269,7 +270,7 @@ function rosterLine(roster, onOpen, summarizeRoster) {
   const text = document.createElement("span");
   text.className = "row-text";
   text.append(
-    textNode("strong", "", roster.name || "New Roster"),
+    textNode("strong", "", rosterDisplayName(roster, summary)),
     textNode("span", "", `${summary.factionName} / ${summary.battleSizeName}`)
   );
   appendDetachmentBadges(text, summary.detachmentBadges);

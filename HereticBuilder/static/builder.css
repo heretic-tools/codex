@@ -288,6 +288,11 @@
   grid-template-columns: minmax(120px, 1fr) minmax(220px, 2fr) auto;
 }
 
+.add-options-status {
+  grid-column: 2 / -1;
+  padding: 0 2px;
+}
+
 .attachment-control-row {
   grid-template-columns: minmax(160px, 1fr) minmax(120px, 160px) minmax(160px, 1fr) auto;
 }
@@ -1810,6 +1815,10 @@
 
   .detachment-control-row .builder-search-field,
   .unit-control-row .builder-search-field {
+    grid-column: 1 / -1;
+  }
+
+  .add-options-status {
     grid-column: 1 / -1;
   }
 

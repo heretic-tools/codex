@@ -68,7 +68,7 @@ test("roster create view derives default names from faction and free local numbe
   assert.equal(rosterNumberFromName("Heretic Astartes ROSTER 4", "Heretic Astartes"), 4);
   assert.equal(rosterNumberFromName("Custom Heretic Astartes roster 3", "Heretic Astartes"), 0);
   assert.equal(defaultRosterName("Heretic Astartes"), "Heretic Astartes roster 1");
-  assert.equal(defaultRosterName(""), "New roster 1");
+  assert.equal(defaultRosterName(""), "Faction roster 1");
   assert.equal(
     nextRosterNumberForFaction([
       { factionKeywordId: "heretic-astartes", name: "Heretic Astartes roster 1" },

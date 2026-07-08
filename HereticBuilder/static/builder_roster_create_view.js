@@ -24,7 +24,7 @@ function nextRosterNumberForFaction(rosters, factionKeywordId, factionName) {
 }
 
 function defaultRosterName(factionName, options = {}) {
-  const name = String(factionName || "").trim() || "New";
+  const name = String(factionName || "").trim() || "Faction";
   const number = nextRosterNumberForFaction(options.rosters, options.factionKeywordId, name);
   return `${name} roster ${number}`;
 }

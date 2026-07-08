@@ -1,4 +1,5 @@
 import { button } from "./builder_dom.js";
+import { addOptionsStatus } from "./builder_roster_add_options_status.js";
 import {
   ADD_UNIT_LABEL,
   SEARCH_CLEAR_LABEL,
@@ -43,6 +44,10 @@ function renderUnitControls({ newId, onUndoableUpdate = null, onUpdate, roster, 
   searchWrap.className = "builder-search-field";
   const unitSelect = document.createElement("select");
   labelControl(unitSelect, UNIT_SELECT_LABEL);
+  const status = document.createElement("span");
+  status.className = "field-status add-options-status unit-add-options-status";
+  status.id = "unit-add-options-status";
+  unitSelect.setAttribute("aria-describedby", status.id);
   const add = button("plain-button add-button", "Add", async () => {
     const selected = parseUnitOptionValue(unitSelect.value);
     const label = unitSelect.selectedOptions?.[0]?.textContent || "";
@@ -59,7 +64,14 @@ function renderUnitControls({ newId, onUndoableUpdate = null, onUpdate, roster, 
   labelControl(add, ADD_UNIT_LABEL);
   add.dataset.editorPrimaryAction = "true";
   const refreshOptions = () => {
-    refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelect, validation });
+    const groups = refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelect, validation });
+    status.textContent = addOptionsStatus(groups, {
+      emptyText: "No units available",
+      lockedText: "locked",
+      optionText: "available",
+      searchText: "No matching units",
+      searched: Boolean(search.value.trim()),
+    });
   };
   const clearSearchValue = () => {
     if (!search.value) {
@@ -86,7 +98,7 @@ function renderUnitControls({ newId, onUndoableUpdate = null, onUpdate, roster, 
 
   const controls = document.createElement("div");
   controls.className = "builder-control-row unit-control-row";
-  controls.append(searchWrap, unitSelect, add);
+  controls.append(searchWrap, unitSelect, add, status);
   return controls;
 }
 

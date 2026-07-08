@@ -8,7 +8,7 @@ import {
 
 test("duplicate roster names are explicit and stable", () => {
   assert.equal(duplicateRosterName("Black Crusade"), "Copy of Black Crusade");
-  assert.equal(duplicateRosterName(""), "Copy of New Roster");
+  assert.equal(duplicateRosterName(""), "Copy of Untitled Roster");
 });
 
 test("duplicate roster document keeps list contents but gets a new identity", () => {

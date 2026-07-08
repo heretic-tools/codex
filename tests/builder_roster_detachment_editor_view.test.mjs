@@ -155,12 +155,18 @@ test("detachment add search clears with Escape and refreshes options", () => {
     const clearSearch = searchWrap.children[1];
     const select = controls.children[1];
     const add = controls.children[2];
+    const status = controls.children[3];
+
+    assert.equal(status.className, "field-status add-options-status detachment-add-options-status");
+    assert.equal(select.attributes.get("aria-describedby"), status.id);
+    assert.match(status.textContent, /available/);
 
     search.value = "definitely-no-detachment";
     search.listeners.get("input")();
     assert.equal(clearSearch.hidden, false);
     assert.equal(add.disabled, true);
     assert.equal(select.disabled, true);
+    assert.equal(status.textContent, "No matching detachments");
 
     const event = {
       key: "Escape",
@@ -178,6 +184,7 @@ test("detachment add search clears with Escape and refreshes options", () => {
     assert.equal(clearSearch.hidden, true);
     assert.equal(add.disabled, false);
     assert.equal(select.disabled, false);
+    assert.match(status.textContent, /available/);
     assert.equal(event.prevented, true);
     assert.equal(event.stopped, true);
   } finally {

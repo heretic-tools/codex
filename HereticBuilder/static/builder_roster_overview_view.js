@@ -1,6 +1,6 @@
 import { button, textNode } from "./builder_dom.js";
 import { labelControl } from "./builder_roster_control_labels.js";
-import { rosterWithName } from "./builder_roster_name_actions.js";
+import { rosterDisplayName, rosterWithName } from "./builder_roster_name_actions.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import {
   scrollToEditorTarget,
@@ -76,7 +76,7 @@ function rosterOverviewLabel(prefix, roster, validation, summary = null) {
 }
 
 function rosterOverviewActionLabel(roster, action) {
-  return `${action}: ${roster.name || "New Roster"}`;
+  return `${action}: ${rosterDisplayName(roster)}`;
 }
 
 function renderRosterStickySummary({ actions = [], roster, validation }) {

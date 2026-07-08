@@ -12,6 +12,7 @@ import {
   state,
 } from "./builder_validation_helpers.mjs";
 import { rosterWithAddedUnit } from "../HereticBuilder/static/builder_roster_actions.js";
+import { addOptionsStatus } from "../HereticBuilder/static/builder_roster_add_options_status.js";
 import {
   parseUnitOptionValue,
   removeUnitFromRow,
@@ -214,12 +215,18 @@ test("unit add search clears with Escape and refreshes options", () => {
     const clearSearch = searchWrap.children[1];
     const unitSelect = controls.children[1];
     const add = controls.children[2];
+    const status = controls.children[3];
+
+    assert.equal(status.className, "field-status add-options-status unit-add-options-status");
+    assert.equal(unitSelect.attributes.get("aria-describedby"), status.id);
+    assert.match(status.textContent, /available/);
 
     search.value = "definitely-no-unit";
     search.listeners.get("input")();
     assert.equal(clearSearch.hidden, false);
     assert.equal(add.disabled, true);
     assert.equal(unitSelect.disabled, true);
+    assert.equal(status.textContent, "No matching units");
 
     const event = {
       key: "Escape",
@@ -237,12 +244,28 @@ test("unit add search clears with Escape and refreshes options", () => {
     assert.equal(clearSearch.hidden, true);
     assert.equal(add.disabled, false);
     assert.equal(unitSelect.disabled, false);
+    assert.match(status.textContent, /available/);
     assert.equal(event.prevented, true);
     assert.equal(event.stopped, true);
   } finally {
     state.catalog = previousCatalog;
     global.document = previousDocument;
   }
+});
+
+test("add option status summarizes available and locked picker rows", () => {
+  assert.equal(
+    addOptionsStatus([
+      { rows: [{ status: { severity: "ok" } }, { status: { severity: "warning" } }] },
+      { rows: [{ status: { severity: "error" } }] },
+    ]),
+    "2 available / 1 locked"
+  );
+  assert.equal(
+    addOptionsStatus([{ status: { severity: "error" } }, { status: { severity: "error" } }]),
+    "2 locked only"
+  );
+  assert.equal(addOptionsStatus([], { searched: true, searchText: "No matching units" }), "No matching units");
 });
 
 test("unit option values round-trip ally type and datasheet id", () => {

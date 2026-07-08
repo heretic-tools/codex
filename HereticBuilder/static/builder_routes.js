@@ -1,4 +1,5 @@
 import { siteHref } from "./builder_state.js";
+import { rosterDisplayName } from "./builder_roster_name_actions.js";
 
 function parseRoute() {
   const parts = (window.location.hash.replace(/^#/, "") || "/").split("/").filter(Boolean);
@@ -43,7 +44,7 @@ function rosterBreadcrumbs(roster) {
   return [
     ...builderBreadcrumbs(),
     {
-      label: roster?.name || "New Roster",
+      label: rosterDisplayName(roster),
       href: builderHref(`/roster/${encodeURIComponent(roster?.id || "")}`),
     },
   ];

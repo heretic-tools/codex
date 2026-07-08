@@ -103,4 +103,5 @@ test("mobile unit and detachment add controls stay inline", () => {
   assert.ok(mobileLayer.includes(".detachment-control-row .builder-search-field,"));
   assert.ok(mobileLayer.includes(".unit-control-row .builder-search-field {"));
   assert.ok(mobileLayer.includes("grid-column: 1 / -1;"));
+  assert.ok(mobileLayer.includes(".add-options-status {"));
 });

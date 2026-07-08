@@ -172,6 +172,14 @@ Unit-level Warlord select теперь называется `Choose Warlord for 
 путаясь с roster-level Warlord picker.
 Unit-level allegiance/ability select тоже называет конкретный unit в
 accessible label.
+Add Detachment и Add Unit pickers теперь показывают компактный status вида
+`N available / M locked` или `No matching ...`, связанный с select через
+`aria-describedby`; это остаётся чистым presentation-layer поверх уже
+рассчитанных candidate statuses.
+Старый runtime fallback `New Roster` удалён из пользовательских поверхностей:
+безымянные edge-documents показываются как faction-derived `<Faction> roster`
+при наличии summary или как `Untitled Roster`, а create-flow по-прежнему
+создаёт `<Faction> roster <N>`.
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.

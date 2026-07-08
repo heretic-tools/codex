@@ -132,7 +132,11 @@ test("roster list formats modified dates compactly", () => {
 test("roster row open label names the row action", () => {
   assert.equal(rosterOpenLabel({ name: "Black Crusade" }), "Open roster: Black Crusade");
   assert.equal(rosterOpenLabel({ id: "ABCDEF12-3456", name: "Black Crusade" }), "Open roster: Black Crusade, ID ABCDEF12");
-  assert.equal(rosterOpenLabel({}), "Open roster: New Roster");
+  assert.equal(rosterOpenLabel({}), "Open roster: Untitled Roster");
+  assert.equal(
+    rosterOpenLabel({}, { battleSizeName: "Strike Force", factionName: "Heretic Astartes" }),
+    "Open roster: Heretic Astartes roster, Heretic Astartes / Strike Force, Invalid, 0 detachments, 0 units"
+  );
   assert.equal(compactRosterBadgeNames([
     { name: "Pactbound Zealots" },
     { name: "Cabal of Chaos" },

@@ -1,4 +1,5 @@
 import { button, option } from "./builder_dom.js";
+import { addOptionsStatus } from "./builder_roster_add_options_status.js";
 import { rosterWithAddedDetachment } from "./builder_roster_actions.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
 import {
@@ -45,6 +46,10 @@ function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, v
   const select = document.createElement("select");
   select.dataset.focusTarget = "true";
   labelControl(select, DETACHMENT_SELECT_LABEL);
+  const status = document.createElement("span");
+  status.className = "field-status add-options-status detachment-add-options-status";
+  status.id = "detachment-add-options-status";
+  select.setAttribute("aria-describedby", status.id);
   const add = button("plain-button add-button", "Add", async () => {
     await addDetachmentFromControls(
       roster,
@@ -78,6 +83,13 @@ function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, v
     add.disabled = !rows.length;
     select.disabled = !rows.length;
     clearSearch.hidden = !search.value;
+    status.textContent = addOptionsStatus(rows, {
+      emptyText: "No detachments available",
+      lockedText: "locked",
+      optionText: "available",
+      searchText: "No matching detachments",
+      searched: Boolean(search.value.trim()),
+    });
   };
   search.addEventListener("input", refreshOptions);
   search.addEventListener("keydown", (event) => {
@@ -90,7 +102,7 @@ function renderDetachmentControls({ onUndoableUpdate = null, onUpdate, roster, v
 
   const controls = document.createElement("div");
   controls.className = "builder-control-row detachment-control-row";
-  controls.append(searchWrap, select, add);
+  controls.append(searchWrap, select, add, status);
   return controls;
 }
 

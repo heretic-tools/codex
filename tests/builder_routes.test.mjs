@@ -67,6 +67,11 @@ test("unit-detail breadcrumbs include the parent roster", () => {
     { label: "Builder", href: "/#/" },
     { label: "Raid Night", href: "/#/roster/roster%201" },
   ]);
+  assert.deepEqual(rosterBreadcrumbs({ id: "roster 2" }), [
+    { label: "HereticTools", href: "/" },
+    { label: "Builder", href: "/#/" },
+    { label: "Untitled Roster", href: "/#/roster/roster%202" },
+  ]);
 });
 
 test("builder route split modules import shared state before using it", () => {

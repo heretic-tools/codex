@@ -1,5 +1,7 @@
+import { rosterDisplayName } from "./builder_roster_name_actions.js";
+
 function duplicateRosterName(name) {
-  const base = String(name || "").trim() || "New Roster";
+  const base = rosterDisplayName({ name });
   return `Copy of ${base}`;
 }
 

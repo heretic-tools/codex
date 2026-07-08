@@ -32,6 +32,7 @@ function refreshUnitControlOptions({ add, clearSearch, roster, search, unitSelec
   add.disabled = !firstEnabled;
   unitSelect.disabled = !groups.length;
   clearSearch.hidden = !search.value;
+  return groups;
 }
 
 export { refreshUnitControlOptions };
