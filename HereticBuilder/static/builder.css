@@ -787,6 +787,14 @@
   overflow-wrap: anywhere;
 }
 
+.wargear-readonly-value {
+  justify-self: end;
+  color: var(--builder-muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .wargear-option-row input {
   min-width: 0;
   justify-self: end;

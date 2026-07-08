@@ -5,6 +5,7 @@ import {
   availableDatasheets,
   battleSizeNamed,
   compositionFactionIds,
+  datasheetNamed,
   factionNamed,
   realCatalog,
   state,
@@ -29,10 +30,14 @@ import {
   unitOverviewMetric,
 } from "../HereticBuilder/static/builder_roster_unit_overview_view.js";
 import {
+  readOnlyWargearValue,
+  renderWargearGroup,
   updateWargearCountFromEditor,
   wargearChangeMessage,
   wargearControlLabel,
+  wargearGroupIsFixedDefault,
   wargearGroupTitle,
+  wargearScopeIsFixedDefault,
 } from "../HereticBuilder/static/builder_roster_unit_wargear_options_view.js";
 import {
   countControl,
@@ -197,6 +202,42 @@ function rosterWithDirtyWargearUnit() {
   };
 }
 
+function rosterWithDirtyFixedDefaultWargearUnit() {
+  state.catalog = realCatalog;
+  const faction = factionNamed("Heretic Astartes");
+  const datasheet = datasheetNamed("Abaddon the Despoiler");
+  const roster = {
+    id: "overview-fixed-wargear-roster",
+    name: "Overview Fixed Wargear Roster",
+    factionKeywordId: faction.id,
+    battleSizeId: battleSizeNamed("Strike Force").id,
+    detachmentIds: [],
+    units: [],
+    attachments: [],
+  };
+  const withUnit = rosterWithAddedUnit(roster, {
+    datasheetId: datasheet.id,
+    unitId: "overview-fixed-wargear-unit",
+  });
+  const unit = withUnit.units[0];
+  const targetMiniature = unit.miniatures[0];
+  const fixedDefaultGroup = (realCatalog.wargearGroupsByDatasheetId.get(datasheet.id) || [])
+    .find((group) => group.miniatureId === targetMiniature.miniatureId);
+  assert.ok(wargearScopeIsFixedDefault([fixedDefaultGroup]), "Expected fixture to be fixed default-only");
+  const fixedOption = (realCatalog.wargearOptionsByGroupId.get(fixedDefaultGroup.id) || [])[0];
+  assert.ok(fixedOption, "Expected fixed default wargear option");
+  const dirtyRoster = rosterWithUnitWargearCount(withUnit, unit.id, {
+    count: 0,
+    optionId: fixedOption.id,
+    rosterUnitMiniatureId: targetMiniature.rosterUnitMiniatureId,
+  });
+  return {
+    datasheet,
+    roster: dirtyRoster,
+    unit: { ...dirtyRoster.units[0], name: datasheet.name },
+  };
+}
+
 test("unit wargear count control exposes a mobile stepper", async () => {
   const previousDocument = global.document;
   global.document = {
@@ -299,6 +340,76 @@ test("unit wargear group headings stay compact while instructions remain separat
     "Choice 3"
   );
   assert.equal(wargearGroupTitle({}, 0), "Wargear");
+});
+
+test("fixed default wargear scopes render as read-only rows", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+  const previousCatalog = state.catalog;
+  const defaultGroup = {
+    id: "default-group",
+    instructionText: "Default Wargear",
+  };
+  const choiceGroup = {
+    id: "choice-group",
+    instructionText: "This model's boltgun can be replaced.",
+  };
+  const defaultOption = {
+    defaultValue: 1,
+    id: "default-option",
+    inputType: "checkbox",
+    wargearItemId: "default-item",
+  };
+  const stackedOption = {
+    defaultValue: 2,
+    id: "stacked-option",
+    inputType: "checkbox",
+    wargearItemId: "stacked-item",
+  };
+
+  state.catalog = {
+    ...realCatalog,
+    wargearItemById: new Map([
+      ["default-item", { id: "default-item", name: "Bolt pistol" }],
+      ["stacked-item", { id: "stacked-item", name: "Twin claws" }],
+    ]),
+    wargearOptionsByGroupId: new Map([
+      [defaultGroup.id, [defaultOption, stackedOption]],
+      [choiceGroup.id, [{ ...defaultOption, id: "choice-option" }]],
+    ]),
+  };
+
+  try {
+    assert.equal(wargearGroupIsFixedDefault(defaultGroup), true);
+    assert.equal(wargearGroupIsFixedDefault(choiceGroup), false);
+    assert.equal(wargearScopeIsFixedDefault([defaultGroup]), true);
+    assert.equal(wargearScopeIsFixedDefault([defaultGroup, choiceGroup]), false);
+    assert.equal(readOnlyWargearValue({ wargear: {} }, defaultOption), "Missing");
+    assert.equal(readOnlyWargearValue({ wargear: { [defaultOption.id]: 1 } }, defaultOption), "Fixed");
+    assert.equal(readOnlyWargearValue({ wargear: { [stackedOption.id]: 2 } }, stackedOption), "x2");
+
+    const group = renderWargearGroup({
+      group: defaultGroup,
+      onUpdate: () => {},
+      readOnly: true,
+      roster: {},
+      target: { wargear: { [defaultOption.id]: 1, [stackedOption.id]: 2 } },
+      unit: { name: "Unit" },
+    });
+    const nodes = flatNodes(group);
+    assert.equal(nodes.some((node) => node.tagName === "input"), false);
+    assert.deepEqual(
+      nodes
+        .filter((node) => node.className === "wargear-readonly-value")
+        .map((node) => node.textContent),
+      ["Fixed", "x2"]
+    );
+  } finally {
+    state.catalog = previousCatalog;
+    global.document = previousDocument;
+  }
 });
 
 test("unit composition editor hides read-only value when only one valid composition is available", () => {
@@ -413,6 +524,30 @@ test("unit overview shows reset action after wargear changes", () => {
     assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
     assert.equal(buttons[0].title, `Reset wargear for ${unit.name}`);
     assert.equal(buttons[0].attributes.get("aria-label"), `Reset wargear for ${unit.name}`);
+  } finally {
+    global.document = previousDocument;
+  }
+});
+
+test("unit overview still offers reset for dirty fixed default wargear", () => {
+  const previousDocument = global.document;
+  global.document = {
+    createElement: createMockElement,
+  };
+
+  try {
+    const { roster, unit } = rosterWithDirtyFixedDefaultWargearUnit();
+    const overview = renderRosterUnitOverview({
+      onUpdate: () => {},
+      roster,
+      unit,
+      validation: { messages: [] },
+      validationContext: {},
+    });
+
+    assert.equal(unitHasWargearControls(unit), true);
+    const buttons = flatNodes(overview).filter((node) => node.tagName === "button");
+    assert.deepEqual(buttons.map((node) => node.textContent), ["Reset Wargear"]);
   } finally {
     global.document = previousDocument;
   }

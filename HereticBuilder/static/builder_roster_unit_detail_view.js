@@ -64,7 +64,7 @@ function unitDetailStickyActionDescriptors({
     actions.push({ ariaLabel: "Edit unit ability", label: "Ability", target: "allegiance" });
   }
   if (hasWargear) {
-    actions.push({ ariaLabel: "Edit unit wargear", label: "Wargear", target: "wargear" });
+    actions.push({ ariaLabel: "Review unit wargear", label: "Wargear", target: "wargear" });
   }
   if (hasEnhancements) {
     const label = stickyEnhancementsLabel(enhancementsLabel);

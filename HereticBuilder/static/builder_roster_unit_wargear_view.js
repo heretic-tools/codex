@@ -1,5 +1,8 @@
 import { textNode } from "./builder_dom.js";
-import { renderWargearGroup } from "./builder_roster_unit_wargear_options_view.js";
+import {
+  renderWargearGroup,
+  wargearScopeIsFixedDefault,
+} from "./builder_roster_unit_wargear_options_view.js";
 import {
   renderScopeValidation,
   targetIdForWargearScope,
@@ -22,10 +25,20 @@ function renderScope({ groups, heading, onUndoableUpdate = null, onUpdate, roste
     return wrap;
   }
   let choiceIndex = 0;
+  const readOnlyDefault = wargearScopeIsFixedDefault(groups);
   groups.forEach((group, groupIndex) => {
     const instruction = String(group?.instructionText || "").replace(/\s+/g, " ").trim().toLowerCase();
     const displayIndex = instruction === "default wargear" ? groupIndex : choiceIndex++;
-    wrap.appendChild(renderWargearGroup({ group, groupIndex: displayIndex, onUndoableUpdate, onUpdate, roster, target, unit }));
+    wrap.appendChild(renderWargearGroup({
+      group,
+      groupIndex: displayIndex,
+      onUndoableUpdate,
+      onUpdate,
+      readOnly: readOnlyDefault,
+      roster,
+      target,
+      unit,
+    }));
   });
   return wrap;
 }
