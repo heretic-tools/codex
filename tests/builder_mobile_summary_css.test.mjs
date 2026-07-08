@@ -68,10 +68,14 @@ test("mobile Builder action controls keep 44px touch targets", () => {
   const source = builderCss();
   const mobileLayer = modernMobileLayer(source);
   const unitOpenBlock = source.match(/\.unit-open-button \{[^}]+\}/)?.[0] || "";
+  const attachmentUnitLinkBlock = source.match(/\.attachment-unit-link \{[^}]+\}/)?.[0] || "";
+  const attachmentTitleButtonBlock = source.match(/\.attachment-title-button \{[^}]+\}/)?.[0] || "";
 
   assert.ok(mobileLayer.includes(".builder-search-field"));
   assert.ok(mobileLayer.includes("grid-template-columns: minmax(0, 1fr) 44px;"));
   assert.ok(unitOpenBlock.includes("min-height: 44px;"));
+  assert.ok(attachmentUnitLinkBlock.includes("min-height: 44px;"));
+  assert.ok(attachmentTitleButtonBlock.includes("min-height: 44px;"));
   assert.ok(mobileLayer.includes(".add-button,"));
   assert.ok(mobileLayer.includes(".remove-button,"));
   assert.ok(mobileLayer.includes(".attachment-member .remove-button,"));

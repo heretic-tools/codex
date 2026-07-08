@@ -451,6 +451,9 @@
 .attachment-title-button,
 .attachment-unit-link {
   min-width: 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   padding: 0;
   color: inherit;
   background: transparent;
@@ -459,7 +462,15 @@
 }
 
 .attachment-title-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
   font-weight: 800;
+  text-align: left;
 }
 
 .editor-row.has-validation-error {
