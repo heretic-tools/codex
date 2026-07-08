@@ -123,8 +123,8 @@ function rosterOpenLabel(roster, summary = null) {
   return `Open roster: ${parts.join(", ")}`;
 }
 
-function rosterActionLabel(roster, action) {
-  return `${action}: ${rosterDisplayName(roster)}`;
+function rosterActionLabel(roster, action, summary = null) {
+  return `${action}: ${rosterDisplayName(roster, summary)}`;
 }
 
 function appendDetachmentBadges(parent, badges) {
@@ -150,7 +150,7 @@ function rosterPointsMeter(summary) {
   return meter;
 }
 
-function rosterActionButton(text, roster, onClick) {
+function rosterActionButton(text, roster, onClick, summary = null) {
   const node = button("roster-action-button", text, async (event) => {
     event?.stopPropagation?.();
     const menu = node.closest?.(".roster-actions-menu");
@@ -161,13 +161,13 @@ function rosterActionButton(text, roster, onClick) {
     }
     await onClick(roster);
   });
-  const label = rosterActionLabel(roster, text);
+  const label = rosterActionLabel(roster, text, summary);
   node.title = label;
   node.setAttribute("aria-label", label);
   return node;
 }
 
-function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportText, onRename } = {}) {
+function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportText, onRename } = {}, summary = null) {
   if (!onDelete && !onDuplicate && !onExport && !onExportText && !onRename) {
     return null;
   }
@@ -176,7 +176,7 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportTe
   const trigger = document.createElement("summary");
   trigger.className = "roster-actions-trigger";
   trigger.textContent = "...";
-  trigger.title = rosterActionLabel(roster, "More actions");
+  trigger.title = rosterActionLabel(roster, "More actions", summary);
   trigger.setAttribute("aria-label", trigger.title);
   trigger.setAttribute("aria-haspopup", "menu");
   trigger.setAttribute("aria-expanded", "false");
@@ -231,19 +231,19 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportTe
   const panel = document.createElement("div");
   panel.className = "roster-actions-panel";
   if (onRename) {
-    panel.appendChild(rosterActionButton("Rename", roster, onRename));
+    panel.appendChild(rosterActionButton("Rename", roster, onRename, summary));
   }
   if (onDuplicate) {
-    panel.appendChild(rosterActionButton("Duplicate", roster, onDuplicate));
+    panel.appendChild(rosterActionButton("Duplicate", roster, onDuplicate, summary));
   }
   if (onExport) {
-    panel.appendChild(rosterActionButton("Export JSON", roster, onExport));
+    panel.appendChild(rosterActionButton("Export JSON", roster, onExport, summary));
   }
   if (onExportText) {
-    panel.appendChild(rosterActionButton("Export Text", roster, onExportText));
+    panel.appendChild(rosterActionButton("Export Text", roster, onExportText, summary));
   }
   if (onDelete) {
-    panel.appendChild(rosterActionButton("Delete Roster", roster, onDelete));
+    panel.appendChild(rosterActionButton("Delete Roster", roster, onDelete, summary));
   }
   node.append(trigger, panel);
   return node;
@@ -252,16 +252,17 @@ function rosterActionsMenu(roster, { onDelete, onDuplicate, onExport, onExportTe
 function rosterListItem(roster, onOpen, summarizeRoster, actions = {}) {
   const node = document.createElement("div");
   node.className = "roster-list-item";
-  node.appendChild(rosterLine(roster, onOpen, summarizeRoster));
-  const menu = rosterActionsMenu(roster, actions);
+  const summary = summarizeRoster(roster);
+  node.appendChild(rosterLine(roster, onOpen, summarizeRoster, summary));
+  const menu = rosterActionsMenu(roster, actions, summary);
   if (menu) {
     node.appendChild(menu);
   }
   return node;
 }
 
-function rosterLine(roster, onOpen, summarizeRoster) {
-  const summary = summarizeRoster(roster);
+function rosterLine(roster, onOpen, summarizeRoster, precomputedSummary = null) {
+  const summary = precomputedSummary || summarizeRoster(roster);
   const validationState = summary.validationState || "invalid";
   const node = button("builder-row roster-row", "", () => onOpen(roster));
   const openLabel = rosterOpenLabel(roster, summary);

@@ -129,6 +129,27 @@ test("roster overview hides Warlord picker before units exist", () => {
     assert.equal(overview.children[2].children[2].attributes.get("aria-label"), "Duplicate roster: Heretic Astartes roster 1");
     assert.equal(overview.children[2].children[3].title, "Delete roster: Heretic Astartes roster 1");
     assert.equal(overview.children[2].children[3].attributes.get("aria-label"), "Delete roster: Heretic Astartes roster 1");
+
+    const unnamedOverview = renderRosterOverview({
+      onDelete: () => {},
+      onDuplicate: () => {},
+      onUpdate: () => {},
+      roster: { detachmentIds: [], id: "roster-unnamed", units: [] },
+      summary: { battleSizeName: "Strike Force", factionName: "Heretic Astartes" },
+      validation: {
+        messages: [],
+        points: {
+          detachmentLimit: 3,
+          detachmentPoints: 0,
+          limit: 2000,
+          total: 0,
+        },
+        state: "valid",
+      },
+    });
+    assert.equal(unnamedOverview.children[2].children[0].title, "Rename roster: Heretic Astartes roster");
+    assert.equal(unnamedOverview.children[2].children[2].title, "Duplicate roster: Heretic Astartes roster");
+    assert.equal(unnamedOverview.children[2].children[3].title, "Delete roster: Heretic Astartes roster");
   } finally {
     global.document = previousDocument;
   }

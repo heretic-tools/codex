@@ -35,8 +35,9 @@ async function renderRoster(render) {
   } = await import("./builder_precomputed_loadouts_runtime.js");
   await ensurePrecomputedLoadoutsForDatasheets(rosterDatasheetIds(roster));
   const validation = validateRoster(roster);
+  const summary = rosterSummary(roster);
   await saveRosterCacheIfStale(roster, validation);
-  setPageTitle(rosterDisplayName(roster));
+  setPageTitle(rosterDisplayName(roster, summary));
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
     focusTarget: state.route.focusTarget || "",
@@ -55,7 +56,7 @@ async function renderRoster(render) {
       const unitPath = `/roster/${encodeURIComponent(roster.id)}/unit/${encodeURIComponent(unit.id)}`;
       navigate(focusTarget ? `${unitPath}/focus/${encodeURIComponent(focusTarget)}` : unitPath);
     },
-    summarizeRoster: rosterSummary,
+    summarizeRoster: () => summary,
     validation,
     validateRoster,
   }));

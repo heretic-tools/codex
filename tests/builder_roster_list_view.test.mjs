@@ -216,6 +216,10 @@ test("roster list item keeps quick actions outside the open-row button", async (
 
   try {
     assert.equal(rosterActionLabel({ name: "Black Crusade" }, "Duplicate"), "Duplicate: Black Crusade");
+    assert.equal(
+      rosterActionLabel({}, "Duplicate", { factionName: "Heretic Astartes" }),
+      "Duplicate: Heretic Astartes roster"
+    );
     const item = rosterListItem(
       { id: "ABCDEF12-3456", name: "Black Crusade" },
       () => calls.push("open"),
@@ -253,6 +257,24 @@ test("roster list item keeps quick actions outside the open-row button", async (
     assert.equal(item.children[1].children[1].children[3].textContent, "Export Text");
     assert.equal(item.children[1].children[1].children[4].textContent, "Delete Roster");
     assert.equal(item.children[0].children.some((child) => child.className === "roster-actions-menu"), false);
+
+    const unnamedItem = rosterListItem(
+      { id: "EMPTY-NAME" },
+      () => {},
+      () => ({
+        battleSizeName: "Strike Force",
+        detachmentBadges: [],
+        detachmentCount: 0,
+        factionName: "Heretic Astartes",
+        pointsLimit: 2000,
+        pointsTotal: 0,
+        unitCount: 0,
+        validationState: "invalid",
+      }),
+      { onDelete: () => {} }
+    );
+    assert.equal(unnamedItem.children[1].children[0].attributes.get("aria-label"), "More actions: Heretic Astartes roster");
+    assert.equal(unnamedItem.children[1].children[1].children[0].attributes.get("aria-label"), "Delete Roster: Heretic Astartes roster");
 
     item.children[1].open = true;
     const event = {

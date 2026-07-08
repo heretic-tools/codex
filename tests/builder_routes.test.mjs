@@ -91,3 +91,13 @@ test("builder route split modules import shared state before using it", () => {
     );
   }
 });
+
+test("roster detail title can use faction-derived fallback names", () => {
+  const source = readFileSync(
+    join(projectRoot, "HereticBuilder", "static", "builder_route_roster_detail_renderer.js"),
+    "utf8"
+  );
+
+  assert.ok(source.includes("const summary = rosterSummary(roster);"));
+  assert.ok(source.includes("setPageTitle(rosterDisplayName(roster, summary));"));
+});

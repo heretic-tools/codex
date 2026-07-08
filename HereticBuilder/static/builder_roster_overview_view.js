@@ -75,8 +75,8 @@ function rosterOverviewLabel(prefix, roster, validation, summary = null) {
   return `${prefix}: ${parts.join("; ")}`;
 }
 
-function rosterOverviewActionLabel(roster, action) {
-  return `${action}: ${rosterDisplayName(roster)}`;
+function rosterOverviewActionLabel(roster, action, summary = null) {
+  return `${action}: ${rosterDisplayName(roster, summary)}`;
 }
 
 function renderRosterStickySummary({ actions = [], roster, validation }) {
@@ -186,16 +186,16 @@ function renderRosterOverview({ onDelete, onDuplicate = null, onUndoableUpdate =
       rename.form.hidden = false;
       rename.input.focus?.();
       rename.input.select?.();
-    }), rosterOverviewActionLabel(roster, "Rename roster"))
+    }), rosterOverviewActionLabel(roster, "Rename roster", summary))
   );
   controls.appendChild(rename.form);
   if (onDuplicate) {
     controls.append(
-      labelControl(button("plain-button duplicate-roster-button", "Duplicate Roster", async () => onDuplicate(roster)), rosterOverviewActionLabel(roster, "Duplicate roster"))
+      labelControl(button("plain-button duplicate-roster-button", "Duplicate Roster", async () => onDuplicate(roster)), rosterOverviewActionLabel(roster, "Duplicate roster", summary))
     );
   }
   controls.append(
-    labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), rosterOverviewActionLabel(roster, "Delete roster"))
+    labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), rosterOverviewActionLabel(roster, "Delete roster", summary))
   );
   overview.append(
     head,
