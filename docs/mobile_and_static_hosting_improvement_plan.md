@@ -183,6 +183,16 @@ Add Detachment и Add Unit pickers теперь показывают компа�
 Все изменения остаются thin-client: используются уже сохраненные local roster
 documents, предрасчитанный catalog и локальный validator, без backend и без
 нового пользовательского формата хранения.
+Codex weapon tables больше не держат desktop-first responsive class names:
+`desktop-label`/`mobile-label` заменены на `full-label`/`compact-label`, а
+guard закрепляет это в CSS/template/generator.
+Codex list items получили modern app-shell hover/focus states, theme-token
+surfaces и mobile sizing guard; datasheet points в faction datasheet lists
+теперь рендерятся как общий `meta-badge`, разделяя визуальный контракт с
+detachment DP badges.
+Home Favorites/Recent local-library links доведены до 44px touch target с
+`touch-action: manipulation`, без изменения localStorage формата и без новой
+клиентской логики.
 
 ## Не входит в объём
 
