@@ -5,6 +5,7 @@ from roster_builder_codex_common import (
     faction_href,
     render_codex_content_page,
     render_list_item,
+    render_meta_badge,
 )
 from roster_builder_codex_factions import faction_by_id, faction_hero_image, rule_components_for
 from roster_builder_codex_faq import attach_faqs, faqs_for_entity, render_faq_update_sections
@@ -41,9 +42,6 @@ def render_disposition_badge(name):
     if slug:
         classes += f" disposition-{slug}"
     return f'<span class="{escape_attr(classes)}">{escape_html(name)}</span>'
-
-def render_meta_badge(label):
-    return f'<span class="meta-badge">{escape_html(label)}</span>'
 
 def detachment_badges_html(detachment):
     badges = [render_meta_badge(item) for item in detachment_meta_items(detachment)]

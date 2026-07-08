@@ -30,3 +30,18 @@ test("Codex datasheet group count badges use modern theme tokens", () => {
   assert.ok(modernLayer.includes("border: 1px solid var(--app-border);"));
   assert.ok(modernLayer.includes("font-family: var(--app-mono"));
 });
+
+test("Codex datasheet list points render as shared meta badges", () => {
+  const commonSource = readProjectFile("HereticBuilder", "tools", "roster_builder_codex_common.py");
+  const factionSource = readProjectFile("HereticBuilder", "tools", "roster_builder_codex_factions.py");
+  const detachmentSource = readProjectFile("HereticBuilder", "tools", "roster_builder_codex_detachments.py");
+  const cssSource = readProjectFile("HereticBuilder", "static", "codex.css");
+
+  assert.ok(commonSource.includes("def render_meta_badge(label):"));
+  assert.ok(factionSource.includes("points_label ="));
+  assert.ok(factionSource.includes("badge_html = render_meta_badge(points_label)"));
+  assert.ok(factionSource.includes('render_list_item(datasheet["name"], "", href=href, badge_html=badge_html)'));
+  assert.ok(factionSource.includes("f'{badge_html}'"));
+  assert.ok(detachmentSource.includes("render_meta_badge,"));
+  assert.ok(cssSource.includes(".datasheet-tile-text .meta-badge"));
+});

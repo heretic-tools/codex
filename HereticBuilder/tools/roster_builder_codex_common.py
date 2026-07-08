@@ -247,6 +247,9 @@ def render_codex_root_page():
         ],
     )
 
+def render_meta_badge(label):
+    return f'<span class="meta-badge">{escape_html(label)}</span>' if label else ""
+
 def render_list_item(title, meta, href=None, extra_class="", badge_html=""):
     meta_html = f'<div class="list-item-meta">{escape_html(meta)}</div>' if meta else ""
     classes = " ".join(item for item in ("list-item", extra_class) if item)

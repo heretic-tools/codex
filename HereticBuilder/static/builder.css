@@ -997,8 +997,8 @@
   text-decoration: none;
 }
 
-/* Modern app layer. Keeps the existing Builder DOM contract while replacing the
-   old bevel-control look with compact mobile-first product UI. */
+/* Modern app layer. Keeps the existing Builder DOM contract while applying the
+   compact mobile-first product UI. */
 .builder-shell {
   width: min(1120px, 100%);
 }

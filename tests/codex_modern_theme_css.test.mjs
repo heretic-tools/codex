@@ -10,6 +10,10 @@ function codexCss() {
   return readFileSync(join(projectRoot, "HereticBuilder", "static", "codex.css"), "utf8");
 }
 
+function projectFile(...parts) {
+  return readFileSync(join(projectRoot, ...parts), "utf8");
+}
+
 test("modern Codex launcher interactions use theme tokens", () => {
   const source = codexCss();
   const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
@@ -19,6 +23,23 @@ test("modern Codex launcher interactions use theme tokens", () => {
   assert.ok(modernLayer.includes("border-color: var(--app-accent);"));
   assert.doesNotMatch(modernLayer, /background:\s*#fbfaf7/i);
   assert.doesNotMatch(modernLayer, /border-color:\s*rgba\(36,\s*92,\s*79/i);
+});
+
+test("modern Codex list items use app shell interaction tokens", () => {
+  const source = codexCss();
+  const modernLayer = source.slice(source.indexOf("/* Modern Codex layer."));
+  const mobileLayer = modernLayer.slice(modernLayer.indexOf("@media (max-width: 760px)"));
+
+  assert.ok(modernLayer.includes(".codex-page .list-item"));
+  assert.ok(modernLayer.includes(".codex-page a.list-item:hover"));
+  assert.ok(modernLayer.includes(".codex-page a.list-item:focus-visible"));
+  assert.ok(modernLayer.includes("color: var(--app-ink);"));
+  assert.ok(modernLayer.includes("background: var(--app-surface);"));
+  assert.ok(modernLayer.includes("border: 1px solid var(--app-border);"));
+  assert.ok(modernLayer.includes(".codex-page .list-item-meta"));
+  assert.ok(modernLayer.includes("color: var(--app-muted);"));
+  assert.ok(mobileLayer.includes(".codex-page .list-grid .list-item"));
+  assert.ok(mobileLayer.includes("min-height: 56px;"));
 });
 
 test("modern Codex table surfaces override legacy light backgrounds", () => {
@@ -60,6 +81,21 @@ test("modern Codex weapon tables use a mobile frozen weapon column", () => {
   assert.ok(modernLayer.includes("position: sticky;"));
   assert.ok(modernLayer.includes("left: 0;"));
   assert.ok(modernLayer.includes("min-width: 640px;"));
+});
+
+test("Codex weapon table responsive labels avoid desktop-first class names", () => {
+  const source = codexCss();
+  const template = projectFile("HereticBuilder", "templates", "codex_unit_weapon_group.html");
+  const generator = projectFile("HereticBuilder", "tools", "roster_builder_codex_datasheet.py");
+  const combined = `${source}\n${template}\n${generator}`;
+
+  assert.doesNotMatch(combined, /desktop-label|mobile-label/);
+  assert.ok(source.includes(".full-label"));
+  assert.ok(source.includes(".compact-label"));
+  assert.ok(template.includes('class="full-label"'));
+  assert.ok(template.includes('class="compact-label"'));
+  assert.ok(generator.includes('class="full-label"'));
+  assert.ok(generator.includes('class="compact-label"'));
 });
 
 test("modern Codex points tables become readable mobile lists", () => {

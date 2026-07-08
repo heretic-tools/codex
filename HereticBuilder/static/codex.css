@@ -852,7 +852,7 @@
       width: 8%;
     }
 
-    .mobile-label {
+    .compact-label {
       display: none;
     }
 
@@ -1213,6 +1213,11 @@
       order: -1;
     }
 
+    .datasheet-tile-text .meta-badge {
+      order: -1;
+      justify-self: start;
+    }
+
     .datasheet-tile.has-unit-image .list-item-title {
       color: var(--light);
       line-height: 1.04;
@@ -1541,11 +1546,11 @@
         text-align: left;
       }
 
-      .desktop-label {
+      .full-label {
         display: none;
       }
 
-      .mobile-label {
+      .compact-label {
         display: inline;
       }
 
@@ -1633,6 +1638,34 @@
 .codex-page .launcher:focus-visible {
   outline: 3px solid rgba(40, 95, 159, .28);
   outline-offset: 2px;
+}
+
+.codex-page .list-item {
+  min-height: 72px;
+  color: var(--app-ink);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  box-shadow: none;
+}
+
+.codex-page a.list-item:hover {
+  border-color: var(--app-border-strong);
+  background: var(--app-surface-2);
+}
+
+.codex-page a.list-item:active {
+  border-color: var(--app-accent);
+  background: var(--app-surface-2);
+}
+
+.codex-page a.list-item:focus-visible {
+  outline: 3px solid rgba(40, 95, 159, .28);
+  outline-offset: 2px;
+}
+
+.codex-page .list-item-meta {
+  color: var(--app-muted);
 }
 
 .codex-page .label {
@@ -1836,6 +1869,20 @@
 }
 
 @media (max-width: 760px) {
+  .codex-page .list-grid .list-item {
+    min-height: 56px;
+    padding: 12px;
+  }
+
+  .codex-page .list-grid .list-item-title {
+    font-size: 16px;
+    line-height: 1.16;
+  }
+
+  .codex-page .list-grid .list-item-meta {
+    font-size: 12px;
+  }
+
   .unit-info-card-collapse-button {
     min-height: 44px;
     padding: 6px 12px;

@@ -331,7 +331,7 @@ def render_weapon_profiles_table(groups):
                 mode_marker_html=render_template("codex_unit_weapon_mode_marker.html") if item["hasModes"] else "",
                 ability_tags_html=weapon_ability_tags(item["abilities"]),
                 range_html=(
-                    '<span class="desktop-label">Melee</span><span class="mobile-label">М</span>'
+                    '<span class="full-label">Melee</span><span class="compact-label">М</span>'
                     if profile["range"] == "Melee"
                     else escape_html(profile["range"])
                 ),

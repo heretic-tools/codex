@@ -6,6 +6,7 @@ from roster_builder_codex_common import (
     render_codex_content_page,
     render_codex_page,
     render_list_item,
+    render_meta_badge,
     unit_image_url,
 )
 from roster_builder_codex_faq import render_faq_update_sections
@@ -305,16 +306,17 @@ def render_faction_army_rule_page(heretic_builder, faction_id):
 
 def render_datasheet_item(datasheet, faction, datasheet_slug):
     image = find_unit_image(datasheet["name"], datasheet.get("id"))
-    meta = f'{datasheet["points"]} pts' if datasheet.get("points") is not None else ""
+    points_label = f'{datasheet["points"]} pts' if datasheet.get("points") is not None else ""
+    badge_html = render_meta_badge(points_label)
     href = datasheet_href(faction, datasheet, datasheet_slug)
     if not image:
-        return render_list_item(datasheet["name"], meta, href=href)
+        return render_list_item(datasheet["name"], "", href=href, badge_html=badge_html)
     return (
         f'<a class="list-item datasheet-tile has-unit-image" href="{escape_attr(href)}">'
         f'<span class="unit-art-frame" aria-hidden="true"><img class="unit-art" src="{unit_image_url(image)}" alt=""></span>'
         '<span class="datasheet-tile-text">'
         f'<span class="list-item-title">{escape_html(datasheet["name"])}</span>'
-        f'<span class="list-item-meta">{escape_html(meta)}</span>'
+        f'{badge_html}'
         '</span>'
         '</a>'
     )

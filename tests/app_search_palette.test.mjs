@@ -46,6 +46,7 @@ test("shared app shell uses neutral panel tokens instead of window aliases", () 
   assert.ok(appSource.includes("--app-panel: var(--app-surface);"));
   assert.doesNotMatch(`${appSource}\n${codexSource}\n${builderSource}`, /--window|var\(--window\)/);
   assert.doesNotMatch(`${codexSource}\n${builderSource}`, /Win95|faux desktop|titlebar/);
+  assert.doesNotMatch(`${codexSource}\n${builderSource}`, /bevel-control|desktop-label|mobile-label/);
 });
 
 test("shared mobile shell controls keep 44px touch targets", () => {
