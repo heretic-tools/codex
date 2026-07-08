@@ -19,17 +19,25 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      PRODUCTION_CODEX_REF: 64100c7af26748a9bd494125eda20bfc41d58282
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Checkout production Codex source
+        if: github.event.repository.name != 'builder'
+        run: git worktree add ../production-codex "$PRODUCTION_CODEX_REF"
+
       - name: Build static Codex site
         if: github.event.repository.name != 'builder'
-        run: python3 HereticBuilder/tools/builder.py build --out dist --base-path "/${{ github.event.repository.name }}" --mount-codex-at-root
+        run: python3 ../production-codex/HereticBuilder/tools/builder.py build --source ../production-codex --out "$GITHUB_WORKSPACE/dist" --base-path "/${{ github.event.repository.name }}" --mount-codex-at-root
 
       - name: Build beta index
         if: github.event.repository.name != 'builder'

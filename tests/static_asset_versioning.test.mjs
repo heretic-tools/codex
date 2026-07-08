@@ -44,7 +44,11 @@ test("GitHub Pages workflow can build standalone Builder separately", () => {
 
   assert.match(workflow, /Build static Codex site/);
   assert.match(workflow, /github\.event\.repository\.name != 'builder'/);
-  assert.match(workflow, /builder\.py build --out dist/);
+  assert.match(workflow, /fetch-depth: 0/);
+  assert.match(workflow, /PRODUCTION_CODEX_REF: 64100c7af26748a9bd494125eda20bfc41d58282/);
+  assert.match(workflow, /Checkout production Codex source/);
+  assert.ok(workflow.includes('git worktree add ../production-codex "$PRODUCTION_CODEX_REF"'));
+  assert.ok(workflow.includes('python3 ../production-codex/HereticBuilder/tools/builder.py build --source ../production-codex --out "$GITHUB_WORKSPACE/dist"'));
   assert.match(workflow, /Build beta index/);
   assert.ok(workflow.includes('builder.py build-beta-index --out dist/beta --base-path "/${{ github.event.repository.name }}/beta"'));
   assert.match(workflow, /Build beta Codex site/);
