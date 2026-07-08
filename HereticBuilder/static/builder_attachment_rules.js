@@ -31,7 +31,7 @@ function validateAttachedUnits(roster, detachments, units, messages) {
       continue;
     }
     if (!bodyguards.length || !attachedModels.length) {
-      messages.push(attachedUnitIncompleteMessage(group));
+      messages.push(attachedUnitIncompleteMessage(group, members));
       continue;
     }
     const bodyguard = bodyguards[0];

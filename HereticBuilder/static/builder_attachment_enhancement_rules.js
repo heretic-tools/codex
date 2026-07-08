@@ -1,4 +1,5 @@
 import { selectedMiniatureEnhancements, selectedUnitEnhancements } from "./builder_model.js";
+import { attachedUnitSentenceLabel } from "./builder_attachment_validation_messages.js";
 import { validationMessage } from "./builder_validation_messages.js";
 import { attachedGroups } from "./builder_attachment_matchers.js";
 export { enhancementBodyguardRequirementSatisfied } from "./builder_attachment_enhancement_bodyguard_rules.js";
@@ -18,7 +19,7 @@ function validateAttachedUnitEnhancementLimits(roster, units, messages) {
     if (enhancementIds.size > 1) {
       messages.push(validationMessage(
         "enhancement.attached_unit_too_many_enhancements",
-        `Attached unit ${group.id} has more than 1 enhancement.`,
+        `${attachedUnitSentenceLabel(group, units)} has more than 1 enhancement.`,
         "error",
         {
           attachmentId: group.id,

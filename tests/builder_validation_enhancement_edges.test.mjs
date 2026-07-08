@@ -497,6 +497,11 @@ test("enhancement attached bodyguard requirements are validated against attachme
     attachedLimitMessages.find((message) => message.code === "enhancement.attached_unit_too_many_enhancements")?.scope?.attachmentId,
     "overloaded-pack"
   );
+  const attachedLimitText = attachedLimitMessages
+    .find((message) => message.code === "enhancement.attached_unit_too_many_enhancements")?.text || "";
+  assert.match(attachedLimitText, /^Attached unit with /);
+  assert.match(attachedLimitText, /Flesh Hounds/);
+  assert.doesNotMatch(attachedLimitText, /overloaded-pack/);
 });
 
 test("cannotBeWarlord miniature enhancement only blocks the enhanced warlord model", () => {

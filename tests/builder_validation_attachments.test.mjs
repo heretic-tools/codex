@@ -508,6 +508,10 @@ test("attachment groups validate incomplete, duplicate, and invalid pairings", (
       incompleteMessages.find((message) => message.code === "attached_unit.incomplete")?.scope?.attachmentId,
       "bodyguard-without-attached-model"
     );
+    assert.equal(
+      incompleteMessages.find((message) => message.code === "attached_unit.incomplete")?.text,
+      "Attached unit with Bodyguard is incomplete."
+    );
 
     const invalidMessages = [];
     validateAttachedUnits({
