@@ -38,15 +38,16 @@ test("app search grouped result styles stay inside the shared app shell", () => 
   assert.ok(source.includes("border-bottom: 1px solid var(--app-border);"));
 });
 
-test("shared app shell uses neutral panel tokens instead of window aliases", () => {
+test("shared app shell keeps neutral panel tokens while Builder can use Codex desktop aliases", () => {
   const appSource = staticSource("app.css");
   const codexSource = staticSource("codex.css");
   const builderSource = staticSource("builder.css");
 
   assert.ok(appSource.includes("--app-panel: var(--app-surface);"));
   assert.ok(appSource.includes("--app-radius: 0;"));
-  assert.doesNotMatch(`${appSource}\n${codexSource}\n${builderSource}`, /--window|var\(--window\)/);
-  assert.doesNotMatch(`${codexSource}\n${builderSource}`, /Win95|faux desktop|titlebar/);
+  assert.doesNotMatch(`${appSource}\n${codexSource}`, /--window|var\(--window\)/);
+  assert.match(builderSource, /var\(--window/);
+  assert.doesNotMatch(codexSource, /Win95|faux desktop|titlebar/);
   assert.doesNotMatch(`${codexSource}\n${builderSource}`, /bevel-control|desktop-label|mobile-label/);
 });
 

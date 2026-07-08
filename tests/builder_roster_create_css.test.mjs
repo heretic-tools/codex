@@ -10,12 +10,12 @@ function builderCss() {
   return readFileSync(join(projectRoot, "HereticBuilder", "static", "builder.css"), "utf8");
 }
 
-function modernLayer(source = builderCss()) {
-  return source.slice(source.indexOf("/* Modern app layer."));
+function builderLayer(source = builderCss()) {
+  return source.slice(source.indexOf("/* Builder app layer."));
 }
 
 test("roster create form keeps confirm as the only full-width action", () => {
-  const source = modernLayer();
+  const source = builderLayer();
   const actionsBlock = source.match(/\.roster-create-form \.form-actions \{[^}]+\}/)?.[0] || "";
 
   assert.ok(actionsBlock.includes("grid-template-columns: 1fr;"));
@@ -24,7 +24,7 @@ test("roster create form keeps confirm as the only full-width action", () => {
 
 test("roster create battle size picker uses flat theme tokens", () => {
   const fullSource = builderCss();
-  const source = modernLayer();
+  const source = builderLayer();
 
   assert.ok(source.includes(".battle-size-options"));
   assert.ok(source.includes("gap: 8px;"));
@@ -116,11 +116,13 @@ test("Builder unit and roster art renders as themed background layers", () => {
   assert.doesNotMatch(source, /roster-unit-art-frame|attachment-unit-art-frame|unit-detail-art-frame/);
 });
 
-test("Builder CSS does not keep legacy 2px bevel borders", () => {
+test("Builder CSS keeps classic shell bevels off shared row controls", () => {
   const source = builderCss();
+  const statusBlock = source.match(/\.builder-status \{[^}]+\}/)?.[0] || "";
+  const sharedControlBlock = source.match(/\.builder-row,\n\.plain-button,\n\.primary-button,\n\.remove-button,\n\.validation-action-button \{[^}]+\}/)?.[0] || "";
 
-  assert.doesNotMatch(source, /border-width:\s*2px/);
-  assert.doesNotMatch(source, /border:\s*2px solid var\(--builder-light\)/);
-  assert.doesNotMatch(source, /border-(?:top|right|bottom):\s*2px solid var\(--builder-(?:light|shadow)\)/);
-  assert.doesNotMatch(source, /border-color:\s*var\(--builder-shadow\)\s+var\(--builder-light\)/);
+  assert.ok(statusBlock.includes("border-width: 2px;"));
+  assert.ok(statusBlock.includes("border-color: var(--builder-light) var(--builder-shadow) var(--builder-shadow) var(--builder-light);"));
+  assert.doesNotMatch(sharedControlBlock, /border-width:\s*2px/);
+  assert.doesNotMatch(sharedControlBlock, /border-color:\s*var\(--builder-light\).*var\(--builder-shadow\)/s);
 });

@@ -14,7 +14,7 @@ function builderSource(filename) {
   return readFileSync(join(projectRoot, "HereticBuilder", "static", filename), "utf8");
 }
 
-function modernMobileLayer(source = builderCss()) {
+function builderMobileLayer(source = builderCss()) {
   return source.slice(source.lastIndexOf("@media (max-width: 760px)"));
 }
 
@@ -27,9 +27,9 @@ test("Builder CSS keeps one consolidated mobile max-width layer", () => {
 
 test("mobile roster summary is a bottom safe-area bar", () => {
   const source = builderCss();
-  const mobileLayer = modernMobileLayer(source);
+  const mobileLayer = builderMobileLayer(source);
 
-  assert.ok(mobileLayer.includes(".app-frame:has(.roster-sticky-summary) .app-footer"));
+  assert.ok(mobileLayer.includes(".desktop:has(.roster-sticky-summary) .taskbar"));
   assert.ok(mobileLayer.includes("display: none;"));
   assert.ok(mobileLayer.includes(".builder-panel-content:has(.roster-sticky-summary)"));
   assert.ok(mobileLayer.includes("padding-bottom: calc(132px + env(safe-area-inset-bottom));"));
@@ -66,7 +66,7 @@ test("mobile roster summary actions expose add-section shortcuts", () => {
 
 test("mobile Builder action controls keep 44px touch targets", () => {
   const source = builderCss();
-  const mobileLayer = modernMobileLayer(source);
+  const mobileLayer = builderMobileLayer(source);
   const unitOpenBlock = source.match(/\.unit-open-button \{[^}]+\}/)?.[0] || "";
   const attachmentUnitLinkBlock = source.match(/\.attachment-unit-link \{[^}]+\}/)?.[0] || "";
   const attachmentTitleButtonBlock = source.match(/\.attachment-title-button \{[^}]+\}/)?.[0] || "";
@@ -95,7 +95,7 @@ test("mobile Builder action controls keep 44px touch targets", () => {
 });
 
 test("mobile unit and detachment add controls stay inline", () => {
-  const mobileLayer = modernMobileLayer();
+  const mobileLayer = builderMobileLayer();
 
   assert.ok(mobileLayer.includes(".detachment-control-row,"));
   assert.ok(mobileLayer.includes(".unit-control-row {"));

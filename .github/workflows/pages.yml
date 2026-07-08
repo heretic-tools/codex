@@ -49,7 +49,7 @@ jobs:
 
       - name: Build beta Codex site
         if: github.event.repository.name != 'builder'
-        run: python3 HereticBuilder/tools/builder.py build --out dist/beta/codex --base-path "/${{ github.event.repository.name }}/beta/codex" --mount-codex-at-root
+        run: python3 ../production-codex/HereticBuilder/tools/builder.py build --source ../production-codex --out "$GITHUB_WORKSPACE/dist/beta/codex" --base-path "/${{ github.event.repository.name }}/beta/codex" --mount-codex-at-root
 
       - name: Build beta Builder site
         if: github.event.repository.name != 'builder'

@@ -2,7 +2,7 @@ const SCROLL_CONTAINER_SELECTORS = [
   ".builder-root",
   ".builder-roster-sidebar",
   ".builder-panel-content",
-  ".app-frame",
+  ".desktop",
 ];
 
 function currentWindowScroll() {

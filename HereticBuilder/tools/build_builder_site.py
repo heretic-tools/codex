@@ -27,10 +27,12 @@ from roster_builder_templates import render_template
 
 BUILDER_STATIC_SUPPORT_FILES = (
     "app.css",
+    "desktop.css",
     "codex.css",
     "theme.js",
     "pwa.js",
     "builder.css",
+    "win-scrollbars.js",
 )
 
 BUILDER_ICON_FILES = (

@@ -1,16 +1,45 @@
 :root {
-  --builder-ink: var(--app-ink, #151515);
-  --builder-paper: var(--app-surface, #ffffff);
-  --builder-panel: var(--app-surface-2, #e8e8e8);
-  --builder-shadow: var(--app-border-strong, #858585);
-  --builder-light: var(--app-surface, #ffffff);
-  --builder-blue: var(--app-blue, #f2f2f2);
-  --builder-error: var(--app-red, #a83232);
-  --builder-ok: var(--app-green, #22734c);
-  --builder-warn: var(--app-amber, #9a641d);
-  --builder-border: var(--app-border, #d0d0d0);
-  --builder-radius: var(--app-radius, 8px);
-  --builder-mono: var(--app-font-mono, monospace);
+  --builder-ink: var(--ink, #000000);
+  --builder-paper: var(--window, #c0c0c0);
+  --builder-panel: #d4d4d4;
+  --builder-shadow: var(--shadow, #404040);
+  --builder-light: var(--light, #ffffff);
+  --builder-blue: var(--title, #000080);
+  --builder-error: var(--red, #b00020);
+  --builder-ok: var(--green, #00a000);
+  --builder-warn: #9a641d;
+  --builder-border: var(--mid, #808080);
+  --builder-radius: 0;
+  --builder-mono: "MS Sans Serif", Tahoma, Arial, sans-serif;
+  --app-ink: var(--builder-ink);
+  --app-muted: #404040;
+  --app-surface: var(--builder-paper);
+  --app-surface-2: var(--builder-panel);
+  --app-border: var(--builder-border);
+  --app-border-strong: var(--builder-shadow);
+  --app-focus-ring: var(--cyan, #00ffff);
+  --app-image-ink: #ffffff;
+  --app-image-muted: rgba(255, 255, 255, .9);
+  --app-image-text-shadow: 1px 1px 0 rgba(0, 0, 0, .85);
+  --app-image-chip-bg: rgba(0, 0, 0, .42);
+  --app-image-chip-border: rgba(255, 255, 255, .55);
+  --app-image-control-bg: rgba(192, 192, 192, .72);
+  --app-image-control-border: rgba(255, 255, 255, .8);
+  --app-image-control-hover-bg: rgba(255, 255, 255, .86);
+  --app-image-control-hover-border: rgba(0, 0, 0, .45);
+  --app-image-overlay-bottom:
+    linear-gradient(180deg, transparent 0%, transparent 42%, rgba(0, 0, 0, .22) 66%, rgba(0, 0, 0, .72) 100%);
+  --app-image-overlay-top:
+    linear-gradient(180deg, rgba(0, 0, 0, .68) 0%, rgba(0, 0, 0, .22) 42%, transparent 100%);
+  --app-image-overlay-split:
+    linear-gradient(180deg, rgba(0, 0, 0, .62) 0%, rgba(0, 0, 0, .18) 32%, transparent 48%, transparent 58%, rgba(0, 0, 0, .28) 78%, rgba(0, 0, 0, .76) 100%);
+  --app-image-overlay: var(--app-image-overlay-bottom);
+  --app-hero-image-overlay: var(--app-image-overlay-split);
+  --app-disposition-take-and-hold: #00a000;
+  --app-disposition-disruption: #1084d0;
+  --app-disposition-priority-assets: #b07000;
+  --app-disposition-purge-the-foe: #b00020;
+  --app-disposition-reconnaissance: #008080;
 }
 
 .builder-page {
@@ -28,16 +57,17 @@
 }
 
 .builder-shell {
-  width: min(1120px, calc(100vw - 160px));
-  height: 100%;
+  width: min(980px, 100%);
+  max-height: 100%;
   min-height: 0;
-  align-self: stretch;
+  align-self: center;
   margin: auto;
 }
 
 .builder-app-header {
   display: flex;
   justify-content: space-between;
+  min-height: 38px;
 }
 
 .builder-app-header-actions {
@@ -49,13 +79,15 @@
 
 .builder-status {
   min-width: 52px;
-  padding: 5px 9px;
-  color: var(--builder-blue);
-  background: var(--builder-panel);
-  border: 0;
+  padding: 3px 6px;
+  color: var(--builder-ink);
+  background: var(--builder-paper);
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--builder-light) var(--builder-shadow) var(--builder-shadow) var(--builder-light);
   border-radius: 0;
   font-family: var(--builder-mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   line-height: 1;
   text-align: center;
@@ -65,9 +97,10 @@
   display: flex;
   align-items: center;
   min-height: auto;
-  padding: 0;
-  background: transparent;
-  border-bottom: 0;
+  padding: 0 2px;
+  background: var(--builder-paper);
+  border-bottom: 1px solid var(--builder-border);
+  box-shadow: 0 1px 0 var(--builder-light);
 }
 
 .builder-breadcrumbs {
@@ -76,13 +109,13 @@
 
 .builder-panel {
   min-height: 304px;
-  background: var(--builder-paper);
+  background: var(--builder-panel);
 }
 
 .builder-panel-content {
   gap: 0;
-  padding: 18px 20px 22px;
-  background: var(--builder-paper);
+  padding: 22px;
+  background: var(--builder-panel);
 }
 
 .builder-root {
@@ -379,7 +412,6 @@
 }
 
 .builder-app-header.has-background-art .builder-status,
-.builder-app-header.has-background-art .theme-toggle,
 .builder-row.has-background-art .remove-button,
 .builder-row.has-background-art .unit-actions-trigger,
 .roster-list-item.has-background-art .roster-actions-trigger,
@@ -1256,42 +1288,48 @@
   text-decoration: none;
 }
 
-/* Modern app layer. Keeps the existing Builder DOM contract while applying the
-   compact mobile-first product UI. */
+/* Builder app layer. Keeps the current Builder DOM contract inside the classic
+   Codex desktop shell. */
 .builder-shell {
-  width: min(1120px, 100%);
+  width: min(980px, 100%);
+  max-height: 100%;
+  align-self: center;
+  margin: auto;
 }
 
 .builder-app-header {
-  min-height: 58px;
+  min-height: 38px;
 }
 
 .builder-status {
   min-width: 52px;
-  padding: 5px 9px;
-  color: var(--builder-blue);
-  background: var(--builder-panel);
-  border: 0;
+  padding: 3px 6px;
+  color: var(--builder-ink);
+  background: var(--builder-paper);
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--builder-light) var(--builder-shadow) var(--builder-shadow) var(--builder-light);
   border-radius: 0;
   font-family: var(--builder-mono);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .builder-breadcrumb-row {
   min-height: auto;
-  padding: 0;
-  background: transparent;
-  border-bottom: 0;
+  padding: 0 2px;
+  background: var(--builder-paper);
+  border-bottom: 1px solid var(--builder-border);
+  box-shadow: 0 1px 0 var(--builder-light);
 }
 
 .builder-panel,
 .builder-panel-content {
-  background: var(--builder-paper);
+  background: var(--builder-panel);
 }
 
 .builder-panel-content {
-  padding: 16px;
+  padding: 22px;
 }
 
 .builder-stack,
@@ -1299,12 +1337,12 @@
 .builder-form,
 .builder-grid,
 .validation-list {
-  gap: 10px;
+  gap: 0;
 }
 
 .builder-grid {
   grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
-  gap: 16px;
+  gap: 18px;
 }
 
 .roster-detail-grid {
@@ -1316,7 +1354,7 @@
 }
 
 .builder-section {
-  gap: 10px;
+  gap: 8px;
 }
 
 .roster-create-form .form-actions {
@@ -2122,7 +2160,7 @@
     padding: 12px;
   }
 
-  .app-frame:has(.roster-sticky-summary) .app-footer {
+  .desktop:has(.roster-sticky-summary) .taskbar {
     display: none;
   }
 

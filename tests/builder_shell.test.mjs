@@ -1,5 +1,14 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+
+function projectFile(...parts) {
+  return readFileSync(join(projectRoot, ...parts), "utf8");
+}
 
 function mockNode() {
   const node = {
@@ -103,13 +112,26 @@ test("startup errors set explicit Builder error title and status", () => {
   assert.equal(nodes.get("builder-root").children[0].textContent, "Catalog failed");
 });
 
-test("builder shell clears roster hero art from the shared app header", () => {
+test("builder shell clears roster hero art from the classic title bar", () => {
   const header = nodes.get("builder-app-header");
-  header.className = "app-header builder-app-header has-background-art has-roster-hero persistent-class";
+  header.className = "title-bar builder-app-header has-background-art has-roster-hero persistent-class";
   header.style.setProperty("--background-art", 'url("/assets/faction-images/sample.png")');
 
   clearPageHero();
 
-  assert.equal(header.className, "app-header builder-app-header persistent-class");
+  assert.equal(header.className, "title-bar builder-app-header persistent-class");
   assert.equal(header.style.getPropertyValue("--background-art"), "");
+});
+
+test("builder template uses the classic Codex desktop shell", () => {
+  const template = projectFile("HereticBuilder", "templates", "builder.html");
+
+  assert.match(template, /<link rel="stylesheet" href="\/static\/desktop\.css">/);
+  assert.match(template, /<main class="desktop codex-page builder-page">/);
+  assert.match(template, /class="title-bar builder-app-header"/);
+  assert.match(template, /<footer class="taskbar"/);
+  assert.match(template, /\/static\/win-scrollbars\.js/);
+  assert.doesNotMatch(template, /\/static\/app\.css/);
+  assert.doesNotMatch(template, /\/static\/theme\.js/);
+  assert.doesNotMatch(template, /theme-toggle/);
 });
