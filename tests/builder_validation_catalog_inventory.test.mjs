@@ -883,7 +883,8 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.doesNotMatch(serviceWorkerSource, /__HERETIC_ASSET_VERSION__/);
     assert.match(serviceWorkerSource, /\.\/static\/app\.css/);
     assert.match(serviceWorkerSource, /\.\/static\/builder\.css/);
-    assert.doesNotMatch(serviceWorkerSource, /desktop\.css/);
+    assert.match(serviceWorkerSource, /\.\/static\/desktop\.css/);
+    assert.match(serviceWorkerSource, /\.\/static\/win-scrollbars\.js/);
     assert.match(serviceWorkerSource, /builder-data/);
     assert.match(serviceWorkerSource, /isBuilderDataMetadataPath/);
     assert.match(serviceWorkerSource, /self\.addEventListener\("message"/);

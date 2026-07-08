@@ -11,8 +11,10 @@ const CORE_ASSETS = [
   "./static/app.css",
   "./static/builder.css",
   "./static/codex.css",
+  "./static/desktop.css",
   "./static/theme.js",
   "./static/pwa.js",
+  "./static/win-scrollbars.js",
 ];
 
 function shouldHandle(request) {
