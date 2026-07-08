@@ -32,11 +32,11 @@ test("mobile roster summary is a bottom safe-area bar", () => {
   assert.ok(mobileLayer.includes(".app-frame:has(.roster-sticky-summary) .app-footer"));
   assert.ok(mobileLayer.includes("display: none;"));
   assert.ok(mobileLayer.includes(".builder-panel-content:has(.roster-sticky-summary)"));
-  assert.ok(mobileLayer.includes("padding-bottom: calc(196px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes("padding-bottom: calc(132px + env(safe-area-inset-bottom));"));
   assert.ok(mobileLayer.includes(".builder-panel-content:has(.unit-detail-grid .roster-sticky-summary)"));
   assert.ok(mobileLayer.includes("padding-bottom: calc(82px + env(safe-area-inset-bottom));"));
   assert.ok(mobileLayer.includes(".builder-panel-content:has(.unit-detail-grid .roster-sticky-summary.has-actions)"));
-  assert.ok(mobileLayer.includes("padding-bottom: calc(196px + env(safe-area-inset-bottom));"));
+  assert.ok(mobileLayer.includes("padding-bottom: calc(176px + env(safe-area-inset-bottom));"));
   assert.ok(mobileLayer.includes(".roster-detail-grid .roster-sticky-summary"));
   assert.ok(mobileLayer.includes("position: fixed;"));
   assert.ok(mobileLayer.includes("bottom: max(8px, env(safe-area-inset-bottom));"));

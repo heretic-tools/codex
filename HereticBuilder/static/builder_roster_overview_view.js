@@ -181,22 +181,24 @@ function renderRosterOverview({ onDelete, onDuplicate = null, onUndoableUpdate =
   if (warlordPicker) {
     controls.appendChild(warlordPicker);
   }
-  controls.append(
-    labelControl(button("plain-button rename-roster-button", "Rename Roster", () => {
+  const actionRow = document.createElement("div");
+  actionRow.className = "roster-overview-action-row";
+  actionRow.append(
+    labelControl(button("plain-button rename-roster-button", "Rename", () => {
       rename.form.hidden = false;
       rename.input.focus?.();
       rename.input.select?.();
     }), rosterOverviewActionLabel(roster, "Rename roster", summary))
   );
-  controls.appendChild(rename.form);
   if (onDuplicate) {
-    controls.append(
-      labelControl(button("plain-button duplicate-roster-button", "Duplicate Roster", async () => onDuplicate(roster)), rosterOverviewActionLabel(roster, "Duplicate roster", summary))
+    actionRow.append(
+      labelControl(button("plain-button duplicate-roster-button", "Duplicate", async () => onDuplicate(roster)), rosterOverviewActionLabel(roster, "Duplicate roster", summary))
     );
   }
-  controls.append(
-    labelControl(button("plain-button delete-roster-button", "Delete Roster", async () => onDelete(roster)), rosterOverviewActionLabel(roster, "Delete roster", summary))
+  actionRow.append(
+    labelControl(button("plain-button delete-roster-button", "Delete", async () => onDelete(roster)), rosterOverviewActionLabel(roster, "Delete roster", summary))
   );
+  controls.append(actionRow, rename.form);
   overview.append(
     head,
     metrics,

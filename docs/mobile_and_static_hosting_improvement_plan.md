@@ -193,6 +193,18 @@ detachment DP badges.
 Home Favorites/Recent local-library links доведены до 44px touch target с
 `touch-action: manipulation`, без изменения localStorage формата и без новой
 клиентской логики.
+Builder roster overview на mobile уплотнен: `Rename` / `Duplicate` / `Delete`
+сгруппированы в одну action-row, а полные имена действий сохранены в
+`aria-label`/`title`. Это подняло `Roster Validation` и `Detachments` выше в
+первом экране без изменения local roster schema или validation logic.
+Live `/builder/` smoke на mobile viewport проверил roster detail, unit detail,
+list и create flow с asset `88d3fb44d27d`: console errors/warnings отсутствуют,
+page-level horizontal overflow не найден, create flow целиком помещается в
+первый экран и сохраняет faction-derived default roster name.
+Следующий sticky-summary срез уменьшил mobile reserve padding и высоту
+неинтерактивных status/metric cells, оставив сами action buttons 44px touch
+targets; повторный `/builder/` smoke с asset `eb522c1518d2` подтвердил
+`roster-sticky-summary` без console errors и page-level overflow.
 
 ## Не входит в объём
 

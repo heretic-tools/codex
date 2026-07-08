@@ -113,22 +113,23 @@ test("roster overview hides Warlord picker before units exist", () => {
 
     assert.equal(overview.textContent.includes("Warlord"), false);
     assert.equal(overview.textContent.includes("Add units first"), false);
-    assert.ok(overview.textContent.includes("Rename Roster"));
-    assert.ok(overview.textContent.includes("Duplicate Roster"));
-    assert.ok(overview.textContent.includes("Delete Roster"));
+    assert.ok(overview.textContent.includes("Rename"));
+    assert.ok(overview.textContent.includes("Duplicate"));
+    assert.ok(overview.textContent.includes("Delete"));
     assert.equal(
       overview.attributes.get("aria-label"),
       "Roster overview: Heretic Astartes / Strike Force; Valid; Points 0 of 2000, DP 0 of 3, Units 0"
     );
-    assert.equal(overview.children[2].children[0].title, "Rename roster: Heretic Astartes roster 1");
-    assert.equal(overview.children[2].children[0].attributes.get("aria-label"), "Rename roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[0].className, "roster-overview-action-row");
+    assert.equal(overview.children[2].children[0].children[0].title, "Rename roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[0].children[0].attributes.get("aria-label"), "Rename roster: Heretic Astartes roster 1");
     assert.equal(overview.children[2].children[1].className, "roster-rename-form");
     assert.equal(overview.children[2].children[1].dataset.editorTarget, "rename");
     assert.equal(overview.children[2].children[1].hidden, true);
-    assert.equal(overview.children[2].children[2].title, "Duplicate roster: Heretic Astartes roster 1");
-    assert.equal(overview.children[2].children[2].attributes.get("aria-label"), "Duplicate roster: Heretic Astartes roster 1");
-    assert.equal(overview.children[2].children[3].title, "Delete roster: Heretic Astartes roster 1");
-    assert.equal(overview.children[2].children[3].attributes.get("aria-label"), "Delete roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[0].children[1].title, "Duplicate roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[0].children[1].attributes.get("aria-label"), "Duplicate roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[0].children[2].title, "Delete roster: Heretic Astartes roster 1");
+    assert.equal(overview.children[2].children[0].children[2].attributes.get("aria-label"), "Delete roster: Heretic Astartes roster 1");
 
     const unnamedOverview = renderRosterOverview({
       onDelete: () => {},
@@ -147,9 +148,9 @@ test("roster overview hides Warlord picker before units exist", () => {
         state: "valid",
       },
     });
-    assert.equal(unnamedOverview.children[2].children[0].title, "Rename roster: Heretic Astartes roster");
-    assert.equal(unnamedOverview.children[2].children[2].title, "Duplicate roster: Heretic Astartes roster");
-    assert.equal(unnamedOverview.children[2].children[3].title, "Delete roster: Heretic Astartes roster");
+    assert.equal(unnamedOverview.children[2].children[0].children[0].title, "Rename roster: Heretic Astartes roster");
+    assert.equal(unnamedOverview.children[2].children[0].children[1].title, "Duplicate roster: Heretic Astartes roster");
+    assert.equal(unnamedOverview.children[2].children[0].children[2].title, "Delete roster: Heretic Astartes roster");
   } finally {
     global.document = previousDocument;
   }
@@ -200,7 +201,7 @@ test("roster overview hides Warlord picker when no unit can be selected as Warlo
 
     assert.equal(overview.textContent.includes("Warlord"), false);
     assert.equal(overview.textContent.includes("not eligible"), false);
-    assert.ok(overview.textContent.includes("Rename Roster"));
+    assert.ok(overview.textContent.includes("Rename"));
   } finally {
     state.catalog = previousCatalog;
     global.document = previousDocument;
@@ -236,7 +237,7 @@ test("roster overview rename form emits an undoable roster update", async () => 
       },
     });
     const controls = overview.children[2];
-    const renameButton = controls.children[0];
+    const renameButton = controls.children[0].children[0];
     const renameForm = controls.children[1];
     const input = renameForm.children[0];
     assert.equal(input.dataset.focusTarget, "true");

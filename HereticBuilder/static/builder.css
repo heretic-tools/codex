@@ -1193,20 +1193,31 @@
 
 .roster-overview-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
 }
 
 .roster-overview-controls .field {
   min-width: 0;
 }
 
+.roster-overview-action-row {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+  gap: 6px;
+}
+
+.roster-overview-action-row .plain-button {
+  min-width: 0;
+  justify-content: center;
+}
+
 .roster-rename-form {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 8px;
+  gap: 6px;
 }
 
 .roster-rename-form[hidden] {
@@ -1217,8 +1228,7 @@
   min-width: 0;
 }
 
-.rename-roster-button,
-.delete-roster-button {
+.roster-overview-action-row .plain-button {
   white-space: nowrap;
 }
 
@@ -1790,7 +1800,7 @@
   }
 
   .builder-panel-content:has(.roster-sticky-summary) {
-    padding-bottom: calc(196px + env(safe-area-inset-bottom));
+    padding-bottom: calc(132px + env(safe-area-inset-bottom));
   }
 
   .builder-panel-content:has(.unit-detail-grid .roster-sticky-summary) {
@@ -1798,7 +1808,7 @@
   }
 
   .builder-panel-content:has(.unit-detail-grid .roster-sticky-summary.has-actions) {
-    padding-bottom: calc(196px + env(safe-area-inset-bottom));
+    padding-bottom: calc(176px + env(safe-area-inset-bottom));
   }
 
   .builder-grid,
@@ -1883,7 +1893,7 @@
   }
 
   .roster-sticky-summary .roster-status-pill {
-    min-height: 44px;
+    min-height: 34px;
     display: flex;
     align-items: center;
     justify-self: start;
@@ -1896,7 +1906,7 @@
   }
 
   .roster-sticky-summary .roster-overview-metric {
-    min-height: 44px;
+    min-height: 34px;
     padding: 4px 5px;
   }
 
