@@ -11,7 +11,7 @@ import {
 } from "./builder_roster_unit_detail_editors.js";
 import { unitHasDefaultWargear } from "./builder_roster_unit_wargear_default_actions.js";
 import { wargearGroupsFor } from "./builder_roster_unit_wargear_groups.js";
-import { unitImageNode } from "./builder_unit_images.js";
+import { applyUnitBackgroundArt } from "./builder_unit_images.js";
 
 function unitDisplayName(roster, unit) {
   return unitSummary(roster, unit).name || "Unit";
@@ -68,10 +68,7 @@ function renderRosterUnitOverview({ onUndoableUpdate = null, onUpdate, roster, u
   overview.className = "builder-section unit-overview-card";
   overview.dataset.unitDetailTarget = "overview";
   overview.setAttribute("aria-label", unitOverviewLabel(unit));
-  const image = unitImageNode(unit.datasheetId, "unit-detail-art-frame");
-  if (image) {
-    overview.appendChild(image);
-  }
+  applyUnitBackgroundArt(overview, unit.datasheetId);
   const metrics = document.createElement("div");
   metrics.className = "unit-overview-summary";
   metrics.append(

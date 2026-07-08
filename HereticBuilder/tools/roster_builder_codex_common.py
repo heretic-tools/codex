@@ -127,6 +127,7 @@ def render_breadcrumbs(back_href, breadcrumb_items=None):
 def render_launcher(button):
     href_attr = f' data-href="{escape_attr(button["href"])}"' if button.get("href") else ""
     classes = ["launcher"]
+    style_attr = ""
     tag_html = ""
     image_html = ""
 
@@ -136,10 +137,7 @@ def render_launcher(button):
     image = button.get("image")
     if image:
         classes.append("has-faction-image")
-        image_html = render_template(
-            "codex_launcher_image.html",
-            src=faction_image_url(image),
-        )
+        style_attr = f' style="--background-art: url(\'{faction_image_url(image)}\');"'
 
     return render_template(
         "codex_launcher.html",
@@ -147,6 +145,7 @@ def render_launcher(button):
         label_attr=escape_attr(button["label"]),
         route_attr=escape_attr(button["route"]),
         href_attr=href_attr,
+        style_attr=style_attr,
         image_html=image_html,
         label=escape_html(button["label"]),
         tag_html=tag_html,

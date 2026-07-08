@@ -6,6 +6,7 @@ function rosterSummary(roster) {
   const size = state.catalog.battleSizeById.get(roster.battleSizeId);
   return {
     factionName: faction?.name || "Unknown faction",
+    factionImageFilename: faction?.factionImageFilename || "",
     battleSizeName: size?.name || "Unknown size",
     pointsLimit: size?.pointsLimit || 0,
     detachmentPointsLimit: size?.detachmentPointsLimit || 0,

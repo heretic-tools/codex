@@ -10,7 +10,15 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from roster_builder_assets import DEFAULT_DB, PROJECT_ROOT, UNIT_IMAGES_BY_ID, UNIT_IMAGES_BY_NAME, UNIT_IMAGE_ROOT
+from roster_builder_assets import (
+    DEFAULT_DB,
+    FACTION_IMAGES_BY_ID,
+    FACTION_IMAGES_BY_NAME,
+    PROJECT_ROOT,
+    UNIT_IMAGES_BY_ID,
+    UNIT_IMAGES_BY_NAME,
+    UNIT_IMAGE_ROOT,
+)
 
 
 EXPORT_SCHEMA_VERSION = 1
@@ -832,19 +840,27 @@ def precomputed_loadouts(conn, aliases, max_loadouts_per_context=LOADOUT_PRECOMP
     }
 
 
+def faction_image_filename(faction_id, name):
+    image = FACTION_IMAGES_BY_ID.get(faction_id) or FACTION_IMAGES_BY_NAME.get(str(name or "").lower())
+    return image.get("filename") if image else ""
+
+
 def bootstrap_payload(conn, version, counts, aliases):
     defaults = default_ids(conn)
-    factions = [
-        dict(row)
-        for row in conn.execute(
-            """
-            select id, name, commonName, parentFactionKeywordId
-            from faction_keyword
-            where excludedFromArmyBuilder = 0
-            order by lower(name)
-            """
-        )
-    ]
+    factions = []
+    for row in conn.execute(
+        """
+        select id, name, commonName, parentFactionKeywordId
+        from faction_keyword
+        where excludedFromArmyBuilder = 0
+        order by lower(name)
+        """
+    ):
+        faction = dict(row)
+        filename = faction_image_filename(faction.get("id"), faction.get("name"))
+        if filename:
+            faction["factionImageFilename"] = filename
+        factions.append(faction)
     battle_sizes = [
         dict(row)
         for row in conn.execute(

@@ -27,7 +27,11 @@ import {
   unitSourceBadgeText,
 } from "../HereticBuilder/static/builder_roster_unit_editor_view.js";
 import { unitSourceBadgeNode } from "../HereticBuilder/static/builder_roster_unit_badges.js";
-import { renderUnitRow } from "../HereticBuilder/static/builder_roster_unit_rows.js";
+import {
+  copyUnitFromRow,
+  renderUnitRow,
+  rosterWithCopiedUnit,
+} from "../HereticBuilder/static/builder_roster_unit_rows.js";
 import {
   compactNames,
   unitRowSummaryText,
@@ -385,11 +389,11 @@ test("unit rows pluralize model counts", () => {
     createElement: createMockElement,
   };
   state.catalog = {
-    unitImagesByDatasheetId: new Map(),
+    unitImagesByDatasheetId: new Map([["chosen", "chosen__93427578__banner.png"]]),
   };
 
   try {
-    const row = renderUnitRow(
+    const item = renderUnitRow(
       { attachments: [], units: [{ id: "unit-1", datasheetId: "chosen" }] },
       { datasheetId: "chosen", id: "unit-1", modelCount: 1, name: "Chosen", points: 80 },
       { messages: [] },
@@ -397,12 +401,28 @@ test("unit rows pluralize model counts", () => {
       () => {}
     );
 
+    const row = item.children[0];
+    const menu = item.children[1];
+    const text = row.children[0];
     assert.ok(row.textContent.includes("1 model"));
-    assert.ok(row.children[0].children.some((child) => child.className === "meta-badge" && child.textContent === "80 pts"));
-    assert.equal(row.children[1].children.length, 1);
-    assert.equal(row.children[1].children[0].className, "remove-button");
-    assert.equal(row.children[0].title, "Open unit: Chosen, 1 model, 80 pts");
-    assert.equal(row.children[0].attributes.get("aria-label"), "Open unit: Chosen, 1 model, 80 pts");
+    assert.equal(item.className, "unit-list-item editor-row");
+    assert.equal(row.className, "builder-row unit-editor-row");
+    assert.equal(item.classList.contains("has-background-art"), true);
+    assert.equal(item.classList.contains("has-unit-image"), true);
+    assert.equal(item.attributes.get("style"), '--background-art: url("/assets/unit-images/chosen__93427578__banner.png")');
+    const meta = text.children[0];
+    assert.equal(meta.className, "unit-row-top");
+    assert.ok(meta.children.some((child) => child.className === "meta-badge" && child.textContent === "80 pts"));
+    assert.equal(text.children[1].className, "unit-row-name");
+    assert.equal(text.children[1].textContent, "Chosen");
+    assert.equal(menu.className, "roster-actions-menu unit-actions-menu");
+    assert.equal(menu.children[0].className, "roster-actions-trigger unit-actions-trigger");
+    assert.deepEqual(
+      menu.children[1].children.map((child) => child.textContent),
+      ["Copy", "Delete"]
+    );
+    assert.equal(text.title, "Open unit: Chosen, 1 model, 80 pts");
+    assert.equal(text.attributes.get("aria-label"), "Open unit: Chosen, 1 model, 80 pts");
     assert.equal(row.textContent.includes("1 models"), false);
   } finally {
     state.catalog = previousCatalog;
@@ -500,7 +520,7 @@ test("unit rows render compact upgrade summary when present", () => {
   };
 
   try {
-    const row = renderUnitRow(
+    const item = renderUnitRow(
       { attachments: [], units: [{ id: "unit-1", datasheetId: "chosen" }] },
       {
         allegianceAbilities: [{ name: "Mark of Chaos" }],
@@ -519,13 +539,203 @@ test("unit rows render compact upgrade summary when present", () => {
       () => {},
       () => {}
     );
+    const row = item.children[0];
+    const text = row.children[0];
 
     assert.ok(row.textContent.includes("Enhancements: Daemon Weapon / Abilities: Mark of Chaos"));
-    assert.equal(row.children[0].children[3].className, "unit-row-summary");
+    assert.equal(text.children[0].children[2].className, "unit-row-summary");
     assert.equal(
-      row.children[0].attributes.get("aria-label"),
+      text.attributes.get("aria-label"),
       "Open unit: Chosen, 1 model, 80 pts, Enhancements: Daemon Weapon / Abilities: Mark of Chaos"
     );
+  } finally {
+    state.catalog = previousCatalog;
+    global.document = previousDocument;
+  }
+});
+
+test("unit row actions expose datasheet links when the codex route is known", () => {
+  const previousDocument = global.document;
+  const previousCatalog = state.catalog;
+  global.document = {
+    createElement: createMockElement,
+  };
+  state.catalog = realCatalog;
+  const faction = factionNamed("Heretic Astartes");
+  const datasheet = realCatalog.datasheets.find((row) => row.name === "Abaddon the Despoiler");
+  assert.ok(datasheet, "expected Abaddon test datasheet");
+
+  try {
+    const item = renderUnitRow(
+      {
+        attachments: [],
+        detachmentIds: [],
+        factionKeywordId: faction.id,
+        units: [{ id: "unit-1", datasheetId: datasheet.id }],
+      },
+      { datasheetId: datasheet.id, id: "unit-1", modelCount: 1, name: datasheet.name, points: 285 },
+      { messages: [] },
+      () => {},
+      () => {}
+    );
+
+    const panel = item.children[1].children[1];
+    assert.equal(panel.children[0].textContent, "Open Datasheet");
+    assert.equal(panel.children[0].className, "roster-action-button unit-action-button");
+    assert.equal(panel.children[0].href, "/codex/faction/heretic-astartes/datasheet/abaddon-the-despoiler/");
+    assert.deepEqual(panel.children.map((child) => child.textContent), ["Open Datasheet", "Copy", "Delete"]);
+  } finally {
+    state.catalog = previousCatalog;
+    global.document = previousDocument;
+  }
+});
+
+test("copied unit gets a new id and keeps selections on the copied miniatures", () => {
+  const roster = {
+    attachments: [],
+    units: [{
+      id: "unit-1",
+      datasheetId: "chosen",
+      miniatureEnhancements: [{ enhancementId: "relic", targetId: "unit-1:champion:0" }],
+      miniatures: [{
+        id: "unit-1:champion:0",
+        isWarlord: true,
+        miniatureId: "champion",
+        rosterUnitMiniatureId: "unit-1:champion:0",
+      }],
+      wargear: [{ optionId: "plasma", rosterUnitMiniatureId: "unit-1:champion:0" }],
+      warlordMiniatureIds: ["unit-1:champion:0"],
+    }],
+  };
+
+  const nextRoster = rosterWithCopiedUnit(roster, { id: "unit-1", name: "Chosen" }, "unit-2");
+  const copied = nextRoster.units[1];
+
+  assert.equal(nextRoster.units.length, 2);
+  assert.equal(copied.id, "unit-2");
+  assert.equal(copied.datasheetId, "chosen");
+  assert.equal(copied.miniatures[0].id, "unit-2:champion:0");
+  assert.equal(copied.miniatures[0].isWarlord, false);
+  assert.equal(copied.miniatures[0].rosterUnitMiniatureId, "unit-2:champion:0");
+  assert.equal(copied.wargear[0].rosterUnitMiniatureId, "unit-2:champion:0");
+  assert.equal(copied.miniatureEnhancements[0].targetId, "unit-2:champion:0");
+  assert.deepEqual(copied.warlordMiniatureIds, []);
+  assert.equal(roster.units[0].miniatures[0].isWarlord, true);
+});
+
+test("copied unit can resolve legacy idless summaries by roster index", () => {
+  const roster = {
+    attachments: [],
+    units: [
+      { datasheetId: "cultists" },
+      {
+        datasheetId: "chosen",
+        miniatures: [{ miniatureId: "champion", rosterUnitMiniatureId: "old-target" }],
+        wargear: [{ optionId: "plasma", rosterUnitMiniatureId: "old-target" }],
+      },
+    ],
+  };
+
+  const nextRoster = rosterWithCopiedUnit(roster, { name: "Chosen", rosterUnitIndex: 1 }, "unit-2");
+
+  assert.equal(nextRoster.units.length, 3);
+  assert.equal(nextRoster.units[2].id, "unit-2");
+  assert.equal(nextRoster.units[2].datasheetId, "chosen");
+  assert.equal(nextRoster.units[2].wargear[0].rosterUnitMiniatureId, "unit-2:champion:0");
+});
+
+test("copied unit preserves object wargear maps used by the current editor", () => {
+  const roster = {
+    attachments: [],
+    units: [{
+      id: "unit-1",
+      datasheetId: "chosen",
+      miniatures: [{
+        id: "old-model",
+        miniatureId: "champion",
+        wargear: { "model-option": 1 },
+      }],
+      wargear: { "unit-option": 2 },
+    }],
+  };
+
+  const nextRoster = rosterWithCopiedUnit(roster, { id: "unit-1", name: "Chosen" }, "unit-2");
+  const copied = nextRoster.units[1];
+
+  assert.deepEqual(copied.wargear, { "unit-option": 2 });
+  assert.notEqual(copied.wargear, roster.units[0].wargear);
+  assert.deepEqual(copied.miniatures[0].wargear, { "model-option": 1 });
+  assert.notEqual(copied.miniatures[0].wargear, roster.units[0].miniatures[0].wargear);
+});
+
+test("unit row copy can delegate to an undo-aware handler", async () => {
+  const roster = {
+    attachments: [],
+    units: [
+      { id: "unit-1", datasheetId: "chosen" },
+    ],
+  };
+  const summary = { id: "unit-1", name: "Chosen" };
+  let fallbackCalled = false;
+  let copyEvent = null;
+
+  await copyUnitFromRow(
+    roster,
+    summary,
+    () => "unit-2",
+    () => {
+      fallbackCalled = true;
+    },
+    (event) => {
+      copyEvent = event;
+    }
+  );
+
+  assert.equal(fallbackCalled, false);
+  assert.equal(copyEvent.message, "Chosen copied");
+  assert.equal(copyEvent.previousRoster, roster);
+  assert.deepEqual(copyEvent.nextRoster.units.map((unit) => unit.id), ["unit-1", "unit-2"]);
+});
+
+test("unit row Copy action invokes the rendered menu handler", async () => {
+  const previousDocument = global.document;
+  const previousCatalog = state.catalog;
+  global.document = {
+    createElement: createMockElement,
+  };
+  state.catalog = {
+    unitImagesByDatasheetId: new Map(),
+  };
+  const roster = {
+    attachments: [],
+    units: [
+      { id: "unit-1", datasheetId: "chosen" },
+    ],
+  };
+  let copyEvent = null;
+
+  try {
+    const item = renderUnitRow(
+      roster,
+      { datasheetId: "chosen", id: "unit-1", modelCount: 1, name: "Chosen", points: 80 },
+      { messages: [] },
+      () => assert.fail("copy should use undo-aware update"),
+      () => {},
+      (event) => {
+        copyEvent = event;
+      },
+      () => "unit-2"
+    );
+    const panel = item.children[1].children[1];
+    const copyButton = panel.children.find((child) => child.textContent === "Copy");
+    assert.ok(copyButton, "expected rendered Copy action");
+
+    await copyButton.listeners.get("click")({
+      stopPropagation() {},
+    });
+
+    assert.equal(copyEvent.message, "Chosen copied");
+    assert.deepEqual(copyEvent.nextRoster.units.map((unit) => unit.id), ["unit-1", "unit-2"]);
   } finally {
     state.catalog = previousCatalog;
     global.document = previousDocument;

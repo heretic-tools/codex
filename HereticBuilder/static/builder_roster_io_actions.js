@@ -9,6 +9,10 @@ import { duplicateRosterDocument } from "./builder_roster_clone.js";
 import { newRosterDocument } from "./builder_roster_create_model.js";
 import { state } from "./builder_state.js";
 import { newId, removeRoster, saveRoster } from "./builder_storage.js";
+import {
+  captureBuilderScrollPosition,
+  restoreBuilderScrollPosition,
+} from "./builder_scroll_preservation.js";
 export {
   exportRoster,
   exportRosterText,
@@ -81,7 +85,9 @@ async function updateRoster(roster, render) {
   const { validateRoster } = await loadValidationRules();
   await saveRoster(rosterWithFreshListCache(roster, validateRoster(roster)));
   await refreshRosters();
+  const scrollSnapshot = captureBuilderScrollPosition();
   await render();
+  restoreBuilderScrollPosition(scrollSnapshot);
 }
 
 export {

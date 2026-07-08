@@ -134,6 +134,9 @@ def copy_builder_assets(out_dir, asset_version):
     unit_images_dir = source_assets / "unit-images"
     for path in sorted(unit_images_dir.glob("*.png")):
         copy_file(path, out_dir / "assets" / "unit-images" / path.name)
+    faction_images_dir = source_assets / "faction-images"
+    for path in sorted(faction_images_dir.glob("*.png")):
+        copy_file(path, out_dir / "assets" / "faction-images" / path.name)
     for filename in BUILDER_ICON_FILES:
         copy_file(source_assets / "icons" / filename, out_dir / "assets" / "icons" / filename)
     (out_dir / ".nojekyll").write_text("", encoding="utf-8")

@@ -1,7 +1,7 @@
 import { clear } from "./builder_dom.js";
 import { renderCreate, renderList } from "./builder_route_basic_renderers.js";
 import { renderNotFound, renderRoster, renderUnit } from "./builder_route_roster_renderers.js";
-import { el, renderStartupError } from "./builder_shell.js";
+import { clearPageHero, el, renderStartupError } from "./builder_shell.js";
 import { state } from "./builder_state.js";
 import { ensureCatalog, routeNeedsFullCatalog } from "./builder_catalog_runtime.js";
 
@@ -18,6 +18,7 @@ async function setRoute(route) {
 }
 
 async function render() {
+  clearPageHero();
   clear(el.root);
   if (state.route.name === "create") {
     await renderCreate();

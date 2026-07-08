@@ -93,7 +93,7 @@ function renderUnitEditor({ newId, onUndoableUpdate = null, onUpdate, onUnitOpen
     for (const group of unitSummaryGroups(summaries)) {
       list.appendChild(unitGroupHeading(group));
       for (const summary of group.rows) {
-        list.appendChild(renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndoableUpdate));
+        list.appendChild(renderUnitRow(roster, summary, validation, onUpdate, onUnitOpen, onUndoableUpdate, newId));
       }
     }
   } else {

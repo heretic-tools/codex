@@ -855,9 +855,10 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.ok(existsSync(join(outDir, "assets", "icons", "builder-512.png")));
     assert.ok(existsSync(join(outDir, "assets", "icons", "boosty.png")));
     assert.ok(existsSync(join(outDir, "assets", "unit-images")));
+    assert.ok(existsSync(join(outDir, "assets", "faction-images")));
     assert.equal(existsSync(join(outDir, "static", "home.js")), false);
-    assert.equal(existsSync(join(outDir, "assets", "faction-images")), false);
     assert.equal(existsSync(join(outDir, "assets", "unit-images", "manifest.csv")), false);
+    assert.equal(existsSync(join(outDir, "assets", "faction-images", "manifest.csv")), false);
 
     const builderSource = readFileSync(join(outDir, "static", "builder.js"), "utf8");
     assert.match(builderSource, new RegExp(`\\.\\/builder_catalog\\.js\\?v=${version}`));
@@ -928,6 +929,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
     assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_roster_io_actions\\.js\\?v=${version}`));
     assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_roster_runtime\\.js\\?v=${version}`));
     assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_roster_update_with_undo\\.js\\?v=${version}`));
+    assert.match(routeRosterDetailRendererSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
 
     const routeUnitDetailRendererSource = readFileSync(join(outDir, "static", "builder_route_unit_detail_renderer.js"), "utf8");
     assert.match(routeUnitDetailRendererSource, new RegExp(`\\.\\/builder_module_loaders\\.js\\?v=${version}`));
@@ -1048,6 +1050,7 @@ test("standalone Builder build cache-busts HTML and local module imports", () =>
 
     const listRowsSource = readFileSync(join(outDir, "static", "builder_roster_list_rows.js"), "utf8");
     assert.match(listRowsSource, new RegExp(`\\.\\/builder_dom\\.js\\?v=${version}`));
+    assert.match(listRowsSource, new RegExp(`\\.\\/builder_unit_images\\.js\\?v=${version}`));
 
     const actionsSource = readFileSync(join(outDir, "static", "builder_roster_actions.js"), "utf8");
     assert.match(actionsSource, new RegExp(`\\.\\/builder_roster_attachment_actions\\.js\\?v=${version}`));

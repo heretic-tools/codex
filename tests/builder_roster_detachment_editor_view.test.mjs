@@ -230,7 +230,7 @@ test("detachment rows label their Codex links", () => {
 
     assert.equal(detachmentOpenLabel({ factionKeywordId: faction.id }, detachment), expectedLabel);
     assert.equal(link.tagName, "a");
-    assert.equal(link.href, "/faction/heretic-astartes/detachment/pactbound-zealots/");
+    assert.equal(link.href, "/codex/faction/heretic-astartes/detachment/pactbound-zealots/");
     assert.equal(link.title, expectedLabel);
     assert.equal(link.attributes.get("aria-label"), expectedLabel);
     assert.ok(link.children.some((child) => child.className === "meta-badge" && child.textContent === `${costForDetachment(detachment.id, faction.id)} DP`));

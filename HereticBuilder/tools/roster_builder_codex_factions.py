@@ -311,9 +311,9 @@ def render_datasheet_item(datasheet, faction, datasheet_slug):
     href = datasheet_href(faction, datasheet, datasheet_slug)
     if not image:
         return render_list_item(datasheet["name"], "", href=href, badge_html=badge_html)
+    style_attr = f' style="--background-art: url(\'{unit_image_url(image)}\');"'
     return (
-        f'<a class="list-item datasheet-tile has-unit-image" href="{escape_attr(href)}">'
-        f'<span class="unit-art-frame" aria-hidden="true"><img class="unit-art" src="{unit_image_url(image)}" alt=""></span>'
+        f'<a class="list-item datasheet-tile has-unit-image" href="{escape_attr(href)}"{style_attr}>'
         '<span class="datasheet-tile-text">'
         f'<span class="list-item-title">{escape_html(datasheet["name"])}</span>'
         f'{badge_html}'

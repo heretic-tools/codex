@@ -10,7 +10,7 @@ import {
 import { attachmentTitleNode, renderAttachmentMember } from "./builder_roster_attachment_member_view.js";
 import { removeButton } from "./builder_roster_editor_dom.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
-import { unitImageNode } from "./builder_unit_images.js";
+import { applyUnitBackgroundArt } from "./builder_unit_images.js";
 
 function removeAttachmentFromRow(roster, attachment, members, index, onUpdate, onUndoableUpdate = null) {
   return applyRosterUpdate({
@@ -48,9 +48,8 @@ function renderAttachmentRow(
   const text = document.createElement("span");
   text.className = "row-text";
   const bodyguard = members.find((member) => member.attachmentType === "bodyguard");
-  const image = bodyguard ? unitImageNode(bodyguard.unit.datasheetId, "attachment-title-art-frame") : null;
-  if (image) {
-    text.appendChild(image);
+  if (bodyguard) {
+    applyUnitBackgroundArt(row, bodyguard.unit.datasheetId);
   }
   text.append(attachmentTitleNode(members, index, onUnitOpen));
   for (const member of members) {

@@ -9,6 +9,7 @@ import {
 import { updateRoster } from "./builder_roster_io_actions.js";
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
 import { updateRosterWithUndo } from "./builder_roster_update_with_undo.js";
+import { applyUnitBackgroundArt } from "./builder_unit_images.js";
 
 async function renderUnit(render) {
   const roster = currentRoster();
@@ -40,6 +41,7 @@ async function renderUnit(render) {
   const validation = validateRoster(roster);
   await saveRosterCacheIfStale(roster, validation);
   setPageTitle(unitDisplayName(roster, unit));
+  applyUnitBackgroundArt(el.header, unit.datasheetId, "has-unit-image");
   renderBreadcrumbs(rosterBreadcrumbs(roster));
   el.root.appendChild(renderRosterUnitDetailView({
     focusTarget: state.route.focusTarget || "",

@@ -100,4 +100,15 @@ test("roster detail title can use faction-derived fallback names", () => {
 
   assert.ok(source.includes("const summary = rosterSummary(roster);"));
   assert.ok(source.includes("setPageTitle(rosterDisplayName(roster, summary));"));
+  assert.ok(source.includes('applyFactionBackgroundArt(el.header, summary?.factionImageFilename || roster.factionKeywordId, "has-roster-hero")'));
+});
+
+test("builder route renderer clears page hero state before rendering the next route", () => {
+  const source = readFileSync(
+    join(projectRoot, "HereticBuilder", "static", "builder_route_renderers.js"),
+    "utf8"
+  );
+
+  assert.ok(source.includes("clearPageHero();"));
+  assert.ok(source.includes('import { clearPageHero, el, renderStartupError } from "./builder_shell.js";'));
 });

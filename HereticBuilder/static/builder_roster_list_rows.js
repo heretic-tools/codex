@@ -1,6 +1,7 @@
 import { button, textNode } from "./builder_dom.js";
 import { dispositionSlug } from "./builder_roster_editor_dom.js";
 import { rosterDisplayName } from "./builder_roster_name_actions.js";
+import { applyFactionBackgroundArt } from "./builder_unit_images.js";
 
 let activeRosterActionsClose = null;
 let activeRosterActionsMenu = null;
@@ -253,6 +254,7 @@ function rosterListItem(roster, onOpen, summarizeRoster, actions = {}) {
   const node = document.createElement("div");
   node.className = "roster-list-item";
   const summary = summarizeRoster(roster);
+  applyFactionBackgroundArt(node, summary.factionImageFilename || roster.factionKeywordId);
   node.appendChild(rosterLine(roster, onOpen, summarizeRoster, summary));
   const menu = rosterActionsMenu(roster, actions, summary);
   if (menu) {

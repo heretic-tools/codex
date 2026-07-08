@@ -10,11 +10,11 @@ function staticSource(filename) {
   return readFileSync(join(projectRoot, "HereticBuilder", "static", filename), "utf8");
 }
 
-test("Codex info and detachment rule cards collapse on mobile as progressive enhancement", () => {
+test("Codex detachment rule cards collapse on mobile without collapsing datasheets", () => {
   const source = staticSource("codex.js");
 
   assert.ok(source.includes("setupMobileCodexCollapsibleCards"));
-  assert.ok(source.includes(".unit-detail-page .unit-rules-grid > .unit-info-card"));
+  assert.doesNotMatch(source, /unit-detail-page \\.unit-rules-grid/);
   assert.ok(source.includes(".detachment-detail-page article.codex-content > .rule-card"));
   assert.ok(source.includes(".detachment-detail-page .detachment-card-grid > .detachment-feature-card"));
   assert.ok(source.includes(".detachment-detail-page .faq-section > .rule-card"));
@@ -31,6 +31,7 @@ test("Codex info and detachment rule cards collapse on mobile as progressive enh
   assert.ok(source.includes('button.setAttribute("aria-expanded"'));
   assert.ok(source.includes("button.title = label"));
   assert.ok(source.includes('body.hidden = collapsed'));
+  assert.ok(source.includes("setCodexCollapsibleCardCollapsed(card, true)"));
   assert.ok(source.includes("media.addListener?.(applyMode)"));
 });
 

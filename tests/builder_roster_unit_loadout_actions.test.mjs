@@ -573,7 +573,7 @@ test("unit overview links to the Codex datasheet", () => {
     assert.equal(links.length, 1);
     assert.equal(links[0].className, "plain-button");
     assert.equal(links[0].textContent, "Codex");
-    assert.match(links[0].href, /^\/faction\/heretic-astartes\/datasheet\//);
+    assert.match(links[0].href, /^\/codex\/faction\/heretic-astartes\/datasheet\//);
     assert.equal(links[0].title, `Open Codex datasheet: ${unit.name}`);
     assert.equal(links[0].attributes.get("aria-label"), `Open Codex datasheet: ${unit.name}`);
   } finally {

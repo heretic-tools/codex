@@ -198,7 +198,6 @@
   }
 
   const collapsibleCardSelectors = [
-    ".unit-detail-page .unit-rules-grid > .unit-info-card",
     ".detachment-detail-page article.codex-content > .rule-card",
     ".detachment-detail-page .detachment-card-grid > .detachment-detail-card:not(.detachment-summary-card)",
     ".detachment-detail-page .detachment-card-grid > .detachment-feature-card",

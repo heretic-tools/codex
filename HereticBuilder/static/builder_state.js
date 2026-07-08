@@ -10,7 +10,11 @@ function normalizeBasePath(value) {
   return path && path !== "/" ? `/${path.replace(/^\/+/, "")}` : "";
 }
 
-const basePath = normalizeBasePath(document.querySelector('meta[name="heretic-base-path"]')?.content || "");
+const basePath = normalizeBasePath(
+  typeof document === "undefined"
+    ? ""
+    : document.querySelector('meta[name="heretic-base-path"]')?.content || ""
+);
 
 export function siteHref(path) {
   if (!path || !path.startsWith("/") || path.startsWith("//")) {

@@ -4,7 +4,20 @@ import test from "node:test";
 function mockNode() {
   const node = {
     children: [],
+    className: "",
     textContent: "",
+    style: {
+      values: new Map(),
+      getPropertyValue(name) {
+        return this.values.get(name) || "";
+      },
+      removeProperty(name) {
+        this.values.delete(name);
+      },
+      setProperty(name, value) {
+        this.values.set(name, value);
+      },
+    },
     get firstChild() {
       return this.children[0] || null;
     },
@@ -19,11 +32,21 @@ function mockNode() {
       return child;
     },
   };
+  node.classList = {
+    remove(...classNames) {
+      const remove = new Set(classNames);
+      node.className = String(node.className || "")
+        .split(/\s+/)
+        .filter((className) => className && !remove.has(className))
+        .join(" ");
+    },
+  };
   return node;
 }
 
 const nodes = new Map([
   ["builder-breadcrumbs", mockNode()],
+  ["builder-app-header", mockNode()],
   ["builder-root", mockNode()],
   ["data-status", mockNode()],
   ["builder-page-title", mockNode()],
@@ -41,6 +64,7 @@ global.document = {
 };
 
 const {
+  clearPageHero,
   documentTitleFor,
   renderStartupError,
   setPageTitle,
@@ -71,9 +95,21 @@ test("setting a builder page title updates header and browser title together", (
 test("startup errors set explicit Builder error title and status", () => {
   renderStartupError(new Error("Catalog failed"));
 
+  assert.equal(nodes.get("builder-app-header").className.includes("has-background-art"), false);
   assert.equal(nodes.get("builder-page-title").textContent, "Builder Error");
   assert.equal(document.title, "Builder Error | Heretic Builder");
   assert.equal(nodes.get("data-status").textContent, "Error");
   assert.equal(nodes.get("builder-root").children[0].className, "validation-item error");
   assert.equal(nodes.get("builder-root").children[0].textContent, "Catalog failed");
+});
+
+test("builder shell clears roster hero art from the shared app header", () => {
+  const header = nodes.get("builder-app-header");
+  header.className = "app-header builder-app-header has-background-art has-roster-hero persistent-class";
+  header.style.setProperty("--background-art", 'url("/assets/faction-images/sample.png")');
+
+  clearPageHero();
+
+  assert.equal(header.className, "app-header builder-app-header persistent-class");
+  assert.equal(header.style.getPropertyValue("--background-art"), "");
 });

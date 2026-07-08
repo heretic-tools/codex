@@ -152,6 +152,7 @@ test("roster row open label names the row action", () => {
       battleSizeName: "Strike Force",
       detachmentBadges: [{ name: "Pactbound Zealots" }],
       detachmentCount: 1,
+      factionImageFilename: "heretic-astartes__d4162ab7__roster-header.png",
       factionName: "Heretic Astartes",
       pointsLimit: 2000,
       pointsTotal: 285,
@@ -177,6 +178,7 @@ test("roster row renders polished validation and points labels", () => {
       battleSizeName: "Strike Force",
       detachmentBadges: [{ disposition: "Take and Hold", name: "Veterans" }],
       detachmentCount: 1,
+      factionImageFilename: "heretic-astartes__d4162ab7__roster-header.png",
       factionName: "Heretic Astartes",
       pointsLimit: 2000,
       pointsTotal: 285,
@@ -185,6 +187,7 @@ test("roster row renders polished validation and points labels", () => {
     }));
 
     assert.equal(row.className, "builder-row roster-row");
+    assert.equal(row.attributes.get("style"), undefined);
     assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, Detachments: Veterans, 1 detachment, 2 units, Updated 2026-07-05, ID ABCDEF12");
     assert.equal(row.attributes.get("aria-label"), row.title);
     assert.ok(row.textContent.includes("Black Crusade"));
@@ -234,6 +237,7 @@ test("roster list item keeps quick actions outside the open-row button", async (
         battleSizeName: "Strike Force",
         detachmentBadges: [],
         detachmentCount: 0,
+        factionImageFilename: "heretic-astartes__d4162ab7__roster-header.png",
         factionName: "Heretic Astartes",
         pointsLimit: 2000,
         pointsTotal: 0,
@@ -249,7 +253,11 @@ test("roster list item keeps quick actions outside the open-row button", async (
       }
     );
 
-    assert.equal(item.className, "roster-list-item");
+    assert.equal(item.className, "roster-list-item has-background-art has-faction-image");
+    assert.equal(
+      item.attributes.get("style"),
+      '--background-art: url("/assets/faction-images/heretic-astartes__d4162ab7__roster-header.png")'
+    );
     assert.equal(item.children[0].className, "builder-row roster-row");
     assert.equal(item.children[0].tagName, "button");
     assert.equal(item.children[1].className, "roster-actions-menu");

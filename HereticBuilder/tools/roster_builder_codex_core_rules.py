@@ -160,6 +160,7 @@ def render_core_rules_rules_page(heretic_builder):
         content_html=content_html,
         back_href="/codex/core-rules",
         back_label="Back to Core Rules",
+        hero_image=CORE_RULES_IMAGE,
     )
 
 def render_core_rules_section_page(heretic_builder, section_code):
@@ -202,6 +203,7 @@ def render_core_rules_section_page(heretic_builder, section_code):
         content_html=content_html,
         back_href="/codex/core-rules/rules",
         back_label="Back to Core Rules",
+        hero_image=CORE_RULES_IMAGE,
     )
 
 def render_core_stratagems_page(heretic_builder):
@@ -216,6 +218,7 @@ def render_core_stratagems_page(heretic_builder):
         content_html=content_html,
         back_href="/codex/core-rules",
         back_label="Back to Core Rules",
+        hero_image=CORE_RULES_IMAGE,
     )
 
 def render_core_faq_page(heretic_builder):
@@ -229,6 +232,7 @@ def render_core_faq_page(heretic_builder):
         content_html=content_html,
         back_href="/codex/core-rules",
         back_label="Back to Core Rules",
+        hero_image=CORE_RULES_IMAGE,
     )
 
 def core_rule_by_reference(heretic_builder, reference):
@@ -372,4 +376,5 @@ def render_core_rule_page(heretic_builder, reference):
         back_href=section_href,
         back_label=f'Back to {rule["sectionName"]}',
         breadcrumb_items=breadcrumb_items,
+        hero_image=CORE_RULES_IMAGE,
     )

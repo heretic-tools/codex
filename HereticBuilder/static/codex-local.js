@@ -2,12 +2,57 @@
   const FAVORITES_KEY = "hereticCodexFavorites";
   const RECENTS_KEY = "hereticCodexRecent";
   const MAX_ITEMS = 8;
+  const CORE_RULES_IMAGE_URL = "/assets/faction-images/core-rules__4cdf7a87__roster-header.png";
   const SKIPPED_PAGE_CLASSES = new Set(["codex-root-page", "faction-list-page"]);
+  const CODEX_ROOT_SEGMENTS = new Set(["chaos", "core-rules", "faction", "imperium", "xenos"]);
+  const basePath = normalizeBasePath(document.querySelector('meta[name="heretic-base-path"]')?.content || "");
+
+  function normalizeBasePath(value) {
+    const path = String(value || "").trim().replace(/\/+$/, "");
+    return path && path !== "/" ? `/${path.replace(/^\/+/, "")}` : "";
+  }
+
+  function stripBasePath(pathname) {
+    if (!basePath) {
+      return pathname || "/";
+    }
+    if (pathname === basePath) {
+      return "/";
+    }
+    if (pathname.startsWith(`${basePath}/`)) {
+      return pathname.slice(basePath.length) || "/";
+    }
+    return pathname || "/";
+  }
+
+  function siteHref(path) {
+    if (!path || !path.startsWith("/") || path.startsWith("//")) {
+      return path;
+    }
+    return `${basePath}${path}`;
+  }
+
+  function canonicalCodexPath(pathname) {
+    const path = stripBasePath(pathname) || "/";
+    if (path === "/codex" || path.startsWith("/codex/")) {
+      return path;
+    }
+    const segment = path.split("/").filter(Boolean)[0] || "";
+    if (CODEX_ROOT_SEGMENTS.has(segment)) {
+      return `/codex${path}`;
+    }
+    return path;
+  }
 
   function readList(key) {
     try {
       const value = JSON.parse(window.localStorage.getItem(key) || "[]");
-      return Array.isArray(value) ? value.filter((item) => item && item.href && item.title) : [];
+      if (!Array.isArray(value)) {
+        return [];
+      }
+      return value
+        .map(normalizedRecord)
+        .filter((item) => item && item.href && item.title);
     } catch (_error) {
       return [];
     }
@@ -25,7 +70,40 @@
     const url = new URL(value || window.location.href, window.location.origin);
     url.searchParams.delete("asset");
     const search = url.searchParams.toString();
-    return `${url.pathname}${search ? `?${search}` : ""}${url.hash}`;
+    return `${canonicalCodexPath(url.pathname)}${search ? `?${search}` : ""}${url.hash}`;
+  }
+
+  function cssUrlValue(value) {
+    const match = String(value || "").match(/url\((["']?)(.*?)\1\)/);
+    return match ? match[2] : "";
+  }
+
+  function normalizedImageUrl(value) {
+    if (!value) {
+      return "";
+    }
+    try {
+      const url = new URL(value, window.location.origin);
+      if (url.origin !== window.location.origin) {
+        return "";
+      }
+      const path = stripBasePath(url.pathname);
+      return path.startsWith("/assets/") ? `${path}${url.search}${url.hash}` : "";
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function normalizedRecord(record) {
+    if (!record || !record.href || !record.title) {
+      return null;
+    }
+    const imageUrl = normalizedImageUrl(record.imageUrl);
+    return {
+      ...record,
+      href: normalizedHref(record.href),
+      ...(imageUrl ? { imageUrl } : {}),
+    };
   }
 
   function pageType(main) {
@@ -50,6 +128,18 @@
     return "Codex";
   }
 
+  function currentPageImage(main) {
+    const header = document.querySelector(".app-header.faction-hero-title");
+    const imageUrl = normalizedImageUrl(cssUrlValue(header?.style?.getPropertyValue("--faction-hero-image")));
+    if (!imageUrl) {
+      return {};
+    }
+    return {
+      imageKind: main.classList.contains("unit-detail-page") ? "unit" : "faction",
+      imageUrl,
+    };
+  }
+
   function currentPageRecord() {
     const main = document.querySelector(".codex-page");
     if (!main || [...SKIPPED_PAGE_CLASSES].some((className) => main.classList.contains(className))) {
@@ -61,13 +151,18 @@
       title,
       type: pageType(main),
       visitedAt: Date.now(),
+      ...currentPageImage(main),
     };
   }
 
   function uniqueWithFirst(record, items) {
+    const normalized = normalizedRecord(record);
+    if (!normalized) {
+      return items.slice(0, MAX_ITEMS);
+    }
     return [
-      record,
-      ...items.filter((item) => normalizedHref(item.href) !== record.href),
+      normalized,
+      ...items.filter((item) => normalizedHref(item.href) !== normalized.href),
     ].slice(0, MAX_ITEMS);
   }
 
@@ -95,8 +190,12 @@
     if (!record) {
       return;
     }
-    const items = favorites().filter((item) => normalizedHref(item.href) !== record.href);
-    writeList(FAVORITES_KEY, enabled ? [record, ...items] : items);
+    const normalized = normalizedRecord(record);
+    if (!normalized) {
+      return;
+    }
+    const items = favorites().filter((item) => normalizedHref(item.href) !== normalized.href);
+    writeList(FAVORITES_KEY, enabled ? [normalized, ...items] : items);
   }
 
   function syncFavoriteButton(button, record) {
@@ -128,6 +227,85 @@
     return `Open ${item.type || "Codex"}: ${item.title}`;
   }
 
+  function fallbackLibraryImage(item) {
+    const href = normalizedHref(item.href);
+    if (href === "/codex/core-rules" || href.startsWith("/codex/core-rules/")) {
+      return { imageKind: "faction", imageUrl: CORE_RULES_IMAGE_URL };
+    }
+    return {};
+  }
+
+  function libraryImage(item) {
+    const imageUrl = normalizedImageUrl(item.imageUrl);
+    if (imageUrl) {
+      return { imageKind: item.imageKind || item.type || "Codex", imageUrl };
+    }
+    return fallbackLibraryImage(item);
+  }
+
+  function applyLibraryImage(link, item) {
+    const { imageKind, imageUrl } = libraryImage(item);
+    if (!imageUrl) {
+      return false;
+    }
+    link.classList.add("has-local-image");
+    link.dataset.imageKind = imageKind || item.type || "Codex";
+    link.style.setProperty("--background-art", `url("${siteHref(imageUrl)}")`);
+    return true;
+  }
+
+  function updateStoredImage(href, imageUrl, imageKind) {
+    [FAVORITES_KEY, RECENTS_KEY].forEach((key) => {
+      const items = readList(key);
+      let changed = false;
+      const next = items.map((item) => {
+        if (normalizedHref(item.href) !== normalizedHref(href)) {
+          return item;
+        }
+        changed = true;
+        return {
+          ...item,
+          imageKind: imageKind || item.imageKind,
+          imageUrl,
+        };
+      });
+      if (changed) {
+        writeList(key, next);
+      }
+    });
+  }
+
+  async function hydrateLibraryImage(link, item) {
+    const image = libraryImage(item);
+    if (image.imageUrl) {
+      applyLibraryImage(link, item);
+      if (!normalizedImageUrl(item.imageUrl)) {
+        updateStoredImage(item.href, image.imageUrl, image.imageKind);
+      }
+      return;
+    }
+    if (typeof window.fetch !== "function") {
+      return;
+    }
+    try {
+      const response = await window.fetch(siteHref(normalizedHref(item.href)), { cache: "force-cache" });
+      if (!response.ok) {
+        return;
+      }
+      const html = await response.text();
+      const match = html.match(/--faction-hero-image:\s*url\((["']?)(.*?)\1\)/);
+      const imageUrl = normalizedImageUrl(match?.[2]);
+      if (!imageUrl) {
+        return;
+      }
+      const imageKind = item.type === "Datasheet" ? "unit" : "faction";
+      applyLibraryImage(link, { ...item, imageKind, imageUrl });
+      updateStoredImage(item.href, imageUrl, imageKind);
+    } catch (_error) {
+      // Missing thumbnails must never block the local library links.
+    }
+  }
+
   function renderList(root, title, items, emptyText) {
     const section = document.createElement("section");
     section.className = "local-library-section";
@@ -140,7 +318,7 @@
       items.forEach((item) => {
         const link = document.createElement("a");
         link.className = "local-library-link";
-        link.href = item.href;
+        link.href = siteHref(normalizedHref(item.href));
         const label = localLibraryLinkLabel(item);
         link.setAttribute("aria-label", label);
         link.title = label;
@@ -151,6 +329,7 @@
         meta.className = "local-library-link-meta";
         meta.textContent = item.type || "Codex";
         link.append(name, meta);
+        hydrateLibraryImage(link, item);
         list.append(link);
       });
     } else {

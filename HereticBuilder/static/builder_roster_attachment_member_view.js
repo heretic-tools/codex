@@ -5,7 +5,7 @@ import { attachmentTitle } from "./builder_roster_attachment_row_model.js";
 import { removeButton } from "./builder_roster_editor_dom.js";
 import { labelControl } from "./builder_roster_control_labels.js";
 import { applyRosterUpdate } from "./builder_roster_undoable_update.js";
-import { unitImageNode } from "./builder_unit_images.js";
+import { applyUnitBackgroundArt } from "./builder_unit_images.js";
 import { unitOpenLabel } from "./builder_unit_open_labels.js";
 
 function removeAttachmentMemberFromRow(roster, attachment, member, unit, onUpdate, onUndoableUpdate = null) {
@@ -32,10 +32,7 @@ function renderAttachmentMember(
   const unitName = onUnitOpen
     ? labelControl(button("attachment-unit-link", unit.name || "Unit", () => onUnitOpen(unit)), unitOpenLabel(unit))
     : textNode("span", "", unit.name || "Unit");
-  const image = unitImageNode(unit.datasheetId, "attachment-unit-art-frame");
-  if (image) {
-    node.appendChild(image);
-  }
+  applyUnitBackgroundArt(node, unit.datasheetId);
   node.append(
     textNode("span", member.attachmentType === "bodyguard" ? "meta-badge" : "", attachmentTypeLabel(member.attachmentType)),
     unitName,

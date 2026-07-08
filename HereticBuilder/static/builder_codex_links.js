@@ -27,7 +27,7 @@ function scopedSlugMap(rows, nameKey = "name", idKey = "id") {
 function factionCodexHref(factionKeywordId) {
   const faction = state.catalog.factionKeywordById.get(factionKeywordId)
     || state.catalog.factionById.get(factionKeywordId);
-  return faction ? `/faction/${slugifyName(faction.name)}/` : "";
+  return faction ? `/codex/faction/${slugifyName(faction.name)}/` : "";
 }
 
 function detachmentCodexHref(factionKeywordId, detachmentId) {

@@ -32,6 +32,7 @@ function lightweightRosterSummary(roster) {
     battleSizeName: battleSize?.name || "Unknown Battle Size",
     detachmentBadges: rosterDetachmentBadges(roster),
     detachmentCount: (roster.detachmentIds || []).length,
+    factionImageFilename: faction?.factionImageFilename || "",
     factionName: faction?.name || "Unknown Faction",
     pointsLimit: battleSize?.pointsLimit || 0,
     pointsTotal: rosterCachedPointsTotal(roster),

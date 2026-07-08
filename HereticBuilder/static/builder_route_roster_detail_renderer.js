@@ -15,6 +15,7 @@ import {
 import { renderNotFound } from "./builder_route_not_found_renderer.js";
 import { rosterDisplayName } from "./builder_roster_name_actions.js";
 import { updateRosterWithUndo } from "./builder_roster_update_with_undo.js";
+import { applyFactionBackgroundArt } from "./builder_unit_images.js";
 
 async function renderRoster(render) {
   const roster = currentRoster();
@@ -38,6 +39,7 @@ async function renderRoster(render) {
   const summary = rosterSummary(roster);
   await saveRosterCacheIfStale(roster, validation);
   setPageTitle(rosterDisplayName(roster, summary));
+  applyFactionBackgroundArt(el.header, summary?.factionImageFilename || roster.factionKeywordId, "has-roster-hero");
   renderBreadcrumbs(builderBreadcrumbs());
   el.root.appendChild(renderRosterDetailView({
     focusTarget: state.route.focusTarget || "",
