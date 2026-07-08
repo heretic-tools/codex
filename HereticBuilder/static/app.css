@@ -411,7 +411,7 @@ h1 {
 
 .local-library-link,
 .local-library-empty {
-  min-height: 42px;
+  min-height: 44px;
   display: grid;
   gap: 2px;
   align-content: center;
@@ -421,6 +421,7 @@ h1 {
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   text-decoration: none;
+  touch-action: manipulation;
 }
 
 .local-library-link + .local-library-link,

@@ -164,3 +164,11 @@ test("Codex local library is wired into static templates and build assets", () =
   assert.ok(css.includes(".favorite-toggle.is-favorite"));
   assert.ok(css.includes(".local-library-empty"));
 });
+
+test("Codex local library links keep mobile touch targets", () => {
+  const css = readFileSync(join(projectRoot, "HereticBuilder", "static", "app.css"), "utf8");
+  const block = css.match(/\.local-library-link,\n\.local-library-empty \{[^}]+\}/)?.[0] || "";
+
+  assert.ok(block.includes("min-height: 44px;"));
+  assert.ok(block.includes("touch-action: manipulation;"));
+});
