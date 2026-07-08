@@ -79,7 +79,7 @@ function renderEnhancementsEditor({
     .map((id) => state.catalog.detachmentById.get(id))
     .filter(Boolean);
   if (!actionableModels.length) {
-    wrap.appendChild(textNode("p", "empty-list", "No enhancements or upgrades available for selected detachments"));
+    wrap.appendChild(textNode("p", "empty-list", "No selectable enhancements or upgrades for this unit"));
     return wrap;
   }
 

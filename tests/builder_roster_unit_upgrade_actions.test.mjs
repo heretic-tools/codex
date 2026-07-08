@@ -195,6 +195,8 @@ test("unit enhancement editor stays visible for enhancement validation", () => {
     assert.equal(node.dataset.unitDetailTarget, "enhancements");
     assert.match(node.textContent, /Enhancements/);
     assert.match(node.textContent, /Too many enhancements\./);
+    assert.match(node.textContent, /No selectable enhancements or upgrades for this unit/);
+    assert.doesNotMatch(node.textContent, /selected detachments/);
   } finally {
     global.document = previousDocument;
   }

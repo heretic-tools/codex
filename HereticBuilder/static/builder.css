@@ -1939,7 +1939,32 @@
   }
 
   .roster-row .row-meta {
+    grid-column: 1 / -1;
     justify-content: flex-start;
+    gap: 4px;
+  }
+
+  .roster-list-item .roster-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+    padding: 8px 10px;
+  }
+
+  .roster-row .row-text {
+    gap: 3px 6px;
+    row-gap: 3px;
+  }
+
+  .roster-row .row-text strong {
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .roster-row .roster-row-subtitle {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .roster-modified-label {

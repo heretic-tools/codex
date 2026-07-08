@@ -272,7 +272,7 @@ function rosterLine(roster, onOpen, summarizeRoster, precomputedSummary = null) 
   text.className = "row-text";
   text.append(
     textNode("strong", "", rosterDisplayName(roster, summary)),
-    textNode("span", "", `${summary.factionName} / ${summary.battleSizeName}`)
+    textNode("span", "roster-row-subtitle", `${summary.factionName} / ${summary.battleSizeName}`)
   );
   appendDetachmentBadges(text, summary.detachmentBadges);
   const meta = document.createElement("span");

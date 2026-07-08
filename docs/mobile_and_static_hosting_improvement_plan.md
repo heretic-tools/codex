@@ -323,17 +323,21 @@ Acceptance:
 
 ## Фаза 4 — PWA: manifest, service worker, offline
 
-Проблема: нет `manifest.json` (web app manifest) и service worker — при том что ровно этот сценарий ("собрать список в последний момент в игровом клубе без интернета") уже закрыт прямым аналогом BattleScribe.
+Статус: первый PWA/offline-срез уже реализован как progressive enhancement для
+статического GitHub Pages приложения. Manifest, service worker, offline badge,
+`viewport-fit=cover` и standalone Builder build-контракт закреплены тестами;
+оставшаяся работа — браузерная offline-проверка и донастройка cache strategy
+после стабилизации data chunking/search shard flow.
 
 Deliverables:
 
-1. Добавить `HereticBuilder/static/manifest.webmanifest` (иконки 192×192 и 512×512, включая maskable-вариант, `display: standalone`, `short_name` до ~12 символов), подключить через `<link rel="manifest">` в `templates/builder.html` и `templates/codex.html`.
-2. Добавить `HereticBuilder/static/service-worker.js` с явным `{scope: './'}` при регистрации (обязательно из-за деплоя в подпуть `/builder` или `/codex`, согласно MDN-предупреждению из исследования):
+1. Добавить `HereticBuilder/static/manifest.webmanifest` (иконки 192×192 и 512×512, включая maskable-вариант, `display: standalone`, `short_name` до ~12 символов), подключить через `<link rel="manifest">` в `templates/builder.html` и `templates/codex.html`. **Сделано.**
+2. Добавить `HereticBuilder/static/service-worker.js` с явным `{scope: './'}` при регистрации (обязательно из-за деплоя в подпуть `/builder` или `/codex`, согласно MDN-предупреждению из исследования). **Первый срез сделан:**
    - cache-first для контент-хэшированных чанков данных/поиска и статических assets (`assets/unit-images`, `assets/faction-images`);
    - network-first (с fallback на кэш) для HTML-шелла (`index.html`, `builder.html`), который может меняться между деплоями.
-3. Регистрация service worker — в `builder.js` и `codex.js`, только если `navigator.serviceWorker` доступен; без service worker сайт должен продолжать работать как сейчас (progressive enhancement, не хард-зависимость).
-4. Добавить компактный статус-индикатор "офлайн, синхронизируется при подключении" в Builder — аналог явного офлайн-баннера GameChanger из исследования, а не тихий сбой fetch.
-5. `env(safe-area-inset-bottom)` на нижнем sticky-баре из Фазы 3, `viewport-fit=cover` в `<meta name="viewport">`.
+3. Регистрация service worker — через общий `pwa.js`, только если `navigator.serviceWorker` доступен; без service worker сайт продолжает работать как сейчас (progressive enhancement, не хард-зависимость). **Сделано.**
+4. Добавить компактный статус-индикатор "офлайн, синхронизируется при подключении" в Builder — аналог явного офлайн-баннера GameChanger из исследования, а не тихий сбой fetch. **Первый срез сделан:** header получает `data-offline-status` и `pwa.js` переключает статус по `online/offline`.
+5. `env(safe-area-inset-bottom)` на нижнем sticky-баре из Фазы 3, `viewport-fit=cover` в `<meta name="viewport">`. **Сделано для текущего Builder shell/sticky summary.**
 
 Acceptance:
 
@@ -362,6 +366,7 @@ Deliverables:
 2. Разделение blocking-ошибок и soft-warnings визуально (красный + stop-иконка для реально нелегальных состояний, янтарный + треугольник для "стоит пересмотреть") — Builder уже возвращает `{level, code, text}` для сообщений (см. `docs/builder_roster_validation_fix_plan.md`, раздел "Order of work" п.1), это чисто слой представления над существующим контрактом, без изменения валидаторов. **Частично сделано:** группы validation messages получили визуальные severity-маркеры и aria-label; пустые unit-detail validation секции больше не занимают место, но появляются при первом реальном message.
 3. Удаление юнита/модели — мгновенное действие с undo-toast с ограничением по времени, вместо confirm-диалога на каждое удаление. **Частично сделано:** добавление и удаление юнита/детача/attached unit, удаление участника attached unit и всего ростера сохраняет предыдущий snapshot и показывает Undo; roster-level Warlord picker, смена composition, Reset Wargear, прямое изменение wargear count, Warlord, Allegiance и Enhancement selectors на unit detail тоже откатываются через Undo. Numeric wargear count controls получили мобильные `-/+` степперы с тем же undoable update path. Первый UX-проход по composition-specific controls убрал бесполезное read-only Composition поле у single-composition units, Warlord/Allegiance поля без action и пустую Enhancements секцию, но оставляет соответствующие редакторы видимыми при локальном validation. Non-blocking status toasts теперь можно закрывать вручную через серый dismiss control.
 4. Свайп-жест для удаления юнита из списка ростера на мобильном вьюпорте (в дополнение к, не вместо, обычной кнопке удаления — жест не единственный способ, как рекомендует исследование по доступности). **Сделано для unit row:** touch/pen-свайп влево использует тот же undoable removal, mouse drag игнорируется.
+5. Первый экран Builder должен быстро сканироваться на мобильном. **Частично сделано:** список ростеров скрывает вторичную дату на мобильном, оставляя её в доступной подписи строки, а open-row теперь раскладывает title/meta в одну мобильную колонку рядом с отдельной quick-actions кнопкой, чтобы фракция, статус и очки не сжимали друг друга в соседних grid-колонках.
 
 Acceptance:
 

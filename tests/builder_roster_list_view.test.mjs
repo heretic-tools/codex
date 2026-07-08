@@ -188,6 +188,7 @@ test("roster row renders polished validation and points labels", () => {
     assert.equal(row.title, "Open roster: Black Crusade, Heretic Astartes / Strike Force, Valid, 285 / 2000 points, Detachments: Veterans, 1 detachment, 2 units, Updated 2026-07-05, ID ABCDEF12");
     assert.equal(row.attributes.get("aria-label"), row.title);
     assert.ok(row.textContent.includes("Black Crusade"));
+    assert.equal(row.children[0].children[1].className, "roster-row-subtitle");
     assert.ok(row.textContent.includes("Valid"));
     assert.ok(row.textContent.includes("285 / 2000"));
     assert.ok(row.textContent.includes("1 detachment"));
@@ -455,6 +456,12 @@ test("roster list hides modified date on mobile only", () => {
   const source = readFileSync(join(projectRoot, "HereticBuilder", "static", "builder.css"), "utf8");
   const mobileLayer = source.slice(source.lastIndexOf("@media (max-width: 760px)"));
 
+  assert.ok(mobileLayer.includes(".roster-list-item .roster-row {"));
+  assert.ok(mobileLayer.includes("grid-template-columns: minmax(0, 1fr);"));
+  assert.ok(mobileLayer.includes(".roster-row .row-meta {"));
+  assert.ok(mobileLayer.includes("grid-column: 1 / -1;"));
+  assert.ok(mobileLayer.includes(".roster-row .roster-row-subtitle {"));
+  assert.ok(mobileLayer.includes("text-overflow: ellipsis;"));
   assert.ok(mobileLayer.includes(".roster-modified-label {"));
   assert.ok(mobileLayer.includes("display: none;"));
 });
