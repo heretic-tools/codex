@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      PRODUCTION_CODEX_REF: 64100c7af26748a9bd494125eda20bfc41d58282
+      PRODUCTION_CODEX_REF: b20b7a25e6306f9b8e2f0031db56bc97c478b853
 
     steps:
       - name: Checkout
