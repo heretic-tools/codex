@@ -1279,12 +1279,12 @@ def visible_codex_datasheets_for_faction(heretic_builder, faction_id):
     native_datasheets = [
         datasheet
         for datasheet in codex_datasheets_for_faction(heretic_builder, faction_id)
-        if datasheet.get("points", 0) > 0
+        if (datasheet.get("points") or 0) > 0
     ]
     allied_datasheets = [
         datasheet
         for datasheet in allied_datasheets_for_faction(heretic_builder, faction_id)
-        if datasheet.get("points", 0) > 0
+        if (datasheet.get("points") or 0) > 0
     ]
     return native_datasheets, allied_datasheets
 
